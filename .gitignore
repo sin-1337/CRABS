@@ -1,0 +1,10 @@
+# ignore directories
+node_modules/
+
+# ignore files
+tsconfig.json
+package-lock.json
+rollup.config.mjs
+
+# ignore file types
+*.swp
