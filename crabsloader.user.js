@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name CRABS
 // @namespace https://www.bondageprojects.com/
-// @version 0.0.1
+// @version 0.0.1B2
 // @description Adds /players, shows info about players in the room, also adds /whisper+
 // @author Sin
 // @match https://bondageprojects.elementfx.com/*
@@ -21,6 +21,6 @@
     var script = document.createElement("script");
     script.langauge = "JavaScript";
     script.setAttribute("crossorigin", "anonymous");
-    script.src = `https://sin-1337.github.io/CRABS/bundle.js?${Date.now()}`;
+    script.src = `https://sin-1337.github.io/CRABS/Alpha/bundle.js?${Date.now()}`;
     document.head.appendChild(script);
 })();
