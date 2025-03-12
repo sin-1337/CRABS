@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES6",         // Target ECMAScript version (you can change it based on your needs)
+    "module": "ESNext",      // Rollup works best with ES Modules
+    "moduleResolution": "node",
+    "outDir": "../Live/CRABS",      // Output directory
+    "esModuleInterop": true, // Allows importing non-ES6 modules (like CommonJS)
+    "skipLibCheck": true,    // Skip type checking of declaration files
+    "strict": true           // Enables strict mode (good practice)
+  },
+  "include": ["src/**/*.ts"] // Include your source TypeScript files
+}
