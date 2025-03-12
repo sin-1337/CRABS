@@ -1,0 +1,6 @@
+# ignore directories
+node_modules/
+./package.json
+./tsconfig.json
+./package-lock.json
+./rollup.config.mjs
