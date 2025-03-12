@@ -116,7 +116,7 @@ CommandCombine([
             if (SPLITARGS[0].toLowerCase() == "help") {
                 ChatRoomSendLocal(ROSTER.showhelp());
                 return;
-            }:with
+            }
 
             let me_output_html = ""; // holds data about user who ran script
             let admin_output_html = ""; // holds admins
