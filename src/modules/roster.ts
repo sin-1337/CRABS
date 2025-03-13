@@ -1,3 +1,6 @@
+import WhisperPlus from "./whisperplus";
+window.sendWhisper = WhisperPlus.sendWhisper;
+
 export default class Roster {
     const ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
@@ -30,13 +33,12 @@ export default class Roster {
 
         let absolutepath = "https://sin-1337.github.io/CRABS/"
         let html = "";
-
         html += "<img ";
-        html += "height=" + this.icon_height + "' ";
-        html += "width='" + this.icon_width + "' ";
+        html += "height=" + this.icon_height + "px' ";
+        html += "width='" + this.icon_width + "px' ";
         html += "alt='" + key + "' ";
         html += "src='" + absolutepath + ICON + "'";
-        html += ">"
+        html += ">";
         return(html);
     }
 
@@ -123,7 +125,7 @@ export default class Roster {
 
       if (isMe) {
       // if the player is me, don't let me whisper myself
-        output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'};
+        output += `<td style="height:24px; padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'};
                     font-family: Arial, sans-serif;
                     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;">
                       ${CharacterNickname(player).normalize("NFKC")}[${player.MemberNumber}]
@@ -194,5 +196,148 @@ export default class Roster {
 
     checkIfMe(player: any) : boolean {
       return player.MemberNumber == Player.MemberNumber ? true : false;
+    }
+
+    displayroster(args: any): void {
+        const SPLITARGS = args.split(" ");
+        if (SPLITARGS[0].toLowerCase() == "help") {
+            ChatRoomSendLocal(this.showhelp());
+            return;
+        }
+
+        let me_output_html = ""; // holds data about user who ran script
+        let admin_output_html = ""; // holds admins
+        let vip_output_html = ""; // holds whitelisted users
+        let player_output_html = ""; // holds normal players
+        let player; // the person we found in the room
+        let admin_count = 0; // number of admins in the room
+        let badge = ""; // holds the admin icon if the player is an admin
+        let player_icons = ""; // holds the list of player/status icons (string)
+        let MemberNumber: number;
+        // filter variables, show or not show certain output
+        let showme = true; // person who ran the script (you)
+        let showadmins = true; // room admins
+        let showvip = true; // room whitelists
+        let showplayers = true; // normal players
+
+
+        //get a list of players
+        for (let person in ChatRoomData.Character) {
+            // find membernumber for current player in list
+            MemberNumber = ChatRoomData.Character[person].MemberNumber;
+
+            // Find player
+            player = ChatRoomCharacter.find((C) => C.MemberNumber == MemberNumber);
+
+            //bail out and return placeholder if player is not available.
+            if (!player) {
+                player_output_html +=
+                    "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
+                continue;
+            }
+
+            // check if the player is also an admin or vip and add icon with admin given priority
+            badge = this.setbadge(player);
+            player_icons = this.setIcons(player);
+
+            // if the player is me (person who ran the script)
+            if (this.checkIfMe(player)) {
+                // mark me with a star icon
+                player_icons = this.printicon("you") + " " + player_icons;
+
+                // format my outpupt and store
+                me_output_html = this.formatoutput(player, badge, player_icons, true);
+            }
+
+            // check if the player is an admin and update the count, also flad the player as admin in the output list.
+            if (ChatRoomData.Admin.includes(player.MemberNumber)) {
+                admin_count++;
+                if (!this.checkIfMe(player, Player)) {
+                    // if the player is not me, output admin and skip rest of loop
+                    admin_output_html += this.formatoutput(
+                        player,
+                        badge,
+                        player_icons,
+                        false
+                    );
+                    continue;
+                }
+            } else if (
+                ChatRoomData.Whitelist.includes(player.MemberNumber) &&
+                !this.checkIfMe(player, Player)
+            ) {
+                // if the player isn't an admin, is the player is whitelested?
+                vip_output_html += this.formatoutput(player, badge, player_icons, false);
+                continue;
+            } else if (!this.checkIfMe(player)) {
+                // player is normal, nonadmin, not whitelist, and not me.
+                player_output_html += this.formatoutput(
+                    player,
+                    badge,
+                    player_icons,
+                    false
+                );
+            }
+        }
+
+        // if argument is "count", set filter vars and skip loop
+        if (SPLITARGS.some((item) => item.toLowerCase() === "count")) {
+            console.log("count only");
+            showme = false;
+            showadmins = false;
+            showvip = false;
+            showplayers = false;
+        }
+
+        // if argument is admins, set filter vars to only show admins and continue
+        if (SPLITARGS.some((item) => item.toLowerCase() === "admins")) {
+            console.log("admins only");
+            showme = false;
+            showvip = false;
+            showplayers = false;
+        }
+
+        // if argument is vips, set filter vars to only show vips (whitelisted) and continue
+        if (SPLITARGS.some((item) => item.toLowerCase() === "vips")) {
+            console.log("vips only");
+            showme = false;
+            showadmins = false;
+            showplayers = false;
+        }
+
+        //output total number of players/admins
+        //TODO: include this in the table space and add a header
+        ChatRoomSendLocal(
+            "<div>There are " +
+              admin_count +
+              "/" +
+              ChatRoomData.Admin.length +
+              " admins in the room.</div>"
+        );
+        ChatRoomSendLocal(
+            "There are " +
+              ChatRoomCharacter.length +
+              "/" +
+              ChatRoomData.Limit +
+              " total players in the room.</div>"
+        );
+        let output_html = "";
+
+        // start the tabble and remove the boarders
+        output_html += `<table style="border: 0px;">`;
+
+        // if the filter var resolves to true, add the respective output.
+        output_html = showme ? output_html + me_output_html : output_html;
+        output_html = showadmins ? output_html + admin_output_html : output_html;
+        output_html = showvip ? output_html + vip_output_html : output_html;
+        output_html = showplayers
+            ? output_html + player_output_html
+            : output_html;
+
+        // finish the table
+        output_html += `</table>`;
+
+        // show the final output
+        ChatRoomSendLocal(output_html);
     }
 }
