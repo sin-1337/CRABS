@@ -21,6 +21,6 @@
     var script = document.createElement("script");
     script.langauge = "JavaScript";
     script.setAttribute("crossorigin", "anonymous");
-    script.src = `https://sin-1337.github.io/CRABS/Alpha/bundle.js`;
+    script.src = `https://sin-1337.github.io/CRABS/Beta/bundle.js`;
     document.head.appendChild(script);
 })();
