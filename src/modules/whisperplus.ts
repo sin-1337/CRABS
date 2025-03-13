@@ -2,15 +2,36 @@ export default class WhisperPlus {
 
     constructor() {
         // expose the ChatRoomMessageWhisperPlusClick method to the DOM
-        window.ChatRoomMessageWhisperPlusClick = WhisperPlus.ChatRoomMessageWhisperPlusClick;
+        window.WhisperPlusClick = WhisperPlus.ChatRoomMessageWhisperPlusClick;
     }
 
     private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
         if (msg == "") {
             return false;
         }
-        //replace the normal bracket with fake ones
-        msg = msg.replace(")", "）");
+
+        // First ensure we have a valid target object
+        const TARGETMEMEBER = typeof target === 'object' ? target : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(target));
+        if (!TARGETMEMEBER) {
+            ChatRoomSendLocalChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
+            return;
+        }
+
+        // Handle self whispers with gray text and memo emoji
+        if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
+            const SELFMESSAGE = `<span style="color:#989898">💭 Log to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg.replace(/\)/g, "）")}</span>`;
+            ChatRoomSendLocal(SELFMESSAGE);
+            return;
+        }
+
+        // Replace normal brackets with fake ones in the message
+        msg = msg.replace(/\)/g, "）");
+
+        // Prepare the message - now with ⤵ instead of :
+        let formattedMsg = `(Whisper+❩⤵\n${msg}`;
+        if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
+            formattedMsg += '）';
+        }
 
         // check if target and player are the same
         if (target.MemberNumber == Player.MemberNumber) {
@@ -21,19 +42,20 @@ export default class WhisperPlus {
             }
 
             // build data payload
-            const data = ChatRoomGenerateChatRoomChatMessage("Whisper", msg);
-
+            const DATA = ChatRoomGenerateChatRoomChatMessage("Whisper", msg);
+            
             // set the whisper target
-            data.Target = target.MemberNumber;
+            DATA.Target = target.MemberNumber;
 
             //send the whisper
-            ServerSend("ChatRoomChat", data);
+            const serverData = { ...DATA, Type: "Whisper" }
+            ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
-            data.Sender = Player.MemberNumber;
+            DATA.Sender = Player.MemberNumber;
 
             // send the chat to our window too
-            ChatRoomMessage(data);
+            ChatRoomMessage(DATA);
 
             // message was sent
             return true;
@@ -92,9 +114,11 @@ export default class WhisperPlus {
 
     private init(): void {
         // Our main hook
+        console.log("run init")
         WPlus.hookFunction("ChatRoomMessageDisplay", 0, (args: any[], next: Function): void => {
             const [data, msg, SenderCharacter, metadata] = args;
-
+            
+            console.log("run hook")
             // If it's not our special Whisper+ type, let it process normally
             if (data.Type !== "Whisper+") {
                 return next(args);
@@ -107,11 +131,11 @@ export default class WhisperPlus {
             const divChildren: any[] = [];
             const whisperTarget = SenderCharacter.IsPlayer() ? ChatRoomCharacter.find(c => c.MemberNumber === data.Target) : SenderCharacter;
             
+            console.log("push");
             divChildren.push(
                 ElementButton.Create(
                     null,
-
-                    window.ChatRoomMessageWhisperPlusClick,
+                    WhisperPlusClick,
                     { noStyling: true },
                     {
                         button: {
@@ -124,7 +148,7 @@ export default class WhisperPlus {
                 " ",
                 ElementButton.Create(
                     null,
-                    window.ChatRoomMessageWhisperPlusClick,
+                    WhisperPlusClick,
                     { noStyling: true },
                     {
                         button: {

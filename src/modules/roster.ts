@@ -23,6 +23,7 @@ export default class Roster {
     constructor (icon_height: number, icon_width: number) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
+        window.PlayerFocus = Roster.showPlayerFocus
     }
 
     printicon(key: string) : string {
@@ -106,7 +107,7 @@ export default class Roster {
     };
 
     // This functions is setup up to be exposed to the global DOM
-    window.showPlayerFocus = function (MemberNumber) {
+    public static showPlayerFocus(MemberNumber: number): void {
         // Check if the person is still in the room
       const PLAYER = ChatRoomCharacter.find(C => C.MemberNumber == MemberNumber);
         if (PLAYER) {
@@ -121,7 +122,7 @@ export default class Roster {
    formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
       let playername = CharacterNickname(player);
       let output = `<tr>
-                <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="showPlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
+                <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
 
       if (isMe) {
       // if the player is me, don't let me whisper myself
