@@ -6,7 +6,7 @@ const VERSION = "1.0.0";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
-const CRABS = bcModSDK.registerMod({
+const CRABS = bcModSdk.registerMod({
     name: NICKNAME,
     fullName: NAME,
     version: VERSION,
