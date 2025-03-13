@@ -5,7 +5,7 @@
 "main": "Beta/bundle.js",
 "scripts": {
 "build": "rollup -c",
-"dev": "rollup -c -w"
+"dev": "rollup -c -w",
 "deploy": "cd ../Live && git checkout Beta && cd ../Dev && rollup -c && cd ../Live && git add * && git commit -m 'new build' && git push"
 },
 "keywords": [],
