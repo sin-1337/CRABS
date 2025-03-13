@@ -1,4 +1,5 @@
 // import section
+import bcModSDK from 'bondage-club-mod-sdk';
 import Roster from "./modules/roster";
 import WhisperPlus from "./modules/whisperplus";
 //
@@ -6,7 +7,10 @@ const VERSION = "1.0.0";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
-const CRABS = bcModSdk.registerMod({
+const ICON_HEIGHT = 40;
+const ICON_WIDTH = 40;
+
+const CRABS = bcModSDK.registerMod({
     name: NICKNAME,
     fullName: NAME,
     version: VERSION,
@@ -94,7 +98,7 @@ CommandCombine([
                     return 1;
                 }
 
-                const WHISPERPLUS = new WhiserPlus();
+                const WHISPERPLUS = new WhisperPlus();
 
                 // find player based no membernumber
                 const TARGET = ChatRoomCharacter.find(
@@ -112,7 +116,7 @@ CommandCombine([
         Description: "Show the player count, helpful in maps.",
         Action: (args) => {
             const SPLITARGS = args.split(" ");
-            const ROSTER = new Roster(25, 25);
+            const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
             if (SPLITARGS[0].toLowerCase() == "help") {
                 ChatRoomSendLocal(ROSTER.showhelp());
                 return;
@@ -126,7 +130,7 @@ CommandCombine([
             let admin_count = 0; // number of admins in the room
             let badge = ""; // holds the admin icon if the player is an admin
             let player_icons = ""; // holds the list of player/status icons (string)
-
+            let MemberNumber: number;
             // filter variables, show or not show certain output
             let showme = true; // person who ran the script (you)
             let showadmins = true; // room admins
@@ -154,9 +158,9 @@ CommandCombine([
                 player_icons = ROSTER.setIcons(player);
 
                 // if the player is me (person who ran the script)
-                if (checkIfMe(player)) {
+                if (ROSTER.checkIfMe(player)) {
                     // mark me with a star icon
-                    player_icons = "⭐ " + player_icons;
+                    player_icons = ROSTER.printicon("you") + " " + player_icons;
 
                     // format my outpupt and store
                     me_output_html = ROSTER.formatoutput(player, badge, player_icons, true);

@@ -1,17 +1,17 @@
 export default class Roster {
     const ICONS: Record<string, string> = {
-        "admin" : "./icons/admin.svg",
-        "vip" : "./icons/vip.svg",
-        "player" : "./icons/player.svg",
-        "you" : "./icons/you.svg",
-        "owner" : "./icons/owner.svg",
-        "sub" : "./icons/sub.svg",
-        "trial" : "./icons/trial.svg",
-        "lover" : "./icons/lover.svg",
-        "friend" : "./icons/friends.svg",
-        "whitelist" : "./icons/whitelist.svg",
-        "blacklist" : "./icons/blacklist.svg",
-        "ghost" : "./icons/ghost.svg"
+        "admin" : "icons/admin.svg",
+        "vip" : "icons/vip.svg",
+        "player" : "icons/player.svg",
+        "you" : "icons/you.svg",
+        "owner" : "icons/owner.svg",
+        "sub" : "icons/sub.svg",
+        "trial" : "icons/trial.svg",
+        "lover" : "icons/lover.svg",
+        "friend" : "icons/friends.svg",
+        "whitelist" : "icons/whitelist.svg",
+        "blacklist" : "icons/blacklist.svg",
+        "ghost" : "icons/ghost.svg"
     }
 
     icon_height = 0;
@@ -28,13 +28,14 @@ export default class Roster {
             ICON = this.ICONS[key];
         }
 
+        let absolutepath = "https://sin-1337.github.io/CRABS/"
         let html = "";
 
         html += "<img ";
         html += "height=" + this.icon_height + "' ";
         html += "width='" + this.icon_width + "' ";
         html += "alt='" + key + "' ";
-        html += "src='" + ICON + "'";
+        html += "src='" + absolutepath + ICON + "'";
         html += ">"
         return(html);
     }
@@ -60,22 +61,22 @@ export default class Roster {
             </br>
             Badges:
             <hr>
-            ${printicon("admin")} = Person is Admin</br>
-            ${printicon("vip")} = Person is whitelisted in the room </br>
-            ${printicon("player")} = Person is a normal user </br>
+            ${this.printicon("admin")} = Person is Admin</br>
+            ${this.printicon("vip")} = Person is whitelisted in the room </br>
+            ${this.printicon("player")} = Person is a normal user </br>
 
             </br>
             Icons:
             <hr>
-            ${printicon("you")} = Person is you </br>
-            ${printicon("owner")} = Person is your owner </br>
-            ${printicon("sub")} = Person is your submissive </br>
-            ${printicon("trial")} = Person is on trial with you </br>
-            ${printicon("lover")} = Person is your lover </br>
-            ${printicon("friend")} = Person is a friend </br>
-            ${printicon("whitelist")} = You have this person whitelisted </br>
-            ${printicon("blacklist")} = You have this person blacklisted </br>
-            ${printicon("ghost")} = You have ghosted this person </br>
+            ${this.printicon("you")} = Person is you </br>
+            ${this.printicon("owner")} = Person is your owner </br>
+            ${this.printicon("sub")} = Person is your submissive </br>
+            ${this.printicon("trial")} = Person is on trial with you </br>
+            ${this.printicon("lover")} = Person is your lover </br>
+            ${this.printicon("friend")} = Person is a friend </br>
+            ${this.printicon("whitelist")} = You have this person whitelisted </br>
+            ${this.printicon("blacklist")} = You have this person blacklisted </br>
+            ${this.printicon("ghost")} = You have ghosted this person </br>
 
             </br>
             Actions:
