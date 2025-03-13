@@ -12,7 +12,7 @@ export default {
   input: 'src/main.ts',
   output: {
     name: "CRABS",
-    file: '../Live/CRABS/Alpha/bundle.js',
+    file: '../Live/CRABS/Beta/bundle.js',
     format: 'iife',
     sourcemap: true,
 		banner: `// Crazy Roster Add-on By Sin
