@@ -2,20 +2,27 @@
 import bcModSDK from 'bondage-club-mod-sdk';
 import Roster from "./modules/roster";
 import WhisperPlus from "./modules/whisperplus";
-//
-const VERSION = "1.0.0";
+
+
+// configure the version and mod name
+const VERSION = "0.0.2.9";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
-const ICON_HEIGHT = 40;
-const ICON_WIDTH = 40;
+//these are in em units
+const ICON_HEIGHT = 24;
+const ICON_WIDTH = 24;
 
+//register the mod
 const CRABS = bcModSDK.registerMod({
     name: NICKNAME,
     fullName: NAME,
     version: VERSION,
     repository: "https://github.com/sin-1337/CRABS",
 });
+
+const WHISPERPLUS = new WhisperPlus();
+const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
 
 
 // TODO: create ui to turn this off!!
@@ -82,30 +89,8 @@ CommandCombine([
         Tag: "whisper+",
         Description: "Enables the /whisper+ command that is global to a map room",
         Action: (args) => {
-                // parse arguments into membernumber and messsage
-                const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
-                let message = args.slice(args.indexOf(" ") + 1);
-                console.log(message);
-
-                // if membernumber is not a valid number, bail
-                if (Number.isNaN(MEMBERNUMBER)) {
-                    ChatRoomSendLocal("Member number is invalid.");
-                    return 1;
-                }
-
-                if (message == "") {
-                    ChatRoomSendLocal("Message was blank");
-                    return 1;
-                }
-
-                const WHISPERPLUS = new WhisperPlus();
-
-                // find player based no membernumber
-                const TARGET = ChatRoomCharacter.find(
-                    (C) => C.MemberNumber == MEMBERNUMBER
-                );
-                WHISPERPLUS.ChatRoomSendWhisperRanged(TARGET, message);
-            },
+            WHISPERPLUS.whisperplus(args);
+        },
     },
 ]);
 
@@ -115,147 +100,10 @@ CommandCombine([
         Tag: "players",
         Description: "Show the player count, helpful in maps.",
         Action: (args) => {
-            const SPLITARGS = args.split(" ");
-            const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
-            if (SPLITARGS[0].toLowerCase() == "help") {
-                ChatRoomSendLocal(ROSTER.showhelp());
-                return;
-            }
-
-            let me_output_html = ""; // holds data about user who ran script
-            let admin_output_html = ""; // holds admins
-            let vip_output_html = ""; // holds whitelisted users
-            let player_output_html = ""; // holds normal players
-            let player; // the person we found in the room
-            let admin_count = 0; // number of admins in the room
-            let badge = ""; // holds the admin icon if the player is an admin
-            let player_icons = ""; // holds the list of player/status icons (string)
-            let MemberNumber: number;
-            // filter variables, show or not show certain output
-            let showme = true; // person who ran the script (you)
-            let showadmins = true; // room admins
-            let showvip = true; // room whitelists
-            let showplayers = true; // normal players
-
-
-            //get a list of players
-            for (let person in ChatRoomData.Character) {
-                // find membernumber for current player in list
-                MemberNumber = ChatRoomData.Character[person].MemberNumber;
-
-                // Find player
-                player = ChatRoomCharacter.find((C) => C.MemberNumber == MemberNumber);
-
-                //bail out and return placeholder if player is not available.
-                if (!player) {
-                    player_output_html +=
-                        "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
-                    continue;
-                }
-
-                // check if the player is also an admin or vip and add icon with admin given priority
-                badge = ROSTER.setbadge(player);
-                player_icons = ROSTER.setIcons(player);
-
-                // if the player is me (person who ran the script)
-                if (ROSTER.checkIfMe(player)) {
-                    // mark me with a star icon
-                    player_icons = ROSTER.printicon("you") + " " + player_icons;
-
-                    // format my outpupt and store
-                    me_output_html = ROSTER.formatoutput(player, badge, player_icons, true);
-                }
-
-                // check if the player is an admin and update the count, also flad the player as admin in the output list.
-                if (ChatRoomData.Admin.includes(player.MemberNumber)) {
-                    admin_count++;
-                    if (!ROSTER.checkIfMe(player, Player)) {
-                        // if the player is not me, output admin and skip rest of loop
-                        admin_output_html += ROSTER.formatoutput(
-                            player,
-                            badge,
-                            player_icons,
-                            false
-                        );
-                        continue;
-                    }
-                } else if (
-                    ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-                    !ROSTER.checkIfMe(player, Player)
-                ) {
-                    // if the player isn't an admin, is the player is whitelested?
-                    vip_output_html += ROSTER.formatoutput(player, badge, player_icons, false);
-                    continue;
-                } else if (!ROSTER.checkIfMe(player)) {
-                    // player is normal, nonadmin, not whitelist, and not me.
-                    player_output_html += ROSTER.formatoutput(
-                        player,
-                        badge,
-                        player_icons,
-                        false
-                    );
-                }
-            }
-
-            // if argument is "count", set filter vars and skip loop
-            if (SPLITARGS.some((item) => item.toLowerCase() === "count")) {
-                console.log("count only");
-                showme = false;
-                showadmins = false;
-                showvip = false;
-                showplayers = false;
-            }
-
-            // if argument is admins, set filter vars to only show admins and continue
-            if (SPLITARGS.some((item) => item.toLowerCase() === "admins")) {
-                console.log("admins only");
-                showme = false;
-                showvip = false;
-                showplayers = false;
-            }
-
-            // if argument is vips, set filter vars to only show vips (whitelisted) and continue
-            if (SPLITARGS.some((item) => item.toLowerCase() === "vips")) {
-                console.log("vips only");
-                showme = false;
-                showadmins = false;
-                showplayers = false;
-            }
-
-            //output total number of players/admins
-            //TODO: include this in the table space and add a header
-            ChatRoomSendLocal(
-                "<div>There are " +
-                  admin_count +
-                  "/" +
-                  ChatRoomData.Admin.length +
-                  " admins in the room.</div>"
-            );
-            ChatRoomSendLocal(
-                "There are " +
-                  ChatRoomCharacter.length +
-                  "/" +
-                  ChatRoomData.Limit +
-                  " total players in the room.</div>"
-            );
-            let output_html = "";
-
-            // start the tabble and remove the boarders
-            output_html += `<table style="border: 0px;">`;
-
-            // if the filter var resolves to true, add the respective output.
-            output_html = showme ? output_html + me_output_html : output_html;
-            output_html = showadmins ? output_html + admin_output_html : output_html;
-            output_html = showvip ? output_html + vip_output_html : output_html;
-            output_html = showplayers
-                ? output_html + player_output_html
-                : output_html;
-
-            // finish the table
-            output_html += `</table>`;
-
-            // show the final output
-            ChatRoomSendLocal(output_html);
+            ROSTER.displayroster(args);
         },
-    },
-]);
+    }
+]); 
+
+// Start the initialization process
+WHISPERPLUS.initWPlus();
