@@ -49,15 +49,15 @@
         injectCRABS(); // Reload the GitHub script
     }, 86400000);  // Adjust the interval as needed (10000 ms = 10 seconds)
 
+    CommandCombine([{
+        Tag: 'crabsreload',
+        Description: "Dynamically updates the CRABS backend.",
+        Action: args => {
+            injectCRABS();
+        }
+    }]);
 
 })();
 
-CommandCombine([{
-    Tag: 'crabsreload',
-    Description: "Dynamically updates the CRABS backend.",
-    Action: args => {
-        injectCRABS();
-    }
-}]);
 
 
