@@ -24,30 +24,35 @@
         // Remove the existing script if it's already injected
         var existingScript = document.getElementById("CRABS");
         if (existingScript) {
-            existingScript.remove();
+            existingScript.remove();  // Remove the existing script to prevent duplicates
+            console.log("Removed existing CRABS script");
         }
 
         // Create the CRABS script element
         var script = document.createElement("script");
         script.id = "CRABS";  // Set a unique ID to track the script
-        script.language = "JavaScript";
         script.setAttribute("crossorigin", "anonymous");
 
-        //  CRABES URL, with a timestamp to prevent caching
+        // CRABS URL, with a timestamp to prevent caching
         script.src = `https://sin-1337.github.io/CRABS/Alpha/bundle.js?${Date.now()}`;
+
+        // Add an onload event to ensure the script is fully loaded before continuing
+        script.onload = function() {
+            console.log("Successfully injected the CRABS script with a timestamp:", script.src);
+        };
 
         // Append the script to the document's head
         document.head.appendChild(script);
-        console.log("Injected the GitHub script with a timestamp:", script.src);
+        console.log("Injected the CRABS script with a timestamp:", script.src);
     }
 
     // Inject CRABS for the first time
     injectCRABS();
 
-    // Reload CRABS every 24 hours
+    // Reload CRABS every 24 hours (86400000 ms = 24 hours)
     setInterval(function() {
         injectCRABS(); // Reload the GitHub script
-    }, 86400000);  // Adjust the interval as needed (10000 ms = 10 seconds)
+    }, 86400000);  // 24 hours in milliseconds
 
     CommandCombine([{
         Tag: 'crabsreload',
