@@ -13,7 +13,7 @@
 * This method is unsupported in Alpha
 
 ### User Script (Violentmonkey / Tampermonkey):
-  To install useing the usersceipt method 
+  To install useing the user script method 
   * click the userscript: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
