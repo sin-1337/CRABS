@@ -4,7 +4,7 @@
 
 <h1 align="center">Crazy Roster Add-on By Sin - Alpha</h1>
 
-**Warning**: 
+## Warnings: 
 * This is the Alpha Branch where active development takes place!
 * This branch is highly unstable and **not** recommended for end users!
 
