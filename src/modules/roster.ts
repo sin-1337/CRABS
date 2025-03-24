@@ -49,9 +49,12 @@ export default class Roster {
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             </br>
             <hr>
-            /player help sheet</br>
+            CRABS help sheet</br>
+            /roster
             This command lists the number of admins and players </br>
             in a room and gives you some informatoin about them </br>
+            
+            /players is deprecated, but still works currently.
 
             </br>
             Arguments:
