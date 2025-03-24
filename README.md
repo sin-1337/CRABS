@@ -28,7 +28,7 @@
 ## Usage:
 ### /players help
 Show help. Sample help output below:
-
+<div style="border: 1px solid black; padding: 10px;">
 This command lists the number of admins and players in a room and gives you some informatoin about them
 
 Arguments:<br>
@@ -56,6 +56,7 @@ Icons:<br>
 Actions:<br>
 Click Badge - If you click the badge for a player it will be as if you clicked them to interact.<br>
 Click name - If you click the name/number of a player it will whisper them without range constraints.<br>
+</div>
 
 ### /players
 Shows the roster and lets you work with it.
