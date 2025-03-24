@@ -19,11 +19,10 @@
   * Reload the Bondage Club tab if you have it open already.
 
 ### Bookmark
-* Copy this URL and add it as a bookmark
-**Alpha:**
-```
-javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
-```
+* Copy this URL and add it as a bookmark:
+  ```
+  javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+  ```
 * Navigate to BondageClub and click the bookmark.
 
 ## Usage:
