@@ -37,20 +37,20 @@ admins - show only a list of admins and the counts
 vips - show only room whitelisted and the counts
 
 Badges:
-<img src="https://sin-1337.github.io/CRABS/icons/admin.svg" alt="Admin" width="40" height="40" align="center"> = Person is Admin
-<img src="https://sin-1337.github.io/CRABS/icons/vip.svg" alt="VIP" width="40" height="40" align="center"> = Person is whitelisted in the room
-<img src="https://sin-1337.github.io/CRABS/icons/player.svg" alt="Player" width="40" height="40" align="center"> = Person is a normal user
+<img src="https://sin-1337.github.io/CRABS/icons/admin.svg" alt="Admin" width="40" height="40" align="center"> = Person is Admin<br>
+<img src="https://sin-1337.github.io/CRABS/icons/vip.svg" alt="VIP" width="40" height="40" align="center"> = Person is whitelisted in the room<br>
+<img src="https://sin-1337.github.io/CRABS/icons/player.svg" alt="Player" width="40" height="40" align="center"> = Person is a normal user<br>
 
 Icons:
-<img src="https://sin-1337.github.io/CRABS/icons/you.svg" alt="You" width="40" height="40" align="center"> = Person is you
-<img src="https://sin-1337.github.io/CRABS/icons/owner.svg" alt="Owner" width="40" height="40" align="center"> = Person is your owner
-<img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive
-<img src="https://sin-1337.github.io/CRABS/icons/trial.svg" alt="Trail" width="40" height="40" align="center"> = Person is on trial with you
-<img src="https://sin-1337.github.io/CRABS/icons/lover.svg" alt="Lover" width="40" height="40" align="center"> = Person is your lover
-<img src="https://sin-1337.github.io/CRABS/icons/friend.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend
-<img src="https://sin-1337.github.io/CRABS/icons/whitelist.svg" alt="Whitelist" width="40" height="40" align="center"> = You have this person whitelisted
-<img src="https://sin-1337.github.io/CRABS/icons/blacklist.svg" alt="blacklist" width="40" height="40" align="center"> = You have this person blacklisted
-<img src="https://sin-1337.github.io/CRABS/icons/ghost.svg" alt="ghost" width="40" height="40" align="center"> = You have ghosted this person
+<img src="https://sin-1337.github.io/CRABS/icons/you.svg" alt="You" width="40" height="40" align="center"> = Person is you<br>
+<img src="https://sin-1337.github.io/CRABS/icons/owner.svg" alt="Owner" width="40" height="40" align="center"> = Person is your owner<br>
+<img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive<br>
+<img src="https://sin-1337.github.io/CRABS/icons/trial.svg" alt="Trail" width="40" height="40" align="center"> = Person is on trial with you<br>
+<img src="https://sin-1337.github.io/CRABS/icons/lover.svg" alt="Lover" width="40" height="40" align="center"> = Person is your lover<br>
+<img src="https://sin-1337.github.io/CRABS/icons/friend.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend<br>
+<img src="https://sin-1337.github.io/CRABS/icons/whitelist.svg" alt="Whitelist" width="40" height="40" align="center"> = You have this person whitelisted<br>
+<img src="https://sin-1337.github.io/CRABS/icons/blacklist.svg" alt="blacklist" width="40" height="40" align="center"> = You have this person blacklisted<br>
+<img src="https://sin-1337.github.io/CRABS/icons/ghost.svg" alt="ghost" width="40" height="40" align="center"> = You have ghosted this person<br>
 
 Actions:
 Click Badge - If you click the badge for a player it will be as if you clicked them to interact.
