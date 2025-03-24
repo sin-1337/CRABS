@@ -1,8 +1,6 @@
-<table style="width: 100%; text-align: center;">
-  <tr>
-    <td style="width: 100%; text-align: center;"><img src="https://sin-1337.github.io/CRABS/Crab_logo_big.png" alt="CRABS" width="500" height="500" align="center"></td>
-  </tr>
-</table>
+<span style="width: 100%; text-align: center;">
+  <img src="https://sin-1337.github.io/CRABS/Crab_logo_big.png" alt="CRABS" width="500" height="500" align="center">
+</span>
 
 <h1 style="text-align: center;">Crazy Roster Add-on By Sin - Alpha</h1>
 
