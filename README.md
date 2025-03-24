@@ -1,4 +1,4 @@
-<span style="width: 100%; text-align: center;">
+<span style="width: 100%; align: center;">
   <img src="https://sin-1337.github.io/CRABS/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
 </span>
 
