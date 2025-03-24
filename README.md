@@ -8,17 +8,17 @@
 * This is the Alpha Branch where active development takes place!
 * This branch is highly unstable and **not** recommended for end users!
 
-## Installation
-### FUSAM
+## Installation:
+### FUSAM:
 * This method is unsupported in Alpha
 
-### User Script (Violentmonkey / Tampermonkey)
+### User Script (Violentmonkey / Tampermonkey):
   To install useing the usersceipt method 
   * click the userscript: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
 
-### Bookmark
+### Bookmark:
 * Copy this URL and add it as a bookmark:
   ```
   javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
