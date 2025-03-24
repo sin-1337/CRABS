@@ -47,7 +47,7 @@ Icons:<br>
 <img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive<br>
 <img src="https://sin-1337.github.io/CRABS/icons/trial.svg" alt="Trail" width="40" height="40" align="center"> = Person is on trial with you<br>
 <img src="https://sin-1337.github.io/CRABS/icons/lover.svg" alt="Lover" width="40" height="40" align="center"> = Person is your lover<br>
-<img src="https://sin-1337.github.io/CRABS/icons/friend.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend<br>
+<img src="https://sin-1337.github.io/CRABS/icons/friends.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend<br>
 <img src="https://sin-1337.github.io/CRABS/icons/whitelist.svg" alt="Whitelist" width="40" height="40" align="center"> = You have this person whitelisted<br>
 <img src="https://sin-1337.github.io/CRABS/icons/blacklist.svg" alt="blacklist" width="40" height="40" align="center"> = You have this person blacklisted<br>
 <img src="https://sin-1337.github.io/CRABS/icons/ghost.svg" alt="ghost" width="40" height="40" align="center"> = You have ghosted this person<br>
