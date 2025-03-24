@@ -32,8 +32,8 @@ Show help. Sample help output below:
 <table border="1">
   <tr>
     <td>
-This command lists the number of admins and players in a room and gives you some informatoin about them
-<br>
+This command lists the number of admins and players in a room and gives you some informatoin about them.
+      
 Arguments:<br>
 help - show this menu<br>
 count - show only the player count<br>
