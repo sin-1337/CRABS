@@ -14,7 +14,7 @@
 
 ### User Script (Violentmonkey / Tampermonkey)
   To install useing the usersceipt method 
-  * click the userscript: [crabsloader.user.js]([https://raw.githubusercontent.com/username/repository/branch/example.txt](https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js))
+  * click the userscript: [crabsloader.user.js]((https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
 
@@ -25,4 +25,34 @@
 javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
 ```
 * Navigate to BondageClub and click the bookmark.
+
+## Usage:
+This command lists the number of admins and players
+in a room and gives you some informatoin about them
+
+Arguments:
+help - show this menu
+count - show only the player count
+admins - show only a list of admins and the counts
+vips - show only room whitelisted and the counts
+
+Badges:
+<img src="https://sin-1337.github.io/CRABS/icons/admin.svg" alt="Admin" width="40" height="40" align="center"> = Person is Admin
+<img src="https://sin-1337.github.io/CRABS/icons/vip.svg" alt="VIP" width="40" height="40" align="center"> = Person is whitelisted in the room
+<img src="https://sin-1337.github.io/CRABS/icons/player.svg" alt="Player" width="40" height="40" align="center"> = Person is a normal user
+
+Icons:
+<img src="https://sin-1337.github.io/CRABS/icons/you.svg" alt="You" width="40" height="40" align="center"> = Person is you
+<img src="https://sin-1337.github.io/CRABS/icons/owner.svg" alt="Owner" width="40" height="40" align="center"> = Person is your owner
+<img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive
+<img src="https://sin-1337.github.io/CRABS/icons/trial.svg" alt="Trail" width="40" height="40" align="center"> = Person is on trial with you
+<img src="https://sin-1337.github.io/CRABS/icons/lover.svg" alt="Lover" width="40" height="40" align="center"> = Person is your lover
+<img src="https://sin-1337.github.io/CRABS/icons/friend.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend
+<img src="https://sin-1337.github.io/CRABS/icons/whitelist.svg" alt="Whitelist" width="40" height="40" align="center"> = You have this person whitelisted
+<img src="https://sin-1337.github.io/CRABS/icons/blacklist.svg" alt="blacklist" width="40" height="40" align="center"> = You have this person blacklisted
+<img src="https://sin-1337.github.io/CRABS/icons/ghost.svg" alt="ghost" width="40" height="40" align="center"> = You have ghosted this person
+
+Actions:
+Click Badge - If you click the badge for a player it will be as if you clicked them to interact.
+Click name - If you click the name/number of a player it will whisper them without range constraints.
   
