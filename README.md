@@ -28,6 +28,7 @@
 ## Usage:
 ### /players help
 Show help. Sample help output below:
+
 <table border="1">
   <tr>
     <td>
