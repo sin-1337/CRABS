@@ -14,7 +14,7 @@
 
 ### User Script (Violentmonkey / Tampermonkey)
   To install useing the usersceipt method 
-  * click the userscript: [crabsloader.user.js]((https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
+  * click the userscript: [crabsloader.user.js](ttps://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
 
