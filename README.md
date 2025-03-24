@@ -60,5 +60,11 @@ Click name - If you click the name/number of a player it will whisper them witho
 Shows the roster and lets you work with it.
 
 ### /whisper+ [membernumber] 
+
+
+## Acknoledgements:
+* Thanks to Sera Eldritch Esper for the wonder logo design! Both the big and mini versions!
+* Thanks to Felix for various code advice and assistantce!
+* Thanks to all the testers and people who have supported me throught the development of this project!
 Lets you whisper at range on maps, otherwise it is just normal whisper
   
