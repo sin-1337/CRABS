@@ -94,11 +94,34 @@ CommandCombine([
     },
 ]);
 
+// implements the /crabs command
+CommandCombine([
+    {
+        Tag: "crabs",
+        Description: "Show the player count, helpful in maps.",
+        Action: (args) => {
+            ROSTER.displayroster(args);
+        },
+    }
+]); 
+
+
+// implements the /roster command
+CommandCombine([
+    {
+        Tag: "roster",
+        Description: "Show the player count, helpful in maps.",
+        Action: (args) => {
+            ROSTER.displayroster(args);
+        },
+    }
+]); 
+
 // implements the /players command
 CommandCombine([
     {
         Tag: "players",
-        Description: "Show the player count, helpful in maps.",
+        Description: "Deprecated: Show the player count, helpful in maps.",
         Action: (args) => {
             ROSTER.displayroster(args);
         },
