@@ -1,0 +1,8 @@
+# ignore directories
+node_modules/
+
+# ignore files
+package-lock.json
+
+# ignore file types
+*.swp
