@@ -6,7 +6,12 @@
 
 ## Installation:
 ### FUSAM:
-* Coming soon...
+**FUSAM is now supported!**
+* Install FUSAM if you do not already have it:  https://sidiousious.gitlab.io/bc-addon-loader/
+* Find the ADD-ON button at the top of the main settings page once you log in.
+* Scroll to the botton where you will see the CRABS addon and in the far right column, slelect "Stable".
+* Click Save
+* Reload BC.
 
 ### User Script (Violentmonkey / Tampermonkey):
   To install useing the user script method 
@@ -77,6 +82,6 @@ This is a deprecated synonym for /roster
 Lets you whisper at range on maps, otherwise it is just normal whisper
 
 ## Acknoledgements:
-* Thanks to Sera Eldritch Esper for the wonder logo design! Both the big and mini versions!
+* Thanks to Sera Eldritch Esper for the wonderful logo design! Both the big and mini versions!
 * Thanks to Felix for various code advice and assistantce!
 * Thanks to all the testers and people who have supported me throught the development of this project!
