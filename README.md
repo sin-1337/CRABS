@@ -81,6 +81,6 @@ This is a deprecated synonym for /roster
 Lets you whisper at range on maps, otherwise it is just normal whisper
 
 ## Acknoledgements:
-* Thanks to Sera Eldritch Esper for the wonder logo design! Both the big and mini versions!
+* Thanks to Sera Eldritch Esper for the wonderful logo design! Both the big and mini versions!
 * Thanks to Felix for various code advice and assistantce!
 * Thanks to all the testers and people who have supported me throught the development of this project!
