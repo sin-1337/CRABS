@@ -74,7 +74,7 @@ Click name - If you click the name/number of a player it will whisper them witho
 ### /roster
 Shows the roster and lets you work with it.
 
-## /players
+#### /players
 This is a deprecated synonym for /roster
 
 ### /whisper+ [membernumber] 
