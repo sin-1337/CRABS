@@ -5,8 +5,8 @@
   "main": "dist/bundle.js",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w"
-    "deploy": "cd ../Live && git checkout Stable && cd ../Dev && rollup -c && cd ../Live && git add * && git commit -m 'new build' && git push"
+    "dev": "rollup -c -w",
+    "deploy": "cd ../Live && git checkout main && cd ../Dev && rollup -c && cd ../Live && git add * && git commit -m 'new build' && git push"
   },
   "keywords": [],
   "author": "Sin",
@@ -44,4 +44,3 @@
     "semver": "^7.5.4",
     "lodash-es": "^4.17.21"
   }
-}
