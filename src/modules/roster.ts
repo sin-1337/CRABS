@@ -53,7 +53,7 @@ export default class Roster {
             This command lists the number of admins and players
             in a room and gives you some informatoin about them </br>
             
-            /players is deprecated, but still works currently.
+            /players is deprecated, but still works currently.</br>
 
             </br>
             Arguments:
