@@ -26,7 +26,7 @@
 * Navigate to BondageClub and click the bookmark.
 
 ## Usage:
-### /players help
+### /roster help
 Show help. Sample help output below:
 
 <table border="1">
@@ -71,8 +71,11 @@ Click name - If you click the name/number of a player it will whisper them witho
   </tr>
 </table>
 
-### /players
+### /roster
 Shows the roster and lets you work with it.
+
+#### /players
+This is a deprecated synonym for /roster
 
 ### /whisper+ [membernumber] 
 Lets you whisper at range on maps, otherwise it is just normal whisper
