@@ -3,6 +3,7 @@ node_modules/
 
 # ignore files
 package-lock.json
+README.md
 
 # ignore file types
 *.swp
