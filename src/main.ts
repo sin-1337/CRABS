@@ -127,6 +127,3 @@ CommandCombine([
         },
     }
 ]); 
-
-// Start the initialization process
-WHISPERPLUS.initWPlus();
