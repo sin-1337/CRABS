@@ -5,7 +5,7 @@ import WhisperPlus from "./modules/whisperplus";
 
 
 // configure the version and mod name
-const VERSION = "0.0.2.9";
+const VERSION = "1.0.0.1";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
@@ -89,6 +89,7 @@ CommandCombine([
         Tag: "whisper+",
         Description: "Enables the /whisper+ command that is global to a map room",
         Action: (args) => {
+            console.log(args);
             WHISPERPLUS.whisperplus(args);
         },
     },

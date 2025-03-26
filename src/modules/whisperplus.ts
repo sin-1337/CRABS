@@ -15,13 +15,15 @@ export default class WhisperPlus {
 
         // Handle self whispers with gray text and memo emoji
         if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
-            const SELFMESSAGE = `<span style="color:#989898">💭 Log to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg.replace(/\)/g, "）")}</span>`;
+            const SELFMESSAGE = `<span style="color:#989898">💭 Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
             ChatRoomSendLocal(SELFMESSAGE);
             return;
         }
 
         // Replace normal brackets with fake ones in the message
-        msg = msg.replace(/\)/g, "）");
+        msg = msg.replace(/\(/g, "("); //replace the ( for consistency
+        msg = msg.replace(/\)/g, ")"); // technically only this one is really needed
+
 
         // Prepare the message - now with ⤵ instead of :
         let formattedMsg = `(Whisper+❩⤵\n${msg}`;
@@ -72,6 +74,7 @@ export default class WhisperPlus {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
         const MESSAGE = args.slice(args.indexOf(" ") + 1);
+        console.log(MESSAGE);
 
         // if membernumber is not a valid number, bail
         if (Number.isNaN(MEMBERNUMBER)) {

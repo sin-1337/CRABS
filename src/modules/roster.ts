@@ -121,32 +121,21 @@ export default class Roster {
     };
 
     // formats the data for outputting
-   formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
-      let playername = CharacterNickname(player);
-      let output = `<tr>
+    formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
+        let playername = CharacterNickname(player);
+        let output = `<tr>
                 <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
 
-      if (isMe) {
-      // if the player is me, don't let me whisper myself
-        output += `<td style="height:24px; padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'};
-                    font-family: Arial, sans-serif;
-                    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;">
-                      ${CharacterNickname(player).normalize("NFKC")}[${player.MemberNumber}]
-                  </span>${player_icons}</td>
-              </tr>`;
-      }
-      else {
       // set up whispering
-         output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'}; cursor:pointer;
-                    font-family: Arial, sans-serif;
-                    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;"
-                    onclick="sendWhisper(${player.MemberNumber})"
-                    onmouseover="this.style.textDecoration='underline';"
-                    onmouseout="this.style.textDecoration='none';">
-                      ${CharacterNickname(player).normalize("NFKC")}[${player.MemberNumber}]
-                  </span>${player_icons}</td>
-              </tr>`;
-      }
+        output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'}; cursor:pointer;
+                font-family: Arial, sans-serif;
+                text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;"
+                onclick="sendWhisper(${player.MemberNumber})"
+                onmouseover="this.style.textDecoration='underline';"
+                onmouseout="this.style.textDecoration='none';">
+                  ${CharacterNickname(player).normalize("NFKC")}[${player.MemberNumber}]
+              </span>${player_icons}</td>
+          </tr>`;
 
       return output;
     }
