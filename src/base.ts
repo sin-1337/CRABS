@@ -21,7 +21,7 @@ export default class CRABS {
 
     private modlist: Array<any>;
 
-    constructor (icon_height: number, icon_width: number, modlist: any) {
+    constructor (icon_height: number, icon_width: number, modlist: Array<any>) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         window.PlayerFocus = CRABS.showPlayerFocus;
@@ -42,12 +42,7 @@ export default class CRABS {
 
 
     private detectMod(targetmod: string): boolean {
-        if (this.modlist.filter(x => x.name == targetmod).length > 0) {
-            return(true);
-        }
-        else {
-            return(false);
-        }
+        return(this.modlist.filter(x => x.name == targetmod).length > 0);
     }
 
     private printicon(key: string) : string {
