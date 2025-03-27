@@ -1,0 +1,51 @@
+export default class CRABS {
+    const ICONS: Record<string, string> = {
+        "admin" : "icons/admin.svg",
+        "vip" : "icons/vip.svg",
+        "player" : "icons/player.svg",
+        "you" : "icons/you.svg",
+        "owner" : "icons/owner.svg",
+        "sub" : "icons/sub.svg",
+        "trial" : "icons/trial.svg",
+        "lover" : "icons/lover.svg",
+        "bestfriend" : "icons/bestfriend.svg",
+        "friend" : "icons/friends.svg",
+        "whitelist" : "icons/whitelist.svg",
+        "blacklist" : "icons/blacklist.svg",
+        "ghost" : "icons/ghost.svg",
+        "thought": "icons/admin.svg"
+    }
+
+    icon_height = 0;
+    icon_width = 0
+
+    modlist = {};
+
+    constructor (icon_height: number, icon_width: number, modlist: any) {
+        this.icon_height = icon_height;
+        this.icon_width = icon_width;
+        window.PlayerFocus = Roster.showPlayerFocus;
+        this.modlist = modlist;
+    }
+
+    private detectMod(targetmod: string): string {
+        return(this.modlist.find(C => C.name == targetmod));
+    }
+
+    printicon(key: string) : string {
+        let ICON = "./icons/error.svg";
+        if (key in this.ICONS) {
+            ICON = this.ICONS[key];
+        }
+
+        let absolutepath = "https://sin-1337.github.io/CRABS/"
+        let html = "";
+        html += "<img ";
+        html += "height=" + this.icon_height + "px' ";
+        html += "width='" + this.icon_width + "px' ";
+        html += "alt='" + key + "' ";
+        html += "src='" + absolutepath + ICON + "'";
+        html += ">";
+        return(html);
+    }
+}
