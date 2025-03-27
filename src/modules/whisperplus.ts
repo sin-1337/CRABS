@@ -26,8 +26,8 @@ export default class WhisperPlus extends CRABS {
         }
 
         // Replace normal brackets with fake ones in the message
-        msg = msg.replace(/\(/g, "("); //replace the ( for consistency
-        msg = msg.replace(/\)/g, ")"); // technically only this one is really needed
+        msg = msg.replace(/\(/g, "❪"); //replace the ( for consistency
+        msg = msg.replace(/\)/g, "❫"); // technically only this one is really needed
 
 
         // Prepare the message - now with ⤵ instead of :
