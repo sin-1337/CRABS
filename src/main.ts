@@ -10,8 +10,8 @@ const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
 //these are in em units
-const ICON_HEIGHT = 24;
-const ICON_WIDTH = 24;
+const ICON_HEIGHT = 25;
+const ICON_WIDTH = 25;
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
