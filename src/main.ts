@@ -32,7 +32,9 @@ ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data) => {
-      console.log("CRABS: function runs");
+      console.log("CRABS: data.type = " + data.Type);
+      console.log("CRABS: data.content = " + data.content);
+      console.log("CRABS: data.sender = " + data.sender);
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
