@@ -279,6 +279,13 @@ export default class Roster extends CRABS {
               ChatRoomData.Limit +
               " total players in the room.</div>"
         );
+        ChatRoomSendLocal(
+            "You have " +
+              "X" +
+              "/" +
+              Player.FriendNames +
+              " friends online."
+        );
         let output_html = "";
 
         // start the tabble and remove the boarders
