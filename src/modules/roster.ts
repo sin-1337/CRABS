@@ -283,7 +283,7 @@ export default class Roster extends CRABS {
             "You have " +
               "X" +
               "/" +
-              Player.FriendNames.length +
+              Player.FriendNames.size +
               " friends online."
         );
         let output_html = "";
