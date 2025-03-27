@@ -19,13 +19,14 @@ export default class CRABS {
     private icon_height = 0;
     private icon_width = 0
 
-    private modlist = {};
+    private modlist;
 
     constructor (icon_height: number, icon_width: number, modlist: any) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         window.PlayerFocus = CRABS.showPlayerFocus;
         this.modlist = modlist;
+        console.log("CRABS: modlist type = " + typeof modlist);
     }
 
         // This functions is setup up to be exposed to the global DOM
