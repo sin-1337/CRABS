@@ -5,7 +5,7 @@ import WhisperPlus from "./modules/whisperplus";
 
 
 // configure the version and mod name
-const VERSION = "1.0.0.1";
+const VERSION = "1.0.0.5";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
@@ -74,7 +74,7 @@ ChatRoomRegisterMessageHandler({
         }
 
         // output message letting players know how to view the full roster
-        ChatRoomSendLocal("<div>To see the full roster use /players</div><hr>");
+        ChatRoomSendLocal("<div>To see the full roster use /roster</div><hr>");
       }, 3600);
     }
 
@@ -88,9 +88,8 @@ CommandCombine([
     {
         Tag: "whisper+",
         Description: "Enables the /whisper+ command that is global to a map room",
-        Action: (args) => {
-            console.log(args);
-            WHISPERPLUS.whisperplus(args);
+        Action: (args: any, command: any) => {
+            WHISPERPLUS.whisperplus(args, command);
         },
     },
 ]);

@@ -70,20 +70,21 @@ export default class WhisperPlus {
     };
 
     // this runs when a player enters the /whisper+ command or clicks the roster
-    public whisperplus(args: any): number {
+    public whisperplus(args: any, command: any): number {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
-        const MESSAGE = args.slice(args.indexOf(" ") + 1);
+        //const MESSAGE = args.slice(args.indexOf(" ") + 1);
+        const MESSAGE = command.substring(command.indexOf(' ') + MEMBERNUMBER.toString().length + 2);
         console.log(MESSAGE);
 
         // if membernumber is not a valid number, bail
         if (Number.isNaN(MEMBERNUMBER)) {
-            ChatRoomSendLocal("Member number is invalid.");
+            ChatRoomSendLocal("Member number is invalid.", 30_000);
             return 1;
         }
 
         if (MESSAGE == "") {
-            ChatRoomSendLocal("Message was blank");
+            ChatRoomSendLocal("Message was blank", 30_000);
             return 1;
         }
 
