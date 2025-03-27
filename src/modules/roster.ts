@@ -166,7 +166,8 @@ export default class Roster extends CRABS {
     }
 
     // prints the roster
-    displayroster(args: any): void {
+    displayroster(args: any, modlist: any): void {
+        this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
             ChatRoomSendLocal(this.showhelp());
