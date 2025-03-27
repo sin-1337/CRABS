@@ -41,6 +41,7 @@ ChatRoomRegisterMessageHandler({
     ) {
       // work on a delay
       setTimeout(() => {
+      console.log("CRABS: " + Player.LastChatRoom.toString());
         // if the player left the room, bail!
         if (Player.LastChatRoom === null) {
           return false
