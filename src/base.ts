@@ -41,8 +41,13 @@ export default class CRABS {
     };
 
 
-    private detectMod(targetmod: string): string {
-        return(this.modlist.find(C => C.name == targetmod));
+    private detectMod(targetmod: string): boolean {
+        if (this.modlist.find(C => C.name == targetmod)) {
+            return(true);
+        }
+        else {
+            return(false);
+        }
     }
 
     private printicon(key: string) : string {
