@@ -13,7 +13,7 @@ export default class CRABS {
         "whitelist" : "icons/whitelist.svg",
         "blacklist" : "icons/blacklist.svg",
         "ghost" : "icons/ghost.svg",
-        "thought": "icons/admin.svg"
+        "thought": "icons/thought.svg"
     }
 
     private icon_height = 0;
