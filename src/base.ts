@@ -42,7 +42,7 @@ export default class CRABS {
 
 
     private detectMod(targetmod: string): boolean {
-        if (this.modlist.find(C => C.name == targetmod)) {
+        if (this.modlist.filter(x => x.name == targetmod).length > 0) {
             return(true);
         }
         else {
