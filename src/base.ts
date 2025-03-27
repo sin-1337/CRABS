@@ -28,6 +28,7 @@ export default class CRABS {
         this.modlist = modlist;
     }
 
+        // Opens the player profile
         // This functions is setup up to be exposed to the global DOM
     public static showPlayerFocus(MemberNumber: number): void {
         // Check if the person is still in the room
