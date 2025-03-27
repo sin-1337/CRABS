@@ -130,26 +130,28 @@ export default class Roster extends CRABS {
         // person is a lover
         player_icons += this.printicon("lover") + " ";
       }
-      if (this.detectMod("BCTweaks")) {
-          // BCTweaks mod is found
-          if (Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)) {
-              //Player is a best friend, skip checking if they are a friend.
-              player_icons += this.printicon("bestfriend") + " ";
+      else {
+          if (this.detectMod("BCTweaks")) {
+              // BCTweaks mod is found
+              if (Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)) {
+                  //Player is a best friend, skip checking if they are a friend.
+                  player_icons += this.printicon("bestfriend") + " ";
+              }
+              else if (Player.FriendList.includes(player.MemberNumber) {
+                  // Player is not a best friend, but they are a freind
+                  player_icons += this.printicon("friend") + " ";
+              }
           }
-          else if (Player.FriendList.includes(player.MemberNumber) {
-              // Player is not a best friend, but they are a freind
-              player_icons += this.printicon("friend") + " ";
+          else if (Player.FriendList.includes(player.MemberNumber)) {
+            // person is a friend, and the BCTweaks mod is not found
+            player_icons += this.printicon("friend") + " ";
           }
-      }
-      else if (Player.FriendList.includes(player.MemberNumber)) {
-        // person is a friend, and the BCTweaks mod is not found
-        player_icons += this.printicon("friend") + " ";
       }
       if (Player.WhiteList.includes(player.MemberNumber)) {
         // Player is whitelisted
         player_icons += this.printicon("whitelist") + " ";
       }
-      if (Player.BlackList.includes(player.MemberNumber)) {
+      else if (Player.BlackList.includes(player.MemberNumber)) {
         // Player is blacklisted
         player_icons += this.printicon("blacklist") + " ";
       }
