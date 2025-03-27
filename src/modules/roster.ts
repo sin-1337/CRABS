@@ -1,51 +1,16 @@
 import WhisperPlus from "./whisperplus";
+import CRABS from "../base.ts";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
-export default class Roster {
-    const ICONS: Record<string, string> = {
-        "admin" : "icons/admin.svg",
-        "vip" : "icons/vip.svg",
-        "player" : "icons/player.svg",
-        "you" : "icons/you.svg",
-        "owner" : "icons/owner.svg",
-        "sub" : "icons/sub.svg",
-        "trial" : "icons/trial.svg",
-        "lover" : "icons/lover.svg",
-        "friend" : "icons/friends.svg",
-        "whitelist" : "icons/whitelist.svg",
-        "blacklist" : "icons/blacklist.svg",
-        "ghost" : "icons/ghost.svg"
-    }
+export default class Roster extends CRABS {
 
-    icon_height = 0;
-    icon_width = 0
-
-    constructor (icon_height: number, icon_width: number) {
-        this.icon_height = icon_height;
-        this.icon_width = icon_width;
-        window.PlayerFocus = Roster.showPlayerFocus
-    }
-
-    printicon(key: string) : string {
-        let ICON = "./icons/error.svg";
-        if (key in this.ICONS) {
-            ICON = this.ICONS[key];
-        }
-
-        let absolutepath = "https://sin-1337.github.io/CRABS/"
-        let html = "";
-        html += "<img ";
-        html += "height=" + this.icon_height + "px' ";
-        html += "width='" + this.icon_width + "px' ";
-        html += "alt='" + key + "' ";
-        html += "src='" + absolutepath + ICON + "'";
-        html += ">";
-        return(html);
+    constructor(icon_height: number, icon_width: number, modlist: any) {
+        super(icon_height, icon_width, modlist);
     }
 
     // show help
     showhelp() : string {
-        return `<table style="width: 100%"><tr><td>
+            let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
             CRABS help sheet</br>
@@ -77,8 +42,14 @@ export default class Roster {
             ${this.printicon("owner")} = Person is your owner </br>
             ${this.printicon("sub")} = Person is your submissive </br>
             ${this.printicon("trial")} = Person is on trial with you </br>
-            ${this.printicon("lover")} = Person is your lover </br>
-            ${this.printicon("friend")} = Person is a friend </br>
+            ${this.printicon("lover")} = Person is your lover </br>`;
+            
+            //prints only if the BCTweaks module is detected.
+            if (this.detectMod("BCTweaks")) {
+                output += `${this.printicon("bestfriend")} = Person is a best friend </br>`
+            }
+
+            output += `${this.printicon("friend")} = Person is a friend </br>
             ${this.printicon("whitelist")} = You have this person whitelisted </br>
             ${this.printicon("blacklist")} = You have this person blacklisted </br>
             ${this.printicon("ghost")} = You have ghosted this person </br>
@@ -92,6 +63,7 @@ export default class Roster {
             </td>
             </tr>
             </table>`;
+        return(output);
     }
 
 
@@ -170,26 +142,42 @@ export default class Roster {
         // person is a lover
         player_icons += this.printicon("lover") + " ";
       }
-      if (Player.FriendList.includes(player.MemberNumber)) {
-        // person is a friend
+      if (this.detectMod("BCTweaks")) {
+          // BCTweaks mod is found
+          if (Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)) {
+              //Player is a best friend, skip checking if they are a friend.
+              player_icons += this.printicon("bestfriend") + " ";
+          }
+          else if (Player.FriendList.includes(player.MemberNumber) {
+              // Player is not a best friend, but they are a freind
+              player_icons += this.printicon("friend") + " ";
+          }
+      }
+      else if (Player.FriendList.includes(player.MemberNumber)) {
+        // person is a friend, and the BCTweaks mod is not found
         player_icons += this.printicon("friend") + " ";
       }
       if (Player.WhiteList.includes(player.MemberNumber)) {
+        // Player is whitelisted
         player_icons += this.printicon("whitelist") + " ";
       }
       if (Player.BlackList.includes(player.MemberNumber)) {
+        // Player is blacklisted
         player_icons += this.printicon("blacklist") + " ";
       }
       if (Player.GhostList.includes(player.MemberNumber)) {
+        // Player is ghosted
         player_icons += this.printicon("ghost") + " ";
       }
       return player_icons;
     }
 
+    // Check if you and target player are the same
     checkIfMe(player: any) : boolean {
       return player.MemberNumber == Player.MemberNumber ? true : false;
     }
 
+    // prints the roster
     displayroster(args: any): void {
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {

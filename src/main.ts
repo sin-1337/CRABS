@@ -21,8 +21,8 @@ const CRABS = bcModSDK.registerMod({
     repository: "https://github.com/sin-1337/CRABS",
 });
 
-const WHISPERPLUS = new WhisperPlus();
-const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
+const WHISPERPLUS = new WhisperPlus(ICON_HEIGHT, ICON_WIDTH, bcModSDK.getModsInfo());
+const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, bcModSDK.getModsInfo());
 
 
 // TODO: create ui to turn this off!!

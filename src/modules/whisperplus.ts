@@ -1,4 +1,9 @@
-export default class WhisperPlus {
+import CRABS from "../base.ts"
+export default class WhisperPlus extends CRABS {
+
+    constructor(icon_height: number, icon_width: number, modlist: any) {
+        super(icon_height, icon_width, modlist);
+    }
 
     // send chat message at range
     private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
@@ -58,6 +63,7 @@ export default class WhisperPlus {
             // message was sent
             return true;
         }
+        return false;
     }
 
     // This starts /whisper+ if you click on the roster
