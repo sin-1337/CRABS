@@ -32,6 +32,7 @@ ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data) => {
+      console.log("CRABS: function runs");
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -42,14 +43,18 @@ ChatRoomRegisterMessageHandler({
       setTimeout(() => {
         // if the player left the room, bail!
         if (Player.LastChatRoom === null) {
-          return false;
+          return false
         }
+      console.log("CRABS: after delay");
 
         // get player permissions
         const currentPermissionText = `${TextGetInScope(
           "Screens/Character/InformationSheet/Text_InformationSheet.csv",
           "PermissionLevel" + Player.ItemPermission.toString()
         )} (${Player.ItemPermission})`;
+
+
+      console.log("CRABS: after playerpermissions");
 
         // format and display the player permissions
         ChatRoomSendLocal(`
