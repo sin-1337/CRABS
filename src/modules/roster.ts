@@ -80,18 +80,6 @@ export default class Roster extends CRABS {
         }
     };
 
-    // This functions is setup up to be exposed to the global DOM
-    public static showPlayerFocus(MemberNumber: number): void {
-        // Check if the person is still in the room
-      const PLAYER = ChatRoomCharacter.find(C => C.MemberNumber == MemberNumber);
-        if (PLAYER) {
-            ChatRoomStatusUpdate("Preference");
-            ChatRoomFocusCharacter(PLAYER);
-        } else {
-            ChatRoomSendLocal("This person is no longer in the room.");
-        }
-    };
-
     // formats the data for outputting
     formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
         let playername = CharacterNickname(player);

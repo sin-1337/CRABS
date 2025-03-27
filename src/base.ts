@@ -24,9 +24,22 @@ export default class CRABS {
     constructor (icon_height: number, icon_width: number, modlist: any) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
-        window.PlayerFocus = Roster.showPlayerFocus;
+        window.PlayerFocus = CRABS.showPlayerFocus;
         this.modlist = modlist;
     }
+
+        // This functions is setup up to be exposed to the global DOM
+    public static showPlayerFocus(MemberNumber: number): void {
+        // Check if the person is still in the room
+      const PLAYER = ChatRoomCharacter.find(C => C.MemberNumber == MemberNumber);
+        if (PLAYER) {
+            ChatRoomStatusUpdate("Preference");
+            ChatRoomFocusCharacter(PLAYER);
+        } else {
+            ChatRoomSendLocal("This person is no longer in the room.");
+        }
+    };
+
 
     private detectMod(targetmod: string): string {
         return(this.modlist.find(C => C.name == targetmod));
