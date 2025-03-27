@@ -1,5 +1,5 @@
 export default class CRABS {
-    const ICONS: Record<string, string> = {
+    private readonly ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
         "player" : "icons/player.svg",
@@ -16,10 +16,10 @@ export default class CRABS {
         "thought": "icons/admin.svg"
     }
 
-    icon_height = 0;
-    icon_width = 0
+    private icon_height = 0;
+    private icon_width = 0
 
-    modlist = {};
+    private modlist = {};
 
     constructor (icon_height: number, icon_width: number, modlist: any) {
         this.icon_height = icon_height;
@@ -32,7 +32,7 @@ export default class CRABS {
         return(this.modlist.find(C => C.name == targetmod));
     }
 
-    printicon(key: string) : string {
+    private printicon(key: string) : string {
         let ICON = "./icons/error.svg";
         if (key in this.ICONS) {
             ICON = this.ICONS[key];
