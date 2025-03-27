@@ -32,9 +32,6 @@ ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data) => {
-      console.log("CRABS: data.type = " + data.Type);
-      console.log("CRABS: data.content = " + data.content);
-      console.log("CRABS: data.sender = " + data.sender);
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -43,21 +40,16 @@ ChatRoomRegisterMessageHandler({
     ) {
       // work on a delay
       setTimeout(() => {
-      console.log("CRABS: " + Player.LastChatRoom.toString());
         // if the player left the room, bail!
         if (Player.LastChatRoom === null) {
           return false
         }
-      console.log("CRABS: after delay");
 
         // get player permissions
         const currentPermissionText = `${TextGetInScope(
           "Screens/Character/InformationSheet/Text_InformationSheet.csv",
           "PermissionLevel" + Player.ItemPermission.toString()
         )} (${Player.ItemPermission})`;
-
-
-      console.log("CRABS: after playerpermissions");
 
         // format and display the player permissions
         ChatRoomSendLocal(`
@@ -107,7 +99,7 @@ CommandCombine([
     {
         Tag: "crabs",
         Description: "Show the player count, helpful in maps.",
-        Action: (args) => {
+        Action: (args: any) => {
             ROSTER.displayroster(args, bcModSDK.getModsInfo());
         },
     }
@@ -119,7 +111,7 @@ CommandCombine([
     {
         Tag: "roster",
         Description: "Show the player count, helpful in maps.",
-        Action: (args) => {
+        Action: (args: any) => {
             ROSTER.displayroster(args, bcModSDK.getModsInfo());
         },
     }
@@ -130,8 +122,8 @@ CommandCombine([
     {
         Tag: "players",
         Description: "Deprecated: Show the player count, helpful in maps.",
-        Action: (args) => {
-            ROSTER.displayroster(args), bcModSDK.getModsInfo();
+        Action: (args: any) => {
+            ROSTER.displayroster(args, bcModSDK.getModsInfo());
         },
     }
 ]); 
