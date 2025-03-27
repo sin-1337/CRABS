@@ -20,7 +20,7 @@ export default class WhisperPlus extends CRABS {
 
         // Handle self whispers with gray text and memo emoji
         if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
-            const SELFMESSAGE = `<span style="color:#989898">💭 Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
+            const SELFMESSAGE = `<span style="color:#989898">${this.printicon("thought")} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
             ChatRoomSendLocal(SELFMESSAGE);
             return;
         }
