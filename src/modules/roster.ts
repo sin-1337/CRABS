@@ -94,24 +94,22 @@ export default class Roster extends CRABS {
       return output;
     }
 
-    public this.crabs.hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
+/*    public this.crabs.hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
       // Simulating the hook execution
       // In a real scenario, this could be a hook in a framework where you register callbacks for events
       const dummyArgs = [[{ length: 5 }]]; // Sample data simulating the "data" from your hook
       callback(dummyArgs, (args: any[]) => {
         console.log('Next callback executed', args);
       });
-    }
+    }*/
 
-    public loadFriendList(): void {
-        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-          const [data] = args;
-          this.onlineFriends = data.length;
-          console.log(`Number of online friends: ${this.onlineFriends}`);
-          return next(args);
-        });
-      }
-    
+    public this.crabs.hookFunction("FriendListLoadFriendList", 0, (args: any, next: any) => {
+      const [data] = args;
+      this.onlineFriends = data.length;
+      console.log(`Number of online friends: ${this.onlineFriends}`);
+      return next(args);
+    });
+
       // Debounce function to control the timing of ServerSend
     private canSendServerRequest(): boolean {
       const now = Date.now();
@@ -329,7 +327,7 @@ export default class Roster extends CRABS {
             `There are ${ChatRoomCharacter.length}/${ChatRoomData.limit} total players in the room.`
         );
         ChatRoomSendLocal(
-            `You have ${this.getOnlineFriendCount().then()}/${Player.FriendNames.size} friends online.`
+            `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
         );
         ChatRoomSendLocal(
             `There are ${CurrentOnlinePlayers} online players</div>`
