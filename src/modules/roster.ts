@@ -88,7 +88,7 @@ export default class Roster extends CRABS {
     }
 
     getonlinefriendcount(): number {
-        crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
             return next(args);
         });
         return(Array[0].length)
