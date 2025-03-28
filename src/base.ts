@@ -24,7 +24,7 @@ export default class CRABS {
 
     private modlist: Array<any>;
 
-    constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI, modlist: Array<any>) {
+    constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         this.modlist = modlist;

@@ -1,5 +1,5 @@
 import WhisperPlus from "./whisperplus";
-import CRABS from "../base.ts";
+import CRABS from "../base";
 import {ModSDKModAPI} from "bondage-club-mod-sdk";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
@@ -332,7 +332,7 @@ export default class Roster extends CRABS {
         }
         else {
             ChatRoomSendLocal(
-                `You have ${Player.FriendNames.size} friends, checking for how many are online...`
+                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`
             );
         }
         ChatRoomSendLocal(
