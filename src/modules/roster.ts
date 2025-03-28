@@ -115,8 +115,8 @@ export default class Roster extends CRABS {
       // Debounce function to control the timing of ServerSend
     private canSendServerRequest(): boolean {
       const now = Date.now();
-      if (now - lastSentTime >= 2 * 60 * 1000) { // 2 minutes in milliseconds
-        lastSentTime = now;  // Update the lastSentTime to the current time
+      if (now - this.lastSentTime >= 2 * 60 * 1000) { // 2 minutes in milliseconds
+        this.lastSentTime = now;  // Update the lastSentTime to the current time
         return true;
       }
       return false;
