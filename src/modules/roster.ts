@@ -150,7 +150,7 @@ export default class Roster extends CRABS {
         }
         return this.onlineFriends ?? 0; // If still undefined, return 0 (or handle as needed)
     }
-    // Function to get the online friend count
+   /* // Function to get the online friend count
     public async getOnlineFriendCount(): Promise<number> {
       // Check if it's okay to send the server request
       if (this.canSendServerRequest()) {
@@ -168,7 +168,7 @@ export default class Roster extends CRABS {
           }
         }, 100);  // Check every 100ms if onlineFriends has been set
       });
-    }
+    }*/
 
     // determine if player is admin or whitelisted in the room and set their badge icon
     setbadge(player: any) : string {
@@ -364,7 +364,7 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              await this.getOnlineFriendCount() +
+              this.getOnlineFriendCount() +
               "/" +
               Player.FriendNames.size +
               " friends online."
