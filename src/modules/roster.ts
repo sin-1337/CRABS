@@ -10,7 +10,7 @@ export default class Roster extends CRABS {
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
-
+        this.loadFriendList();
         // expose showPlayerFocus to the DOM
         window.PlayerFocus = Roster.showPlayerFocus;
     }
@@ -107,7 +107,7 @@ export default class Roster extends CRABS {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
           this.onlineFriends = data.length;
-          console.log(`Number of online friends: ${this.onlineFriends}`);
+          // console.log(`Number of online friends: ${this.onlineFriends}`);
           return next(args);
         });
     }
@@ -115,7 +115,7 @@ export default class Roster extends CRABS {
       // Debounce function to control the timing of ServerSend
     private canSendServerRequest(): boolean {
       const now = Date.now();
-      if (now - this.lastSentTime >= 2 * 60 * 1000) { // 2 minutes in milliseconds
+      if (now - this.lastSentTime >= 10 * 60 * 1000) { // 10 minutes in milliseconds
         this.lastSentTime = now;  // Update the lastSentTime to the current time
         return true;
       }
@@ -211,10 +211,6 @@ export default class Roster extends CRABS {
 
     // prints the roster
     public displayroster(args: any, modlist: any): void {
-        this.loadFriendList();
-        this.getOnlineFriendCount().then(count => {
-            console.log("your count: ${count}")
-        })
         this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
