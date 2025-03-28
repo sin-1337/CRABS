@@ -104,7 +104,7 @@ export default class Roster extends CRABS {
     }
 
     public loadFriendList(): void {
-        this.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
           this.onlineFriends = data.length;
           console.log(`Number of online friends: ${this.onlineFriends}`);
@@ -211,7 +211,9 @@ export default class Roster extends CRABS {
 
     // prints the roster
     public displayroster(args: any, modlist: any): void {
-        this.getOnlineFriendCount();
+        this.getOnlineFriendCount().then(count => {
+            console.log("your count: ${count}")
+        })
         this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
@@ -322,31 +324,17 @@ export default class Roster extends CRABS {
         //output total number of players/admins
         //TODO: include this in the table space and add a header
         ChatRoomSendLocal(
-            "<div>There are " +
-              admin_count +
-              "/" +
-              ChatRoomData.Admin.length +
-              " admins in the room.</div>"
+            "<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.""
         );
         ChatRoomSendLocal(
-            "There are " +
-              ChatRoomCharacter.length +
-              "/" +
-              ChatRoomData.Limit +
-              " total players in the room.</div>"
+            "There are ${ChatRoomCharacter.length}/${ChatRoomData.limit} total players in the room."
         );
         ChatRoomSendLocal(
-            "You have " +
-              this.onlineFriends +
-              "/" +
-              Player.FriendNames.size +
-              " friends online."
+            "You have ${this.getOnlineFriendCount().then()}/${Player.FriendNames.size} friends online."
         );
         ChatRoomSendLocal(
-            "There are " +
-              CurrentOnlinePlayers + 
-              " online players" 
-        )
+            "There are ${CurrentOnlinePlayers} online players" 
+        );
         let output_html = "";
 
         // start the tabble and remove the boarders
