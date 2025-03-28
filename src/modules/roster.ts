@@ -211,6 +211,7 @@ export default class Roster extends CRABS {
 
     // prints the roster
     public displayroster(args: any, modlist: any): void {
+        this.getOnlineFriendCount();
         this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
