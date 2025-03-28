@@ -322,9 +322,8 @@ export default class Roster extends CRABS {
         }
 
         //output total number of players/admins
-        //TODO: include this in the table space and add a header
         ChatRoomSendLocal(
-            "<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.""
+            "<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room."
         );
         ChatRoomSendLocal(
             "There are ${ChatRoomCharacter.length}/${ChatRoomData.limit} total players in the room."
@@ -333,7 +332,7 @@ export default class Roster extends CRABS {
             "You have ${this.getOnlineFriendCount().then()}/${Player.FriendNames.size} friends online."
         );
         ChatRoomSendLocal(
-            "There are ${CurrentOnlinePlayers} online players" 
+            "There are ${CurrentOnlinePlayers} online players</div>" 
         );
         let output_html = "";
 
