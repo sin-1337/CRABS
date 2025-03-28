@@ -119,6 +119,34 @@ export default class Roster extends CRABS {
     }
 
     // Function to get the online friend count
+    public getOnlineFriendCount(): number {
+      // Check if it's okay to send the server request
+        if (this.canSendServerRequest()) {
+          // Send server request if it's been more than 2 minutes
+          ServerSend("AccountQuery", { Query: "OnlineFriends" });
+        }
+
+        // Ensure that onlineFriends has been updated before returning
+        if (this.onlineFriends !== undefined) {
+          return this.onlineFriends;
+        }
+
+        // If onlineFriends is not set, we need to wait for the hook to set it
+        const start = Date.now();
+        const maxWaitTime = 5000; // Max wait time of 5 seconds
+
+        while (this.onlineFriends === undefined && Date.now() - start < maxWaitTime) {
+          // Wait for the hook to update the onlineFriends value
+          // The loop gives time for the hook to run and update the value
+          // We check every 100ms
+          if (Date.now() - start >= maxWaitTime) {
+            console.log("Timed out waiting for online friends data.");
+            break; // Exit if we exceed max wait time
+          }
+        }
+        return this.onlineFriends ?? 0; // If still undefined, return 0 (or handle as needed)
+    }
+    // Function to get the online friend count
     public async getOnlineFriendCount(): Promise<number> {
       // Check if it's okay to send the server request
       if (this.canSendServerRequest()) {
