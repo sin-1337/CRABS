@@ -323,11 +323,18 @@ export default class Roster extends CRABS {
             `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`
         );
         ChatRoomSendLocal(
-            `There are ${ChatRoomCharacter.length}/${ChatRoomData.limit} total players in the room.`
+            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`
         );
-        ChatRoomSendLocal(
-            `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
-        );
+        if (this.onlineFriends !== undefined) {
+            ChatRoomSendLocal(
+                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
+            );
+        }
+        else {
+            ChatRoomSendLocal(
+                `You have ${Player.FriendNames.size} friends, checking for how many are online...`
+            );
+        }
         ChatRoomSendLocal(
             `There are ${CurrentOnlinePlayers} online players</div>`
         );
