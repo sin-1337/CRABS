@@ -179,7 +179,7 @@ export default class Roster extends CRABS {
                   //Player is a best friend, skip checking if they are a friend.
                   player_icons += this.printicon("bestfriend") + " ";
               }
-              else if (Player.FriendList.includes(player.MemberNumber) {
+              else if (Player.FriendList.includes(player.MemberNumber)) {
                   // Player is not a best friend, but they are a freind
                   player_icons += this.printicon("friend") + " ";
               }
@@ -210,14 +210,13 @@ export default class Roster extends CRABS {
     }
 
     // prints the roster
-    public async displayroster(args: any, modlist: any): void {
+    public displayroster(args: any, modlist: any): void {
         this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
             ChatRoomSendLocal(this.showhelp());
             return;
         }
-        const onlineFriendCount = await this.getOnlineFriendCount();
 
         let me_output_html = ""; // holds data about user who ran script
         let admin_output_html = ""; // holds admins
@@ -337,7 +336,7 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              onlineFriendCount +
+              this.onlineFriends +
               "/" +
               Player.FriendNames.size +
               " friends online."
