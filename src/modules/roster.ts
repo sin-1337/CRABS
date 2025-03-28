@@ -95,19 +95,11 @@ export default class Roster extends CRABS {
       return output;
     }
 
-    /*public this.crabs.hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
-      // Simulating the hook execution
-      // In a real scenario, this could be a hook in a framework where you register callbacks for events
-      const dummyArgs = [[{ length: 5 }]]; // Sample data simulating the "data" from your hook
-      callback(dummyArgs, (args: any[]) => {
-        console.log('Next callback executed', args);
-      });
-    }*/
-
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
           this.onlineFriends = data.length;
+          this.lastSentTime = Date.now()
           // console.log(`Number of online friends: ${this.onlineFriends}`);
           return next(args);
         });
@@ -132,6 +124,28 @@ export default class Roster extends CRABS {
       }
 
       // Wait for the hook function to finish (assuming `next` ensures it completes)
+      return new Promise<number>((resolve) => {
+        const checkOnlineFriends = () => {
+          if (this.onlineFriends !== undefined) {
+            resolve(this.onlineFriends);  // Return the online friends count
+          } else {
+            setTimeout(checkOnlineFriends, 100);  // Check again after 100ms
+          }
+        };
+        
+        checkOnlineFriends();  // Start the checking process
+      });
+    }
+/*
+    // Function to get the online friend count
+    public async getOnlineFriendCount(): Promise<number> {
+      // Check if it's okay to send the server request
+      if (this.canSendServerRequest()) {
+        // Send server request if it's been more than 2 minutes
+        await ServerSend("AccountQuery", { Query: "OnlineFriends" });
+      }
+
+      // Wait for the hook function to finish (assuming `next` ensures it completes)
       // This is a simple approach assuming that `next` returns a promise or async behavior
       return new Promise<number>((resolve) => {
         const interval = setInterval(() => {
@@ -142,6 +156,7 @@ export default class Roster extends CRABS {
         }, 100);  // Check every 100ms if onlineFriends has been set
       });
     }
+*/
 
     // determine if player is admin or whitelisted in the room and set their badge icon
     private setbadge(player: any) : string {
