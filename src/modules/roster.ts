@@ -210,7 +210,7 @@ export default class Roster extends CRABS {
     }
 
     // prints the roster
-    displayroster(args: any, modlist: any): void {
+    public async displayroster(args: any, modlist: any): void {
         this.modlist = modlist;
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
@@ -241,7 +241,7 @@ export default class Roster extends CRABS {
             MemberNumber = ChatRoomData.Character[person].MemberNumber;
 
             // Find player
-            player = ChatRoomCharacter.find((C) => C.MemberNumber == MemberNumber);
+            player = ChatRoomCharacter.find((C: any) => C.MemberNumber == MemberNumber);
 
             //bail out and return placeholder if player is not available.
             if (!player) {
