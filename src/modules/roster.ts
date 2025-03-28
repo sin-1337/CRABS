@@ -217,6 +217,7 @@ export default class Roster extends CRABS {
             ChatRoomSendLocal(this.showhelp());
             return;
         }
+        const onlineFriendCount = await this.getOnlineFriendCount();
 
         let me_output_html = ""; // holds data about user who ran script
         let admin_output_html = ""; // holds admins
@@ -336,7 +337,7 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              await this.getOnlineFriendCount() +
+              onlineFriendCount +
               "/" +
               Player.FriendNames.size +
               " friends online."
