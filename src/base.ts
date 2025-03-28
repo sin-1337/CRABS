@@ -1,4 +1,5 @@
 export default class CRABS {
+    declare crabs;
     private readonly ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
@@ -21,11 +22,12 @@ export default class CRABS {
 
     private modlist: Array<any>;
 
-    constructor (icon_height: number, icon_width: number, modlist: Array<any>) {
+    constructor (icon_height: number, icon_width: number, CRABS: any, modlist: Array<any>) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         window.PlayerFocus = CRABS.showPlayerFocus;
         this.modlist = modlist;
+        this.crabs = CRABS;
     }
 
         // Opens the player profile

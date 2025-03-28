@@ -1,8 +1,8 @@
 import CRABS from "../base.ts"
 export default class WhisperPlus extends CRABS {
 
-    constructor(icon_height: number, icon_width: number, modlist: any) {
-        super(icon_height, icon_width, modlist);
+    constructor(icon_height: number, icon_width: number, CRABS: any, modlist: any) {
+        super(icon_height, icon_width, CRABS, modlist);
     }
 
     // send chat message at range

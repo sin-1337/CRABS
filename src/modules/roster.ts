@@ -4,8 +4,8 @@ window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
 
-    constructor(icon_height: number, icon_width: number, modlist: any) {
-        super(icon_height, icon_width, modlist);
+    constructor(icon_height: number, icon_width: number, CRABS: any, modlist: any) {
+        super(icon_height, icon_width, CRABS, modlist);
     }
 
     // show help
@@ -85,6 +85,13 @@ export default class Roster extends CRABS {
           </tr>`;
 
       return output;
+    }
+
+    getonlinefriendcount(): number {
+        crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+            return next(args);
+        });
+        return(Array[0].length)
     }
 
     // determine if player is admin or whitelisted in the room and set their badge icon
@@ -281,11 +288,16 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              "X" +
+              this.getonlinefriendcount() +
               "/" +
               Player.FriendNames.size +
               " friends online."
         );
+        ChatRoomSendLocal(
+            "There are " +
+              CurrentOnlinePlayers + 
+              " online players" 
+        )
         let output_html = "";
 
         // start the tabble and remove the boarders
