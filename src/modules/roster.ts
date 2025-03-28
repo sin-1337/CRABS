@@ -4,12 +4,15 @@ window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
 
+    private onlineFriends: number | undefined = undefined;
+    private lastSentTime: number = 0;  // Timestamp for the last ServerSend call
+
     constructor(icon_height: number, icon_width: number, CRABS: any, modlist: any) {
         super(icon_height, icon_width, CRABS, modlist);
     }
 
     // show help
-    showhelp() : string {
+    private showhelp() : string {
             let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
@@ -68,7 +71,7 @@ export default class Roster extends CRABS {
 
 
     // formats the data for outputting
-    formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
+    private formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
         let playername = CharacterNickname(player);
         let output = `<tr>
                 <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
@@ -87,11 +90,41 @@ export default class Roster extends CRABS {
       return output;
     }
 
-    getonlinefriendcount(): number {
-        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-            return next(args);
-        });
-        return(Array[0].length)
+    // Hook function to update onlineFriends
+    this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+      const [data] = args;
+      onlineFriends = data.length;
+      return next(args);  // Ensure the next function is called after the hook
+    });
+
+    // Debounce function to control the timing of ServerSend
+    canSendServerRequest(): boolean {
+      const now = Date.now();
+      if (now - lastSentTime >= 2 * 60 * 1000) { // 2 minutes in milliseconds
+        lastSentTime = now;  // Update the lastSentTime to the current time
+        return true;
+      }
+      return false;
+    }
+
+    // Function to get the online friend count
+    public async getOnlineFriendCount(): Promise<number> {
+      // Check if it's okay to send the server request
+      if (canSendServerRequest()) {
+        // Send server request if it's been more than 2 minutes
+        await ServerSend("AccountQuery", { Query: "OnlineFriends" });
+      }
+
+      // Wait for the hook function to finish (assuming `next` ensures it completes)
+      // This is a simple approach assuming that `next` returns a promise or async behavior
+      return new Promise<number>((resolve) => {
+        const interval = setInterval(() => {
+          if (this.onlineFriends !== undefined) {
+            clearInterval(interval);  // Stop waiting once onlineFriends is updated
+            resolve(this.onlineFriends);  // Return the online friends count
+          }
+        }, 100);  // Check every 100ms if onlineFriends has been set
+      });
     }
 
     // determine if player is admin or whitelisted in the room and set their badge icon
@@ -288,7 +321,7 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              this.getonlinefriendcount() +
+              this.getOnlineFriendCount() +
               "/" +
               Player.FriendNames.size +
               " friends online."
