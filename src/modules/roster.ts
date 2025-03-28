@@ -12,7 +12,7 @@ export default class Roster extends CRABS {
         super(icon_height, icon_width, CRABS);
 
         // expose showPlayerFocus to the DOM
-        window.PlayerFocus = CRABS.showPlayerFocus;
+        window.PlayerFocus = Roster.showPlayerFocus;
     }
 
     // show help
