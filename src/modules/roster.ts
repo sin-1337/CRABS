@@ -90,15 +90,26 @@ export default class Roster extends CRABS {
       return output;
     }
 
-    // Hook function to update onlineFriends
-    this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-      const [data] = args;
-      onlineFriends = data.length;
-      return next(args);  // Ensure the next function is called after the hook
-    });
+    public hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
+      // Simulating the hook execution
+      // In a real scenario, this could be a hook in a framework where you register callbacks for events
+      const dummyArgs = [[{ length: 5 }]]; // Sample data simulating the "data" from your hook
+      callback(dummyArgs, (args: any[]) => {
+        console.log('Next callback executed', args);
+      });
+    }
 
-    // Debounce function to control the timing of ServerSend
-    canSendServerRequest(): boolean {
+    public loadFriendList(): void {
+        this.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+          const [data] = args;
+          this.onlineFriends = data.length;
+          console.log(`Number of online friends: ${this.onlineFriends}`);
+          return next(args);
+        });
+      }
+    
+      // Debounce function to control the timing of ServerSend
+    private canSendServerRequest(): boolean {
       const now = Date.now();
       if (now - lastSentTime >= 2 * 60 * 1000) { // 2 minutes in milliseconds
         lastSentTime = now;  // Update the lastSentTime to the current time
@@ -110,7 +121,7 @@ export default class Roster extends CRABS {
     // Function to get the online friend count
     public async getOnlineFriendCount(): Promise<number> {
       // Check if it's okay to send the server request
-      if (canSendServerRequest()) {
+      if (this.canSendServerRequest()) {
         // Send server request if it's been more than 2 minutes
         await ServerSend("AccountQuery", { Query: "OnlineFriends" });
       }
