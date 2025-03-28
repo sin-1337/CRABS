@@ -27,7 +27,6 @@ export default class CRABS {
     constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI, modlist: Array<any>) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
-        window.PlayerFocus = CRABS.showPlayerFocus;
         this.modlist = modlist;
         this.crabs = CRABS;
     }

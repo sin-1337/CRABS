@@ -10,6 +10,9 @@ export default class Roster extends CRABS {
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
+
+        // expose showPlayerFocus to the DOM
+        window.PlayerFocus = CRABS.showPlayerFocus;
     }
 
     // show help
