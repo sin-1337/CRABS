@@ -364,7 +364,7 @@ export default class Roster extends CRABS {
         );
         ChatRoomSendLocal(
             "You have " +
-              this.getOnlineFriendCount() +
+              await this.getOnlineFriendCount() +
               "/" +
               Player.FriendNames.size +
               " friends online."
