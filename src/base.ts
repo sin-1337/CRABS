@@ -22,12 +22,9 @@ export default class CRABS {
     private icon_height = 0;
     private icon_width = 0
 
-    public modlist: Array<ModSDKModInfo>;
-
     constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
-        this.modlist = modlist;
         this.crabs = CRABS;
     }
 
