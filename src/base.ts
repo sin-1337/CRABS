@@ -1,5 +1,7 @@
+import {ModSDKModAPI} from "bondage-club-mod-sdk";
+
 export default class CRABS {
-    declare crabs;
+    declare crabs: ModSDKModAPI;
     private readonly ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
@@ -22,7 +24,7 @@ export default class CRABS {
 
     private modlist: Array<any>;
 
-    constructor (icon_height: number, icon_width: number, CRABS: any, modlist: Array<any>) {
+    constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI, modlist: Array<any>) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         window.PlayerFocus = CRABS.showPlayerFocus;

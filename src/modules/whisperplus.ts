@@ -1,8 +1,9 @@
+import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base.ts"
 export default class WhisperPlus extends CRABS {
 
-    constructor(icon_height: number, icon_width: number, CRABS: any, modlist: any) {
-        super(icon_height, icon_width, CRABS, modlist);
+    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
+        super(icon_height, icon_width, CRABS);
     }
 
     // send chat message at range

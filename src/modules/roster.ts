@@ -1,5 +1,6 @@
 import WhisperPlus from "./whisperplus";
 import CRABS from "../base.ts";
+import {ModSDKModAPI} from "bondage-club-mod-sdk";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
@@ -7,8 +8,8 @@ export default class Roster extends CRABS {
     private onlineFriends: number | undefined = undefined;
     private lastSentTime: number = 0;  // Timestamp for the last ServerSend call
 
-    constructor(icon_height: number, icon_width: number, CRABS: any, modlist: any) {
-        super(icon_height, icon_width, CRABS, modlist);
+    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
+        super(icon_height, icon_width, CRABS);
     }
 
     // show help
@@ -90,7 +91,7 @@ export default class Roster extends CRABS {
       return output;
     }
 
-    public hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
+    public this.crabs.hookFunction(eventName: string, arg: number, callback: (args: any[], next: (args: any[]) => void) => void): void {
       // Simulating the hook execution
       // In a real scenario, this could be a hook in a framework where you register callbacks for events
       const dummyArgs = [[{ length: 5 }]]; // Sample data simulating the "data" from your hook
