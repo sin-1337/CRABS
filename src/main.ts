@@ -89,7 +89,7 @@ CommandCombine([
         Tag: "whisper+",
         Description: "Enables the /whisper+ command that is global to a map room",
         Action: (args: any, command: any) => {
-            WHISPERPLUS.whisperplus(args, command, bcModSDK.getModsInfo());
+            WHISPERPLUS.whisperplus(args, command);
         },
     },
 ]);
@@ -100,7 +100,7 @@ CommandCombine([
         Tag: "crabs",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args, bcModSDK.getModsInfo());
+            ROSTER.displayroster(args);
         },
     }
 ]); 
@@ -112,7 +112,7 @@ CommandCombine([
         Tag: "roster",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args, bcModSDK.getModsInfo());
+            ROSTER.displayroster(args);
         },
     }
 ]); 
@@ -123,7 +123,7 @@ CommandCombine([
         Tag: "players",
         Description: "Deprecated: Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args, bcModSDK.getModsInfo());
+            ROSTER.displayroster(args);
         },
     }
 ]); 

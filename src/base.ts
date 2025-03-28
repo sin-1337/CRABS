@@ -1,4 +1,4 @@
-import {ModSDKModAPI} from "bondage-club-mod-sdk";
+import {ModSDKModAPI, ModSDKModInfo} from "bondage-club-mod-sdk";
 
 export default class CRABS {
     declare crabs: ModSDKModAPI;
@@ -22,7 +22,7 @@ export default class CRABS {
     private icon_height = 0;
     private icon_width = 0
 
-    private modlist: Array<any>;
+    public modlist: Array<ModSDKModInfo>;
 
     constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         this.icon_height = icon_height;

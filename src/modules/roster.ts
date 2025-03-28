@@ -1,6 +1,7 @@
 import WhisperPlus from "./whisperplus";
 import CRABS from "../base";
 import {ModSDKModAPI} from "bondage-club-mod-sdk";
+import bcModSdk from "bondage-club-mod-sdk";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
@@ -103,7 +104,7 @@ export default class Roster extends CRABS {
       });
     }*/
 
-    public loadFriendList(): void {
+    private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
           this.onlineFriends = data.length;
@@ -143,14 +144,14 @@ export default class Roster extends CRABS {
     }
 
     // determine if player is admin or whitelisted in the room and set their badge icon
-    setbadge(player: any) : string {
+    private setbadge(player: any) : string {
       let badge = this.printicon("player");
       badge = ChatRoomData.Whitelist.includes(player.MemberNumber) ? this.printicon("vip") : badge;
       badge = ChatRoomData.Admin.includes(player.MemberNumber) ? this.printicon("admin") : badge
       return badge;
     }
 
-    setIcons(player: any) : string {
+    private setIcons(player: any) : string {
       let player_icons = "";
       if (Player.OwnerNumber() == player.MemberNumber) {
         // person owns you
@@ -205,13 +206,13 @@ export default class Roster extends CRABS {
     }
 
     // Check if you and target player are the same
-    checkIfMe(player: any) : boolean {
+    private checkIfMe(player: any) : boolean {
       return player.MemberNumber == Player.MemberNumber ? true : false;
     }
 
     // prints the roster
-    public displayroster(args: any, modlist: any): void {
-        this.modlist = modlist;
+    public displayroster(args: any): void {
+        this.modlist = bcModSdk.getModsInfo();
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
             ChatRoomSendLocal(this.showhelp());
@@ -320,23 +321,23 @@ export default class Roster extends CRABS {
 
         //output total number of players/admins
         ChatRoomSendLocal(
-            `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`
+            `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`;
         );
         ChatRoomSendLocal(
-            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`
+            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`;
         );
         if (this.onlineFriends !== undefined) {
             ChatRoomSendLocal(
-                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
+                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`;
             );
         }
         else {
             ChatRoomSendLocal(
-                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`
+                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`;
             );
         }
         ChatRoomSendLocal(
-            `There are ${CurrentOnlinePlayers} online players</div>`
+            `There are ${CurrentOnlinePlayers} online players</div>`;
         );
         let output_html = "";
 
