@@ -1,9 +1,11 @@
 import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base.ts"
 export default class WhisperPlus extends CRABS {
+    private WPlus: any;
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
+        this.WPlus = null;
     }
 
     // send chat message at range
@@ -46,20 +48,23 @@ export default class WhisperPlus extends CRABS {
             }
 
             // build data payload
-            const DATA = ChatRoomGenerateChatRoomChatMessage("Whisper", msg);
+            let data = ChatRoomGenerateChatRoomChatMessage("Whisper+", formattedMsg);
+            if (!data) {
+                data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+            }
             
             // set the whisper target
-            DATA.Target = target.MemberNumber;
+            data.Target = target.MemberNumber;
 
             //send the whisper
-            const serverData = { ...DATA, Type: "Whisper" }
+            const serverData = { ...data, Type: "Whisper" }
             ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
-            DATA.Sender = Player.MemberNumber;
+            data.Sender = Player.MemberNumber;
 
             // send the chat to our window too
-            ChatRoomMessage(DATA);
+            ChatRoomMessage(data);
 
             // message was sent
             return true;
@@ -102,5 +107,144 @@ export default class WhisperPlus extends CRABS {
         );
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;
+    }
+
+      // Initialize the WhisperPlus mod by registering it
+      private initWPlusMod() {
+        if (!window.bcModSdk) {
+          setTimeout(() => this.initWPlusMod(), 500);
+          return;
+        }
+
+        this.WPlus = bcModSdk.registerMod({
+          name: "WPlus",
+          fullName: "Whisper Plus",
+          version: "1.0.0",
+          repository: ""
+        });
+      }
+
+      // Hook into the message display function
+      private hookChatRoomMessageDisplay() {
+        this.WPlus.hookFunction("ChatRoomMessageDisplay", 0, (args: any[], next: Function) => {
+          const [data, msg, SenderCharacter, metadata] = args;
+
+          // If the message type is not "Whisper+", process normally
+          if (data.Type !== "Whisper+") {
+            return next(args);
+          }
+
+          // Process Whisper+ messages
+          const displayMessage = this.processWhisperMessage(data, msg, SenderCharacter, metadata);
+          if (displayMessage === "¶¶¶") return;
+
+          const whisperTarget = this.getWhisperTarget(SenderCharacter, data.Target);
+          const divChildren = this.createWhisperMessageElements(data, msg, SenderCharacter, whisperTarget, displayMessage);
+
+          const div = this.createMessageDiv(data, divChildren, whisperTarget);
+          ChatRoomAppendChat(div);
+          return div;
+        });
+      }
+
+      // Initialize the main functionality of WhisperPlus
+      private init() {
+        this.hookChatRoomMessageDisplay();
+      }
+
+      // Wait for login or init depending on the current screen
+      private initWait() {
+        if (CurrentScreen == null || CurrentScreen === "Login") {
+          this.WPlus.hookFunction("LoginResponse", 0, (args: any[], next: Function) => {
+            next(args);
+            const response = args[0];
+            if (response && typeof response.Name === "string" && typeof response.AccountName === "string") {
+              this.init();
+            }
+          });
+        } else {
+          this.init();
+        }
+      }
+
+      // Main entry point to initialize the mod
+      public initialize() {
+        this.initWPlusMod();
+        this.initWait();
+      }
+
+      // Process Whisper+ messages and return the formatted message
+      private processWhisperMessage(data: any, msg: any, SenderCharacter: any, metadata: any): string {
+        return CommonCensor(ChatRoomActiveView.DisplayMessage(data, msg, SenderCharacter, metadata) ?? "¶¶¶");
+      }
+
+      // Retrieve the target for a Whisper+ message
+      private getWhisperTarget(SenderCharacter: any, targetMemberNumber: string): any {
+        return SenderCharacter.IsPlayer()
+          ? ChatRoomCharacter.find((c: any) => c.MemberNumber === targetMemberNumber)
+          : SenderCharacter;
+      }
+
+      // Create the elements for the Whisper+ message
+      private createWhisperMessageElements(data: any, msg: any, SenderCharacter: any, whisperTarget: any, displayMessage: string): any[] {
+        const divChildren = [];
+
+        divChildren.push(
+          ElementButton.Create(
+            null,
+            window.ChatRoomMessageWhisperPlusClick,
+            { noStyling: true },
+            {
+              button: {
+                classList: ["ReplyButton"],
+                children: ["\u21a9\ufe0f"]
+              }
+            }
+          ),
+          SenderCharacter.IsPlayer() ? TextGet("WhisperTo") : TextGetInScope("Screens/Online/ChatRoom/Text_ChatRoom.csv", "WhisperFrom"),
+          " ",
+          ElementButton.Create(
+            null,
+            window.ChatRoomMessageWhisperPlusClick,
+            { noStyling: true },
+            {
+              button: {
+                classList: ["ChatMessageName"],
+                attributes: {
+                  "tabindex": -1
+                },
+                style: { "--label-color": whisperTarget.LabelColor },
+                children: [CharacterNickname(whisperTarget)],
+              },
+            }
+          ),
+          ": ",
+          displayMessage,
+        );
+
+        return divChildren;
+      }
+
+      // Create a new message div for the Whisper+ message
+      private createMessageDiv(data: any, divChildren: any[], whisperTarget: any): HTMLElement {
+        if (!whisperTarget.IsPlayer()) {
+          document.querySelector(`
+            #TextAreaChatLog .ChatMessageWhisper[data-sender="${whisperTarget.MemberNumber}"] > .ReplyButton:not([tabindex='-1']),
+            #TextAreaChatLog .ChatMessageWhisper[data-target="${whisperTarget.MemberNumber}"] > .ReplyButton:not([tabindex='-1'])
+          `)?.setAttribute("tabindex", "-1");
+        }
+
+        const classList = ["ChatMessage", "ChatMessageWhisper"];
+        return ElementCreate({
+          tag: "div",
+          classList,
+          dataAttributes: {
+            time: ChatRoomCurrentTime(),
+            sender: data.Sender,
+            target: data.Target,
+          },
+          children: divChildren,
+        });
+      }
     }
 }

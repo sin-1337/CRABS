@@ -95,6 +95,7 @@ export default class Roster extends CRABS {
       return output;
     }
 
+    //query the server for friendslist
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
