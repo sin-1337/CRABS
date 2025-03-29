@@ -6,6 +6,7 @@ export default class WhisperPlus extends CRABS {
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
         this.WPlus = null;
+        this.wpinitialize();
     }
 
     // send chat message at range
@@ -168,7 +169,7 @@ export default class WhisperPlus extends CRABS {
       }
 
       // Main entry point to initialize the mod
-      public initialize() {
+      public wpinitialize() {
         this.initWPlusMod();
         this.initWait();
       }
