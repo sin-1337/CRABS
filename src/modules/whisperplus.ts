@@ -5,7 +5,8 @@ export default class WhisperPlus extends CRABS {
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
         this.wpWait();
-    }
+        window.sendWhisper = WhisperPlus.sendWhisper;
+    } 
 
     // send chat message at range
     private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
@@ -112,9 +113,10 @@ export default class WhisperPlus extends CRABS {
         // Our main hook
         this.crabs.hookFunction("ChatRoomMessageDisplay", 0, (args, next) => {
           const [data, msg, SenderCharacter, metadata] = args;
-
+          console.log("CRABS: running loadReplyDisplay hook function");
           // If it's not our special Whisper+ type, let it process normally
           if (data.Type !== "Whisper+") {
+            console.log(`CRABS: data type is ${data.Type}`)
             return next(args);
           }
  
@@ -128,7 +130,7 @@ export default class WhisperPlus extends CRABS {
           divChildren.push(
             ElementButton.Create(
               null,
-              window.ChatRoomMessageWhisperPlusClick,
+              window.sendWhisper(whisperTarget.MemberNumber),
               { noStyling: true },
               {
                 button: {
@@ -141,7 +143,7 @@ export default class WhisperPlus extends CRABS {
             " ",
             ElementButton.Create(
               null,
-              window.ChatRoomMessageWhisperPlusClick,
+              window.sendWhisper(whisperTarget.MemberNumber),
               { noStyling: true },
               {
                 button: {
