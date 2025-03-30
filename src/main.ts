@@ -87,7 +87,17 @@ ChatRoomRegisterMessageHandler({
 CommandCombine([
     {
         Tag: "whisper+",
-        Description: "Enables the /whisper+ command that is global to a map room",
+        Description: "Enables the /whisper+ command that does global whisper in a map room",
+        Action: (args: any, command: any) => {
+            WHISPERPLUS.whisperplus(args, command);
+        },
+    },
+]);
+
+CommandCombine([
+    {
+        Tag: "w+",
+        Description: "Enables the /w+ command that does global whisper in a map room",
         Action: (args: any, command: any) => {
             WHISPERPLUS.whisperplus(args, command);
         },
