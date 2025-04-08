@@ -74,7 +74,6 @@ export default class Roster extends CRABS {
         return(output);
     }
 
-
     // formats the data for outputting
     private formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
         let playername = CharacterNickname(player);
@@ -99,6 +98,7 @@ export default class Roster extends CRABS {
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
           const [data] = args;
+          console.log(data);
           this.onlineFriends = data.length;
           this.lastSentTime = Date.now()
           // console.log(`Number of online friends: ${this.onlineFriends}`);
@@ -137,27 +137,6 @@ export default class Roster extends CRABS {
         checkOnlineFriends();  // Start the checking process
       });
     }
-/*
-    // Function to get the online friend count
-    public async getOnlineFriendCount(): Promise<number> {
-      // Check if it's okay to send the server request
-      if (this.canSendServerRequest()) {
-        // Send server request if it's been more than 2 minutes
-        await ServerSend("AccountQuery", { Query: "OnlineFriends" });
-      }
-
-      // Wait for the hook function to finish (assuming `next` ensures it completes)
-      // This is a simple approach assuming that `next` returns a promise or async behavior
-      return new Promise<number>((resolve) => {
-        const interval = setInterval(() => {
-          if (this.onlineFriends !== undefined) {
-            clearInterval(interval);  // Stop waiting once onlineFriends is updated
-            resolve(this.onlineFriends);  // Return the online friends count
-          }
-        }, 100);  // Check every 100ms if onlineFriends has been set
-      });
-    }
-*/
 
     // determine if player is admin or whitelisted in the room and set their badge icon
     private setbadge(player: any) : string {
