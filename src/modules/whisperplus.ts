@@ -4,7 +4,7 @@ export default class WhisperPlus extends CRABS {
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
-        this.wpWait();
+        //this.wpWait();
         window.sendWhisper = WhisperPlus.sendWhisper;
     } 
 
