@@ -34,10 +34,10 @@ export default class WhisperPlus extends CRABS {
 
 
         // Prepare the message - now with ⤵ instead of :
-        let formattedMsg = `(Whisper+❩⤵\n${msg}`;
-        if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
-            formattedMsg += '）';
-        }
+        //let formattedMsg = `(Whisper+❩⤵\n${msg}`;
+        //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
+        //    formattedMsg += '）';
+        //}
 
         // check if target and player are the same
         if (target.MemberNumber == Player.MemberNumber) {
@@ -108,7 +108,7 @@ export default class WhisperPlus extends CRABS {
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;
     }
-    
+    /*
     private loadReplyDisplay(): void {
         // Our main hook
         this.crabs.hookFunction("ChatRoomMessageDisplay", 0, (args, next) => {
@@ -199,6 +199,7 @@ export default class WhisperPlus extends CRABS {
           this.loadReplyDisplay();
         }
       }
+     */
 
 
 }
