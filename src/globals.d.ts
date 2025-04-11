@@ -2,15 +2,21 @@
 declare global {
   var ChatRoomCharacter: Array<any>;
   var ChatRoomData: any;
-  var ChatRoomSendLocal: (message: string) => void;
   var Commands: Array<any>;
   var CurrentOnlinePlayers: number;
-  var data: {};
+  var data: {
+    Content: string,
+    Type: type,
+    Dictionary: {}
+    Target: number,
+    Sender: number,
+  }
 
   // unique to crabs
   interface Window {
       PlayerFocus: typeof Roster.showPlayerFocus;
       sendWhisper: typeof WhisperPlus.sentWhisper;
+      CommandSet(payload: string): void;
   }
 
   interface Lovership {
@@ -92,19 +98,23 @@ declare global {
   ): {
     Content: string,
     Type: type,
-    Dictionary: {}
+    Dictionary: {},
+    Target?: number,
+    Sender?: number,
   };
+  function ChatRoomMessage(data: data): void;
   function ChatRoomRegisterMessageHandler(
       message: {
           Description: string,
           Priority: number,
           Callback: any,
       }): any;
-  function ChatRoomSendLocalChatRoomSendLocal(text: string, value: numbeer): void;
+  function ChatRoomSendLocal(Content: string, Timeout?: number): void;
+  function ChatRoomSendLocalChatRoomSendLocal(Content: string, Timeout?: numbeer): void;
   function ChatRoomStatusUpdate(payload: string): any;
   function ChatRoomMapViewCharacterOnWhisperRange(target: PlayerCharacter): boolean;
   function ChatRoomMapViewIsActive(): boolean;
-  function ServerSend(Action: string, Payload: {Query: sring}): Promise;
+  function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
   function TextGetInScope(path_to_csv: string, permission: string): void;
 }
