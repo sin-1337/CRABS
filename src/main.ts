@@ -21,8 +21,8 @@ const CRABS = bcModSDK.registerMod({
     repository: "https://github.com/sin-1337/CRABS",
 });
 
-const WHISPERPLUS = new WhisperPlus(ICON_HEIGHT, ICON_WIDTH, CRABS;
-const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, CRABS;
+const WHISPERPLUS = new WhisperPlus(ICON_HEIGHT, ICON_WIDTH, CRABS);
+const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, CRABS);
 
 
 // TODO: create ui to turn this off!!
@@ -31,7 +31,7 @@ const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, CRABS;
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
-  Callback: (data) => {
+  Callback: (data: any) => {
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -65,10 +65,9 @@ ChatRoomRegisterMessageHandler({
         ChatRoomSendLocal(
           "<div>Room details for: " + ChatRoomData.Name + "</div>"
         );
-        for (let index in Commands) {
-          index = parseInt(index);
-          if (Commands[index].Tag === "players") {
-            Commands[index].Action("count");
+        for (const [_, COMMAND] of Commands.entries()) {
+          if (COMMAND.Tag === "players") {
+            COMMAND.Action("count");
             break;
           }
         }

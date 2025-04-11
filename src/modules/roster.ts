@@ -76,7 +76,6 @@ export default class Roster extends CRABS {
 
     // formats the data for outputting
     private formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
-        let playername = CharacterNickname(player);
         let output = `<tr>
                 <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
 
@@ -154,7 +153,7 @@ export default class Roster extends CRABS {
       }
 
       else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber)) {
-        // if they down't own you but you are in their family, we assume you own them
+        // if they don't own you but you are in their family, we assume you own them
         if (Player.IsOwnedByPlayer(player.membernumber)) {
           // The person is fully owned if this is true
           player_icons += this.printicon("sub") + " ";
@@ -232,7 +231,7 @@ export default class Roster extends CRABS {
 
         //get a list of players
         for (let person in ChatRoomData.Character) {
-            // find membernumber for current player in list
+            // find member number for current player in list
             MemberNumber = ChatRoomData.Character[person].MemberNumber;
 
             // Find player
@@ -254,14 +253,14 @@ export default class Roster extends CRABS {
                 // mark me with a star icon
                 player_icons = this.printicon("you") + " " + player_icons;
 
-                // format my outpupt and store
+                // format my output and store
                 me_output_html = this.formatoutput(player, badge, player_icons, true);
             }
 
-            // check if the player is an admin and update the count, also flad the player as admin in the output list.
+            // check if the player is an admin and update the count, also flag the player as admin in the output list.
             if (ChatRoomData.Admin.includes(player.MemberNumber)) {
                 admin_count++;
-                if (!this.checkIfMe(player, Player)) {
+                if (!this.checkIfMe(player)) {
                     // if the player is not me, output admin and skip rest of loop
                     admin_output_html += this.formatoutput(
                         player,
@@ -273,9 +272,9 @@ export default class Roster extends CRABS {
                 }
             } else if (
                 ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-                !this.checkIfMe(player, Player)
+                !this.checkIfMe(player)
             ) {
-                // if the player isn't an admin, is the player is whitelested?
+                // if the player isn't an admin, is the player is white listed?
                 vip_output_html += this.formatoutput(player, badge, player_icons, false);
                 continue;
             } else if (!this.checkIfMe(player)) {
@@ -290,8 +289,7 @@ export default class Roster extends CRABS {
         }
 
         // if argument is "count", set filter vars and skip loop
-        if (SPLITARGS.some((item) => item.toLowerCase() === "count")) {
-            console.log("count only");
+        if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
             showme = false;
             showadmins = false;
             showvip = false;
@@ -299,16 +297,14 @@ export default class Roster extends CRABS {
         }
 
         // if argument is admins, set filter vars to only show admins and continue
-        if (SPLITARGS.some((item) => item.toLowerCase() === "admins")) {
-            console.log("admins only");
+        if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
             showme = false;
             showvip = false;
             showplayers = false;
         }
 
-        // if argument is vips, set filter vars to only show vips (whitelisted) and continue
-        if (SPLITARGS.some((item) => item.toLowerCase() === "vips")) {
-            console.log("vips only");
+        // if argument is vips, set filter vars to only show vips (white listed) and continue
+        if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
             showme = false;
             showadmins = false;
             showplayers = false;
@@ -316,23 +312,23 @@ export default class Roster extends CRABS {
 
         //output total number of players/admins
         ChatRoomSendLocal(
-            `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`;
+            `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`
         );
         ChatRoomSendLocal(
-            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`;
+            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`
         );
         if (this.onlineFriends !== undefined) {
             ChatRoomSendLocal(
-                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`;
+                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
             );
         }
         else {
             ChatRoomSendLocal(
-                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`;
+                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`
             );
         }
         ChatRoomSendLocal(
-            `There are ${CurrentOnlinePlayers} online players</div>`;
+            `There are ${CurrentOnlinePlayers} online players</div>`
         );
         let output_html = "";
 

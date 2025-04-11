@@ -18,14 +18,14 @@ export default class WhisperPlus extends CRABS {
         const TARGETMEMEBER = typeof target === 'object' ? target : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(target));
         if (!TARGETMEMEBER) {
             ChatRoomSendLocalChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
-            return;
+            return false;
         }
 
         // Handle self whispers with gray text and memo emoji
         if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
             const SELFMESSAGE = `<span style="color:#989898">${this.printicon("thought")} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
             ChatRoomSendLocal(SELFMESSAGE);
-            return;
+            return false;
         }
 
         // Replace normal brackets with fake ones in the message
@@ -34,7 +34,7 @@ export default class WhisperPlus extends CRABS {
 
 
         // Prepare the message - now with ⤵ instead of :
-        //let formattedMsg = `(Whisper+❩⤵\n${msg}`;
+        let formattedMsg = `(+❩: ${msg}`;
         //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
         //    formattedMsg += '）';
         //}

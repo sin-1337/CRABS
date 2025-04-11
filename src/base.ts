@@ -1,8 +1,9 @@
-import {ModSDKModAPI, ModSDKModInfo} from "bondage-club-mod-sdk";
+import bcModSdk, {ModSDKModAPI, ModSDKModInfo} from "bondage-club-mod-sdk";
 
 export default class CRABS {
     declare crabs: ModSDKModAPI;
-    private readonly ICONS: Record<string, string> = {
+    
+    prtected readonly ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
         "player" : "icons/player.svg",
@@ -19,8 +20,8 @@ export default class CRABS {
         "thought": "icons/thought.svg"
     }
 
-    private icon_height = 0;
-    private icon_width = 0
+    protected icon_height = 0;
+    protected icon_width = 0
 
     constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         this.icon_height = icon_height;
@@ -42,11 +43,11 @@ export default class CRABS {
     };
 
 
-    private detectMod(targetmod: string): boolean {
+    protected detectMod(targetmod: string): boolean {
         return(this.modlist.filter(x => x.name == targetmod).length > 0);
     }
 
-    private printicon(key: string) : string {
+    protected printicon(key: string) : string {
         let ICON = "./icons/error.svg";
         if (key in this.ICONS) {
             ICON = this.ICONS[key];
