@@ -3,7 +3,7 @@ import bcModSdk, {ModSDKModAPI, ModSDKModInfo} from "bondage-club-mod-sdk";
 export default class CRABS {
     declare crabs: ModSDKModAPI;
     
-    prtected readonly ICONS: Record<string, string> = {
+    protected readonly ICONS: Record<string, string> = {
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
         "player" : "icons/player.svg",
@@ -22,11 +22,13 @@ export default class CRABS {
 
     protected icon_height = 0;
     protected icon_width = 0
+    protected modlist: ModSDKModInfo[];
 
     constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         this.icon_height = icon_height;
         this.icon_width = icon_width;
         this.crabs = CRABS;
+        this.modlist = bcModSdk.getModsInfo();
     }
 
         // Opens the player profile
