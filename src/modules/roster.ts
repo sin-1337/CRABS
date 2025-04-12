@@ -96,11 +96,10 @@ export default class Roster extends CRABS {
     //query the server for friendslist
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-          const data: Array<{}> = args;
-          this.onlineFriends = data.length;
-          this.lastSentTime = Date.now()
-          // console.log(`Number of online friends: ${this.onlineFriends}`);
-          return next(args);
+            this.onlineFriends = [args].length;
+            this.lastSentTime = Date.now()
+            // console.log(`Number of online friends: ${this.onlineFriends}`);
+            return next(args);
         });
     }
     

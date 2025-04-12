@@ -5,18 +5,18 @@ declare global {
   var Commands: Array<any>;
   var CurrentOnlinePlayers: number;
   var data: {
-    Content: string,
-    Type: type,
-    Dictionary: {}
-    Target: number,
-    Sender: number,
-  }
+    Content: string;
+    Type: type;
+    Dictionary: {};
+    Target: number;
+    Sender: number;
+  };
 
   // unique to crabs
   interface Window {
-      PlayerFocus: typeof Roster.showPlayerFocus;
-      sendWhisper: typeof WhisperPlus.sentWhisper;
-      CommandSet(payload: string): void;
+    PlayerFocus: typeof Roster.showPlayerFocus;
+    sendWhisper: typeof WhisperPlus.sentWhisper;
+    CommandSet(payload: string): void;
   }
 
   interface Lovership {
@@ -79,9 +79,8 @@ declare global {
     OwnerNumber(): number;
 
     ChatSettings: {
-        OOCAutoClose: boolean;
+      OOCAutoClose: boolean;
     };
-
 
     // You can add the rest of the methods as needed
   }
@@ -93,26 +92,30 @@ declare global {
   function CharacterNickname(Player: PlayerCharacter): string;
   function ChatRoomFocusCharacter(player: PlayerCharacter): void;
   function ChatRoomGenerateChatRoomChatMessage(
-      type: string, 
-      msg: string
+    type: string,
+    msg: string
   ): {
-    Content: string,
-    Type: type,
-    Dictionary: {},
-    Target?: number,
-    Sender?: number,
+    Content: string;
+    Type: type;
+    Dictionary: {};
+    Target?: number;
+    Sender?: number;
   };
   function ChatRoomMessage(data: data): void;
-  function ChatRoomRegisterMessageHandler(
-      message: {
-          Description: string,
-          Priority: number,
-          Callback: any,
-      }): any;
+  function ChatRoomRegisterMessageHandler(message: {
+    Description: string;
+    Priority: number;
+    Callback: any;
+  }): any;
   function ChatRoomSendLocal(Content: string, Timeout?: number): void;
-  function ChatRoomSendLocalChatRoomSendLocal(Content: string, Timeout?: numbeer): void;
+  function ChatRoomSendLocalChatRoomSendLocal(
+    Content: string,
+    Timeout?: numbeer
+  ): void;
   function ChatRoomStatusUpdate(payload: string): any;
-  function ChatRoomMapViewCharacterOnWhisperRange(target: PlayerCharacter): boolean;
+  function ChatRoomMapViewCharacterOnWhisperRange(
+    target: PlayerCharacter
+  ): boolean;
   function ChatRoomMapViewIsActive(): boolean;
   function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
