@@ -4,9 +4,7 @@ export default class WhisperPlus extends CRABS {
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
-        this.wpWait();
         window.sendWhisper = WhisperPlus.sendWhisper;
-        window.ChatRoomMessageWhisperPlus = WhisperPlus.ChatRoomMessageWhisperPlusClick;
     } 
 
     // send chat message at range
@@ -49,7 +47,7 @@ export default class WhisperPlus extends CRABS {
             //}
 
             // build data payload
-            let data = ChatRoomGenerateChatRoomChatMessage("Whisper+", formattedMsg);
+            let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
            console.log(data) 
             /*if (!data) {
                 data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
@@ -59,7 +57,7 @@ export default class WhisperPlus extends CRABS {
             data.Target = target.MemberNumber;
 
             //send the whisper
-            const serverData = { ...data, Type: "Whisper+" }
+            const serverData = { ...data, Type: "Whisper" }
             ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
@@ -81,36 +79,6 @@ export default class WhisperPlus extends CRABS {
           window.CommandSet(command.Tag + " " + memberNumber)
         }
       }
-    };
-
-    public static ChatRoomMessageWhisperPlusClick () {
-      // Similar to ChatRoomMessageNameClick, but for whisper+
-      const sender = Number.parseInt(window.ChatRoomMessageWhisperPlus.parentElement?.dataset.sender, 10);
-      const target = Number.parseInt(window.ChatRoomMessageWhisperPlus.parentElement?.dataset.target, 10);
-      const memberNumber = sender === Player.MemberNumber && !Number.isNaN(target) ? target : sender;
-      const chatInput = /** @type {null | HTMLTextAreaElement} */(document.getElementById("InputChat"));
-
-      if (!chatInput || !ChatRoomCharacter.some(C => C.MemberNumber === memberNumber)) {
-        ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${memberNumber}.`, 30_000);
-        return;
-      }
-
-      // Handle the input text similar to the original whisper
-      const currentText = chatInput.value;
-      const whisperPlusCmd = `/whisper+ ${memberNumber} `;
-
-      // Check if the current input starts with a whisper command
-      const whisperMatch = currentText.match(/^\/whisper\+?\s*\d+\s*/);
-
-      if (whisperMatch) {
-        // Replace just the member number if there's already a whisper command
-        chatInput.value = whisperPlusCmd + currentText.substring(whisperMatch[0].length);
-      } else {
-        // Add the command to the start if there isn't one
-        chatInput.value = whisperPlusCmd + currentText;
-      }
-
-      chatInput.focus();
     };
 
     // this runs when a player enters the /whisper+ command or clicks the roster
@@ -139,97 +107,3 @@ export default class WhisperPlus extends CRABS {
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;
     }
-    
-    private loadReplyDisplay(): void {
-        // Our main hook
-        this.crabs.hookFunction("ChatRoomMessageDisplay", 0, (args, next) => {
-          const [data, msg, SenderCharacter, metadata] = args;
-          console.log("CRABS: running loadReplyDisplay hook function");
-          // If it's not our special Whisper+ type, let it process normally
-          if (data.Type !== "Whisper+") {
-            console.log(`CRABS: data type is ${data.Type}`)
-            return next(args);
-          }
- 
-          // For Whisper+, we handle it ourselves but use most of the original function's structure
-          const displayMessage = CommonCensor(ChatRoomActiveView.DisplayMessage(data, msg, SenderCharacter, metadata) ?? "¶¶¶");
-          if (displayMessage == "¶¶¶") return;
-
-          const divChildren = [];
-          const whisperTarget = SenderCharacter.IsPlayer() ? ChatRoomCharacter.find(c => c.MemberNumber == data.Target) : SenderCharacter;
-
-          divChildren.push(
-            ElementButton.Create(
-              null,
-              window.ChatRoomMessageWhisperPlus(whisperTarget.MemberNumber),
-              { noStyling: true },
-              {
-                button: {
-                  classList: ["ReplyButton"],
-                  children: ["\u21a9\ufe0f"]
-                }
-              },
-            ),
-            SenderCharacter.IsPlayer() ? TextGet("WhisperTo") : TextGetInScope("Screens/Online/ChatRoom/Text_ChatRoom.csv", "WhisperFrom"),
-            " ",
-            ElementButton.Create(
-              null,
-              window.ChatRoomMessageWhisperPlus(whisperTarget.MemberNumber),
-              { noStyling: true },
-              {
-                button: {
-                  classList: ["ChatMessageName"],
-                  attributes: {
-                    "tabindex": -1
-                  },
-                  style: { "--label-color": whisperTarget.LabelColor },
-                  children: [CharacterNickname(whisperTarget)],
-                },
-              },
-            ),
-            ": ",
-            displayMessage,
-          );
-
-          if (!whisperTarget.IsPlayer()) {
-            document.querySelector(`
-                      #TextAreaChatLog .ChatMessageWhisper[data-sender="${whisperTarget.MemberNumber}"] > .ReplyButton:not([tabindex='-1']),
-                      #TextAreaChatLog .ChatMessageWhisper[data-target="${whisperTarget.MemberNumber}"] > .ReplyButton:not([tabindex='-1'])
-                  `)?.setAttribute("tabindex", "-1");
-          }
-
-          const classList = ["ChatMessage"];
-          classList.push("ChatMessageWhisper");  // Use Whisper styling
-
-          const div = ElementCreate({
-            tag: "div",
-            classList,
-            dataAttributes: {
-              time: ChatRoomCurrentTime(),
-              sender: data.Sender,
-              target: data.Target,
-            },
-            children: divChildren,
-          });
-
-          ChatRoomAppendChat(div);
-          return div;
-        });
-      }
-
-    private wpWait(): void {
-        if (CurrentScreen == null || CurrentScreen === "Login") {
-          this.crabs.hookFunction("LoginResponse", 0, (args, next) => {
-            next(args);
-            const response = args[0];
-            if (response && typeof response.Name === "string" && typeof response.AccountName === "string") {
-              this.loadReplyDisplay();
-            }
-          });
-        } else {
-          this.loadReplyDisplay();
-        }
-      }
-
-
-}
