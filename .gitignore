@@ -4,6 +4,7 @@ node_modules/
 # ignore files
 package-lock.json
 README.md
+deploy.sh
 
 # ignore file types
 *.swp

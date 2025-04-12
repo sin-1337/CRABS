@@ -5,13 +5,13 @@ import WhisperPlus from "./modules/whisperplus";
 
 
 // configure the version and mod name
-const VERSION = "0.0.2.9";
+const VERSION = "1.0.0.71 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
 //these are in em units
-const ICON_HEIGHT = 24;
-const ICON_WIDTH = 24;
+const ICON_HEIGHT = 25;
+const ICON_WIDTH = 25;
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
@@ -21,8 +21,8 @@ const CRABS = bcModSDK.registerMod({
     repository: "https://github.com/sin-1337/CRABS",
 });
 
-const WHISPERPLUS = new WhisperPlus();
-const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
+const WHISPERPLUS = new WhisperPlus(ICON_HEIGHT, ICON_WIDTH, CRABS);
+const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, CRABS);
 
 
 // TODO: create ui to turn this off!!
@@ -31,7 +31,7 @@ const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH);
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
-  Callback: (data) => {
+  Callback: (data: any) => {
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -42,7 +42,7 @@ ChatRoomRegisterMessageHandler({
       setTimeout(() => {
         // if the player left the room, bail!
         if (Player.LastChatRoom === null) {
-          return false;
+          return false
         }
 
         // get player permissions
@@ -65,16 +65,15 @@ ChatRoomRegisterMessageHandler({
         ChatRoomSendLocal(
           "<div>Room details for: " + ChatRoomData.Name + "</div>"
         );
-        for (let index in Commands) {
-          index = parseInt(index);
-          if (Commands[index].Tag === "players") {
-            Commands[index].Action("count");
+        for (const [_, COMMAND] of Commands.entries()) {
+          if (COMMAND.Tag === "players") {
+            COMMAND.Action("count");
             break;
           }
         }
 
         // output message letting players know how to view the full roster
-        ChatRoomSendLocal("<div>To see the full roster use /players</div><hr>");
+        ChatRoomSendLocal("<div>To see the full roster use /roster</div><hr>");
       }, 3600);
     }
 
@@ -87,9 +86,19 @@ ChatRoomRegisterMessageHandler({
 CommandCombine([
     {
         Tag: "whisper+",
-        Description: "Enables the /whisper+ command that is global to a map room",
-        Action: (args) => {
-            WHISPERPLUS.whisperplus(args);
+        Description: "Enables the /whisper+ command that does global whisper in a map room",
+        Action: (args: any, command: any) => {
+            WHISPERPLUS.whisperplus(args, command);
+        },
+    },
+]);
+
+CommandCombine([
+    {
+        Tag: "w+",
+        Description: "Enables the /w+ command that does global whisper in a map room",
+        Action: (args: any, command: any) => {
+            WHISPERPLUS.whisperplus(args, command);
         },
     },
 ]);
@@ -99,7 +108,7 @@ CommandCombine([
     {
         Tag: "crabs",
         Description: "Show the player count, helpful in maps.",
-        Action: (args) => {
+        Action: (args: any) => {
             ROSTER.displayroster(args);
         },
     }
@@ -111,7 +120,7 @@ CommandCombine([
     {
         Tag: "roster",
         Description: "Show the player count, helpful in maps.",
-        Action: (args) => {
+        Action: (args: any) => {
             ROSTER.displayroster(args);
         },
     }
@@ -122,7 +131,7 @@ CommandCombine([
     {
         Tag: "players",
         Description: "Deprecated: Show the player count, helpful in maps.",
-        Action: (args) => {
+        Action: (args: any) => {
             ROSTER.displayroster(args);
         },
     }
