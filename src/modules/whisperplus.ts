@@ -107,3 +107,4 @@ export default class WhisperPlus extends CRABS {
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;
     }
+}
