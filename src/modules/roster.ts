@@ -96,8 +96,7 @@ export default class Roster extends CRABS {
     //query the server for friendslist
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-          const [data] = args;
-          console.log(data);
+          const data: Array<{}> = args;
           this.onlineFriends = data.length;
           this.lastSentTime = Date.now()
           // console.log(`Number of online friends: ${this.onlineFriends}`);
@@ -125,15 +124,15 @@ export default class Roster extends CRABS {
 
       // Wait for the hook function to finish (assuming `next` ensures it completes)
       return new Promise<number>((resolve) => {
-        const checkOnlineFriends = () => {
+        const CHECKONLINEFRIENDS = () => {
           if (this.onlineFriends !== undefined) {
             resolve(this.onlineFriends);  // Return the online friends count
           } else {
-            setTimeout(checkOnlineFriends, 100);  // Check again after 100ms
+            setTimeout(CHECKONLINEFRIENDS, 100);  // Check again after 100ms
           }
         };
         
-        checkOnlineFriends();  // Start the checking process
+        CHECKONLINEFRIENDS();  // Start the checking process
       });
     }
 
@@ -206,7 +205,6 @@ export default class Roster extends CRABS {
 
     // prints the roster
     public displayroster(args: any): void {
-        this.modlist = bcModSdk.getModsInfo();
         const SPLITARGS = args.split(" ");
         if (SPLITARGS[0].toLowerCase() == "help") {
             ChatRoomSendLocal(this.showhelp());
