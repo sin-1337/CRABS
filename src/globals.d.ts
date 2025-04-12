@@ -4,6 +4,7 @@ declare global {
   var ChatRoomData: any;
   var Commands: Array<any>;
   var CurrentOnlinePlayers: number;
+  var CurrentScreen: any;
   var data: {
     Content: string;
     Type: type;
@@ -16,7 +17,12 @@ declare global {
   interface Window {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
+    ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
     CommandSet(payload: string): void;
+  }
+
+  interface HTMLElement {
+      value: string;
   }
 
   interface Lovership {
