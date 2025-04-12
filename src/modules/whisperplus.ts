@@ -34,12 +34,6 @@ export default class WhisperPlus extends CRABS {
         msg = msg.replace(/\)/g, "❫"); // technically only this one is really needed
 
 
-        // Prepare the message - now with ⤵ instead of :
-        let formattedMsg = `(+❩: ${msg}`;
-        //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
-        //    formattedMsg += '）';
-        //}
-
         // check if target and player are the same
         if (target.MemberNumber == Player.MemberNumber) {
             addChatMessage(msg);
@@ -48,9 +42,15 @@ export default class WhisperPlus extends CRABS {
                 msg = `(${msg})`;
             }
 
+            // Prepare the message - now with ⤵ instead of :
+            let formattedMsg = `+: ${msg}`;
+            //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
+            //    formattedMsg += '）';
+            //}
+
             // build data payload
             let data = ChatRoomGenerateChatRoomChatMessage("Whisper+", formattedMsg);
-            
+           console.log(data) 
             /*if (!data) {
                 data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
             }*/
@@ -161,7 +161,7 @@ export default class WhisperPlus extends CRABS {
           divChildren.push(
             ElementButton.Create(
               null,
-              window.sendWhisper(whisperTarget.MemberNumber),
+              window.ChatRoomMessageWhisperPlus(whisperTarget.MemberNumber),
               { noStyling: true },
               {
                 button: {
@@ -174,7 +174,7 @@ export default class WhisperPlus extends CRABS {
             " ",
             ElementButton.Create(
               null,
-              window.sendWhisper(whisperTarget.MemberNumber),
+              window.ChatRoomMessageWhisperPlus(whisperTarget.MemberNumber),
               { noStyling: true },
               {
                 button: {
