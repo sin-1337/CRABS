@@ -6,6 +6,7 @@ export default class WhisperPlus extends CRABS {
         super(icon_height, icon_width, CRABS);
         //this.wpWait();
         window.sendWhisper = WhisperPlus.sendWhisper;
+        window.ChatRoomMessageWhisperPlus = WhisperPlus.ChatRoomMessageWhisperPlusClick;
     } 
 
     // send chat message at range
@@ -81,6 +82,36 @@ export default class WhisperPlus extends CRABS {
       }
     };
 
+    public static ChatRoomMessageWhisperPlusClick () {
+      // Similar to ChatRoomMessageNameClick, but for whisper+
+      const sender = Number.parseInt(window.ChatRoomMessageWhisperPlus.parentElement?.dataset.sender, 10);
+      const target = Number.parseInt(window.ChatRoomMessageWhisperPlus.parentElement?.dataset.target, 10);
+      const memberNumber = sender === Player.MemberNumber && !Number.isNaN(target) ? target : sender;
+      const chatInput = /** @type {null | HTMLTextAreaElement} */(document.getElementById("InputChat"));
+
+      if (!chatInput || !ChatRoomCharacter.some(C => C.MemberNumber === memberNumber)) {
+        ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${memberNumber}.`, 30_000);
+        return;
+      }
+
+      // Handle the input text similar to the original whisper
+      const currentText = chatInput.value;
+      const whisperPlusCmd = `/whisper+ ${memberNumber} `;
+
+      // Check if the current input starts with a whisper command
+      const whisperMatch = currentText.match(/^\/whisper\+?\s*\d+\s*/);
+
+      if (whisperMatch) {
+        // Replace just the member number if there's already a whisper command
+        chatInput.value = whisperPlusCmd + currentText.substring(whisperMatch[0].length);
+      } else {
+        // Add the command to the start if there isn't one
+        chatInput.value = whisperPlusCmd + currentText;
+      }
+
+      chatInput.focus();
+    };
+
     // this runs when a player enters the /whisper+ command or clicks the roster
     public whisperplus(args: any, command: any): number {
         // parse arguments into MEMBERNUMBER and messsage
@@ -107,7 +138,7 @@ export default class WhisperPlus extends CRABS {
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;
     }
-    /*
+    
     private loadReplyDisplay(): void {
         // Our main hook
         this.crabs.hookFunction("ChatRoomMessageDisplay", 0, (args, next) => {
@@ -198,7 +229,6 @@ export default class WhisperPlus extends CRABS {
           this.loadReplyDisplay();
         }
       }
-     */
 
 
 }
