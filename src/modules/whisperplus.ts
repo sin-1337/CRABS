@@ -4,7 +4,7 @@ export default class WhisperPlus extends CRABS {
 
     constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
         super(icon_height, icon_width, CRABS);
-        //this.wpWait();
+        this.wpWait();
         window.sendWhisper = WhisperPlus.sendWhisper;
         window.ChatRoomMessageWhisperPlus = WhisperPlus.ChatRoomMessageWhisperPlusClick;
     } 
@@ -49,8 +49,12 @@ export default class WhisperPlus extends CRABS {
             }
 
             // build data payload
-            let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+            let data = ChatRoomGenerateChatRoomChatMessage("Whisper+", formattedMsg);
             
+            /*if (!data) {
+                data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+            }*/
+
             // set the whisper target
             data.Target = target.MemberNumber;
 
