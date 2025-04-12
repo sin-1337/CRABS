@@ -93,15 +93,41 @@ export default class Roster extends CRABS {
       return output;
     }
 
+     //query the server for friendslist
+    private loadFriendList(): void {
+        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+          const [data] = args;
+          console.log(data);
+          this.onlineFriends = data.length;
+          this.lastSentTime = Date.now()
+          // console.log(`Number of online friends: ${this.onlineFriends}`);
+          return next(args);
+        });
+    }
+
     //query the server for friendslist
     private loadFriendList(): void {
         this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+          const [DATA] = args;
+          console.log([args])
+          this.onlineFriends = DATA.length;
+          this.lastSentTime = Date.now()
+          // console.log(`Number of online friends: ${this.onlineFriends}`);
+          return next(args);
+        });
+    }
+
+    /*
+    //query the server for friendslist
+    private loadFriendList(): void {
+        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+            console.log([args])
             this.onlineFriends = [args].length;
             this.lastSentTime = Date.now()
             // console.log(`Number of online friends: ${this.onlineFriends}`);
             return next(args);
         });
-    }
+    }*/
     
       // Debounce function to control the timing of ServerSend
     private canSendServerRequest(): boolean {
