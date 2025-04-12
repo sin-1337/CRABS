@@ -49,16 +49,13 @@ export default class WhisperPlus extends CRABS {
             }
 
             // build data payload
-            let data = ChatRoomGenerateChatRoomChatMessage("Whisper+", formattedMsg);
-            if (!data) {
-                data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
-            }
+            let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
             
             // set the whisper target
             data.Target = target.MemberNumber;
 
             //send the whisper
-            const serverData = { ...data, Type: "Whisper" }
+            const serverData = { ...data, Type: "Whisper+" }
             ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
