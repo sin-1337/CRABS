@@ -260,7 +260,7 @@ export default class Roster extends CRABS {
       showvip = true,
       showplayers = true;
 
-    if (SPLITARGS.some((arg) => arg.toLowerCase() === "count")) {
+    if (SPLITARGS.some((arg: any) => arg.toLowerCase() === "count")) {
       showme = showadmins = showvip = showplayers = false;
     } else if (SPLITARGS.includes("admins")) {
       showme = showvip = showplayers = false;
