@@ -56,7 +56,9 @@ console.debug("CRABS: Parse start...");
   plugins: [
     progress({ clearLine: true }),
     resolve({ browser: true }),
-    string({ include: "**/*.html" }),
+    string({
+      include: ["**/*.css", "**/*.html"],
+    }),
     typescript({ tsconfig: "./tsconfig.json", inlineSources: true }),
     commonjs(),
   ],
