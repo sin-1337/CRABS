@@ -214,8 +214,6 @@ export default class Roster extends CRABS {
   private checkIfMe(player: any): boolean {
     return player.MemberNumber == Player.MemberNumber ? true : false;
   }
-
-  // prints the roster
   public displayroster(args: any): void {
     const SPLITARGS = args.split(" ");
     if (SPLITARGS[0].toLowerCase() == "help") {
@@ -223,126 +221,113 @@ export default class Roster extends CRABS {
       return;
     }
 
-    let me_output_html = ""; // holds data about user who ran script
-    let admin_output_html = ""; // holds admins
-    let vip_output_html = ""; // holds whitelisted users
-    let player_output_html = ""; // holds normal players
-    let player; // the person we found in the room
-    let admin_count = 0; // number of admins in the room
-    let badge = ""; // holds the admin icon if the player is an admin
-    let player_icons = ""; // holds the list of player/status icons (string)
-    let MemberNumber: number;
-    // filter variables, show or not show certain output
-    let showme = true; // person who ran the script (you)
-    let showadmins = true; // room admins
-    let showvip = true; // room whitelists
-    let showplayers = true; // normal players
+    let meRow = "";
+    const adminRows: string[] = [];
+    const vipRows: string[] = [];
+    const playerRows: string[] = [];
 
-    //get a list of players
-    for (let person in ChatRoomData.Character) {
-      // find member number for current player in list
-      MemberNumber = ChatRoomData.Character[person].MemberNumber;
+    let admin_count = 0;
 
-      // Find player
-      player = ChatRoomCharacter.find(
-        (C: any) => C.MemberNumber == MemberNumber
+    for (const player of ChatRoomData.Character) {
+      const MemberNumber = player.MemberNumber;
+      const found = ChatRoomCharacter.find(
+        (c: any) => c.MemberNumber === MemberNumber
       );
+      if (!found) continue;
 
-      //bail out and return placeholder if player is not available.
-      if (!player) {
-        player_output_html +=
-          "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
+      const badge = this.setbadge(found);
+      let icons = this.setIcons(found);
+
+      if (this.checkIfMe(found)) {
+        icons = this.printicon("you") + " " + icons;
+        meRow = this.formatoutput(found, badge, icons);
         continue;
       }
 
-      // check if the player is also an admin or vip and add icon with admin given priority
-      badge = this.setbadge(player);
-      player_icons = this.setIcons(player);
-
-      // if the player is me (person who ran the script)
-      if (this.checkIfMe(player)) {
-        // mark me with a star icon
-        player_icons = this.printicon("you") + " " + player_icons;
-
-        // format my output and store
-        me_output_html = this.formatoutput(player, badge, player_icons);
-      }
-
-      // check if the player is an admin and update the count, also flag the player as admin in the output list.
-      if (ChatRoomData.Admin.includes(player.MemberNumber)) {
+      if (ChatRoomData.Admin.includes(MemberNumber)) {
         admin_count++;
-        if (!this.checkIfMe(player)) {
-          // if the player is not me, output admin and skip rest of loop
-          admin_output_html += this.formatoutput(player, badge, player_icons);
-          continue;
-        }
-      } else if (
-        ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-        !this.checkIfMe(player)
-      ) {
-        // if the player isn't an admin, is the player is white listed?
-        vip_output_html += this.formatoutput(player, badge, player_icons);
-        continue;
-      } else if (!this.checkIfMe(player)) {
-        // player is normal, nonadmin, not whitelist, and not me.
-        player_output_html += this.formatoutput(player, badge, player_icons);
+        adminRows.push(this.formatoutput(found, badge, icons));
+      } else if (ChatRoomData.Whitelist.includes(MemberNumber)) {
+        vipRows.push(this.formatoutput(found, badge, icons));
+      } else {
+        playerRows.push(this.formatoutput(found, badge, icons));
       }
     }
 
-    // if argument is "count", set filter vars and skip loop
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
-      showme = false;
-      showadmins = false;
-      showvip = false;
-      showplayers = false;
+    // Handle argument filters
+    let showme = true,
+      showadmins = true,
+      showvip = true,
+      showplayers = true;
+
+    if (SPLITARGS.some((arg) => arg.toLowerCase() === "count")) {
+      showme = showadmins = showvip = showplayers = false;
+    } else if (SPLITARGS.includes("admins")) {
+      showme = showvip = showplayers = false;
+    } else if (SPLITARGS.includes("vips")) {
+      showme = showadmins = showplayers = false;
     }
 
-    // if argument is admins, set filter vars to only show admins and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
-      showme = false;
-      showvip = false;
-      showplayers = false;
-    }
+    // 🧮 Fill in meta counts
+    const metaHTML = `
+    <div>There are ${admin_count}/${
+      ChatRoomData.Admin.length
+    } admins in the room.</div>
+    <div>There are ${ChatRoomCharacter.length}/${
+      ChatRoomData.Limit
+    } total players in the room.</div>
+    <div>You have ${this.onlineFriends ?? "..."} / ${
+      Player.FriendNames.size
+    } friends online.</div>
+    <div>There are ${CurrentOnlinePlayers} online players</div>
+  `;
+    ChatRoomSendLocal(metaHTML);
 
-    // if argument is vips, set filter vars to only show vips (white listed) and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
-      showme = false;
-      showadmins = false;
-      showplayers = false;
-    }
+    // 🎯 Assemble user row HTML
+    const allRows: string[] = [];
+    if (showme && meRow) allRows.push(meRow);
+    if (showadmins) allRows.push(...adminRows);
+    if (showvip) allRows.push(...vipRows);
+    if (showplayers) allRows.push(...playerRows);
 
-    //output total number of players/admins
-    ChatRoomSendLocal(
-      `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`
+    const leftRows: string[] = [];
+    const rightRows: string[] = [];
+
+    allRows.forEach((row, i) => {
+      (i % 2 === 0 ? leftRows : rightRows).push(row);
+    });
+
+    const leftBody = document.getElementById("CRABS_leftUserBody");
+    const rightBody = document.getElementById("CRABS_rightUserBody");
+    const userTableContainer = document.getElementById(
+      "CRABS_userTablesContainer"
     );
-    ChatRoomSendLocal(
-      `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`
+    const rightContainer = document.getElementById(
+      "CRABS_rightUserTableContainer"
     );
-    if (this.onlineFriends !== undefined) {
-      ChatRoomSendLocal(
-        `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
-      );
+    const playersHeader = document.querySelector(
+      ".CRABS_players-header"
+    ) as HTMLElement;
+
+    // 🧼 Clear previous content
+    if (leftBody) leftBody.innerHTML = "";
+    if (rightBody) rightBody.innerHTML = "";
+
+    // 🚀 Populate tables
+    if (leftRows.length || rightRows.length) {
+      if (leftBody) leftBody.innerHTML = leftRows.join("\n");
+      if (rightRows.length && rightBody) {
+        rightBody.innerHTML = rightRows.join("\n");
+        if (rightContainer) rightContainer.style.display = "block";
+      }
+
+      // Show the players section
+      if (userTableContainer) userTableContainer.style.display = "flex";
+      if (playersHeader) playersHeader.style.display = "block";
     } else {
-      ChatRoomSendLocal(
-        `You have .../${Player.FriendNames.size} friends online. <- Polling ...`
-      );
+      // Hide if no data
+      if (userTableContainer) userTableContainer.style.display = "none";
+      if (playersHeader) playersHeader.style.display = "none";
     }
-    ChatRoomSendLocal(`There are ${CurrentOnlinePlayers} online players</div>`);
-    let output_html = "";
-
-    // start the tabble and remove the boarders
-    output_html += `<table style="border: 0px;">`;
-
-    // if the filter var resolves to true, add the respective output.
-    output_html = showme ? output_html + me_output_html : output_html;
-    output_html = showadmins ? output_html + admin_output_html : output_html;
-    output_html = showvip ? output_html + vip_output_html : output_html;
-    output_html = showplayers ? output_html + player_output_html : output_html;
-
-    // finish the table
-    output_html += `</table>`;
-
-    // show the final output
-    ChatRoomSendLocal(output_html);
   }
 }

@@ -1,0 +1,54 @@
+.CRABS_table-wrapper {
+  position: relative;
+  background-image: url('path-to-your-watermark-image.jpg'); /* Add path to your watermark image */
+  background-color: #f7f7f7;  /* Match this with the dominant color of your image */
+  background-size: cover;     /* Adjust image size to fit the area */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed; /* Optional: Fix the background image when scrolling */
+  padding: 20px;  /* Optional padding for better spacing */
+  border-radius: 8px; /* Optional: Rounded corners for better aesthetics */
+}
+
+.CRABS_table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  position: relative;
+  z-index: 1;  /* Ensure the table content stays above the background image */
+}
+
+.CRABS_room-meta,
+.CRABS_room-users {
+  margin-bottom: 20px; /* Add space between tables */
+}
+
+.CRABS_room-meta th,
+.CRABS_room-users th,
+.CRABS_room-meta td,
+.CRABS_room-users td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.CRABS_room-users th,
+.CRABS_room-users td {
+  background-color: rgba(255, 255, 255, 0.8); /* Slight transparency for table contents */
+}
+
+.CRABS_room-users tbody tr:hover {
+  background-color: #f1f1f1;  /* Optional: Highlight rows on hover */
+}
+
+.CRABS_user-tables-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.CRABS_user-table {
+  width: 48%;  /* Adjust table width for side-by-side layout */
+}
+
+.CRABS_right {
+  display: none;  /* Only show right table when needed */
+}
