@@ -1,10 +1,9 @@
 .CRABS_room-status {
   width: 100% !important;
-  background-image: url('path-to-your-watermark-image.jpg');
+  /*background-image: url('path-to-your-watermark-image.jpg');
   background-color: #f7f7f7;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  background-attachment: fixed;
-  table-layout: auto;
+  background-attachment: fixed;*/
 }
