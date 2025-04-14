@@ -329,7 +329,7 @@ export default class Roster extends CRABS {
 
     if (ChatRoomMapViewIsActive()) {
         output_html = output_html
-            .replace('{{collectedKeys}}', `<td>${displaykeys}</td>`);
+            .replace('{{collectedKeys}}', `<td>TEST</td>`);
     }
     else {
         output_html = output_html
