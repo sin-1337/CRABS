@@ -72,8 +72,8 @@ export default class CRABS {
         let html = "";
         html += `<div class='CRABS_tooltip-wrapper'>`
         html += `<img `;
-        html += `height=${this.icon_height}px' `;
-        html += `width='${this.icon_width}px' `;
+        html += `height=${this.icon_height}px `;
+        html += `width='${this.icon_width}px `;
         html += `alt='${key}' `;
         html += `src='${absolutepath}${ICON}' `;
         html += `class='CRABS_tooltip-image'`;
