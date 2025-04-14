@@ -2,7 +2,6 @@
 import bcModSDK from 'bondage-club-mod-sdk';
 import Roster from "./modules/roster";
 import WhisperPlus from "./modules/whisperplus";
-import './modules/templates/roster.css';
 
 // configure the version and mod name
 const VERSION = "1.0.0.107 Alpha";
