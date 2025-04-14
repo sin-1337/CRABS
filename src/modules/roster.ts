@@ -326,26 +326,36 @@ export default class Roster extends CRABS {
       .replace("{{connectedIcon}}", `${this.printicon("connected", "Online Accounts")}`)
       .replace("{{onlinePlayers}}", `${CurrentOnlinePlayers}`);
 
+    // are we on a map?
     if (ChatRoomMapViewIsActive()) {
       let displaykeys = ""; // determines how to show keys (css) in the roster
+
+      // build a dictionary of the keys
       let keys = {
         keyBronze: Player.MapData.PrivateState.HasKeyBronze,
         keySilver: Player.MapData.PrivateState.HasKeySilver,
         keyGold: Player.MapData.PrivateState.HasKeyGold,
       };
+
+      // loop the dictionary and extract the key and name
       for (const [KEY, VALUE] of Object.entries(keys)) {
+        
+        // if key is found, set icon and tool tip
         if (VALUE) {
           displaykeys += this.printicon(KEY, "Found");
-        } else {
+        } else {  
           displaykeys += this.printicon("keyNull", "Missing");
         }
       }
-      output_html = output_html.replace(
-        "{{collectedKeys}}",
-        `<td>${displaykeys}</td>`
-      );
+
+      // replace the template objects for the values we determined above.
+      output_html = output_html
+        .replace("{{collectedKeys}}",`<td>${displaykeys}</td>`)
+        .replace("{{columncount}}", "5"); // if we print keys, set colspan to 5
     } else {
-      output_html = output_html.replace("{{collectedKeys}}", ``);
+      output_html = output_html
+        .replace("{{collectedKeys}}", ``)
+        .replace("{{columncount}}", "4"); // no keys? colspan is 4
     }
    
     /*

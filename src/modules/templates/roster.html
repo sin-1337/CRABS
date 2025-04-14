@@ -9,8 +9,13 @@
             {{collectedKeys}}
         </tr>
         <tr>
-            {{playerRows}}
-            <!-- <td>{{playerRowsCol1}}</td><td>{{playerRowsCol2}}</td> //-->
+            <td colspan="{{columncount}}">
+                <table class="CRABS_roster-players">
+                    <tbody>
+                        {{playerRows}}
+                    </tbody>
+                </table>
+            </td>
         </tr>
     </tbody>
 </table>
