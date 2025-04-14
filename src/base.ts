@@ -4,9 +4,13 @@ export default class CRABS {
     declare crabs: ModSDKModAPI;
     
     protected readonly ICONS: Record<string, string> = {
+
+        // badges
         "admin" : "icons/admin.svg",
         "vip" : "icons/vip.svg",
         "player" : "icons/player.svg",
+
+        // icons
         "you" : "icons/you.svg",
         "owner" : "icons/owner.svg",
         "sub" : "icons/sub.svg",
@@ -17,7 +21,16 @@ export default class CRABS {
         "whitelist" : "icons/whitelist.svg",
         "blacklist" : "icons/blacklist.svg",
         "ghost" : "icons/ghost.svg",
-        "thought": "icons/thought.svg"
+        "thought": "icons/thought.svg",
+        
+        // globe icon for all BC players
+        "connected": "icons/connected.svg",
+
+        //map keys
+        "keyGold": "icons/keyGold.png",
+        "keySilver": "icons/keySilver.png",
+        "keyBronze": "icons/keyBronze.png",
+        "keyNull": "icons/keyNull.svg",
     }
 
     protected icon_height = 0;

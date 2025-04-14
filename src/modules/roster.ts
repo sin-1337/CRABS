@@ -1,8 +1,8 @@
 import WhisperPlus from "./whisperplus";
 import CRABS from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import './templates/roster.css';
-import rostertemplate from './templates/roster.html';
+import "./templates/roster.css";
+import rostertemplate from "./templates/roster.html";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
@@ -217,8 +217,7 @@ export default class Roster extends CRABS {
     return player.MemberNumber == Player.MemberNumber ? true : false;
   }
 
-
- // prints the roster
+  // prints the roster
   public displayroster(args: any): void {
     const SPLITARGS = args.split(" ");
     if (SPLITARGS[0].toLowerCase() == "help") {
@@ -226,7 +225,6 @@ export default class Roster extends CRABS {
       return;
     }
 
-    let displaykeys = ""; // determines how to show keys (css) in the roster
     let me_output_html = ""; // holds data about user who ran script
     let admin_output_html = ""; // holds admins
     let vip_output_html = ""; // holds whitelisted users
@@ -241,6 +239,12 @@ export default class Roster extends CRABS {
     let showadmins = true; // room admins
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
+    let displaykeys = ""; // determines how to show keys (css) in the roster
+    let keys = {
+      keyBronze: Player.MapData.PrivateState.HasKeyBronze,
+      keySilver: Player.MapData.PrivateState.HasKeySilver,
+      keyGold: Player.MapData.PrivateState.HasKeyGold,
+    };
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -316,25 +320,37 @@ export default class Roster extends CRABS {
     }
 
     if (!ChatRoomMapViewIsActive()) {
-        displaykeys = "none";
+      displaykeys = "none";
     }
 
     let output_html = rostertemplate
-        .replace('{{adminsInRoom}}', `${admin_count}`)
-        .replace('{{totalAdmins}}', `${ChatRoomData.Admin.length}`)
-        .replace('{{playersInRoom}}', `${ChatRoomCharacter.length}`)
-        .replace('{{totalPlayers}}', `${ChatRoomData.Limit}`)
-        .replace('{{friendsOnline}}', this.onlineFriends?.toString() ?? '...')
-        .replace('{{totalFriends}}', `${Player.FriendNames.size}`)
-        .replace('{{onlinePlayers}}', `${CurrentOnlinePlayers}`);
+      .replace("{{adminIcon}}", `${this.printicon("admin")}`)
+      .replace("{{adminsInRoom}}", `${admin_count}`)
+      .replace("{{totalAdmins}}", `${ChatRoomData.Admin.length}`)
+      .replace("{{playerIcon}}", `${this.printicon("player")}`)
+      .replace("{{playersInRoom}}", `${ChatRoomCharacter.length}`)
+      .replace("{{totalPlayers}}", `${ChatRoomData.Limit}`)
+      .replace("{{friendIcon}}", `${this.printicon("friend")}`)
+      .replace("{{friendsOnline}}", this.onlineFriends?.toString() ?? "...")
+      .replace("{{totalFriends}}", `${Player.FriendNames.size}`)
+      .replace("{{playerIcon}}", `${this.printicon("player")}`)
+      .replace("{{connectedIcon}}", `${this.printicon("connected")}`)
+      .replace("{{onlinePlayers}}", `${CurrentOnlinePlayers}`);
 
     if (ChatRoomMapViewIsActive()) {
-        output_html = output_html
-            .replace('{{collectedKeys}}', `<td>TEST</td>`);
-    }
-    else {
-        output_html = output_html
-            .replace('{{collectedKeys}}', ``);
+      for (const [KEY, VALUE] of Object.entries(keys)) {
+        if (VALUE) {
+          displaykeys += this.printicon(KEY);
+        } else {
+          displaykeys += this.printicon("keyNull");
+        }
+      }
+      output_html = output_html.replace(
+        "{{collectedKeys}}",
+        `<td>${displaykeys}</td>`
+      );
+    } else {
+      output_html = output_html.replace("{{collectedKeys}}", ``);
     }
 
     /*

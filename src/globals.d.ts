@@ -22,7 +22,7 @@ declare global {
   }
 
   interface HTMLElement {
-      value: string;
+    value: string;
   }
 
   interface Lovership {
@@ -86,6 +86,14 @@ declare global {
 
     ChatSettings: {
       OOCAutoClose: boolean;
+    };
+
+    MapData: {
+      PrivateState: {
+        HasKeyBronze?: boolean;
+        HasKeySilver?: boolean;
+        HasKeyGold?: boolean;
+      };
     };
 
     // You can add the rest of the methods as needed
