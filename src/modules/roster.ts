@@ -153,12 +153,12 @@ export default class Roster extends CRABS {
 
   // determine if player is admin or whitelisted in the room and set their badge icon
   private setbadge(player: any): string {
-    let badge = this.printicon("player");
+    let badge = this.printicon("player", "Guest");
     badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
-      ? this.printicon("vip")
+      ? this.printicon("vip", "VIP")
       : badge;
     badge = ChatRoomData.Admin.includes(player.MemberNumber)
-      ? this.printicon("admin")
+      ? this.printicon("admin", "Admin")
       : badge;
     return badge;
   }
