@@ -1,9 +1,17 @@
 .CRABS_room-status {
   width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
   /*background-image: url('path-to-your-watermark-image.jpg');
   background-color: #f7f7f7;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;*/
+}
+
+.CRABS_room-status table td {
+    padding: 5px;
+    text-align: center;
+    width: auto;
 }
