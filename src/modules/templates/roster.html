@@ -1,19 +1,12 @@
 <hr>
 <table class="CRABS_room-status CRABS_status-optional">
-    <thead>
-        <tr>
-            <td>Admins</td>
-            <td>Guests</td>
-            <td>Friends</td>
-            <td>Club</td>
-            <td style="display: {{displaykeys}};">Keys</td>
     <tbody>
         <tr>
             <td>{{adminsInRoom}}/{{totalAdmins}}</td>
             <td>{{playersInRoom}}/{{totalPlayers}}</td>
             <td>{{friendsOnline}}/{{totalFriends}}</td>
             <td>{{onlinePlayers}}</td>
-            <td style="display: {{displaykeys}};">{{collectedKeys}}</td>
+            {{collectedKeys}}
         </tr>
         </tr>
     </tbody>

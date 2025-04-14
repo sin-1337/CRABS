@@ -319,7 +319,6 @@ export default class Roster extends CRABS {
     }
 
     let output_html = rostertemplate
-        .replace(/{{displaykeys}}/g, `${displaykeys}`)
         .replace('{{adminsInRoom}}', `${admin_count}`)
         .replace('{{totalAdmins}}', `${ChatRoomData.Admin.length}`)
         .replace('{{playersInRoom}}', `${ChatRoomCharacter.length}`)
@@ -327,7 +326,17 @@ export default class Roster extends CRABS {
         .replace('{{friendsOnline}}', this.onlineFriends?.toString() ?? '...')
         .replace('{{totalFriends}}', `${Player.FriendNames.size}`)
         .replace('{{onlinePlayers}}', `${CurrentOnlinePlayers}`);
-/*
+
+    if (ChatRoomMapViewIsActive()) {
+        output_html = output_html
+            .replace('{{colledtedkeys}}', `<td>${displaykeys}</td>`);
+    }
+    else {
+        output_html = output_html
+            .replace('{{colledtedkeys}}', ``);
+    }
+
+    /*
     // start the tabble and remove the boarders
     output_html += `<table style="border: 0px;">`;
 
