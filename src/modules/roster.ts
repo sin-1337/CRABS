@@ -167,20 +167,20 @@ export default class Roster extends CRABS {
     let player_icons = "";
     if (Player.OwnerNumber() == player.MemberNumber) {
       // person owns you
-      player_icons += this.printicon("owner") + " ";
+      player_icons += this.printicon("owner", "Your Owner") + " ";
     } else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber)) {
       // if they don't own you but you are in their family, we assume you own them
       if (Player.IsOwnedByPlayer(player.membernumber)) {
         // The person is fully owned if this is true
-        player_icons += this.printicon("sub") + " ";
+        player_icons += this.printicon("sub", "Your Submissive") + " ";
       } else {
         // person is on trial
-        player_icons += this.printicon("trial") + " ";
+        player_icons += this.printicon("trial", "On Trial") + " ";
       }
     }
     if (Player.GetLoversNumbers().includes(player.MemberNumber)) {
       // person is a lover
-      player_icons += this.printicon("lover") + " ";
+      player_icons += this.printicon("lover", "Your Lover") + " ";
     } else {
       if (this.detectMod("BCTweaks")) {
         // BCTweaks mod is found
@@ -188,26 +188,26 @@ export default class Roster extends CRABS {
           Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
         ) {
           //Player is a best friend, skip checking if they are a friend.
-          player_icons += this.printicon("bestfriend") + " ";
+          player_icons += this.printicon("bestfriend", "Best Friend") + " ";
         } else if (Player.FriendList.includes(player.MemberNumber)) {
           // Player is not a best friend, but they are a freind
-          player_icons += this.printicon("friend") + " ";
+          player_icons += this.printicon("friend", "Your Friend") + " ";
         }
       } else if (Player.FriendList.includes(player.MemberNumber)) {
         // person is a friend, and the BCTweaks mod is not found
-        player_icons += this.printicon("friend") + " ";
+        player_icons += this.printicon("friend", "Your Friend") + " ";
       }
     }
     if (Player.WhiteList.includes(player.MemberNumber)) {
       // Player is whitelisted
-      player_icons += this.printicon("whitelist") + " ";
+      player_icons += this.printicon("whitelist", "Whitelisted") + " ";
     } else if (Player.BlackList.includes(player.MemberNumber)) {
       // Player is blacklisted
-      player_icons += this.printicon("blacklist") + " ";
+      player_icons += this.printicon("blacklist", "Blacklisted") + " ";
     }
     if (Player.GhostList.includes(player.MemberNumber)) {
       // Player is ghosted
-      player_icons += this.printicon("ghost") + " ";
+      player_icons += this.printicon("ghost", "Ghosted") + " ";
     }
     return player_icons;
   }
@@ -264,7 +264,7 @@ export default class Roster extends CRABS {
       // if the player is me (person who ran the script)
       if (this.checkIfMe(player)) {
         // mark me with a star icon
-        player_icons = this.printicon("you") + " " + player_icons;
+        player_icons = this.printicon("you", "You") + " " + player_icons;
 
         // format my output and store
         me_output_html = this.formatoutput(player, badge, player_icons);
@@ -314,17 +314,16 @@ export default class Roster extends CRABS {
     }
 
     let output_html = rostertemplate
-      .replace("{{adminIcon}}", `${this.printicon("admin")}`)
+      .replace("{{adminIcon}}", `${this.printicon("admin", "Admins")}`)
       .replace("{{adminsInRoom}}", `${admin_count}`)
       .replace("{{totalAdmins}}", `${ChatRoomData.Admin.length}`)
-      .replace("{{playerIcon}}", `${this.printicon("player")}`)
+      .replace("{{playerIcon}}", `${this.printicon("player", "Players")}`)
       .replace("{{playersInRoom}}", `${ChatRoomCharacter.length}`)
       .replace("{{totalPlayers}}", `${ChatRoomData.Limit}`)
-      .replace("{{friendIcon}}", `${this.printicon("friend")}`)
+      .replace("{{friendIcon}}", `${this.printicon("friend", "Friends")}`)
       .replace("{{friendsOnline}}", this.onlineFriends?.toString() ?? "...")
       .replace("{{totalFriends}}", `${Player.FriendNames.size}`)
-      .replace("{{playerIcon}}", `${this.printicon("player")}`)
-      .replace("{{connectedIcon}}", `${this.printicon("connected")}`)
+      .replace("{{connectedIcon}}", `${this.printicon("connected", "Online Accounts")}`)
       .replace("{{onlinePlayers}}", `${CurrentOnlinePlayers}`);
 
     if (ChatRoomMapViewIsActive()) {
@@ -336,9 +335,9 @@ export default class Roster extends CRABS {
       };
       for (const [KEY, VALUE] of Object.entries(keys)) {
         if (VALUE) {
-          displaykeys += this.printicon(KEY);
+          displaykeys += this.printicon(KEY, "Found");
         } else {
-          displaykeys += this.printicon("keyNull");
+          displaykeys += this.printicon("keyNull", "Missing");
         }
       }
       output_html = output_html.replace(

@@ -62,20 +62,25 @@ export default class CRABS {
         return(this.modlist.filter(x => x.name == targetmod).length > 0);
     }
 
-    protected printicon(key: string) : string {
+    protected printicon(key: string, tooltip?: string) : string {
         let ICON = "./icons/error.svg";
         if (key in this.ICONS) {
             ICON = this.ICONS[key];
         }
+        let tooltip = "";
 
         let absolutepath = "https://sin-1337.github.io/CRABS/"
         let html = "";
-        html += "<img ";
-        html += "height=" + this.icon_height + "px' ";
-        html += "width='" + this.icon_width + "px' ";
-        html += "alt='" + key + "' ";
-        html += "src='" + absolutepath + ICON + "'";
-        html += ">";
+        html += `<div class='CRABS_tooltip-wrapper'>`
+        html += `<img `;
+        html += `height=${this.icon_height}px' `;
+        html += `width='${this.icon_width}px' `;
+        html += `alt='${key}' `;
+        html += `src='${absolutepath}${ICON}' `;
+        html += `class='CRABS_tooltip-image'`;
+        html += `>`;
+        html += `<div class='CRABS_tooltip'>${tooltip}</div>`
+        html += `</div>`;
         return(html);
     }
 }
