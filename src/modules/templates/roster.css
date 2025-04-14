@@ -1,3 +1,4 @@
+.CRABS_room-status,
 .CRABS_table-wrapper {
   position: relative;
   background-image: url('path-to-your-watermark-image.jpg');
@@ -6,8 +7,9 @@
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
-  padding: 20px;
+  /* padding: 20px; */
   border-radius: 8px;
+  border:1;
   box-sizing: border-box;
   width: 100%;
 }
