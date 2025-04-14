@@ -1,6 +1,7 @@
 import WhisperPlus from "./whisperplus";
 import CRABS from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import './templates/roster.css';
 import rostertemplate from './templates/roster.html';
 window.sendWhisper = WhisperPlus.sendWhisper;
 
