@@ -8,6 +8,7 @@ import progress from "rollup-plugin-progress";
 import packageJson from "./package.json" assert { type: "json" };
 import simpleGit from "simple-git";
 import { string } from "rollup-plugin-string";
+import postcss from "rollup-plugin-postcss";
 
 export default {
   input: "src/main.ts",
@@ -56,8 +57,13 @@ console.debug("CRABS: Parse start...");
   plugins: [
     progress({ clearLine: true }),
     resolve({ browser: true }),
+    postcss({
+      inject: true,      // ✅ Inline <style> tag into output JS
+      minimize: true,    // Optional: Minify CSS
+      sourceMap: false,  // Optional
+    }),
     string({
-      include: ["**/*.css", "**/*.html"],
+      include: ["**/*.html"],
     }),
     typescript({ tsconfig: "./tsconfig.json", inlineSources: true }),
     commonjs(),
