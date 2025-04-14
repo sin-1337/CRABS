@@ -2,6 +2,7 @@
   width: 100% !important;
   table-layout: fixed;
   border-collapse: collapse;
+  height: auto;
   /*background-image: url('path-to-your-watermark-image.jpg');
   background-color: #f7f7f7;
   background-size: cover;
@@ -14,5 +15,6 @@
     padding: 5px;
     text-align: center;
     width: calc(100% / var(--col-count, 4));
+    height: auto;
     border-right: 1px solid #ccc; /* Add left border */
 }
