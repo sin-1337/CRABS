@@ -239,12 +239,6 @@ export default class Roster extends CRABS {
     let showadmins = true; // room admins
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
-    let displaykeys = ""; // determines how to show keys (css) in the roster
-    let keys = {
-      keyBronze: Player.MapData.PrivateState.HasKeyBronze,
-      keySilver: Player.MapData.PrivateState.HasKeySilver,
-      keyGold: Player.MapData.PrivateState.HasKeyGold,
-    };
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -319,10 +313,6 @@ export default class Roster extends CRABS {
       showplayers = false;
     }
 
-    if (!ChatRoomMapViewIsActive()) {
-      displaykeys = "none";
-    }
-
     let output_html = rostertemplate
       .replace("{{adminIcon}}", `${this.printicon("admin")}`)
       .replace("{{adminsInRoom}}", `${admin_count}`)
@@ -338,6 +328,12 @@ export default class Roster extends CRABS {
       .replace("{{onlinePlayers}}", `${CurrentOnlinePlayers}`);
 
     if (ChatRoomMapViewIsActive()) {
+      let displaykeys = ""; // determines how to show keys (css) in the roster
+      let keys = {
+        keyBronze: Player.MapData.PrivateState.HasKeyBronze,
+        keySilver: Player.MapData.PrivateState.HasKeySilver,
+        keyGold: Player.MapData.PrivateState.HasKeyGold,
+      };
       for (const [KEY, VALUE] of Object.entries(keys)) {
         if (VALUE) {
           displaykeys += this.printicon(KEY);
@@ -353,7 +349,6 @@ export default class Roster extends CRABS {
       output_html = output_html.replace("{{collectedKeys}}", ``);
     }
 
-    /*
     // start the tabble and remove the boarders
     output_html += `<table style="border: 0px;">`;
 
@@ -365,7 +360,6 @@ export default class Roster extends CRABS {
 
     // finish the table
     output_html += `</table>`;
-*/
     // show the final output
     ChatRoomSendLocal(output_html);
   }
