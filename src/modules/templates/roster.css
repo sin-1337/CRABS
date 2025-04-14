@@ -2,53 +2,66 @@
   position: relative;
   background-image: url('path-to-your-watermark-image.jpg'); /* Add path to your watermark image */
   background-color: #f7f7f7;  /* Match this with the dominant color of your image */
-  background-size: cover;     /* Adjust image size to fit the area */
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  background-attachment: fixed; /* Optional: Fix the background image when scrolling */
-  padding: 20px;  /* Optional padding for better spacing */
-  border-radius: 8px; /* Optional: Rounded corners for better aesthetics */
+  background-attachment: fixed;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .CRABS_table-wrapper table {
   width: 100%;
   border-collapse: collapse;
   position: relative;
-  z-index: 1;  /* Ensure the table content stays above the background image */
+  z-index: 1;
 }
 
 .CRABS_room-meta,
 .CRABS_room-users {
-  margin-bottom: 20px; /* Add space between tables */
+  margin-bottom: 20px;
+}
+
+/* Meta table specific adjustments */
+.CRABS_room-meta {
+  width: 100%;
+  text-align: center;
+}
+
+.CRABS_room-meta thead {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .CRABS_room-meta th,
+.CRABS_room-meta td {
+  padding: 10px;
+  text-align: center; /* Center the content */
+  border: 1px solid #ddd;
+}
+
+/* Room users table styling */
 .CRABS_room-users th,
-.CRABS_room-meta td,
 .CRABS_room-users td {
   padding: 10px;
   text-align: left;
   border: 1px solid #ddd;
-}
-
-.CRABS_room-users th,
-.CRABS_room-users td {
-  background-color: rgba(255, 255, 255, 0.8); /* Slight transparency for table contents */
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .CRABS_room-users tbody tr:hover {
-  background-color: #f1f1f1;  /* Optional: Highlight rows on hover */
+  background-color: #f1f1f1;
 }
 
+/* Layout for user tables */
 .CRABS_user-tables-container {
   display: flex;
   justify-content: space-between;
 }
 
 .CRABS_user-table {
-  width: 48%;  /* Adjust table width for side-by-side layout */
+  width: 48%;
 }
 
 .CRABS_right {
-  display: none;  /* Only show right table when needed */
+  display: none;
 }
