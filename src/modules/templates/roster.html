@@ -1,63 +1,21 @@
 <hr>
-<table style="width: 100%">
+<table class="CRABS_room-status">
     <thead>
         <tr>
             <td> Admins </td>
             <td> Guests </td>
             <td> Friends </td>
             <td> Club </td>
+            <td class="CRABS_map-keys"> Keys </td>
     <tbody>
         <tr>
             <td>{{adminsInRoom}} / {{totalAdmins}}</td>
             <td>{{playersInRoom}} / {{totalPlayers}}</td>
             <td>{{friendsOnline}} / {{totalFriends}}</td>
             <td>{{onlinePlayers}}</td>
+            <td class=CRABS_map-keys">{{collectedKeys}}</td>
         </tr>
         </tr>
     </tbody>
 </table>
-<div class="CRABS_room-status">
-  <!-- Meta Table -->
-  <div class="CRABS_table-wrapper">
-    <table class="CRABS_room-meta">
-      <thead>
-        <tr>
-          <th>Admins</th>
-          <th>Guests</th>
-          <th>Friends</th>
-          <th>Club</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{adminsInRoom}} / {{totalAdmins}}</td>
-          <td>{{playersInRoom}} / {{totalPlayers}}</td>
-          <td>{{friendsOnline}} / {{totalFriends}}</td>
-          <td>{{onlinePlayers}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Container for dynamic user tables -->
-  <div class="CRABS_user-tables-container" id="CRABS_userTablesContainer" style="display: none;">
-    <!-- Left Table -->
-    <div class="CRABS_user-table CRABS_left" id="CRABS_leftUserTableContainer">
-      <table class="CRABS_room-users">
-        <tbody id="CRABS_leftUserBody">
-          {{leftUserRows}}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Right Table (conditionally shown) -->
-    <div class="CRABS_user-table CRABS_right" id="CRABS_rightUserTableContainer" style="display: none;">
-      <table class="CRABS_room-users">
-        <tbody id="CRABS_rightUserBody">
-          {{rightUserRows}}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
 <hr>

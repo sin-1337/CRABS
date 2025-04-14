@@ -321,7 +321,7 @@ export default class Roster extends CRABS {
         .replace('{{friendsOnline}}', this.onlineFriends?.toString() ?? '...')
         .replace('{{totalFriends}}', `${Player.FriendNames.size}`)
         .replace('{{onlinePlayers}}', `${CurrentOnlinePlayers}`);
-
+/*
     // start the tabble and remove the boarders
     output_html += `<table style="border: 0px;">`;
 
@@ -333,7 +333,7 @@ export default class Roster extends CRABS {
 
     // finish the table
     output_html += `</table>`;
-
+*/
     // show the final output
     ChatRoomSendLocal(output_html);
   }
