@@ -87,10 +87,10 @@ export default class Roster extends CRABS {
     player_icons: string
   ): string {
     let output = `<tr>
-                <td style="padding-left: 10px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
+                <td style="padding-left: 15px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
 
     // set up whispering
-    output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${
+    output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0; text-align: left;"><span style="color:${
       player.LabelColor || "#000000"
     }; cursor:pointer;
                 font-family: Arial, sans-serif;
