@@ -43,7 +43,7 @@
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  z-index: 100;
+  z-index: 9999; /* HIGH value to ensure it's on top */;
   transition: opacity 0.2s ease-in-out;
 }
 
