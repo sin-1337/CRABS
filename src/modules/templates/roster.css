@@ -11,7 +11,7 @@
   background-attachment: fixed;*/
 }
 
-.CRABS_room-status td {
+.CRABS_room-status > tbody > tr > td {
     padding: 5px;
     text-align: center;
     width: calc(100% / var(--col-count, 4));
