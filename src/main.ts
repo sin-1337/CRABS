@@ -5,7 +5,7 @@ import WhisperPlus from "./modules/whisperplus";
 import './templates/roster.css';
 
 // configure the version and mod name
-const VERSION = "1.0.0.103 Alpha";
+const VERSION = "1.0.0.104 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
