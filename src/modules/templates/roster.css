@@ -1,31 +1,32 @@
 .CRABS_table-wrapper {
   position: relative;
-  background-image: url('path-to-your-watermark-image.jpg'); /* Add path to your watermark image */
-  background-color: #f7f7f7;  /* Match this with the dominant color of your image */
+  background-image: url('path-to-your-watermark-image.jpg');
+  background-color: #f7f7f7;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
   padding: 20px;
   border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
+/* Make all tables take full width and space cells correctly */
 .CRABS_table-wrapper table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   position: relative;
   z-index: 1;
+  table-layout: fixed; /* Helps spread content evenly */
 }
 
-.CRABS_room-meta,
-.CRABS_room-users {
-  margin-bottom: 20px;
-}
-
-/* Meta table specific adjustments */
+/* Meta table layout */
 .CRABS_room-meta {
   width: 100%;
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .CRABS_room-meta thead {
@@ -34,32 +35,41 @@
 
 .CRABS_room-meta th,
 .CRABS_room-meta td {
-  padding: 10px;
-  text-align: center; /* Center the content */
+  padding: 12px 16px;
+  text-align: center;
   border: 1px solid #ddd;
+  box-sizing: border-box;
+  min-height: 30px;
+  height: 100%;
 }
 
-/* Room users table styling */
+/* Users table layout */
 .CRABS_room-users th,
 .CRABS_room-users td {
-  padding: 10px;
+  padding: 12px 16px;
   text-align: left;
   border: 1px solid #ddd;
   background-color: rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+}
+
+.CRABS_room-users tbody tr {
+  height: 40px;
 }
 
 .CRABS_room-users tbody tr:hover {
   background-color: #f1f1f1;
 }
 
-/* Layout for user tables */
 .CRABS_user-tables-container {
   display: flex;
   justify-content: space-between;
+  gap: 2%;
+  width: 100%;
 }
 
 .CRABS_user-table {
-  width: 48%;
+  width: 49%;
 }
 
 .CRABS_right {
