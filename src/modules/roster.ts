@@ -9,8 +9,8 @@ export default class Roster extends CRABS {
   private onlineFriends: number | undefined = undefined;
   private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
-  constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
-    super(icon_height, icon_width, CRABS);
+  constructor(CRABS: ModSDKModAPI) {
+    super(CRABS);
     this.loadFriendList();
     // expose showPlayerFocus to the DOM
     window.PlayerFocus = Roster.showPlayerFocus;

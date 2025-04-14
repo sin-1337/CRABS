@@ -8,10 +8,6 @@ const VERSION = "1.0.0.115 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
-//these are in em units
-const ICON_HEIGHT = 25;
-const ICON_WIDTH = 25;
-
 //register the mod
 const CRABS = bcModSDK.registerMod({
     name: NICKNAME,
@@ -20,8 +16,8 @@ const CRABS = bcModSDK.registerMod({
     repository: "https://github.com/sin-1337/CRABS",
 });
 
-const WHISPERPLUS = new WhisperPlus(ICON_HEIGHT, ICON_WIDTH, CRABS);
-const ROSTER = new Roster(ICON_HEIGHT, ICON_WIDTH, CRABS);
+const WHISPERPLUS = new WhisperPlus(CRABS);
+const ROSTER = new Roster(CRABS);
 
 
 // TODO: create ui to turn this off!!

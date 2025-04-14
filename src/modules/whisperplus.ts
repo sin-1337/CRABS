@@ -2,8 +2,8 @@ import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base"
 export default class WhisperPlus extends CRABS {
 
-    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
-        super(icon_height, icon_width, CRABS);
+    constructor(CRABS: ModSDKModAPI) {
+        super(CRABS);
         window.sendWhisper = WhisperPlus.sendWhisper;
     } 
 

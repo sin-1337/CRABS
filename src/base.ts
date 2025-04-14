@@ -33,13 +33,9 @@ export default class CRABS {
         "keyNull": "icons/keyNull.svg",
     }
 
-    protected icon_height = 0;
-    protected icon_width = 0
     protected modlist: ModSDKModInfo[];
 
-    constructor (icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
-        this.icon_height = icon_height;
-        this.icon_width = icon_width;
+    constructor (CRABS: ModSDKModAPI) {
         this.crabs = CRABS;
         this.modlist = bcModSdk.getModsInfo();
     }
@@ -72,8 +68,6 @@ export default class CRABS {
         let html = "";
         html += `<div class='CRABS_tooltip-wrapper'>`
         html += `<img `;
-        html += `height=${this.icon_height}px `;
-        html += `width='${this.icon_width}px `;
         html += `alt='${key}' `;
         html += `src='${absolutepath}${ICON}' `;
         html += `class='CRABS_tooltip-image'`;
