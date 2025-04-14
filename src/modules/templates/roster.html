@@ -1,19 +1,19 @@
 <hr>
-<table class="CRABS_room-status">
+<table class="CRABS_room-status CRABS_status-optional">
     <thead>
         <tr>
-            <td> Admins </td>
-            <td> Guests </td>
-            <td> Friends </td>
-            <td> Club </td>
-            <td class="CRABS_map-keys"> Keys </td>
+            <td>Admins</td>
+            <td>Guests</td>
+            <td>Friends</td>
+            <td>Club</td>
+            <td style="display: {{displaykeys}};">Keys</td>
     <tbody>
         <tr>
-            <td>{{adminsInRoom}} / {{totalAdmins}}</td>
-            <td>{{playersInRoom}} / {{totalPlayers}}</td>
-            <td>{{friendsOnline}} / {{totalFriends}}</td>
+            <td>{{adminsInRoom}}/{{totalAdmins}}</td>
+            <td>{{playersInRoom}}/{{totalPlayers}}</td>
+            <td>{{friendsOnline}}/{{totalFriends}}</td>
             <td>{{onlinePlayers}}</td>
-            <td class=CRABS_map-keys">{{collectedKeys}}</td>
+            <td style="display: {{displaykeys}};">{{collectedKeys}}</td>
         </tr>
         </tr>
     </tbody>

@@ -225,6 +225,7 @@ export default class Roster extends CRABS {
       return;
     }
 
+    let displaykeys = ""; // determines how to show keys (css) in the roster
     let me_output_html = ""; // holds data about user who ran script
     let admin_output_html = ""; // holds admins
     let vip_output_html = ""; // holds whitelisted users
@@ -313,6 +314,10 @@ export default class Roster extends CRABS {
       showplayers = false;
     }
 
+    if (!ChatRoomMapViewIsActive()) {
+        displaykeys = "none";
+    }
+
     let output_html = rostertemplate
         .replace('{{adminsInRoom}}', `${admin_count}`)
         .replace('{{totalAdmins}}', `${ChatRoomData.Admin.length}`)
@@ -321,6 +326,7 @@ export default class Roster extends CRABS {
         .replace('{{friendsOnline}}', this.onlineFriends?.toString() ?? '...')
         .replace('{{totalFriends}}', `${Player.FriendNames.size}`)
         .replace('{{onlinePlayers}}', `${CurrentOnlinePlayers}`);
+        .replace('{{displaykeys}}', `${displaykeys}`);
 /*
     // start the tabble and remove the boarders
     output_html += `<table style="border: 0px;">`;
