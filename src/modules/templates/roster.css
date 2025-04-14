@@ -19,6 +19,17 @@
     border-right: 1px solid #ccc; /* Add left border */
 }
 
+.CRABS_roster-nested-row,
+.CRABS_roster-nested-cell {
+    all: unset;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    height: 1px !important;
+    line-height: 1 !important;
+    vertical-align: top !important;
+}
+
 .CRABS_tooltip-wrapper {
   position: relative;
   display: inline-block;
