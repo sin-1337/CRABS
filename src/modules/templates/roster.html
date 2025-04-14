@@ -4,10 +4,10 @@
     <table class="CRABS_room-meta">
       <thead>
         <tr>
-          <th>Room Admins</th>
-          <th>Room Guests</th>
+          <th>Admins</th>
+          <th>Guests</th>
           <th>Friends</th>
-          <th>Club Members</th>
+          <th>Club</th>
         </tr>
       </thead>
       <tbody>
@@ -21,21 +21,11 @@
     </table>
   </div>
 
-  <!-- Header -->
-  <h3 class="CRABS_players-header">Players in Room</h3>
-
   <!-- Container for dynamic user tables -->
-  <div class="CRABS_user-tables-container" id="CRABS_userTablesContainer">
+  <div class="CRABS_user-tables-container" id="CRABS_userTablesContainer" style="display: none;">
     <!-- Left Table -->
     <div class="CRABS_user-table CRABS_left" id="CRABS_leftUserTableContainer">
       <table class="CRABS_room-users">
-        <thead>
-          <tr>
-            <th>Badge</th>
-            <th>Name</th>
-            <th>Icons</th>
-          </tr>
-        </thead>
         <tbody id="CRABS_leftUserBody">
           {{leftUserRows}}
         </tbody>
@@ -45,13 +35,6 @@
     <!-- Right Table (conditionally shown) -->
     <div class="CRABS_user-table CRABS_right" id="CRABS_rightUserTableContainer" style="display: none;">
       <table class="CRABS_room-users">
-        <thead>
-          <tr>
-            <th>Badge</th>
-            <th>Name</th>
-            <th>Icons</th>
-          </tr>
-        </thead>
         <tbody id="CRABS_rightUserBody">
           {{rightUserRows}}
         </tbody>
