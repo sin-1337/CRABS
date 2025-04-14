@@ -28,6 +28,7 @@
     height: 1px !important;
     line-height: 1 !important;
     vertical-align: top !important;
+    text-align: left;
 }
 
 .CRABS_tooltip-wrapper {
