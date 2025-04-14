@@ -1,20 +1,11 @@
-.CRABS_room-status,
-.CRABS_table-wrapper {
-  display: block; /* Crucial for breaking out of inline containers */
+.CRABS_room-status {
   width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
-  padding: 10px;
-  margin: 0 auto;
-
   background-image: url('path-to-your-watermark-image.jpg');
   background-color: #f7f7f7;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
-  border-radius: 8px;
-  border: 1px solid #ccc;
 }
 
 /* Table forces full width and equal column size */
