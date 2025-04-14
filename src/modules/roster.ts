@@ -87,7 +87,7 @@ export default class Roster extends CRABS {
     player_icons: string
   ): string {
     let output = `<tr>
-                <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
+                <td style="padding-left: 10px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
 
     // set up whispering
     output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${
@@ -347,18 +347,28 @@ export default class Roster extends CRABS {
     } else {
       output_html = output_html.replace("{{collectedKeys}}", ``);
     }
+   
+    /*
+    if (ChatRoomCharacter.length > 10) {
+        output_html = output_html.replace("{{playerRows}}", `<td>{{playerRowsCol1}}</td><td>{{playerRowsCol2}}</td>`);
+    }
+    else {
+        output_html = output_html.replace("{{playerRows}}", `<td>{{playerRowsCol1}}</td>`);
+    }
+    */
 
     // start the tabble and remove the boarders
-    output_html += `<table style="border: 0px;">`;
-
+    //output_html += `<table style="border: 0px;">`;
+    let output_rows: string = ""
     // if the filter var resolves to true, add the respective output.
-    output_html = showme ? output_html + me_output_html : output_html;
-    output_html = showadmins ? output_html + admin_output_html : output_html;
-    output_html = showvip ? output_html + vip_output_html : output_html;
-    output_html = showplayers ? output_html + player_output_html : output_html;
+    output_rows = showme ? output_rows + me_output_html : output_html;
+    output_rows = showadmins ? output_rows + admin_output_html : output_html;
+    output_rows = showvip ? output_rows + vip_output_html : output_html;
+    output_rows = showplayers ? output_rows + player_output_html : output_html;
 
-    // finish the table
-    output_html += `</table>`;
+    
+    output_html = output_html.replace("{{playerRows}}", output_rows);
+
     // show the final output
     ChatRoomSendLocal(output_html);
   }
