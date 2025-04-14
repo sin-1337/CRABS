@@ -319,7 +319,7 @@ export default class Roster extends CRABS {
     }
 
     let output_html = rostertemplate
-        .replace('/{{displaykeys}}/g', `${displaykeys}`)
+        .replace(/{{displaykeys}}/g, `${displaykeys}`)
         .replace('{{adminsInRoom}}', `${admin_count}`)
         .replace('{{totalAdmins}}', `${ChatRoomData.Admin.length}`)
         .replace('{{playersInRoom}}', `${ChatRoomCharacter.length}`)
