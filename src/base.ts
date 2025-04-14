@@ -62,7 +62,7 @@ export default class CRABS {
         return(this.modlist.filter(x => x.name == targetmod).length > 0);
     }
 
-    protected printicon(key: string, tooltip?: string = "") : string {
+    protected printicon(key: string, tooltip: string = "") : string {
         let ICON = "./icons/error.svg";
         if (key in this.ICONS) {
             ICON = this.ICONS[key];
