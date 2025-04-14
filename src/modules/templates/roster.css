@@ -8,6 +8,10 @@
   background-attachment: fixed;
 }
 
+.CRABS_map-keys {
+    display: none;
+}
+
 /* Table forces full width and equal column size */
 .CRABS_table-wrapper table,
 .CRABS_room-meta {
