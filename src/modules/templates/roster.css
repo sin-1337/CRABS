@@ -8,12 +8,15 @@
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
+  border-radius: 12px;
+  border: 2px solid #fff;
 }
 
 .CRABS_room-status {
   width: 100% !important;
   table-layout: fixed;
   border-collapse: collapse;
+  color: white;
 }
 
 .CRABS_room-status > tbody > tr > td {
