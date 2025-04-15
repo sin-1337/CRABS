@@ -358,23 +358,14 @@ export default class Roster extends CRABS {
         .replace("{{columncount}}", "4"); // no keys? colspan is 4
     }
    
-    /*
-    if (ChatRoomCharacter.length > 10) {
-        output_html = output_html.replace("{{playerRows}}", `<td>{{playerRowsCol1}}</td><td>{{playerRowsCol2}}</td>`);
-    }
-    else {
-        output_html = output_html.replace("{{playerRows}}", `<td>{{playerRowsCol1}}</td>`);
-    }
-    */
-
     // start the tabble and remove the boarders
     //output_html += `<table style="border: 0px;">`;
     let output_rows: string = ""
     // if the filter var resolves to true, add the respective output.
-    output_rows = showme ? output_rows + me_output_html : output_html;
-    output_rows = showadmins ? output_rows + admin_output_html : output_html;
-    output_rows = showvip ? output_rows + vip_output_html : output_html;
-    output_rows = showplayers ? output_rows + player_output_html : output_html;
+    output_rows = showme ? output_rows + me_output_html : output_rows;
+    output_rows = showadmins ? output_rows + admin_output_html : output_rows;
+    output_rows = showvip ? output_rows + vip_output_html : output_rows;
+    output_rows = showplayers ? output_rows + player_output_html : output_rows;
 
     
     output_html = output_html.replace("{{playerRows}}", output_rows);
