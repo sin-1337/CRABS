@@ -2,13 +2,12 @@
   width: 100% !important;
   table-layout: fixed;
   border-collapse: collapse;
-  height: auto;
-  /*background-image: url('path-to-your-watermark-image.jpg');
-  background-color: #f7f7f7;
+  background-image: url('../CRABS_Logo.png');
+  background-color: #241F31;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  background-attachment: fixed;*/
+  background-attachment: fixed;
 }
 
 .CRABS_room-status > tbody > tr > td {
@@ -17,18 +16,6 @@
     width: calc(100% / var(--col-count, 4));
     height: auto;
     border-right: 1px solid #ccc; /* Add left border */
-}
-
-.CRABS_roster-nested-row,
-.CRABS_roster-nested-cell {
-    all: unset;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    height: 1px !important;
-    line-height: 1 !important;
-    vertical-align: top !important;
-    text-align: left;
 }
 
 .CRABS_tooltip-wrapper {
