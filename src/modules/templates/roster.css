@@ -1,4 +1,4 @@
-.CRABS_room-status {
+.CRABS_wrapper{
   width: 100% !important;
   table-layout: fixed;
   border-collapse: collapse;
@@ -8,6 +8,12 @@
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
+}
+
+.CRABS_room-status {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
 .CRABS_room-status > tbody > tr > td {
