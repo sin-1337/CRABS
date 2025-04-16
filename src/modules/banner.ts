@@ -1,6 +1,6 @@
 import CRABS from "../base"
 import { ModSDKModAPI } from "bondage-club-mod-sdk"
-import bannertemplate from "/templates/banner.html"
+import bannertemplate from "./templates/banner.html"
 
 
 export default class Banner extends CRABS {
