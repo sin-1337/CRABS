@@ -342,9 +342,9 @@ export default class Roster extends CRABS {
         
         // if key is found, set icon and tool tip
         if (VALUE) {
-          displaykeys += this.printicon(KEY, "Found");
+          displaykeys += this.printicon(KEY);
         } else {  
-          displaykeys += this.printicon("keyNull", "Missing");
+          displaykeys += this.printicon("keyNull");
         }
       }
 
