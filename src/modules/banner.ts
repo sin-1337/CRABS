@@ -23,9 +23,11 @@ export default class Banner extends CRABS {
             .replace("{{Logo}}", this.printicon("logo"))
             .replace("{{Name}}", name)
             .replace("{{Version}}", version)
-            .replace("{{LabelColor}}", Player.LabelColor)
+            .replace("{{LabelColor}}", `${Player.LabelColor}`)
             .replace("{{PlayerPermission}}", currentPermissionText)
             .replace("{{RoomName}}", ChatRoomData.Name);
+
+        ChatRoomSendLocal(output_html);
 
         // output room details
         ChatRoomSendLocal(
