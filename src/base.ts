@@ -4,6 +4,8 @@ export default class CRABS {
     declare crabs: ModSDKModAPI;
     
     protected readonly ICONS: Record<string, string> = {
+        // logo
+        "logo" : "CRABS_Logo.png",
 
         // badges
         "admin" : "icons/admin.svg",
@@ -64,16 +66,16 @@ export default class CRABS {
             ICON = this.ICONS[key];
         }
 
-        let absolutepath = "https://sin-1337.github.io/CRABS/"
+        let absolutepath = "https://sin-1337.github.io/CRABS/" // absolute path of the crabs project
         let html = "";
-        html += `<div class='CRABS_tooltip-wrapper'>`
+        if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>` // skip the tool tip if string wasn't set
         html += `<img `;
         html += `alt='${key}' `;
         html += `src='${absolutepath}${ICON}' `;
-        html += `class='CRABS_tooltip-image'`;
+        if (tooltip != "") html += `class='CRABS_tooltip-image'`;
         html += `>`;
-        html += `<div class='CRABS_tooltip'>${tooltip}</div>`
-        html += `</div>`;
+        if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`
+        if (tooltip != "") html += `</div>`;
         return(html);
     }
 }

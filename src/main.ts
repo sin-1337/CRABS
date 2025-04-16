@@ -2,6 +2,7 @@
 import bcModSDK from 'bondage-club-mod-sdk';
 import Roster from "./modules/roster";
 import WhisperPlus from "./modules/whisperplus";
+import Banner from "./module/banner";
 
 // configure the version and mod name
 const VERSION = "1.0.0.127 Alpha";
@@ -16,13 +17,16 @@ const CRABS = bcModSDK.registerMod({
     repository: "https://github.com/sin-1337/CRABS",
 });
 
+const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
+
 
 
 // TODO: create ui to turn this off!!
 // TODO: reformat this output maybe?
 // set up a handler for room entry
+// This sets up the banner!
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
@@ -37,42 +41,17 @@ ChatRoomRegisterMessageHandler({
       setTimeout(() => {
         // if the player left the room, bail!
         if (Player.LastChatRoom === null) {
-          return false
+            // Must return false, even if we are bailing out!
+            return false
         }
-
-        // get player permissions
-        const currentPermissionText = `${TextGetInScope(
-          "Screens/Character/InformationSheet/Text_InformationSheet.csv",
-          "PermissionLevel" + Player.ItemPermission.toString()
-        )} (${Player.ItemPermission})`;
-
-        // format and display the player permissions
-        ChatRoomSendLocal(`
-                  <hr>
-                  <div style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;">
-                    <span style="display: inline; margin: 0; padding: 0; line-height: 1; color: #5BA3E0; font-weight: bold;">Player Item Permission: </span>
-                    <span style="display: inline; margin: 0; padding: 0; line-height: 1; color: ${Player.LabelColor}; font-weight: bold; text-shadow: 0 0 1px black;">${currentPermissionText}</span>
-                    <span style="display: inline; margin: 0; padding: 0; line-height: 1; color: #5BA3E0; font-weight: bold;">&nbsp;</span>
-                  </div>
-                `);
-
-        // output room details
-        ChatRoomSendLocal(
-          "<div>Room details for: " + ChatRoomData.Name + "</div>"
-        );
-        for (const [_, COMMAND] of Commands.entries()) {
-          if (COMMAND.Tag === "players") {
-            COMMAND.Action("count");
-            break;
-          }
-        }
-
-        // output message letting players know how to view the full roster
-        ChatRoomSendLocal("<div>To see the full roster use /roster</div><hr>");
+        
+        // call the action to draw the banner
+        BANNER.drawBanner(NAME, VERSION);
+        
       }, 3600);
-    }
+    } 
 
-    // must return false to allow other handlers to work with the data
+    // Must return false to allow other handlers to work with the data.
     return false;
   },
 });
