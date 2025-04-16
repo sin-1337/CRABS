@@ -72,7 +72,7 @@ export default class CRABS {
         html += `<img `;
         html += `alt='${key}' `;
         html += `src='${absolutepath}${ICON}' `;
-        if (tooltip != "") html += `class='CRABS_tooltip-image'`;
+        html += `class='CRABS_tooltip-image'`;
         html += `>`;
         if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`
         if (tooltip != "") html += `</div>`;

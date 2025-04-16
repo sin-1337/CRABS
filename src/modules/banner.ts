@@ -20,7 +20,7 @@ export default class Banner extends CRABS {
 
         // set up the template and populate the fields.
         let output_html = bannertemplate
-            //.replace("{{Logo}}", this.printicon("logo"))
+            .replace("{{Logo}}", this.printicon("logo"))
             .replace("{{Name}}", name)
             .replace("{{Version}}", version)
             .replace("{{LabelColor}}", `${Player.LabelColor}`)
