@@ -75,7 +75,7 @@ export default class Help extends CRABS {
     })
     .catch((error) => {
         console.log("CRABS: Error loading help template", error);
-    }
-    return("Error loading help template"
+    });
+    return("Error loading help template");
   }
 }
