@@ -28,13 +28,6 @@ export default class Banner extends CRABS {
             "PlayerPermission": currentPermissionText,
             "RoomName": ChatRoomData.Name,
         }
-        this.template("banner", templatevars)
-        .then((output_html) => {
-            return(output_html);
-        })
-        .catch((error) => {
-            console.log("CRABS: Error loading template -> ", error);
-        });
-        return("Error loading template");
+        return (this.template("banner", templatevars));
     }
 }
