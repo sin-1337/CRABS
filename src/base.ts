@@ -35,11 +35,8 @@ export default class CRABS {
         "keyNull": "icons/keyNull.svg",
     }
 
-    protected modlist: ModSDKModInfo[];
-
     constructor (CRABS: ModSDKModAPI) {
         this.crabs = CRABS;
-        this.modlist = bcModSdk.getModsInfo();
     }
 
         // Opens the player profile
@@ -57,7 +54,9 @@ export default class CRABS {
 
 
     protected detectMod(targetmod: string): boolean {
-        return(this.modlist.filter(x => x.name == targetmod).length > 0);
+        let modlist = bcModSdk.getModsInfo();
+        console.log(modlist);
+        return(modlist.filter(x => x.name == targetmod).length > 0);
     }
 
     protected printicon(key: string, tooltip: string = "") : string {
