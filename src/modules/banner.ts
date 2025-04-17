@@ -11,7 +11,7 @@ export default class Banner extends CRABS {
     }
 
 
-    public drawBanner(name: string, version: string): void {
+    public drawBanner(name: string, version: string): string {
 
         // get player permissions
         const currentPermissionText = `${TextGetInScope(

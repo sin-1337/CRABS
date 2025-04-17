@@ -21,7 +21,7 @@ const CRABS = bcModSDK.registerMod({
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
-const HELP = new Help();
+const HELP = new Help(CRABS);
 
 
 

@@ -156,10 +156,6 @@ export default class Roster extends CRABS {
   // prints the roster
   public buildroster(args: string): string {
     const SPLITARGS = args.split(" ");
-    if (SPLITARGS[0].toLowerCase() == "help") {
-      ChatRoomSendLocal(this.showhelp());
-      return;
-    }
 
     let me_output_html = ""; // holds data about user who ran script
     let admin_output_html = ""; // holds admins
