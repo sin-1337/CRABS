@@ -1,7 +1,7 @@
 import CRABS from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
-//import bannertemplate from "./templates/banner.html";
+import bannertemplate from "./templates/banner.html";
 
 
 export default class Banner extends CRABS {
@@ -28,6 +28,6 @@ export default class Banner extends CRABS {
             "PlayerPermission": currentPermissionText,
             "RoomName": ChatRoomData.Name,
         }
-        return (this.template("banner", templatevars));
+        return (this.template(bannertemplate, templatevars));
     }
 }

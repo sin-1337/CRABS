@@ -258,7 +258,7 @@ export default class Roster extends CRABS {
     templatevars = {
         "adminIcon": `${this.printicon("admin", "Admins")}`,
         "adminsInRoom": `${admin_count}`,
-        "totalAdins": `${ChatRoomData.Admin.length}`,
+        "totalAdmins": `${ChatRoomData.Admin.length}`,
         "playerIcon": `${this.printicon("player", "Players")}`,
         "playersInRoom": `${ChatRoomCharacter.length}`,
         "totalPlayers": `${ChatRoomData.Limit}`,
