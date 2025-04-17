@@ -1,5 +1,7 @@
 import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
 import "./templates/base.css";
+import wrappertemplate from "./templates/wrapper.html";
+
 export default class CRABS {
   declare crabs: ModSDKModAPI;
 
@@ -80,19 +82,11 @@ export default class CRABS {
    * @param wrapper -  A boolean that determines if we draw the wrapper or not
    * @return A promise that resolves to the final html string
    */
-  protected async template(
-    template_name: string,
+  protected template(
+    template: string,
     args: Record<string, string>,
     wrapper: boolean = true
-  ): Promise<string> {
-    const TEMPLATE = (await import(
-      `./modules/templates/${template_name}.html`
-    )) as { default: string };
-    let WRAPPER = (await import(`./templates/wrapper.html`)) as {
-      default: string;
-    };
-    let template = TEMPLATE.default;
-    let wrappertemplate = WRAPPER.default;
+  ): string {
     let regex: RegExp;
 
     for (const [key, value] of Object.entries(args)) {

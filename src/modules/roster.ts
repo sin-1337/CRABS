@@ -179,6 +179,7 @@ export default class Roster extends CRABS {
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
     let templatevars: Record<string, string>;
+    let output_html: string = "";
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -309,14 +310,7 @@ export default class Roster extends CRABS {
     templatevars["playerRows"] = output_rows; 
 
     // run the template and fill it out
-    this.template("roster", templatevars, wrapper)
-    .then((output_html) => {
-        // show the final output
-        return(output_html);
-    })
-    .catch((error) => {
-        console.log("CRABS: Error loading template -> ", error);
-    });
-    return("Error loading template");
+    output_html = this.template(rostertemplate, templatevars, wrapper);
+    return(output_html);
   }
 }
