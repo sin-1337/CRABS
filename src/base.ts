@@ -1,5 +1,5 @@
 import bcModSdk, {ModSDKModAPI, ModSDKModInfo} from "bondage-club-mod-sdk";
-
+import "./styles/base.css";
 export default class CRABS {
     declare crabs: ModSDKModAPI;
     
