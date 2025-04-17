@@ -3,6 +3,7 @@ import bcModSDK from 'bondage-club-mod-sdk';
 import Roster from "./modules/roster";
 import WhisperPlus from "./modules/whisperplus";
 import Banner from "./modules/banner";
+import Help from "./modules/help";
 
 // configure the version and mod name
 const VERSION = "1.0.0.139 Alpha";
@@ -20,6 +21,7 @@ const CRABS = bcModSDK.registerMod({
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
+const HELP = new Help();
 
 
 
@@ -48,8 +50,8 @@ ChatRoomRegisterMessageHandler({
         
         // call the action to draw the banner
         output = BANNER.drawBanner(NAME, VERSION);
-        output += ROSTER.buildroster("count");
-        output += "<br>Use /roster to see the full output";
+        output = output
+            .replace("{{RosterCounters}}", ROSTER.buildroster("count"));
         ChatRoomSendLocal(output);
       }, 3600);
     } 
@@ -58,6 +60,15 @@ ChatRoomRegisterMessageHandler({
     return false;
   },
 });
+
+function argcheck(args: string): boolean {
+    const SPLITARGS = args.split(" ");
+        if (SPLITARGS[0].toLowerCase() == "help") {
+            ChatRoomSendLocal(HELP.showhelp());
+            return false;
+        }
+        return true;
+}
 
 // implements the whisper+ command
 CommandCombine([
@@ -86,7 +97,7 @@ CommandCombine([
         Tag: "crabs",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-           ChatRoomSendLocal(ROSTER.buildroster(args));
+            if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
@@ -98,7 +109,7 @@ CommandCombine([
         Tag: "roster",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-           ChatRoomSendLocal(ROSTER.buildroster(args));
+           if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
@@ -109,7 +120,7 @@ CommandCombine([
         Tag: "players",
         Description: "Deprecated: Show the player count, helpful in maps.",
         Action: (args: any) => {
-           ChatRoomSendLocal(ROSTER.buildroster(args));
+           if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
