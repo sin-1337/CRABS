@@ -69,6 +69,6 @@ export default class Help extends CRABS {
     let templatevars = {
         "helpOutput": output,
     };
-    return(this.template("help", templatevars));
+    return(this.template(helptemplate, templatevars));
   }
 }
