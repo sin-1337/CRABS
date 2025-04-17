@@ -1,6 +1,5 @@
 .CRABS_banner {
     width: 100% !important;
-    table-layout: fixed;
     border-collapse: collapse;
     color: white;
 }

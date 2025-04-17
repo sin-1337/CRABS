@@ -21,25 +21,14 @@ export default class Banner extends CRABS {
 
         // set up the template and populate the fields.
         let output_html = bannertemplate
-            .replace("{{Logo}}", this.printicon("logo"))
+            .replace("{{Logo}}", this.printlogo())
             .replace("{{Name}}", name)
             .replace("{{Version}}", version)
             .replace("{{LabelColor}}", `${Player.LabelColor}`)
             .replace("{{PlayerPermission}}", currentPermissionText)
             .replace("{{RoomName}}", ChatRoomData.Name);
 
-        ChatRoomSendLocal(output_html);
-
-        // output room details
-        for (const [_, COMMAND] of Commands.entries()) {
-          if (COMMAND.Tag === "players") {
-            COMMAND.Action("count");
-            break;
-          }
-        }
-
-        // output message letting players know how to view the full roster
-        ChatRoomSendLocal("<div>To see the full roster use /roster</div><hr>");
+        return(output_html)
     }
 
 }

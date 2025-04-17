@@ -218,7 +218,7 @@ export default class Roster extends CRABS {
   }
 
   // prints the roster
-  public displayroster(args: any): void {
+  public buildroster(args: string): string {
     const SPLITARGS = args.split(" ");
     if (SPLITARGS[0].toLowerCase() == "help") {
       ChatRoomSendLocal(this.showhelp());
@@ -373,6 +373,6 @@ export default class Roster extends CRABS {
     output_html = output_html.replace("{{playerRows}}", output_rows);
 
     // show the final output
-    ChatRoomSendLocal(output_html);
+    return(output_html);
   }
 }

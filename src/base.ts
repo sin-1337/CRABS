@@ -52,13 +52,26 @@ export default class CRABS {
         }
     };
 
-
+    // determine if requested mod is loaded.
     protected detectMod(targetmod: string): boolean {
         let modlist = bcModSdk.getModsInfo();
         console.log(modlist);
         return(modlist.filter(x => x.name == targetmod).length > 0);
     }
 
+    //print the crabs logo
+    protected printlogo(): string {
+        let absolutepath = "https://sin-1337.github.io/CRABS/" // absolute path of the crabs project
+        let html = "";
+        html += `<img `;
+        html += `alt='CRABS' `;
+        html += `src='${absolutepath}${this.ICONS["logo"]}' `;
+        html += `height="100px" width="100px"`;
+        html += `>`;
+        return(html);
+    }
+
+    // print icons
     protected printicon(key: string, tooltip: string = "") : string {
         let ICON = "./icons/error.svg";
         if (key in this.ICONS) {

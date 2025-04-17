@@ -31,6 +31,7 @@ ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data: any) => {
+    let output: string = "";
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -46,8 +47,10 @@ ChatRoomRegisterMessageHandler({
         }
         
         // call the action to draw the banner
-        BANNER.drawBanner(NAME, VERSION);
-        
+        output = BANNER.drawBanner(NAME, VERSION);
+        output += ROSTER.buildroster("count");
+        output += "<br>Use /roster to see the full output";
+        ChatRoomSendLocal(output);
       }, 3600);
     } 
 
@@ -83,7 +86,7 @@ CommandCombine([
         Tag: "crabs",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args);
+           ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
@@ -95,7 +98,7 @@ CommandCombine([
         Tag: "roster",
         Description: "Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args);
+           ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
@@ -106,7 +109,7 @@ CommandCombine([
         Tag: "players",
         Description: "Deprecated: Show the player count, helpful in maps.",
         Action: (args: any) => {
-            ROSTER.displayroster(args);
+           ChatRoomSendLocal(ROSTER.buildroster(args));
         },
     }
 ]); 
