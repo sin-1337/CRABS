@@ -245,6 +245,8 @@ export default class Roster extends CRABS {
       // find member number for current player in list
       MemberNumber = ChatRoomData.Character[person].MemberNumber;
 
+      console.log(`BCTweaks found:  ${this.detectMod("BCTweaks")}`)
+
       // Find player
       player = ChatRoomCharacter.find(
         (C: any) => C.MemberNumber == MemberNumber
