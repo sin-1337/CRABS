@@ -66,8 +66,16 @@ export default class Help extends CRABS {
             </tr>
             </table>`;
 
-    let output_html = helptemplate
-        .replace("{{HelpOutput}}", output);
-    return output_html;
+    let templatevars = {
+        "helpOutput": output,
+    };
+    this.template("help", templatevars)
+    .then((output_html) => {
+        return output_html;
+    })
+    .catch((error) => {
+        console.log("CRABS: Error loading help template", error);
+    }
+    return("Error loading help template"
   }
 }

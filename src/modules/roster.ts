@@ -153,8 +153,14 @@ export default class Roster extends CRABS {
     return player.MemberNumber == Player.MemberNumber ? true : false;
   }
 
-  // prints the roster
-  public buildroster(args: string): string {
+  /*
+   *  prints the roster
+   *
+   *  @param - string arguments passed from user
+   *  @param - boolean wrappar, should we draw the wrapper
+   *  @returms - string html output
+   */
+  public buildroster(args: string, wrapper: boolean = true): string {
     const SPLITARGS = args.split(" ");
 
     let me_output_html = ""; // holds data about user who ran script
@@ -166,11 +172,13 @@ export default class Roster extends CRABS {
     let badge = ""; // holds the admin icon if the player is an admin
     let player_icons = ""; // holds the list of player/status icons (string)
     let MemberNumber: number;
+
     // filter variables, show or not show certain output
     let showme = true; // person who ran the script (you)
     let showadmins = true; // room admins
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
+    let templatevars: Record<string, string>;
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -246,19 +254,19 @@ export default class Roster extends CRABS {
       showadmins = false;
       showplayers = false;
     }
-
-    let output_html = rostertemplate
-      .replace("{{adminIcon}}", `${this.printicon("admin", "Admins")}`)
-      .replace("{{adminsInRoom}}", `${admin_count}`)
-      .replace("{{totalAdmins}}", `${ChatRoomData.Admin.length}`)
-      .replace("{{playerIcon}}", `${this.printicon("player", "Players")}`)
-      .replace("{{playersInRoom}}", `${ChatRoomCharacter.length}`)
-      .replace("{{totalPlayers}}", `${ChatRoomData.Limit}`)
-      .replace("{{friendIcon}}", `${this.printicon("friend", "Friends")}`)
-      .replace("{{friendsOnline}}", this.onlineFriends?.toString() ?? "...")
-      .replace("{{totalFriends}}", `${Player.FriendNames.size}`)
-      .replace("{{connectedIcon}}", `${this.printicon("connected", "Online Accounts")}`)
-      .replace("{{onlinePlayers}}", `${CurrentOnlinePlayers}`);
+    templatevars = {
+        "adminIcon": `${this.printicon("admin", "Admins")}`,
+        "adminsInRoom": `${admin_count}`,
+        "totalAdins": `${ChatRoomData.Admin.length}`,
+        "playerIcon": `${this.printicon("player", "Players")}`,
+        "playersInRoom": `${ChatRoomCharacter.length}`,
+        "totalPlayers": `${ChatRoomData.Limit}`,
+        "friendIcon": `${this.printicon("friend", "Friends")}`,
+        "friendsOnline": this.onlineFriends?.toString() ?? "...",
+        "totalFriends": `${Player.FriendNames.size}`,
+        "connectedIcon": `${this.printicon("connected", "Online Accounts")}`,
+        "onlinePlayers": `${CurrentOnlinePlayers}`,
+    }
 
     // are we on a map?
     if (ChatRoomMapViewIsActive()) {
@@ -284,12 +292,12 @@ export default class Roster extends CRABS {
 
       // replace the template objects for the values we determined above.
       output_html = output_html
-        .replace("{{collectedKeys}}",`<td>${displaykeys}</td>`)
-        .replace("{{columncount}}", "5"); // if we print keys, set colspan to 5
+        templatevars["collectedKeys"] = `<td>${displaykeys}</td>`
+        templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
     } else {
       output_html = output_html
-        .replace("{{collectedKeys}}", ``)
-        .replace("{{columncount}}", "4"); // no keys? colspan is 4
+        templatevars["collectedKeys"] = ``;
+        templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
    
     // start the tabble and remove the boarders
@@ -300,11 +308,17 @@ export default class Roster extends CRABS {
     output_rows = showadmins ? output_rows + admin_output_html : output_rows;
     output_rows = showvip ? output_rows + vip_output_html : output_rows;
     output_rows = showplayers ? output_rows + player_output_html : output_rows;
+    templatevars["playerRows"] = output_rows; 
 
-    
-    output_html = output_html.replace("{{playerRows}}", output_rows);
-
-    // show the final output
-    return(output_html);
+    // run the template and fill it out
+    this.template("roster", templatevars, wrapper)
+    .then((output_html) => {
+        // show the final output
+        return(output_html);
+    })
+    .catch((error) => {
+        console.log("CRABS: Error loading template -> ", error);
+    });
+    return("Error loading template");
   }
 }

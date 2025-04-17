@@ -51,7 +51,7 @@ ChatRoomRegisterMessageHandler({
         // call the action to draw the banner
         output = BANNER.drawBanner(NAME, VERSION);
         output = output
-            .replace("{{RosterCounters}}", ROSTER.buildroster("count"));
+            .replace("{{RosterCounters}}", ROSTER.buildroster("count", false));
         ChatRoomSendLocal(output);
       }, 3600);
     } 

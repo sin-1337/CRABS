@@ -1,6 +1,7 @@
 .CRABS_wrapper{
   width: 100% !important;
   table-layout: fixed;
+  color: white;
   border-collapse: collapse;
   background-image: url('../CRABS_Logo.png');
   background-color: #241F31;
