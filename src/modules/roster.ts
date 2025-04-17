@@ -291,11 +291,9 @@ export default class Roster extends CRABS {
       }
 
       // replace the template objects for the values we determined above.
-      output_html = output_html
         templatevars["collectedKeys"] = `<td>${displaykeys}</td>`
         templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
     } else {
-      output_html = output_html
         templatevars["collectedKeys"] = ``;
         templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
