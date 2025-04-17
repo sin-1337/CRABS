@@ -1,5 +1,6 @@
 import CRABS from "../base"
 import { ModSDKModAPI } from "bondage-club-mod-sdk"
+import "./templates/banner.css"
 import bannertemplate from "./templates/banner.html"
 
 
@@ -30,9 +31,6 @@ export default class Banner extends CRABS {
         ChatRoomSendLocal(output_html);
 
         // output room details
-        ChatRoomSendLocal(
-          "<div>Room details for: " + ChatRoomData.Name + "</div>"
-        );
         for (const [_, COMMAND] of Commands.entries()) {
           if (COMMAND.Tag === "players") {
             COMMAND.Action("count");
