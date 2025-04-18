@@ -108,15 +108,15 @@ export default class Roster extends CRABS {
       // if they don't own you but you are in their family, we assume you own them
       if (Player.IsOwnedByPlayer(player.membernumber)) {
         // The person is fully owned if this is true
-        player_icons += this.printicon("sub", "Your Submissive") + " ";
+        player_icons += this.printicon("sub", "Submissive") + " ";
       } else {
         // person is on trial
-        player_icons += this.printicon("trial", "On Trial") + " ";
+        player_icons += this.printicon("trial", "Trial") + " ";
       }
     }
     if (Player.GetLoversNumbers().includes(player.MemberNumber)) {
       // person is a lover
-      player_icons += this.printicon("lover", "Your Lover") + " ";
+      player_icons += this.printicon("lover", "Lover") + " ";
     } else {
       if (this.detectMod("BCTweaks")) {
         // BCTweaks mod is found
@@ -127,19 +127,19 @@ export default class Roster extends CRABS {
           player_icons += this.printicon("bestfriend", "Best Friend") + " ";
         } else if (Player.FriendList.includes(player.MemberNumber)) {
           // Player is not a best friend, but they are a freind
-          player_icons += this.printicon("friend", "Your Friend") + " ";
+          player_icons += this.printicon("friend", "Friend") + " ";
         }
       } else if (Player.FriendList.includes(player.MemberNumber)) {
         // person is a friend, and the BCTweaks mod is not found
-        player_icons += this.printicon("friend", "Your Friend") + " ";
+        player_icons += this.printicon("friend", "Friend") + " ";
       }
     }
     if (Player.WhiteList.includes(player.MemberNumber)) {
       // Player is whitelisted
-      player_icons += this.printicon("whitelist", "Whitelisted") + " ";
+      player_icons += this.printicon("whitelist", "Whitelist") + " ";
     } else if (Player.BlackList.includes(player.MemberNumber)) {
       // Player is blacklisted
-      player_icons += this.printicon("blacklist", "Blacklisted") + " ";
+      player_icons += this.printicon("blacklist", "Blacklist") + " ";
     }
     if (Player.GhostList.includes(player.MemberNumber)) {
       // Player is ghosted
