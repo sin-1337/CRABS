@@ -31,7 +31,7 @@ export default class Roster extends CRABS {
       "PlayerIcons": player_icons,
     }; 
 
-    return(this.template(rostertemplate, templatevars, false));
+    return(this.template(rostercardstemplate, templatevars, false));
   }
 
   //query the server for friendslist
