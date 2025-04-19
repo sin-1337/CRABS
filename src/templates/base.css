@@ -19,7 +19,7 @@
 }
 
 .CRABS_tooltip-image {
-  width: 27px; /* or whatever size you need */
+  width: 1em; /* or whatever size you need */
   height: auto;
   cursor: pointer;
 }
