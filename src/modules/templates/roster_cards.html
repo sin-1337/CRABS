@@ -5,12 +5,12 @@
                 <a style="cursor:pointer;" onclick="PlayerFocus({{PlayerNumber}})">{{Badge}}</a>
             </td>
             <td>
-                <style="color:{{LabelColor}} || "#000000"}; cursor:pointer; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}</style>
+                <span style="color:{{LabelColor}} || "#000000"}; cursor:pointer; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}</span>
             </td>
             <td></td>
         </tr>
         <tr>
-            <td><({{PlayerNumber}}) {{PlayerIcons}}/td>
+            <td>({{PlayerNumber}}) {{PlayerIcons}}</td>
         </tr>
     </tbody>
 </table>
