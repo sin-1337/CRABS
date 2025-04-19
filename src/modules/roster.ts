@@ -3,6 +3,7 @@ import WhisperPlus from "./whisperplus";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
+import rostercardstemplate from "./templates/roster_cards.html";
 window.sendWhisper = WhisperPlus.sendWhisper;
 
 export default class Roster extends CRABS {
@@ -22,25 +23,15 @@ export default class Roster extends CRABS {
     badge: string,
     player_icons: string
   ): string {
-    let output = `<tr>
-                <td style="padding-left: 15px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
+    let templatevars: Record<string, string> = {
+      "MemberNumber": `${Player.MemberNumber}`,
+      "Badge": badge,
+      "LabelColor": `${Player.LabelColor}`,
+      "MemberName": CharacterNickname(player).normalize("NFKC"),
+      "PlayerIcons": player_icons,
+    }; 
 
-    // set up whispering
-    output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0; text-align: left;"><span style="color:${
-      player.LabelColor || "#000000"
-    }; cursor:pointer;
-                font-family: Arial, sans-serif;
-                text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;"
-                onclick="sendWhisper(${player.MemberNumber})"
-                onmouseover="this.style.textDecoration='underline';"
-                onmouseout="this.style.textDecoration='none';">
-                  ${CharacterNickname(player).normalize("NFKC")}[${
-      player.MemberNumber
-    }]
-              </span>${player_icons}</td>
-          </tr>`;
-
-    return output;
+    return(this.template(rostertemplate, templatevars, false));
   }
 
   //query the server for friendslist
@@ -267,7 +258,7 @@ export default class Roster extends CRABS {
         "totalFriends": `${Player.FriendNames.size}`,
         "connectedIcon": `${this.printicon("connected", "Online Accounts")}`,
         "onlinePlayers": `${CurrentOnlinePlayers}`,
-    }
+    };
 
     // are we on a map?
     if (ChatRoomMapViewIsActive()) {
@@ -292,7 +283,7 @@ export default class Roster extends CRABS {
       }
 
       // replace the template objects for the values we determined above.
-        templatevars["collectedKeys"] = `<td>${displaykeys}</td>`
+        templatevars["collectedKeys"] = `<td style="border-right: 0px">${displaykeys}</td>`
         templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
     } else {
         templatevars["collectedKeys"] = ``;

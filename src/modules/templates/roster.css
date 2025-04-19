@@ -12,3 +12,18 @@
     height: auto;
     border-right: 1px solid #ccc; /* Add left border */
 }
+
+.CRABS_card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.CRABS_card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    word-wrap: break-word;
+}
+
