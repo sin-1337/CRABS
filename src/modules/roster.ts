@@ -24,10 +24,10 @@ export default class Roster extends CRABS {
     player_icons: string
   ): string {
     let templatevars: Record<string, string> = {
-      "MemberNumber": `${Player.MemberNumber}`,
+      "PlayerNumber": `${Player.MemberNumber}`,
       "Badge": badge,
       "LabelColor": `${Player.LabelColor}`,
-      "MemberName": CharacterNickname(player).normalize("NFKC"),
+      "PlayerName": CharacterNickname(player).normalize("NFKC"),
       "PlayerIcons": player_icons,
     }; 
 
