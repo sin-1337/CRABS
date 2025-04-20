@@ -5,11 +5,11 @@
                 <a style="cursor:pointer;" onclick="PlayerFocus({{PlayerNumber}})">{{Badge}}</a>
             </td>
             <td>
-                <span style="color:{{LabelColor}}; cursor:pointer; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}({{PlayerNumber}})</span>
+                <span class="CRABS_player-id" style="color:{{LabelColor}};" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}({{PlayerNumber}})</span>
             </td>
         </tr>
         <tr>
-            <td height=1em>{{PlayerIcons}}</td>
+            <td class="CRABS_player-icons">{{PlayerIcons}}</td>
         </tr>
     </tbody>
 </table>

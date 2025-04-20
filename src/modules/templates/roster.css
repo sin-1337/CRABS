@@ -26,3 +26,17 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     word-wrap: break-word;
 }
+
+.CRABS_player-id {
+    cursor: pointer;
+    font-family: Arial,sans-serif;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+}
+
+.CRABS_player-icons {
+    height: 1em;         /* Set the cell height */
+    min-height: 1em;     /* Enforce the minimum height */
+    line-height: 1em; 
+}
+
