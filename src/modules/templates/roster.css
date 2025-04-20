@@ -54,7 +54,7 @@
 
 /* animate on hover */
 .CRABS_overflow-wrapper:hover .CRABS_overflow-scroll {
-    transform: translatex(-100);
+    transform: translatex(-100%);
 }
 
 .CRABS_player-icons {
