@@ -6,7 +6,7 @@ import Banner from "./modules/banner";
 import Help from "./modules/help";
 
 // configure the version and mod name
-const VERSION = "1.0.0.177 Alpha";
+const VERSION = "1.0.0.178 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
