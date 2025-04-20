@@ -31,21 +31,25 @@
     cursor: pointer;
     font-family: Arial,sans-serif;
     text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.7);
-    white-space: nowrap;
     width: 100%;
     overflow: hidden;
+    line-height: 1em;
+    height: 1em;
 }
 
 .CRABS_overflow-wrapper {
     display: block;
     overflow: hidden;
     width: 100%;
+    overflow: hidden;
+    position: relative;
+    height: 1em;
 }
 
 .CRABS_overflow-scroll {
   display: inline-block;
   white-space: nowrap;
-  transition: transform 10s linear;
+  transition: transform 8s linear;
 }
 
 /* animate on hover */
