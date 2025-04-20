@@ -1,17 +1,15 @@
 <table class="CRABS_card">
     <tbody>
         <tr>
-            <td>
+            <td rowspan="2">
                 <a style="cursor:pointer;" onclick="PlayerFocus({{PlayerNumber}})">{{Badge}}</a>
             </td>
             <td>
-                <span style="color:{{LabelColor}} || "#000000"}; cursor:pointer; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}</span>
+                <span style="color:{{LabelColor}} || "#000000"}; cursor:pointer; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;" onclick="sendWhisper({{PlayerNumber}})" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">{{PlayerName}}({{PlayerNumber}})</span>
             </td>
-            <td></td>
         </tr>
         <tr>
-            <td></td>
-            <td colspan=2>({{PlayerNumber}}) {{PlayerIcons}}</td>
+            <td> {{PlayerIcons}}</td>
         </tr>
     </tbody>
 </table>
