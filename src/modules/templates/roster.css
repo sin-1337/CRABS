@@ -32,19 +32,19 @@
     font-family: Arial,sans-serif;
     text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.7);
     white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
 }
 
 .CRABS_overflow-wrapper {
-    width: 100%;
+    display: block;
     overflow: hidden;
-    position: relative;
+    width: 100%;
 }
 
 .CRABS_overflow-scroll {
   display: inline-block;
   white-space: nowrap;
-  position: absolute;
-  left: 0;
   transition: transform 10s linear;
 }
 
