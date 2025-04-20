@@ -32,6 +32,8 @@
     font-family: Arial,sans-serif;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .CRABS_player-icons {
