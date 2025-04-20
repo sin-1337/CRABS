@@ -52,8 +52,8 @@
 }
 
 /* animate on hover */
-.CRABS_overflow-wrapper:hover .CRABS_overflow-scroll {
-    transform: translatex(-100%);
+.CRABS_overflow-wrapper.scrolling:hover .CRABS_overflow-scroll {
+    transform: translatex(var(--scroll-distance, -100%));
 }
 
 .CRABS_player-icons {

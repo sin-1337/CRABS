@@ -17,6 +17,38 @@ export default class Roster extends CRABS {
     window.PlayerFocus = Roster.showPlayerFocus;
   }
 
+  /*
+   * detect overflow in cards and scroll the text
+   */
+  public initScrollingOverflow(
+    containerSelector: string = ".CRABS_overflow-wrapper"
+  ): void {
+    const wrappers = document.querySelectorAll<HTMLElement>(containerSelector);
+
+    wrappers.forEach((wrapper) => {
+      const scroller = wrapper.querySelector<HTMLElement>(
+        ".CRABS_overflow-scroll"
+      );
+      if (!scroller) return;
+
+      // Remove previous values
+      wrapper.classList.remove("scrolling");
+      scroller.style.removeProperty("--scroll-distance");
+
+      // Wait for layout
+      requestAnimationFrame(() => {
+        const scrollWidth = scroller.scrollWidth;
+        const wrapperWidth = wrapper.offsetWidth;
+
+        if (scrollWidth > wrapperWidth) {
+          const scrollAmount = scrollWidth - wrapperWidth;
+          scroller.style.setProperty("--scroll-distance", `-${scrollAmount}px`);
+          wrapper.classList.add("scrolling");
+        }
+      });
+    });
+  }
+
   // formats the data for outputting
   private formatoutput(
     player: any,
@@ -24,14 +56,14 @@ export default class Roster extends CRABS {
     player_icons: string
   ): string {
     let templatevars: Record<string, string> = {
-      "PlayerNumber": `${player.MemberNumber}`,
-      "Badge": badge,
-      "LabelColor": `${player.LabelColor || "#FFFFFF"}`,
-      "PlayerName": CharacterNickname(player).normalize("NFKC"),
-      "PlayerIcons": player_icons,
-    }; 
+      PlayerNumber: `${player.MemberNumber}`,
+      Badge: badge,
+      LabelColor: `${player.LabelColor || "#FFFFFF"}`,
+      PlayerName: CharacterNickname(player).normalize("NFKC"),
+      PlayerIcons: player_icons,
+    };
 
-    return(this.template(rostercardstemplate, templatevars, false));
+    return this.template(rostercardstemplate, templatevars, false);
   }
 
   //query the server for friendslist
@@ -177,7 +209,7 @@ export default class Roster extends CRABS {
       // find member number for current player in list
       MemberNumber = ChatRoomData.Character[person].MemberNumber;
 
-      console.log(`BCTweaks found:  ${this.detectMod("BCTweaks")}`)
+      console.log(`BCTweaks found:  ${this.detectMod("BCTweaks")}`);
 
       // Find player
       player = ChatRoomCharacter.find(
@@ -247,17 +279,17 @@ export default class Roster extends CRABS {
       showplayers = false;
     }
     templatevars = {
-        "adminIcon": `${this.printicon("admin", "Admins")}`,
-        "adminsInRoom": `${admin_count}`,
-        "totalAdmins": `${ChatRoomData.Admin.length}`,
-        "playerIcon": `${this.printicon("player", "Players")}`,
-        "playersInRoom": `${ChatRoomCharacter.length}`,
-        "totalPlayers": `${ChatRoomData.Limit}`,
-        "friendIcon": `${this.printicon("friend", "Friends")}`,
-        "friendsOnline": this.onlineFriends?.toString() ?? "...",
-        "totalFriends": `${Player.FriendNames.size}`,
-        "connectedIcon": `${this.printicon("connected", "Online Accounts")}`,
-        "onlinePlayers": `${CurrentOnlinePlayers}`,
+      adminIcon: `${this.printicon("admin", "Admins")}`,
+      adminsInRoom: `${admin_count}`,
+      totalAdmins: `${ChatRoomData.Admin.length}`,
+      playerIcon: `${this.printicon("player", "Players")}`,
+      playersInRoom: `${ChatRoomCharacter.length}`,
+      totalPlayers: `${ChatRoomData.Limit}`,
+      friendIcon: `${this.printicon("friend", "Friends")}`,
+      friendsOnline: this.onlineFriends?.toString() ?? "...",
+      totalFriends: `${Player.FriendNames.size}`,
+      connectedIcon: `${this.printicon("connected", "Online Accounts")}`,
+      onlinePlayers: `${CurrentOnlinePlayers}`,
     };
 
     // are we on a map?
@@ -273,35 +305,36 @@ export default class Roster extends CRABS {
 
       // loop the dictionary and extract the key and name
       for (const [KEY, VALUE] of Object.entries(keys)) {
-        
         // if key is found, set icon and tool tip
         if (VALUE) {
           displaykeys += this.printicon(KEY);
-        } else {  
+        } else {
           displaykeys += this.printicon("keyNull");
         }
       }
 
       // replace the template objects for the values we determined above.
-        templatevars["collectedKeys"] = `<td style="border-right: 0px">${displaykeys}</td>`
-        templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
+      templatevars[
+        "collectedKeys"
+      ] = `<td style="border-right: 0px">${displaykeys}</td>`;
+      templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
     } else {
-        templatevars["collectedKeys"] = ``;
-        templatevars["columncount"] = "4"; // no keys? colspan is 4
+      templatevars["collectedKeys"] = ``;
+      templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
-   
+
     // start the tabble and remove the boarders
     //output_html += `<table style="border: 0px;">`;
-    let output_rows: string = ""
+    let output_rows: string = "";
     // if the filter var resolves to true, add the respective output.
     output_rows = showme ? output_rows + me_output_html : output_rows;
     output_rows = showadmins ? output_rows + admin_output_html : output_rows;
     output_rows = showvip ? output_rows + vip_output_html : output_rows;
     output_rows = showplayers ? output_rows + player_output_html : output_rows;
-    templatevars["playerRows"] = output_rows; 
+    templatevars["playerRows"] = output_rows;
 
     // run the template and fill it out
     output_html = this.template(rostertemplate, templatevars, wrapper);
-    return(output_html);
+    return output_html;
   }
 }
