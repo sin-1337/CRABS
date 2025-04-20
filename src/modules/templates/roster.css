@@ -30,10 +30,27 @@
 .CRABS_player-id {
     cursor: pointer;
     font-family: Arial,sans-serif;
-    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.7);
     white-space: nowrap;
+}
+
+.CRABS_overflow-wrapper {
+    width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
+    position: relative;
+}
+
+.CRABS_overflow-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+  transition: transform 10s linear;
+}
+
+/* animate on hover */
+.CRABS_overflow-wrapper:hover .CRABS_overflow-scroll {
+    transform: translatex(-100);
 }
 
 .CRABS_player-icons {
