@@ -48,7 +48,7 @@
 .CRABS_overflow-scroll {
   display: inline-block;
   white-space: nowrap;
-  transition: transform 8s linear;
+  transition: transform 4s linear;
 }
 
 /* animate on hover */

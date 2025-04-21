@@ -76,7 +76,7 @@ CommandCombine([
     Tag: "whisper+",
     Description:
       "Enables the /whisper+ command that does global whisper in a map room",
-    Action: (args: any, command: any) => {
+    Action: (args: string, command: string) => {
       WHISPERPLUS.whisperplus(args, command);
     },
   },
@@ -87,7 +87,7 @@ CommandCombine([
     Tag: "w+",
     Description:
       "Enables the /w+ command that does global whisper in a map room",
-    Action: (args: any, command: any) => {
+    Action: (args: string, command: string) => {
       WHISPERPLUS.whisperplus(args, command);
     },
   },
@@ -98,7 +98,7 @@ CommandCombine([
   {
     Tag: "crabs",
     Description: "Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
     },
@@ -110,7 +110,7 @@ CommandCombine([
   {
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
     },
@@ -122,9 +122,54 @@ CommandCombine([
   {
     Tag: "players",
     Description: "Deprecated: Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
+    },
+  },
+]);
+
+CommandCombine([
+  {
+    Tag: "dropkeys",
+    Description:
+      "Drops the specified keys: gold, silver, or bronze. You can also use all.",
+    Action: (args: string) => {
+      const splitArgs = args.toLowerCase().split(" ");
+      if (splitArgs.length < 1) {
+        addChatMessage(
+          "You must supply which key to drop, or 'all' to drop them all."
+        );
+        return;
+      }
+      for (let i = 0; i < splitArgs.length; i++) {
+        if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeyBronze) {
+            Player.MapData.PrivateState.HasKeyBronze = false;
+            addChatMessage("Bronze key dropped.");
+          }
+        }
+        if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeySilver) {
+            Player.MapData.PrivateState.HasKeySilver = false;
+            addChatMessage("Silver key dropped.");
+          }
+        }
+        if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeyGold) {
+            Player.MapData.PrivateState.HasKeyGold = false;
+            addChatMessage("Gold key dropped.");
+          }
+        }
+        if (
+          splitArgs[i] != "bronze" &&
+          splitArgs[i] != "silver" &&
+          splitArgs[i] != "gold" &&
+          splitArgs[i] != "all"
+        ) {
+          addChatMessage("Argumet '" + splitArgs[i] + "', was not understood.");
+        }
+      }
     },
   },
 ]);
