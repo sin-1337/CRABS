@@ -133,5 +133,42 @@ CommandCombine([
     Description: "Deprecated: Show the player count, helpful in maps.",
     Action: (args: string) => {
         commandRedirect("roster", args);
+    },
   },
 ]);
+
+// implements /dropkeys command
+CommandCombine([{
+    Tag: 'dropkeys',
+    Description: "Drops the specified keys: gold, silver, or bronze. You can also use all.",
+    Action: args => {
+        const splitArgs = args.toLowerCase().split(" ");
+        if(splitArgs.length < 1) {
+            ChatRoomSendLocal(`You must supply which key to drop, or 'all' to drop them all.`);
+            return;
+        }
+        for (let i = 0; i < splitArgs.length; i++) {
+            if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
+                if (Player.MapData.PrivateState.HasKeyBronze) {
+                    Player.MapData.PrivateState.HasKeyBronze = false;
+                    ChatRoomSendLocal(`Bronze key dropped.`);
+                }
+            }
+            if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
+                if (Player.MapData.PrivateState.HasKeySilver) {
+                    Player.MapData.PrivateState.HasKeySilver = false;
+                    ChatRoomSendLocal(`Silver key dropped.`);
+                }
+            }
+            if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
+                if (Player.MapData.PrivateState.HasKeyGold) {
+                    Player.MapData.PrivateState.HasKeyGold = false;
+                    ChatRoomSendLocal(`Gold key dropped.`);
+                }
+            }
+            if (splitArgs[i] != "bronze" && splitArgs[i] != "silver" && splitArgs[i] != "gold" && splitArgs[i] != "all") {
+                ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
+            }
+        }
+    }
+}]);
