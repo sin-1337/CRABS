@@ -68,7 +68,7 @@ function argcheck(args: string): boolean {
     return false;
   }
   else if (SPLITARGS[0].toLowerCase() == "version") {
-    ChatRoomSendLocal(`${NAME} (${NICKNAME}) Version: ${VERSION}`);
+    ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
     return false;
   }
   return true;
