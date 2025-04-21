@@ -2,6 +2,7 @@
   width: 98% !important;
   table-layout: fixed;
   color: white;
+  overflow: visible;
   white-space: normal;
   border-collapse: collapse;
   background-image: url('../CRABS_Logo.png');
