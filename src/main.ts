@@ -85,7 +85,7 @@ CommandCombine([
     Tag: "whisper+",
     Description:
       "Enables the /whisper+ command that does global whisper in a map room",
-    Action: (args: any, command: any) => {
+    Action: (args: string, command: string) => {
       WHISPERPLUS.whisperplus(args, command);
     },
   },
@@ -96,8 +96,8 @@ CommandCombine([
     Tag: "w+",
     Description:
       "Enables the /w+ command that does global whisper in a map room",
-    Action: (args: any, command: any) => {
-        commandRedirect("whisper+", command)
+    Action: (args: string, command: string) => {
+      WHISPERPLUS.whisperplus(args, command);
     },
 
   },
@@ -108,7 +108,7 @@ CommandCombine([
   {
     Tag: "crabs",
     Description: "Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
        commandRedirect("roster", args);
     }
   },
@@ -119,7 +119,7 @@ CommandCombine([
   {
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
     },
@@ -131,7 +131,7 @@ CommandCombine([
   {
     Tag: "players",
     Description: "Deprecated: Show the player count, helpful in maps.",
-    Action: (args: any) => {
+    Action: (args: string) => {
         commandRedirect("roster", args);
   },
 ]);
