@@ -151,6 +151,10 @@ CommandCombine([{
             ChatRoomSendLocal(`You must supply which key to drop, or 'all' to drop them all.`);
             return;
         }
+        if (!ChatRoomMapViewIsActive()) {
+            ChatRoomSendLocal(`Key only work on a map...`);
+            return;
+        }
         for (let i = 0; i < splitArgs.length; i++) {
             if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
                 if (Player.MapData.PrivateState.HasKeyBronze) {
