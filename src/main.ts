@@ -66,8 +66,7 @@ function argcheck(args: string): boolean {
   if (SPLITARGS[0].toLowerCase() == "help") {
     ChatRoomSendLocal(HELP.showhelp());
     return false;
-  }
-  else if (SPLITARGS[0].toLowerCase() == "version") {
+  } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
     return false;
   }
@@ -75,12 +74,12 @@ function argcheck(args: string): boolean {
 }
 
 function commandRedirect(command: string, args: string): void {
-    for (const [_, COMMAND] of Commands.entries()) {
-      if (COMMAND.Tag === command) {
-        COMMAND.Action(args);
-        break;
-      }
+  for (const [_, COMMAND] of Commands.entries()) {
+    if (COMMAND.Tag === command) {
+      COMMAND.Action(args);
+      break;
     }
+  }
 }
 
 // implements the whisper+ command
@@ -103,7 +102,6 @@ CommandCombine([
     Action: (args: string, command: string) => {
       WHISPERPLUS.whisperplus(args, command);
     },
-
   },
 ]);
 
@@ -113,8 +111,8 @@ CommandCombine([
     Tag: "crabs",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
-       commandRedirect("roster", args);
-    }
+      commandRedirect("roster", args);
+    },
   },
 ]);
 
@@ -126,6 +124,13 @@ CommandCombine([
     Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
+      const elements = document.querySelectorAll<HTMLDivElement>(
+        "div.ChatMessageNonDialogue"
+      );
+
+      elements.forEach((el) => {
+        el.style.overflow = "visible";
+      });
     },
   },
 ]);
@@ -136,21 +141,37 @@ CommandCombine([
     Tag: "players",
     Description: "Deprecated: Show the player count, helpful in maps.",
     Action: (args: string) => {
-        commandRedirect("roster", args);
+      commandRedirect("roster", args);
     },
   },
 ]);
 
 // implements /dropkeys command
-CommandCombine([{
-    Tag: 'dropkeys',
-    Description: "Drops the specified keys: gold, silver, or bronze. You can also use all.",
-    Action: args => {
-        const splitArgs = args.toLowerCase().split(" ");
-        if(splitArgs.length < 1) {
-            ChatRoomSendLocal(`You must supply which key to drop, or 'all' to drop them all.`);
-            return;
+CommandCombine([
+  {
+    Tag: "dropkeys",
+    Description:
+      "Drops the specified keys: gold, silver, or bronze. You can also use all.",
+    Action: (args) => {
+      const splitArgs = args.toLowerCase().split(" ");
+      if (splitArgs.length < 1) {
+        ChatRoomSendLocal(
+          `You must supply which key to drop, or 'all' to drop them all.`
+        );
+        return;
+      }
+      if (!ChatRoomMapViewIsActive()) {
+        ChatRoomSendLocal(`Key only work on a map...`);
+        return;
+      }
+      for (let i = 0; i < splitArgs.length; i++) {
+        if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeyBronze) {
+            Player.MapData.PrivateState.HasKeyBronze = false;
+            ChatRoomSendLocal(`Bronze key dropped.`);
+          }
         }
+<<<<<<< HEAD
         if (!ChatRoomMapViewIsActive()) {
             ChatRoomSendLocal(`Key only work on a map...`);
             return;
@@ -177,6 +198,29 @@ CommandCombine([{
             if (splitArgs[i] != "bronze" && splitArgs[i] != "silver" && splitArgs[i] != "gold" && splitArgs[i] != "all") {
                 ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
             }
+=======
+        if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeySilver) {
+            Player.MapData.PrivateState.HasKeySilver = false;
+            ChatRoomSendLocal(`Silver key dropped.`);
+          }
+>>>>>>> Alpha
         }
-    }
-}]);
+        if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
+          if (Player.MapData.PrivateState.HasKeyGold) {
+            Player.MapData.PrivateState.HasKeyGold = false;
+            ChatRoomSendLocal(`Gold key dropped.`);
+          }
+        }
+        if (
+          splitArgs[i] != "bronze" &&
+          splitArgs[i] != "silver" &&
+          splitArgs[i] != "gold" &&
+          splitArgs[i] != "all"
+        ) {
+          ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
+        }
+      }
+    },
+  },
+]);

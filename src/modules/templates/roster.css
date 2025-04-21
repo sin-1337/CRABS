@@ -1,6 +1,7 @@
 .CRABS_room-status {
   width: 100% !important;
   table-layout: fixed;
+  overflow: visible;
   border-collapse: collapse;
   color: white;
 }
@@ -9,6 +10,7 @@
     padding: 5px;
     text-align: center;
     width: calc(100% / var(--col-count, 4));
+    overflow: visible;
     height: auto;
     border-right: 1px solid #ccc; /* Add left border */
 }

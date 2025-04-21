@@ -1,7 +1,8 @@
 .CRABS_wrapper{
   width: 98% !important;
-  table-layout: fixed;
+  table-layout: auto;
   color: white;
+  overflow: visible;
   white-space: normal;
   border-collapse: collapse;
   background-image: url('../CRABS_Logo.png');
@@ -12,6 +13,8 @@
   background-attachment: fixed;
   border-radius: 12px;
   border: 2px solid #fff;
+  postion: relative;
+  z-index: 0;
 }
 
 .CRABS_tooltip-wrapper {
