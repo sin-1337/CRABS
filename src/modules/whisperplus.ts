@@ -82,7 +82,7 @@ export default class WhisperPlus extends CRABS {
     };
 
     // this runs when a player enters the /whisper+ command or clicks the roster
-    public whisperplus(args: any, command: any): number {
+    public whisperplus(args: string, command: string): number {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
         //const MESSAGE = args.slice(args.indexOf(" ") + 1);
