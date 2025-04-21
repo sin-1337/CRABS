@@ -2,8 +2,8 @@ import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base"
 export default class WhisperPlus extends CRABS {
 
-    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
-        super(icon_height, icon_width, CRABS);
+    constructor(CRABS: ModSDKModAPI) {
+        super(CRABS);
         window.sendWhisper = WhisperPlus.sendWhisper;
     } 
 
@@ -82,7 +82,7 @@ export default class WhisperPlus extends CRABS {
     };
 
     // this runs when a player enters the /whisper+ command or clicks the roster
-    public whisperplus(args: any, command: any): number {
+    public whisperplus(args: string, command: string): number {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
         //const MESSAGE = args.slice(args.indexOf(" ") + 1);

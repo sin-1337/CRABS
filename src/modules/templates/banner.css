@@ -1,0 +1,13 @@
+.CRABS_banner {
+    width: 100% !important;
+    border-collapse: collapse;
+    color: white;
+}
+
+.CRABS_banner > tbody > tr > td {
+    padding: 2px;
+    text-align: center;
+    width: auto;
+    height: auto;
+    color: white;
+}
