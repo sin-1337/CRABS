@@ -1,6 +1,6 @@
 .CRABS_wrapper{
   width: 98% !important;
-  table-layout: fixed;
+  table-layout: auto;
   color: white;
   overflow: visible;
   white-space: normal;
