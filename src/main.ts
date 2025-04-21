@@ -6,7 +6,7 @@ import Banner from "./modules/banner";
 import Help from "./modules/help";
 
 // configure the version and mod name
-const VERSION = "1.1.0.187 Alpha";
+const VERSION = "1.1.0.188 Beta";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
@@ -149,6 +149,10 @@ CommandCombine([{
         const splitArgs = args.toLowerCase().split(" ");
         if(splitArgs.length < 1) {
             ChatRoomSendLocal(`You must supply which key to drop, or 'all' to drop them all.`);
+            return;
+        }
+        if (!ChatRoomMapViewIsActive()) {
+            ChatRoomSendLocal(`Key only work on a map...`);
             return;
         }
         for (let i = 0; i < splitArgs.length; i++) {
