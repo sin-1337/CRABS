@@ -1,4 +1,11 @@
-export default class WhisperPlus {
+import {ModSDKModAPI} from "bondage-club-mod-sdk";
+import CRABS from "../base"
+export default class WhisperPlus extends CRABS {
+
+    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
+        super(icon_height, icon_width, CRABS);
+        window.sendWhisper = WhisperPlus.sendWhisper;
+    } 
 
     // send chat message at range
     private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
@@ -10,24 +17,20 @@ export default class WhisperPlus {
         const TARGETMEMEBER = typeof target === 'object' ? target : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(target));
         if (!TARGETMEMEBER) {
             ChatRoomSendLocalChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
-            return;
+            return false;
         }
 
         // Handle self whispers with gray text and memo emoji
         if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
-            const SELFMESSAGE = `<span style="color:#989898">💭 Log to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg.replace(/\)/g, "）")}</span>`;
+            const SELFMESSAGE = `<span style="color:#989898">${this.printicon("thought")} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
             ChatRoomSendLocal(SELFMESSAGE);
-            return;
+            return false;
         }
 
         // Replace normal brackets with fake ones in the message
-        msg = msg.replace(/\)/g, "）");
+        msg = msg.replace(/\(/g, "❪"); //replace the ( for consistency
+        msg = msg.replace(/\)/g, "❫"); // technically only this one is really needed
 
-        // Prepare the message - now with ⤵ instead of :
-        let formattedMsg = `(Whisper+❩⤵\n${msg}`;
-        if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
-            formattedMsg += '）';
-        }
 
         // check if target and player are the same
         if (target.MemberNumber == Player.MemberNumber) {
@@ -37,25 +40,36 @@ export default class WhisperPlus {
                 msg = `(${msg})`;
             }
 
+            // Prepare the message - now with ⤵ instead of :
+            let formattedMsg = `+: ${msg}`;
+            //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
+            //    formattedMsg += '）';
+            //}
+
             // build data payload
-            const DATA = ChatRoomGenerateChatRoomChatMessage("Whisper", msg);
-            
+            let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+           console.log(data) 
+            /*if (!data) {
+                data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+            }*/
+
             // set the whisper target
-            DATA.Target = target.MemberNumber;
+            data.Target = target.MemberNumber;
 
             //send the whisper
-            const serverData = { ...DATA, Type: "Whisper" }
+            const serverData = { ...data, Type: "Whisper" }
             ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
-            DATA.Sender = Player.MemberNumber;
+            data.Sender = Player.MemberNumber;
 
             // send the chat to our window too
-            ChatRoomMessage(DATA);
+            ChatRoomMessage(data);
 
             // message was sent
             return true;
         }
+        return false;
     }
 
     // This starts /whisper+ if you click on the roster
@@ -68,19 +82,21 @@ export default class WhisperPlus {
     };
 
     // this runs when a player enters the /whisper+ command or clicks the roster
-    public whisperplus(args: any): number {
+    public whisperplus(args: any, command: any): number {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
-        const MESSAGE = args.slice(args.indexOf(" ") + 1);
+        //const MESSAGE = args.slice(args.indexOf(" ") + 1);
+        const MESSAGE = command.substring(command.indexOf(' ') + MEMBERNUMBER.toString().length + 2);
+        console.log(MESSAGE);
 
         // if membernumber is not a valid number, bail
         if (Number.isNaN(MEMBERNUMBER)) {
-            ChatRoomSendLocal("Member number is invalid.");
+            ChatRoomSendLocal("Member number is invalid.", 30_000);
             return 1;
         }
 
         if (MESSAGE == "") {
-            ChatRoomSendLocal("Message was blank");
+            ChatRoomSendLocal("Message was blank", 30_000);
             return 1;
         }
 
