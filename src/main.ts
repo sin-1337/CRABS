@@ -154,7 +154,7 @@ CommandCombine([
     Tag: "dropkeys",
     Description:
       "Drops the specified keys: gold, silver, or bronze. You can also use all.",
-    Action: (args) => {
+    Action: (args: string) => {
       const splitArgs = args.toLowerCase().split(" ");
       if (splitArgs.length < 1) {
         ChatRoomSendLocal(
