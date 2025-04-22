@@ -131,6 +131,7 @@ declare global {
     target: PlayerCharacter
   ): boolean;
   function ChatRoomMapViewIsActive(): boolean;
+  function ElementScrollToEnd(element: string): void;
   function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
   function TextGetInScope(path_to_csv: string, permission: string): void;

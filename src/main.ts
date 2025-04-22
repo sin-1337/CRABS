@@ -53,6 +53,7 @@ ChatRoomRegisterMessageHandler({
           ROSTER.buildroster("count", false)
         );
         ChatRoomSendLocal(output);
+        ElementScrollToEnd("TextAreaChatLog");
       }, 3600);
     }
 
@@ -123,6 +124,7 @@ CommandCombine([
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
+      ElementScrollToEnd("TextAreaChatLog");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
