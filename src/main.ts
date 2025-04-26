@@ -3,7 +3,7 @@ import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from  "./modules";
 
 // configure the version and mod name
-const VERSION = "1.1.0.201 Alpha";
+const VERSION = "1.1.0.202 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
