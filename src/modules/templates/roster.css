@@ -34,6 +34,7 @@
     width: 100%;
     height: 1em;
     position: relative;
+    display: flex;
 }
 
 .CRABS_player-id {
@@ -50,12 +51,18 @@
 .CRABS_overflow-scroll {
   display: inline-block;
   white-space: nowrap;
+  width: max-content;
+  position: relative;
   transition: transform 4s linear;
+  -webkit-transition: transform 4s linear; /* Safari */
+  -moz-transition: transform 4s linear;    /* Firefox */
+  -ms-transition: transform 4s linear;     /* IE */
+  -o-transition: transform 4s linear;      /* Older Opera */
 }
 
 /* animate on hover */
 .CRABS_overflow-wrapper.scrolling:hover .CRABS_overflow-scroll {
-    transform: translatex(var(--scroll-distance, -100%));
+    transform: translateX(var(--scroll-distance, -100%));
 }
 
 .CRABS_player-icons {
