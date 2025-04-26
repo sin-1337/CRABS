@@ -4,7 +4,7 @@ import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
 
 
-export default class Banner extends CRABS {
+export class Banner extends CRABS {
 
     constructor(CRABS: ModSDKModAPI) {
     super(CRABS);

@@ -2,7 +2,7 @@ import CRABS from "../base";
 import helptemplate from "./templates/help.html";
 
 
-export default class Help extends CRABS {
+export class Help extends CRABS {
 
   // show help
   public showhelp(): string {

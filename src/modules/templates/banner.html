@@ -16,13 +16,4 @@
 <div style="text-align: center"><br>Room: {{RoomName}}
 {{RosterCounters}}
 <hr>
-Use <a onclick="(function() {
-            for (const [_, COMMAND] of Commands.entries()) {
-                if (COMMAND.Tag === `roster`) {
-                    COMMAND.Action(``);
-                    break;
-                }
-            }
-        }
-        )
-       ">/roster</a> to see the full output
+Use <a onclick="window.printRoster()">/roster</a> to see the full output

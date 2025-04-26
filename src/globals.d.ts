@@ -17,6 +17,7 @@ declare global {
   interface Window {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
+    printRoster: typeof Roster.printRoster;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
     CommandSet(payload: string): void;
   }

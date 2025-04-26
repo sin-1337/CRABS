@@ -1,6 +1,6 @@
 import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base"
-export default class WhisperPlus extends CRABS {
+export class WhisperPlus extends CRABS {
 
     constructor(CRABS: ModSDKModAPI) {
         super(CRABS);
