@@ -1,12 +1,10 @@
 import CRABS from "../base";
-import WhisperPlus from "./whisperplus";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
-window.sendWhisper = WhisperPlus.sendWhisper;
 
-export default class Roster extends CRABS {
+export class Roster extends CRABS {
   private onlineFriends: number | undefined = undefined;
   private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
@@ -15,6 +13,21 @@ export default class Roster extends CRABS {
     this.loadFriendList();
     // expose showPlayerFocus to the DOM
     window.PlayerFocus = Roster.showPlayerFocus;
+  }
+
+  /*
+   * Prints the roster as if the user ran the command
+   * Meant to be attached to the DOM
+   *
+   * &param action: (string) that determines what the roster should print
+   */
+  public static printRoster(action:string = "all"): void {
+    for (const [_, COMMAND] of Commands.entries()) {
+      if (COMMAND.Tag === `roster`) {
+        COMMAND.Action(action);
+        break;
+      }
+    }
   }
 
   /*

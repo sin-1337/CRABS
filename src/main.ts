@@ -1,9 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import Roster from "./modules/roster";
-import WhisperPlus from "./modules/whisperplus";
-import Banner from "./modules/banner";
-import Help from "./modules/help";
+import * as Modules from  "./modules";
 
 // configure the version and mod name
 const VERSION = "1.1.0.198 Beta";
@@ -18,10 +15,11 @@ const CRABS = bcModSDK.registerMod({
   repository: "https://github.com/sin-1337/CRABS",
 });
 
-const BANNER = new Banner(CRABS);
-const WHISPERPLUS = new WhisperPlus(CRABS);
-const ROSTER = new Roster(CRABS);
-const HELP = new Help(CRABS);
+const BANNER = new Modules.Banner(CRABS);
+const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
+const ROSTER = new Modules.Roster(CRABS);
+const HELP = new Modules.Help(CRABS);
+Modules.loadDOM();
 
 // TODO: create ui to turn this off!!
 // TODO: reformat this output maybe?
@@ -53,6 +51,7 @@ ChatRoomRegisterMessageHandler({
           ROSTER.buildroster("count", false)
         );
         ChatRoomSendLocal(output);
+        ElementScrollToEnd("TextAreaChatLog");
       }, 3600);
     }
 
@@ -123,6 +122,7 @@ CommandCombine([
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
       if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
+      ElementScrollToEnd("TextAreaChatLog");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
@@ -152,7 +152,7 @@ CommandCombine([
     Tag: "dropkeys",
     Description:
       "Drops the specified keys: gold, silver, or bronze. You can also use all.",
-    Action: (args) => {
+    Action: (args: string) => {
       const splitArgs = args.toLowerCase().split(" ");
       if (splitArgs.length < 1) {
         ChatRoomSendLocal(
