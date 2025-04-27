@@ -141,4 +141,23 @@ export default class CRABS {
     if (tooltip != "") html += `</div>`;
     return html;
   }
+
+    /*
+     *  TypeScript: Function to convert hex color to rgba and add transparency
+     *
+     * @param: string hex value of the color
+     * @param: number for transparencey, bigger is more transparent. Optional, default 0
+     */
+    protected convertColor(hex: string, alpha: number = 0): string {
+        // Remove the hash if it's there
+        hex = hex.replace(/^#/, "");
+
+        // Parse the red, green, and blue components
+        let red = parseInt(hex.substr(0, 2), 16);
+        let green = parseInt(hex.substr(2, 2), 16);
+        let blue = parseInt(hex.substr(4, 2), 16);
+
+        // Return the rgba value with alpha transparency
+        return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    }
 }

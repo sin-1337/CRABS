@@ -71,6 +71,7 @@ export class Roster extends CRABS {
     let templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
+      LabelColorBorder: `${this.convertColor(player.LabelColor, 0.2)}`,
       LabelColor: `${player.LabelColor || "#FFFFFF"}`,
       PlayerName: CharacterNickname(player).normalize("NFKC"),
       PlayerIcons: player_icons,
