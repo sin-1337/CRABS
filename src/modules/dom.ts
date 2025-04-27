@@ -1,6 +1,6 @@
 import * as Modules from "."
 
-export function loadDOM() {
+export default function loadDOM() {
     window.sendWhisper = Modules.WhisperPlus.sendWhisper;
     window.printRoster = Modules.Roster.printRoster;
 }
