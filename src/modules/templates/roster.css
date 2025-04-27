@@ -23,7 +23,7 @@
 
 .CRABS_card {
     border-radius: 8px;
-    padding: 2px;
+    padding: 2px 4px;
     width: 99%;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     word-wrap: break-word;
@@ -38,7 +38,7 @@
     left: 30px;
     right: 30px;
     height: 2px;
-    background: linear-gradient(to right, transparent, var(--border-color, white), transparent);
+    background: linear-gradient(to right, transparent 10%, var(--border-color, white) 80%, transparent 100%);
 }
 
 .CRABS_overflow-wrapper {
