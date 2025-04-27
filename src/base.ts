@@ -146,7 +146,12 @@ export default class CRABS {
      *  TypeScript: Function to convert hex color to rgba and add transparency
      *
      * @param: string hex value of the color
-     * @param: number for transparencey, bigger is more transparent. Optional, default 0
+     * @param: number for transparencey, bigger is more opaque. Optional, default 0
+     *  Alpha range: The alpha value ranges from -1 to 1:
+     *  alpha = 0 means fully opaque (no transparency).
+     *  alpha = -1 means fully transparent (completely invisible).
+     *
+     *  @return: string rgba value with alpha
      */
     protected convertColor(hex: string, alpha: number = 0): string {
         // Remove the hash if it's there
