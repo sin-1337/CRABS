@@ -38,7 +38,7 @@
     left: 30px;
     right: 30px;
     height: 2px;
-    background-color: var(--border-color, white);
+    background: linear-gradient(to right, transparent, var(--border-color, white), transparent);
 }
 
 .CRABS_overflow-wrapper {
