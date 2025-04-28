@@ -126,7 +126,7 @@ export class Roster extends CRABS {
           if (effect in GAGEFFECTLIST) { 
               if (gagValue < GAGEFFECTLIST[effect]) { 
                   gagValue = GAGEFFECTLIST[effect];
-                  icons.Gag = this.printicon(EFFECT_NAME, `${effect});
+                  icons.Gag = this.printicon(EFFECT_NAME, `${effect}`);
               }
           }
           if (effect in DEAFEFFECTLIST) { 
