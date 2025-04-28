@@ -343,7 +343,7 @@ export class Roster extends CRABS {
       player_icons = this.setIcons(player);
 
       // if the player is me (person who ran the script)
-      if (this.checkIfMe(player)) {
+      if (player.IsPlayer()) {
         // mark me with a star icon
         player_icons = this.printicon("you", "You") + " " + player_icons;
 
