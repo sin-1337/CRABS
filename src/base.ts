@@ -10,6 +10,9 @@ export default class CRABS {
     // logo
     logo: "https://sin-1337.github.io/CRABS/CRABS_Logo.png",
 
+    // error icon
+    error: "https://sin-1337.github.io/CRABS/error.svg",
+
     // badges
     admin: "https://sin-1337.github.io/CRABS/icons/admin.svg",
     vip: "https://sin-1337.github.io/CRABS/icons/vip.svg",
@@ -143,7 +146,7 @@ export default class CRABS {
    *  @return - string html representing the icon
    */
   protected printicon(key: string, tooltip: string = ""): string {
-    let ICON = "./icons/error.svg"; // fall back if the icon isn't found
+    let ICON = this.ICONS["error"]; // fall back if the icon isn't found
     if (key in this.ICONS) {  // test if the key exists
       ICON = this.ICONS[key];
     }
