@@ -8,34 +8,56 @@ export default class CRABS {
   // an dictionary containing all the icons that CRABS uses
   protected readonly ICONS: Record<string, string> = {
     // logo
-    logo: "CRABS_Logo.png",
+    logo: "https://sin-1337.github.io/CRABS/CRABS_Logo.png",
 
     // badges
-    admin: "icons/admin.svg",
-    vip: "icons/vip.svg",
-    player: "icons/player.svg",
+    admin: "https://sin-1337.github.io/CRABS/icons/admin.svg",
+    vip: "https://sin-1337.github.io/CRABS/icons/vip.svg",
+    player: "https://sin-1337.github.io/CRABS/icons/player.svg",
 
     // icons
-    you: "icons/you.svg",
-    owner: "icons/owner.svg",
-    sub: "icons/sub.svg",
-    trial: "icons/trial.svg",
-    lover: "icons/lover.svg",
-    bestfriend: "icons/bestfriend.svg",
-    friend: "icons/friends.svg",
-    whitelist: "icons/whitelist.svg",
-    blacklist: "icons/blacklist.svg",
-    ghost: "icons/ghost.svg",
-    thought: "icons/thought.svg",
+    you: "https://sin-1337.github.io/CRABS/icons/you.svg",
+    owner: "https://sin-1337.github.io/CRABS/icons/owner.svg",
+    sub: "https://sin-1337.github.io/CRABS/icons/sub.svg",
+    trial: "https://sin-1337.github.io/CRABS/icons/trial.svg",
+    lover: "https://sin-1337.github.io/CRABS/icons/lover.svg",
+    bestfriend: "https://sin-1337.github.io/CRABS/icons/bestfriend.svg",
+    friend: "https://sin-1337.github.io/CRABS/icons/friends.svg",
+    whitelist: "https://sin-1337.github.io/CRABS/icons/whitelist.svg",
+    blacklist: "https://sin-1337.github.io/CRABS/icons/blacklist.svg",
+    ghost: "https://sin-1337.github.io/CRABS/icons/ghost.svg",
+    thought: "https://sin-1337.github.io/CRABS/icons/thought.svg",
 
     // globe icon for all BC players
-    connected: "icons/connected.svg",
+    connected: "https://sin-1337.github.io/CRABS/icons/connected.svg",
 
     //map keys
-    keyGold: "icons/keyGold.png",
-    keySilver: "icons/keySilver.png",
-    keyBronze: "icons/keyBronze.png",
-    keyNull: "icons/keyNull.svg",
+    keyGold: "https://sin-1337.github.io/CRABS/icons/keyGold.png",
+    keySilver: "https://sin-1337.github.io/CRABS/icons/keySilver.png",
+    keyBronze: "https://sin-1337.github.io/CRABS/icons/keyBronze.png",
+    keyNull: "https://sin-1337.github.io/CRABS/icons/keyNull.svg",
+
+    //BC Icons:
+    blindNone: "https://sin-1337.github.io/CRABS/Icons/blindNone.png",
+    blindLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
+    blindNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
+    blindMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindMedium.png",
+    blindHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
+
+
+    deafNone: "https://sin-1337.github.io/CRABS/Icons/deafNone.png",
+    deafLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
+    deafNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
+    deafMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafMedium.png",
+    deafHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
+
+
+    gagNone: "https://sin-1337.github.io/CRABS/Icons/gagNone.png",
+    gagLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
+    gagNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagMedium.png",
+    gagHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
+
   };
 
   constructor(CRABS: ModSDKModAPI) {
@@ -106,11 +128,10 @@ export default class CRABS {
    * @return html string for the logo
    */
   protected printlogo(): string {
-    let absolutepath = "https://sin-1337.github.io/CRABS/"; // absolute path of the crabs project
     let html = "";
     html += `<img `;
     html += `alt='CRABS' `;
-    html += `src='${absolutepath}${this.ICONS["logo"]}' `;
+    html += `src='${this.ICONS["logo"]}' `;
     html += `height="100px" width="100px"`;
     html += `>`;
     return html;
@@ -129,12 +150,11 @@ export default class CRABS {
       ICON = this.ICONS[key];
     }
 
-    let absolutepath = "https://sin-1337.github.io/CRABS/"; // absolute path of the crabs project
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
     html += `alt='${key}' `;
-    html += `src='${absolutepath}${ICON}' `;
+    html += `src='${ICON}' `;
     html += `class='CRABS_tooltip-image'`;
     html += `>`;
     if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;

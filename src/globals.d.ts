@@ -104,6 +104,7 @@ declare global {
 
   function addChatMessage(msg: string): void;
   function CommandCombine(command: Array<any>);
+  function CharacterGetEffects(Player: PlayerCharacter): Array<string>;
   function CharacterNickname(Player: PlayerCharacter): string;
   function ChatRoomFocusCharacter(player: PlayerCharacter): void;
   function ChatRoomGenerateChatRoomChatMessage(
