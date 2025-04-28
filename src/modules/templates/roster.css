@@ -96,10 +96,10 @@
     border-radius: 30px;
     padding: 5px;
     display: inline-block;
-    filter: brightness(1.2); /* Brighten the image */
+    filter: brightness(1.6); /* Brighten the image */
 }
 
 .CRABS_status-icons img:hover {
     /*--border-color: lightyellow;*/ /* Lighten border color */
-    filter: brightness(1.8); /* Brighten the image */
+    filter: brightness(2.0); /* Brighten the image */
 }
