@@ -116,15 +116,24 @@ export class Roster extends CRABS {
       let deafValue =0;
 
       for (let effect of EFFECTS) {
-          const EFFECTNAME = effect.charAt(0).toLowerCase() + effect.slice(1);
-          if (effect.startsWith("Blind")) { 
-              icons.Blind = this.printicon(EFFECTNAME, effect);
+          const EFFECT_NAME = effect.charAt(0).toLowerCase() + effect.slice(1);
+          if (effect in BLINDEFFECTLIST) { 
+              if (blindValue < BLINDEFFECTLIST[effect]) { 
+                  blindValue = BLINDEFFECTLIST[effect];
+                  icons.Blind = this.printicon(EFFECT_NAME, `${effect}`);
+              }
           }
-          if (effect.startsWith("Gag")) {
-              icons.Gag = this.printicon(EFFECTNAME, effect);
+          if (effect in GAGEFFECTLIST) { 
+              if (gagValue < GAGEFFECTLIST[effect]) { 
+                  gagValue = GAGEFFECTLIST[effect];
+                  icons.Gag = this.printicon(EFFECT_NAME, `${effect});
+              }
           }
-          if (effect.startsWith("Deaf")) {
-              icons.Deaf = this.printicon(EFFECTNAME, effect);
+          if (effect in DEAFEFFECTLIST) { 
+              if (deafValue < DEAFEFFECTLIST[effect]) { 
+                  deafValue = DEAFEFFECTLIST[effect];
+                  icons.Blind = this.printicon(EFFECT_NAME, `${effect}`);
+              }
           }
       }
       // If any icon is empty, set default "None" icon

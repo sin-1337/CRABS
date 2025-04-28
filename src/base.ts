@@ -160,6 +160,7 @@ export default class CRABS {
       ICON = this.ICONS[key];
     }
 
+    console.log(`CRABS tooltop: ${tooltip}`);
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
