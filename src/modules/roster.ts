@@ -24,7 +24,7 @@ export class Roster extends CRABS {
    *
    * @param action - (string) that determines what the roster should print
    */
-  public static printRoster(action:string = "all"): void {
+  public static printRoster(action: string = "all"): void {
     for (const [_, COMMAND] of Commands.entries()) {
       if (COMMAND.Tag === `roster`) {
         COMMAND.Action(action);
@@ -35,7 +35,7 @@ export class Roster extends CRABS {
 
   /*
    * detect overflow in cards and scroll the text
-   * 
+   *
    * @param containerSelector - string, containing the css container we want to target
    */
   public initScrollingOverflow(
@@ -68,80 +68,86 @@ export class Roster extends CRABS {
   }
 
   /*
-   * setStatusIcons determines if a player is Deaf, Blind, or Gagged 
+   * setStatusIcons determines if a player is Deaf, Blind, or Gagged
    * and sets icons accordingly
    *
    * @param player - PlayerCharater, the player object
    * @return - string list of icons
    */
   private setStatusIcons(player: PlayerCharacter): string {
-      const PREFIXES = ["Blind", "Gag", "Deaf"];
-      const EFFECTS = CharacterGetEffects(player); 
-      const ITEMS = EFFECTS.filter(item => PREFIXES.some(prefix => item.startsWith(prefix)));
+    const PREFIXES = ["Blind", "Gag", "Deaf"];
+    const EFFECTS = CharacterGetEffects(player);
 
-        // Initialize icons as empty strings
-      let icons: { [key: string]: string } = {
-        Blind: "",
-        Gag: "",
-        Deaf: ""
-      };
+    // Effect lists mapping
+    const EFFECT_LISTS: { [key: string]: { [key: string]: number } } = {
+      Blind: {
+        BlindLight: 1,
+        BlindNormal: 2,
+        BlindHeavy: 3,
+        BlindTotal: 4,
+      },
+      Gag: {
+        GagVeryLight: 1,
+        GagEasy: 1,
+        GagLight: 1,
+        GagNormal: 2,
+        GagMedium: 2,
+        GagHeavy: 3,
+        GagVeryHeavy: 3,
+        GagTotal: 4,
+        GagTotal2: 4,
+        GagTotal3: 4,
+        GagTotal4: 4,
+      },
+      Deaf: {
+        DeafLight: 1,
+        DeafNormal: 2,
+        DeafHeavy: 3,
+        DeafTotal: 4,
+      },
+    };
 
-      const GAGEFFECTLIST: { [key: string]: number } = {
-          	"GagVeryLight": 1,
-            "GagEasy": 1,
-            "GagLight": 1,
-            "GagNormal": 2,
-            "GagMedium": 2,
-            "GagHeavy": 3,
-            "GagVeryHeavy": 3,
-            "GagTotal": 4,
-            "GagTotal2": 4,
-            "GagTotal3": 4,
-            "GagTotal4": 4,
-      }
-      const BLINDEFFECTLIST: { [key: string]: number } = {
-            "BlindLight": 1, 
-            "BlindNormal": 2, 
-            "BlindHeavy": 3,
-            "BlindTotal": 4,
-      }
-      const DEAFEFFECTLIST: { [key: string]: number } = {
-            "DeafLight": 1,
-            "DeafNormal": 2,
-            "DeafHeavy": 3,
-            "DeafTotal": 4
-      }
-      let gagValue = 0;
-      let blindValue = 0;
-      let deafValue =0;
+    // Initialize icons as empty strings
+    let icons: { [key: string]: string } = {
+      Blind: "",
+      Gag: "",
+      Deaf: "",
+    };
 
-      for (let effect of EFFECTS) {
-          const EFFECT_NAME = effect.charAt(0).toLowerCase() + effect.slice(1);
-          if (effect in BLINDEFFECTLIST) { 
-              if (blindValue < BLINDEFFECTLIST[effect]) { 
-                  blindValue = BLINDEFFECTLIST[effect];
-                  icons.Blind = this.printicon(EFFECT_NAME, "Blind");
-              }
-          }
-          if (effect in GAGEFFECTLIST) { 
-              if (gagValue < GAGEFFECTLIST[effect]) { 
-                  gagValue = GAGEFFECTLIST[effect];
-                  icons.Gag = this.printicon(EFFECT_NAME, `Gagged: ${gagValue}`);
-              }
-          }
-          if (effect in DEAFEFFECTLIST) { 
-              if (deafValue < DEAFEFFECTLIST[effect]) { 
-                  deafValue = DEAFEFFECTLIST[effect];
-                  icons.Deaf = this.printicon(EFFECT_NAME, `Deaf: ${deafValue}`);
-              }
-          }
-      }
-      // If any icon is empty, set default "None" icon
-      icons.Blind = icons.Blind || this.printicon("blindNone", "Not Blind");
-      icons.Gag = icons.Gag || this.printicon("gagNone");
-      icons.Deaf = icons.Deaf || this.printicon("deafNone");
+    // Helper function to determine the maximum value for each prefix and set the corresponding icon
+    const updateIcon = (prefix: string, effect: string): void => {
+      const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
+      const effectList = EFFECT_LISTS[prefix];
 
-      return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
+      if (effect in effectList) {
+        const effectValue = effectList[effect];
+        if (
+          effectValue >
+          (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
+        ) {
+          icons[prefix] = this.printicon(
+            effectName,
+            `${prefix}: ${effectValue}`
+          );
+        }
+      }
+    };
+
+    // Process effects
+    for (let effect of EFFECTS) {
+      for (let prefix of PREFIXES) {
+        if (effect.startsWith(prefix)) {
+          updateIcon(prefix, effect);
+        }
+      }
+    }
+
+    // Set default icons if no icon was set
+    icons.Blind = icons.Blind || this.printicon("blindNone");
+    icons.Gag = icons.Gag || this.printicon("gagNone");
+    icons.Deaf = icons.Deaf || this.printicon("deafNone");
+
+    return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
   }
   /*
    * builds the cards that get injected into the roster
@@ -159,7 +165,10 @@ export class Roster extends CRABS {
     let templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
-      LabelColorBorder: `${this.convertColor(player.LabelColor ?? "#FFFFFF", 0.5)}`,
+      LabelColorBorder: `${this.convertColor(
+        player.LabelColor ?? "#FFFFFF",
+        0.5
+      )}`,
       LabelColor: `${player.LabelColor || "#FFFFFF"}`,
       PlayerName: CharacterNickname(player).normalize("NFKC"),
       PlayerIcons: player_icons,
@@ -279,7 +288,6 @@ export class Roster extends CRABS {
     }
     return player_icons;
   }
-
 
   // Check if you and target player are the same
   private checkIfMe(player: PlayerCharacter): boolean {
