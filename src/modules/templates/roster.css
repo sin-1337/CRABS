@@ -87,7 +87,7 @@
     text-align: right;
     white-space: nowrap;
     width: auto;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: ellipsis;
 }
 
