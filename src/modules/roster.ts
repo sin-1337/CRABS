@@ -120,7 +120,7 @@ export class Roster extends CRABS {
           if (effect in BLINDEFFECTLIST) { 
               if (blindValue < BLINDEFFECTLIST[effect]) { 
                   blindValue = BLINDEFFECTLIST[effect];
-                  icons.Blind = this.printicon(EFFECT_NAME, `Blind: ${blindValue}`);
+                  icons.Blind = this.printicon(EFFECT_NAME, "Blind");
               }
           }
           if (effect in GAGEFFECTLIST) { 
