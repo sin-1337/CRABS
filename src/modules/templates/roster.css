@@ -93,7 +93,12 @@
 
 .CRABS_status-icons img {
     background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 5px;
     display: inline-block;
+}
+
+.CRABS_status-icons img:hover {
+    --border-color: lightyellow; /* Lighten border color */
+    filter: brightness(1.2); /* Brighten the image */
 }
