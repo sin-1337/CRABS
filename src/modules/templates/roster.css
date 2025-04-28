@@ -83,3 +83,17 @@
     line-height: 1em; 
 }
 
+.CRABS_status-icons {
+    text-align: right;
+    white-space: nowrap;
+    width: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.CRABS_status-icons img {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 5px;
+    display: inline-block;
+}
