@@ -8,18 +8,21 @@ export class Roster extends CRABS {
   private onlineFriends: number | undefined = undefined;
   private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
+  /*
+   * Constructor
+   *
+   * @param CRABS - (ModSDKModAPI) object containing the modsdkapi
+   */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS);
     this.loadFriendList();
-    // expose showPlayerFocus to the DOM
-    window.PlayerFocus = Roster.showPlayerFocus;
   }
 
   /*
    * Prints the roster as if the user ran the command
    * Meant to be attached to the DOM
    *
-   * &param action: (string) that determines what the roster should print
+   * @param action - (string) that determines what the roster should print
    */
   public static printRoster(action:string = "all"): void {
     for (const [_, COMMAND] of Commands.entries()) {
@@ -32,6 +35,8 @@ export class Roster extends CRABS {
 
   /*
    * detect overflow in cards and scroll the text
+   * 
+   * @param containerSelector - string, containing the css container we want to target
    */
   public initScrollingOverflow(
     containerSelector: string = ".CRABS_overflow-wrapper"
@@ -62,18 +67,62 @@ export class Roster extends CRABS {
     });
   }
 
-  // formats the data for outputting
-  private formatoutput(
-    player: any,
+  /*
+   * setStatusIcons determines if a player is Deaf, Blind, or Gagged 
+   * and sets icons accordingly
+   *
+   * @param player - PlayerCharater, the player object
+   * @return - string list of icons
+   */
+  private setStatusIcons(player: PlayerCharacter): string {
+      const PREFIXES = ["Blind", "Gag", "Deaf"];
+      const EFFECTS = CharacterGetEffects(player); 
+      const ITEMS = EFFECTS.filter(item => PREFIXES.some(prefix => item.startsWith(prefix)));
+
+        // Initialize icons as empty strings
+      let icons: { [key: string]: string } = {
+        Blind: "",
+        Gag: "",
+        Deaf: ""
+      };
+
+      for (let effect of EFFECTS) {
+          const EFFECTNAME = effect.charAt(0).toLowerCase() + effect.slice(1);
+          if (effect.startsWith("Blind")) 
+              icons.Blind = this.printicon(EFFECTNAME, "Blind");
+          if (effect.startsWith("Gag")) 
+              icons.Gag = this.printicon(EFFECTNAME, "Gagged");
+          if (effect.startsWith("Deaf")) 
+              icons.Deaf = this.printicon(EFFECTNAME, "Deaf");
+      }
+      // If any icon is empty, set default "None" icon
+      icons.Blind = icons.Blind || this.printicon("blindNone");
+      icons.Gag = icons.Gag || this.printicon("gagNone");
+      icons.Deaf = icons.Deaf || this.printicon("deafNone");
+
+      return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
+  }
+  /*
+   * builds the cards that get injected into the roster
+   *
+   * @param player -  PlayerCharacter that we are working with
+   * @param badge - string for the badge showing if the player is admin
+   * @param player_icons - string for the different icons relevant to the player
+   * @return - string containing the output html from the template.
+   */
+  private buildCard(
+    player: PlayerCharacter,
     badge: string,
     player_icons: string
   ): string {
     let templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
+      LabelColorBorder: `${this.convertColor(player.LabelColor ?? "#FFFFFF", 0.5)}`,
       LabelColor: `${player.LabelColor || "#FFFFFF"}`,
       PlayerName: CharacterNickname(player).normalize("NFKC"),
       PlayerIcons: player_icons,
+      StatusIcons: `${this.setStatusIcons(player)}`,
     };
 
     return this.template(rostercardstemplate, templatevars, false);
@@ -124,7 +173,7 @@ export class Roster extends CRABS {
   }
 
   // determine if player is admin or whitelisted in the room and set their badge icon
-  private setbadge(player: any): string {
+  private setbadge(player: PlayerCharacter): string {
     let badge = this.printicon("player", "Guest");
     badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
       ? this.printicon("vip", "VIP")
@@ -135,14 +184,20 @@ export class Roster extends CRABS {
     return badge;
   }
 
-  private setIcons(player: any): string {
+  /*
+   * Sets the icons relevant to the player
+   *
+   * @param player - PlayerCharacter object
+   * @return - string, html string containing the icons.
+   */
+  private setIcons(player: PlayerCharacter): string {
     let player_icons = "";
     if (Player.OwnerNumber() == player.MemberNumber) {
       // person owns you
       player_icons += this.printicon("owner", "Your Owner") + " ";
-    } else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber)) {
+    } else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
       // if they don't own you but you are in their family, we assume you own them
-      if (Player.IsOwnedByPlayer(player.membernumber)) {
+      if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
         // The person is fully owned if this is true
         player_icons += this.printicon("sub", "Submissive") + " ";
       } else {
@@ -150,7 +205,7 @@ export class Roster extends CRABS {
         player_icons += this.printicon("trial", "Trial") + " ";
       }
     }
-    if (Player.GetLoversNumbers().includes(player.MemberNumber)) {
+    if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
       // person is a lover
       player_icons += this.printicon("lover", "Lover") + " ";
     } else {
@@ -162,7 +217,7 @@ export class Roster extends CRABS {
           //Player is a best friend, skip checking if they are a friend.
           player_icons += this.printicon("bestfriend", "Best Friend") + " ";
         } else if (Player.FriendList.includes(player.MemberNumber)) {
-          // Player is not a best friend, but they are a freind
+          // Player is not a best friend, but they are a friend
           player_icons += this.printicon("friend", "Friend") + " ";
         }
       } else if (Player.FriendList.includes(player.MemberNumber)) {
@@ -184,16 +239,17 @@ export class Roster extends CRABS {
     return player_icons;
   }
 
+
   // Check if you and target player are the same
-  private checkIfMe(player: any): boolean {
+  private checkIfMe(player: PlayerCharacter): boolean {
     return player.MemberNumber == Player.MemberNumber ? true : false;
   }
 
   /*
    *  prints the roster
    *
-   *  @param - string arguments passed from user
-   *  @param - boolean wrappar, should we draw the wrapper
+   *  @param args - string arguments passed from user
+   *  @param wrapper - boolean wrappar, should we draw the wrapper
    *  @returms - string html output
    */
   public buildroster(args: string, wrapper: boolean = true): string {
@@ -203,7 +259,7 @@ export class Roster extends CRABS {
     let admin_output_html = ""; // holds admins
     let vip_output_html = ""; // holds whitelisted users
     let player_output_html = ""; // holds normal players
-    let player; // the person we found in the room
+    let player: PlayerCharacter; // the person we found in the room
     let admin_count = 0; // number of admins in the room
     let badge = ""; // holds the admin icon if the player is an admin
     let player_icons = ""; // holds the list of player/status icons (string)
@@ -246,7 +302,7 @@ export class Roster extends CRABS {
         player_icons = this.printicon("you", "You") + " " + player_icons;
 
         // format my output and store
-        me_output_html = this.formatoutput(player, badge, player_icons);
+        me_output_html = this.buildCard(player, badge, player_icons);
       }
 
       // check if the player is an admin and update the count, also flag the player as admin in the output list.
@@ -254,7 +310,7 @@ export class Roster extends CRABS {
         admin_count++;
         if (!this.checkIfMe(player)) {
           // if the player is not me, output admin and skip rest of loop
-          admin_output_html += this.formatoutput(player, badge, player_icons);
+          admin_output_html += this.buildCard(player, badge, player_icons);
           continue;
         }
       } else if (
@@ -262,11 +318,11 @@ export class Roster extends CRABS {
         !this.checkIfMe(player)
       ) {
         // if the player isn't an admin, is the player is white listed?
-        vip_output_html += this.formatoutput(player, badge, player_icons);
+        vip_output_html += this.buildCard(player, badge, player_icons);
         continue;
       } else if (!this.checkIfMe(player)) {
         // player is normal, nonadmin, not whitelist, and not me.
-        player_output_html += this.formatoutput(player, badge, player_icons);
+        player_output_html += this.buildCard(player, badge, player_icons);
       }
     }
 

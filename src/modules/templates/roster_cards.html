@@ -1,10 +1,10 @@
-<table class="CRABS_card">
+<table class="CRABS_card" style="--border-color: {{LabelColorBorder}}">
     <tbody>
         <tr>
             <td width=37px rowspan="2">
                 <a style="cursor:pointer;" onclick="PlayerFocus({{PlayerNumber}})">{{Badge}}</a>
             </td>
-            <td style="max-width: 400px; width=400px;">
+            <td style="max-width: 400px; width=400px;" colspan="2">
                 <div class="CRABS_overflow-wrapper">
                     <div class="CRABS_player-id" style="color:{{LabelColor}};" 
                         onclick="sendWhisper({{PlayerNumber}})" 
@@ -19,6 +19,7 @@
         </tr>
         <tr>
             <td class="CRABS_player-icons">{{PlayerIcons}}</td>
+            <td class="CRABS_status-icons" style="--border-color: {{LabelColorBorder}}">{{StatusIcons}}</td>
         </tr>
     </tbody>
 </table>

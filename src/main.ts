@@ -1,6 +1,7 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from  "./modules";
+import loadDOM from "./modules/dom";
 
 // configure the version and mod name
 const VERSION = "1.1.0.203 Beta";
@@ -19,7 +20,7 @@ const BANNER = new Modules.Banner(CRABS);
 const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
 const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
-Modules.loadDOM();
+loadDOM();
 
 // TODO: create ui to turn this off!!
 // TODO: reformat this output maybe?

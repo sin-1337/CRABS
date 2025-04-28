@@ -8,34 +8,58 @@ export default class CRABS {
   // an dictionary containing all the icons that CRABS uses
   protected readonly ICONS: Record<string, string> = {
     // logo
-    logo: "CRABS_Logo.png",
+    logo: "https://sin-1337.github.io/CRABS/CRABS_Logo.png",
+
+    // error icon
+    error: "https://sin-1337.github.io/CRABS/error.svg",
 
     // badges
-    admin: "icons/admin.svg",
-    vip: "icons/vip.svg",
-    player: "icons/player.svg",
+    admin: "https://sin-1337.github.io/CRABS/icons/admin.svg",
+    vip: "https://sin-1337.github.io/CRABS/icons/vip.svg",
+    player: "https://sin-1337.github.io/CRABS/icons/player.svg",
 
     // icons
-    you: "icons/you.svg",
-    owner: "icons/owner.svg",
-    sub: "icons/sub.svg",
-    trial: "icons/trial.svg",
-    lover: "icons/lover.svg",
-    bestfriend: "icons/bestfriend.svg",
-    friend: "icons/friends.svg",
-    whitelist: "icons/whitelist.svg",
-    blacklist: "icons/blacklist.svg",
-    ghost: "icons/ghost.svg",
-    thought: "icons/thought.svg",
+    you: "https://sin-1337.github.io/CRABS/icons/you.svg",
+    owner: "https://sin-1337.github.io/CRABS/icons/owner.svg",
+    sub: "https://sin-1337.github.io/CRABS/icons/sub.svg",
+    trial: "https://sin-1337.github.io/CRABS/icons/trial.svg",
+    lover: "https://sin-1337.github.io/CRABS/icons/lover.svg",
+    bestfriend: "https://sin-1337.github.io/CRABS/icons/bestfriend.svg",
+    friend: "https://sin-1337.github.io/CRABS/icons/friends.svg",
+    whitelist: "https://sin-1337.github.io/CRABS/icons/whitelist.svg",
+    blacklist: "https://sin-1337.github.io/CRABS/icons/blacklist.svg",
+    ghost: "https://sin-1337.github.io/CRABS/icons/ghost.svg",
+    thought: "https://sin-1337.github.io/CRABS/icons/thought.svg",
 
     // globe icon for all BC players
-    connected: "icons/connected.svg",
+    connected: "https://sin-1337.github.io/CRABS/icons/connected.svg",
 
     //map keys
-    keyGold: "icons/keyGold.png",
-    keySilver: "icons/keySilver.png",
-    keyBronze: "icons/keyBronze.png",
-    keyNull: "icons/keyNull.svg",
+    keyGold: "https://sin-1337.github.io/CRABS/icons/keyGold.png",
+    keySilver: "https://sin-1337.github.io/CRABS/icons/keySilver.png",
+    keyBronze: "https://sin-1337.github.io/CRABS/icons/keyBronze.png",
+    keyNull: "https://sin-1337.github.io/CRABS/icons/keyNull.svg",
+
+    //BC Icons:
+    blindNone: "https://sin-1337.github.io/CRABS/icons/blindNone.svg",
+    blindLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
+    blindNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
+    blindHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
+
+
+    deafNone: "https://sin-1337.github.io/CRABS/icons/deafNone.svg",
+    deafLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
+    deafNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
+    deafHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
+
+
+    gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
+    gagLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
+    gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
+    gagTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
+
   };
 
   constructor(CRABS: ModSDKModAPI) {
@@ -106,11 +130,10 @@ export default class CRABS {
    * @return html string for the logo
    */
   protected printlogo(): string {
-    let absolutepath = "https://sin-1337.github.io/CRABS/"; // absolute path of the crabs project
     let html = "";
     html += `<img `;
     html += `alt='CRABS' `;
-    html += `src='${absolutepath}${this.ICONS["logo"]}' `;
+    html += `src='${this.ICONS["logo"]}' `;
     html += `height="100px" width="100px"`;
     html += `>`;
     return html;
@@ -124,21 +147,44 @@ export default class CRABS {
    *  @return - string html representing the icon
    */
   protected printicon(key: string, tooltip: string = ""): string {
-    let ICON = "./icons/error.svg"; // fall back if the icon isn't found
+    let ICON = this.ICONS["error"]; // fall back if the icon isn't found
     if (key in this.ICONS) {  // test if the key exists
       ICON = this.ICONS[key];
     }
 
-    let absolutepath = "https://sin-1337.github.io/CRABS/"; // absolute path of the crabs project
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
     html += `alt='${key}' `;
-    html += `src='${absolutepath}${ICON}' `;
+    html += `src='${ICON}' `;
     html += `class='CRABS_tooltip-image'`;
     html += `>`;
     if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;
     if (tooltip != "") html += `</div>`;
     return html;
   }
+
+    /*
+     *  TypeScript: Function to convert hex color to rgba and add transparency
+     *
+     * @param: string hex value of the color
+     * @param: number for transparencey, bigger is more opaque. Optional, default 0
+     *  Alpha range: The alpha value ranges from -1 to 1:
+     *  alpha = 0 means fully opaque (no transparency).
+     *  alpha = -1 means fully transparent (completely invisible).
+     *
+     *  @return: string rgba value with alpha
+     */
+    protected convertColor(hex: string, alpha: number = 0): string {
+        // Remove the hash if it's there
+        hex = hex.replace(/^#/, "");
+
+        // Parse the red, green, and blue components
+        let red = parseInt(hex.substr(0, 2), 16);
+        let green = parseInt(hex.substr(2, 2), 16);
+        let blue = parseInt(hex.substr(4, 2), 16);
+
+        // Return the rgba value with alpha transparency
+        return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    }
 }
