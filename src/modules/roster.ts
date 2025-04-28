@@ -137,7 +137,7 @@ export class Roster extends CRABS {
           }
       }
       // If any icon is empty, set default "None" icon
-      icons.Blind = icons.Blind || this.printicon("blindNone");
+      icons.Blind = icons.Blind || this.printicon("blindNone", "Not Blind");
       icons.Gag = icons.Gag || this.printicon("gagNone");
       icons.Deaf = icons.Deaf || this.printicon("deafNone");
 
