@@ -99,6 +99,6 @@
 }
 
 .CRABS_status-icons img:hover {
-    --border-color: lightyellow; /* Lighten border color */
+    /*--border-color: lightyellow;*/ /* Lighten border color */
     filter: brightness(1.2); /* Brighten the image */
 }
