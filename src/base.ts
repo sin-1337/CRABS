@@ -45,12 +45,14 @@ export default class CRABS {
     blindLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
     blindNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
     blindHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
+    blindTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
 
 
     deafNone: "https://sin-1337.github.io/CRABS/icons/deafNone.svg",
     deafLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
     deafNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
     deafHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
+    deafTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
 
 
     gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
