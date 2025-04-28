@@ -88,11 +88,11 @@ export class Roster extends CRABS {
 
       for (let effect of EFFECTS) {
           const EFFECTNAME = effect.charAt(0).toLowerCase() + effect.slice(1);
-          if (effect.startsWith("blind")) 
+          if (effect.startsWith("Blind")) 
               icons.Blind = this.printicon(EFFECTNAME, "Blind");
-          if (effect.startsWith("gag")) 
+          if (effect.startsWith("Gag")) 
               icons.Gag = this.printicon(EFFECTNAME, "Gagged");
-          if (effect.startsWith("deaf")) 
+          if (effect.startsWith("Deaf")) 
               icons.Deaf = this.printicon(EFFECTNAME, "Deaf");
       }
       // If any icon is empty, set default "None" icon
