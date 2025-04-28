@@ -41,22 +41,20 @@ export default class CRABS {
     blindNone: "https://sin-1337.github.io/CRABS/icons/blindNone.svg",
     blindLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
     blindNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
-    blindMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindMedium.png",
     blindHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
 
 
     deafNone: "https://sin-1337.github.io/CRABS/icons/deafNone.svg",
     deafLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
     deafNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
-    deafMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafMedium.png",
     deafHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
 
 
     gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
     gagLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
-    gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagMedium.png",
+    gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
     gagHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
+    gagTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
 
   };
 
