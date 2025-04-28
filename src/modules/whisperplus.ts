@@ -48,7 +48,6 @@ export class WhisperPlus extends CRABS {
 
             // build data payload
             let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
-           console.log(data) 
             /*if (!data) {
                 data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
             }*/
@@ -87,7 +86,6 @@ export class WhisperPlus extends CRABS {
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
         //const MESSAGE = args.slice(args.indexOf(" ") + 1);
         const MESSAGE = command.substring(command.indexOf(' ') + MEMBERNUMBER.toString().length + 2);
-        console.log(MESSAGE);
 
         // if membernumber is not a valid number, bail
         if (Number.isNaN(MEMBERNUMBER)) {

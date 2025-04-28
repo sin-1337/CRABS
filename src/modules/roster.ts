@@ -184,7 +184,6 @@ export class Roster extends CRABS {
       const [DATA]: Array<Record<string, any>> = args;
       this.onlineFriends = DATA.length;
       this.lastSentTime = Date.now();
-      // console.log(`Number of online friends: ${this.onlineFriends}`);
       return next(args);
     });
   }
@@ -326,8 +325,6 @@ export class Roster extends CRABS {
     for (let person in ChatRoomData.Character) {
       // find member number for current player in list
       MemberNumber = ChatRoomData.Character[person].MemberNumber;
-
-      console.log(`BCTweaks found:  ${this.detectMod("BCTweaks")}`);
 
       // Find player
       player = ChatRoomCharacter.find(

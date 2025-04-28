@@ -22,6 +22,8 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
+console.log(`CRABS v${VERSION} Loaded`);
+
 // TODO: create ui to turn this off!!
 // TODO: reformat this output maybe?
 // set up a handler for room entry

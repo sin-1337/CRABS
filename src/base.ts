@@ -102,7 +102,6 @@ export default class CRABS {
    */
   protected detectMod(targetmod: string): boolean {
     let modlist = bcModSdk.getModsInfo();
-    console.log(modlist);
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
@@ -160,7 +159,6 @@ export default class CRABS {
       ICON = this.ICONS[key];
     }
 
-    console.log(`CRABS tooltop: ${tooltip}`);
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
