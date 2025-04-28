@@ -86,14 +86,46 @@ export class Roster extends CRABS {
         Deaf: ""
       };
 
+      const GAGEFFECTLIST: { [key: string]: number } = {
+          	"GagVeryLight": 1,
+            "GagEasy": 1,
+            "GagLight": 1,
+            "GagNormal": 2,
+            "GagMedium": 2,
+            "GagHeavy": 3,
+            "GagVeryHeavy": 3,
+            "GagTotal": 4,
+            "GagTotal2": 4,
+            "GagTotal3": 4,
+            "GagTotal4": 4,
+      }
+      const BLINDEFFECTLIST: { [key: string]: number } = {
+            "BlindLight": 1, 
+            "BlindNormal": 2, 
+            "BlindHeavy": 3,
+            "BlindTotal": 4,
+      }
+      const DEAFEFFECTLIST: { [key: string]: number } = {
+            "DeafLight": 1,
+            "DeafNormal": 2,
+            "DeafHeavy": 3,
+            "DeafTotal": 4
+      }
+      let gagValue = 0;
+      let blindValue = 0;
+      let deafValue =0;
+
       for (let effect of EFFECTS) {
           const EFFECTNAME = effect.charAt(0).toLowerCase() + effect.slice(1);
-          if (effect.startsWith("Blind")) 
-              icons.Blind = this.printicon(EFFECTNAME, "Blind");
-          if (effect.startsWith("Gag")) 
-              icons.Gag = this.printicon(EFFECTNAME, "Gagged");
-          if (effect.startsWith("Deaf")) 
-              icons.Deaf = this.printicon(EFFECTNAME, "Deaf");
+          if (effect.startsWith("Blind")) { 
+              icons.Blind = this.printicon(EFFECTNAME, effect);
+          }
+          if (effect.startsWith("Gag")) {
+              icons.Gag = this.printicon(EFFECTNAME, effect);
+          }
+          if (effect.startsWith("Deaf")) {
+              icons.Deaf = this.printicon(EFFECTNAME, effect);
+          }
       }
       // If any icon is empty, set default "None" icon
       icons.Blind = icons.Blind || this.printicon("blindNone");
