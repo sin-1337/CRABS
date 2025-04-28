@@ -56,6 +56,7 @@ export default class CRABS {
     gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
     gagLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
     gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
     gagHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
     gagTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
 
