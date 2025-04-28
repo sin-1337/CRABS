@@ -120,19 +120,19 @@ export class Roster extends CRABS {
           if (effect in BLINDEFFECTLIST) { 
               if (blindValue < BLINDEFFECTLIST[effect]) { 
                   blindValue = BLINDEFFECTLIST[effect];
-                  icons.Blind = this.printicon(EFFECT_NAME, `${effect}`);
+                  icons.Blind = this.printicon(EFFECT_NAME, `Blind: ${blindValue}`);
               }
           }
           if (effect in GAGEFFECTLIST) { 
               if (gagValue < GAGEFFECTLIST[effect]) { 
                   gagValue = GAGEFFECTLIST[effect];
-                  icons.Gag = this.printicon(EFFECT_NAME, `${effect}`);
+                  icons.Gag = this.printicon(EFFECT_NAME, `Gagged: ${gagValue}`);
               }
           }
           if (effect in DEAFEFFECTLIST) { 
               if (deafValue < DEAFEFFECTLIST[effect]) { 
                   deafValue = DEAFEFFECTLIST[effect];
-                  icons.Blind = this.printicon(EFFECT_NAME, `${effect}`);
+                  icons.Deaf = this.printicon(EFFECT_NAME, `Deaf: ${deafValue}`);
               }
           }
       }
