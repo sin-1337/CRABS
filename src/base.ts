@@ -133,7 +133,7 @@ export default class CRABS {
     OUTPUT.innerHTML = output;
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
-      CHAT.appendChild(OUTPUT);
+      CHAT.appendChild(OUTPUT.content);
       ElementScrollToEnd("TextAreaChatLog");
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
