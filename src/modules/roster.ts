@@ -296,157 +296,116 @@ export class Roster extends CRABS {
    *  @param wrapper - boolean wrappar, should we draw the wrapper
    *  @returms - string html output
    */
-  public buildroster(
-      args: string, 
-      wrapper: boolean = true
-  ): HTMLElement {
-    const SPLITARGS = args.split(" ");
+  public buildroster(args: string, wrapper: boolean = true): HTMLElement {
+    const ARG_SET = new Set(args.toLowerCase().split(" "));
 
-    let me_output_html: HTMLElement = document.createElement("div"); // holds data about user who ran script
-    let admin_output_html: HTMLElement = document.createElement("div"); // holds admins
-    let vip_output_html: HTMLElement = document.createElement("div"); // holds whitelisted users
-    let player_output_html : HTMLElement = document.createElement("div"); // holds normal players
-    let player: PlayerCharacter; // the person we found in the room
-    let admin_count = 0; // number of admins in the room
-    let badge = ""; // holds the admin icon if the player is an admin
-    let player_icons = ""; // holds the list of player/status icons (string)
-    let MemberNumber: number;
+    let showme = true;
+    let showadmins = true;
+    let showvip = true;
+    let showplayers = true;
 
-    // filter variables, show or not show certain output
-    let showme = true; // person who ran the script (you)
-    let showadmins = true; // room admins
-    let showvip = true; // room whitelists
-    let showplayers = true; // normal players
-    let templatevars: Record<string, string>;
-    let output_html: HTMLElement = document.createElement("div");
+    // Set filters based on arguments
+    if (ARG_SET.has("count")) {
+      showme = showadmins = showvip = showplayers = false;
+    } else {
+      if (ARG_SET.has("admins")) {
+        showme = showvip = showplayers = false;
+      }
+      if (ARG_SET.has("vips")) {
+        showme = showadmins = showplayers = false;
+      }
+    }
 
-    //get a list of players
-    for (let person in ChatRoomData.Character) {
-      // find member number for current player in list
-      MemberNumber = ChatRoomData.Character[person].MemberNumber;
+    const ME_OUTPUT_HTML = document.createElement("div");
+    const ADMIN_OUTPUT_HTML = document.createElement("div");
+    const VIP_OUTPUT_HTML = document.createElement("div");
+    const PLAYER_OUTPUT_HTML = document.createElement("div");
 
-      // Find player
-      player = ChatRoomCharacter.find(
-        (C: any) => C.MemberNumber == MemberNumber
-      );
+    let adminCount = 0;
 
-      //bail out and return placeholder if player is not available.
-      if (!player) {
-        player_output_html.append(
-            "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n"
+    for (const PERSON of ChatRoomData.Character) {
+      const MEMBER = PERSON.MemberNumber;
+      const PLAYER = ChatRoomCharacter.find((c) => c.MemberNumber === MEMBER);
+      if (!PLAYER) {
+        PLAYER_OUTPUT_HTML.append(
+          "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n"
         );
         continue;
       }
 
-      // check if the player is also an admin or vip and add icon with admin given priority
-      badge = this.setbadge(player);
-      player_icons = this.setIcons(player);
+      const BADGE = this.setbadge(PLAYER);
+      let playerIcons = this.setIcons(PLAYER);
 
-      // if the player is me (person who ran the script)
-      if (player.IsPlayer()) {
-        // mark me with a star icon
-        player_icons = this.printicon("you", "You") + " " + player_icons;
-
-        // format my output and store
-        me_output_html = this.buildCard(player, badge, player_icons);
-      }
-
-      // check if the player is an admin and update the count, also flag the player as admin in the output list.
-      if (ChatRoomData.Admin.includes(player.MemberNumber)) {
-        admin_count++;
-        if (!player.IsPlayer()) {
-          // if the player is not me, output admin and skip rest of loop
-          admin_output_html.appendChild(this.buildCard(player, badge, player_icons));
-          continue;
-        }
-      } else if (
-        ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-        !player.IsPlayer()
-      ) {
-        // if the player isn't an admin, is the player is white listed?
-        vip_output_html.appendChild(this.buildCard(player, badge, player_icons));
+      if (PLAYER.IsPlayer()) {
+        playerIcons = this.printicon("you", "You") + " " + playerIcons;
+        ME_OUTPUT_HTML.appendChild(this.buildCard(PLAYER, BADGE, playerIcons));
         continue;
-      } else if (!player.IsPlayer()) {
-        // player is normal, nonadmin, not whitelist, and not me.
-        player_output_html.appendChild(this.buildCard(player, badge, player_icons));
+      }
+
+      if (ChatRoomData.Admin.includes(MEMBER)) {
+        adminCount++;
+        ADMIN_OUTPUT_HTML.appendChild(
+          this.buildCard(PLAYER, BADGE, playerIcons)
+        );
+      } else if (ChatRoomData.Whitelist.includes(MEMBER)) {
+        VIP_OUTPUT_HTML.appendChild(this.buildCard(PLAYER, BADGE, playerIcons));
+      } else {
+        PLAYER_OUTPUT_HTML.appendChild(
+          this.buildCard(PLAYER, BADGE, playerIcons)
+        );
       }
     }
 
-    // if argument is "count", set filter vars and skip loop
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
-      showme = false;
-      showadmins = false;
-      showvip = false;
-      showplayers = false;
-    }
-
-    // if argument is admins, set filter vars to only show admins and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
-      showme = false;
-      showvip = false;
-      showplayers = false;
-    }
-
-    // if argument is vips, set filter vars to only show vips (white listed) and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
-      showme = false;
-      showadmins = false;
-      showplayers = false;
-    }
-    templatevars = {
-      adminIcon: `${this.printicon("admin", "Admins", "CRABS_header_icons")}`,
-      adminsInRoom: `${admin_count}`,
+    const TEMPLATE_VARS: Record<string, string> = {
+      adminIcon: this.printicon("admin", "Admins", "CRABS_header_icons"),
+      adminsInRoom: `${adminCount}`,
       totalAdmins: `${ChatRoomData.Admin.length}`,
-      playerIcon: `${this.printicon("player", "Players", "CRABS_header_icons")}`,
+      playerIcon: this.printicon("player", "Players", "CRABS_header_icons"),
       playersInRoom: `${ChatRoomCharacter.length}`,
       totalPlayers: `${ChatRoomData.Limit}`,
-      friendIcon: `${this.printicon("friend", "Friends", "CRABS_header_icons")}`,
+      friendIcon: this.printicon("friend", "Friends", "CRABS_header_icons"),
       friendsOnline: this.onlineFriends?.toString() ?? "...",
       totalFriends: `${Player.FriendNames.size}`,
-      connectedIcon: `${this.printicon("connected", "Online Accounts", "CRABS_header_icons")}`,
+      connectedIcon: this.printicon(
+        "connected",
+        "Online Accounts",
+        "CRABS_header_icons"
+      ),
       onlinePlayers: `${CurrentOnlinePlayers}`,
     };
 
-    // are we on a map?
     if (ChatRoomMapViewIsActive()) {
-      let displaykeys = ""; // determines how to show keys (css) in the roster
-
-      // build a dictionary of the keys
       const KEYS = {
         keyBronze: Player.MapData.PrivateState.HasKeyBronze,
         keySilver: Player.MapData.PrivateState.HasKeySilver,
         keyGold: Player.MapData.PrivateState.HasKeyGold,
       };
 
-      // loop the dictionary and extract the key and name
-      for (const [KEY, VALUE] of Object.entries(KEYS)) {
-        // if key is found, set icon and tool tip
-        displaykeys += this.printicon(VALUE ? KEY : "keyNull");
+      let displayKeys = "";
+      for (const [KEY, HAS_KEY] of Object.entries(KEYS)) {
+        displayKeys += this.printicon(HAS_KEY ? KEY : "keyNull");
       }
 
-      // replace the template objects for the values we determined above.
-      templatevars["online_player_border"] = "2px";      
-      templatevars["collectedKeys"] = 
-          `<td style="border-right: 0px">${displaykeys}</td>`;
-      templatevars["columncount"] = "5";
+      TEMPLATE_VARS["online_player_border"] = "2px";
+      TEMPLATE_VARS[
+        "collectedKeys"
+      ] = `<td style="border-right: 0px">${displayKeys}</td>`;
+      TEMPLATE_VARS["columncount"] = "5";
     } else {
-      templatevars["online_players_border"] = "0px"; 
-      templatevars["collectedKeys"] = "";
-      templatevars["columncount"] = "4"; // no keys? colspan is 4
+      TEMPLATE_VARS["online_player_border"] = "0px";
+      TEMPLATE_VARS["collectedKeys"] = "";
+      TEMPLATE_VARS["columncount"] = "4";
     }
 
-    // start the tabble and remove the boarders
-    //output_html += `<table style="border: 0px;">`;
-    let output_rows: string = "";
-    // if the filter var resolves to true, add the respective output.
-    output_rows = showme ? output_rows + me_output_html.outerHTML : output_rows;
-    output_rows = showadmins ? output_rows + admin_output_html.outerHTML : output_rows;
-    output_rows = showvip ? output_rows + vip_output_html.outerHTML : output_rows;
-    output_rows = showplayers ? output_rows + player_output_html.outerHTML : output_rows;
-    templatevars["playerRows"] = output_rows;
+    const COMBINED_ROWS = [
+      showme ? ME_OUTPUT_HTML.outerHTML : "",
+      showadmins ? ADMIN_OUTPUT_HTML.outerHTML : "",
+      showvip ? VIP_OUTPUT_HTML.outerHTML : "",
+      showplayers ? PLAYER_OUTPUT_HTML.outerHTML : "",
+    ].join("");
 
-    // run the template and fill it out
-    output_html = this.template(rostertemplate, templatevars, wrapper);
-    return output_html;
+    TEMPLATE_VARS["playerRows"] = COMBINED_ROWS;
+
+    return this.template(rostertemplate, TEMPLATE_VARS, wrapper);
   }
 }
