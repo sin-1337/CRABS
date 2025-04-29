@@ -128,10 +128,12 @@ export default class CRABS {
    *
    * @param output: (HTMLElement) object to print
    */
-  public sendoutput(output: HTMLElement): void {
+  public sendoutput(output: string): void {
+    const OUTPUT = document.createElement("template");
+    OUTPUT.innerHTML = output.trim();
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
-      CHAT.appendChild(output);
+      CHAT.appendChild(OUTPUT);
       ElementScrollToEnd("TextAreaChatLog");
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
@@ -143,110 +145,6 @@ export default class CRABS {
   }
 
   /*
-   * Takes a template name and outputs the filled out template HTMLElement
-   *
-   * @param template_name - (string) Name of the HTML file, no extension or path
-   * @param args - (dictionary) where the key is a variable name to replace the template
-   * @param wrapper -  (boolean) [optional] that determines if we draw the wrapper or not
-   * @return (HTMLElement) A promise that resolves to the final html string
-   */
-   protected template(
-    TEMPLATE: string,
-    ARGS: Record<string, string>,
-    WRAPPER: boolean = true
-  ): HTMLElement {
-    let regex: RegExp;
-
-    for (const [KEY, VALUE] of Object.entries(ARGS)) {
-      regex = new RegExp(`{{${KEY}}}`, "g");
-      TEMPLATE = TEMPLATE.replace(regex, VALUE);
-    }
-
-    if (WRAPPER) {
-      TEMPLATE = wrappertemplate.replace("{{content}}", TEMPLATE);
-    }
-
-    const CONTAINER = document.createElement("template");
-    CONTAINER.innerHTML = TEMPLATE.trim();
-
-    return CONTAINER.content.firstElementChild as HTMLElement;
-  }
-
-  /*
-   * Takes a template name and outputs the filled out template HTMLElement
-   *
-   * @param template_name - (string) Name of the HTML file, no extension or path
-   * @param args - (dictionary) where the key is a variable name to replace the template
-   * @param wrapper -  (boolean) [optional] that determines if we draw the wrapper or not
-   * @return (HTMLElement) A promise that resolves to the final html string
-   */
-  protected template_new(
-    templateString: string,
-    args: Record<string, TemplateValue>,
-    wrapper: boolean = true
-  ): HTMLElement {
-    const tokens: Record<string, TemplateValue> = {};
-    let modifiedTemplate = templateString;
-
-    // Replace {{key}} with unique tokens
-    for (const key in args) {
-      const token = `__REPLACE_${key}__`;
-      tokens[token] = args[key];
-      modifiedTemplate = modifiedTemplate.replace(
-        new RegExp(`{{${key}}}`, "g"),
-        token
-      );
-    }
-
-    // Optionally wrap
-    if (wrapper) {
-      modifiedTemplate = wrappertemplate.replace(
-        "{{content}}",
-        modifiedTemplate
-      );
-    }
-
-    // Parse template string into DOM
-    const container = document.createElement("template");
-    container.innerHTML = modifiedTemplate;
-
-    // Replace safeText tokens in text nodes
-    const walker = document.createTreeWalker(
-      container.content,
-      NodeFilter.SHOW_TEXT
-    );
-    let node: Text | null;
-    while ((node = walker.nextNode() as Text | null)) {
-      for (const [token, value] of Object.entries(tokens)) {
-        if (node.nodeValue?.includes(token)) {
-          if (typeof value === "object" && "text" in value) {
-            node.nodeValue = node.nodeValue.replace(
-              new RegExp(token, "g"),
-              value.text
-            );
-          }
-        }
-      }
-    }
-
-    // Replace any remaining HTML tokens with raw HTML
-    for (const [token, value] of Object.entries(tokens)) {
-      const html =
-        typeof value === "string" ? value : "text" in value ? undefined : "";
-
-      if (html !== undefined) {
-        container.innerHTML = container.innerHTML.replace(
-          new RegExp(token, "g"),
-          html
-        );
-      }
-    }
-
-    // Return the rendered content
-    return container.content.firstElementChild as HTMLElement;
-  }
-
-  /*
    * Takes a template name and outputs the filled out template string
    *
    * @param template_name - Name of the HTML file, no extension or path
@@ -254,7 +152,7 @@ export default class CRABS {
    * @param wrapper -  A boolean that determines if we draw the wrapper or not
    * @return A promise that resolves to the final html string
    */
-  protected template_old(
+  protected template(
     template: string,
     args: Record<string, string>,
     wrapper: boolean = true
