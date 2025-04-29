@@ -130,7 +130,7 @@ export default class CRABS {
    */
   public sendoutput(output: string): void {
     const OUTPUT = document.createElement("template");
-    OUTPUT.innerHTML = output.trim();
+    OUTPUT.innerHTML = output;
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       CHAT.appendChild(OUTPUT);
