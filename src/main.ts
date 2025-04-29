@@ -25,7 +25,7 @@ loadDOM();
 console.log(`CRABS v${VERSION} Loaded`);
 
 function drawbanner() {
-  let output: HTMLElement;
+  let output: string = "";
   // if the player left the room, bail!
   if (Player.LastChatRoom === null) {
     // Must return false, even if we are bailing out!
@@ -35,7 +35,7 @@ function drawbanner() {
   // configure extra roster input to the banner
   // TODO: make this optional in the future
   let extradata = {
-    RosterCounters: ROSTER.buildroster("count", false).outerHTML,
+    RosterCounters: ROSTER.buildroster("count", false),
   };
   output = BANNER.drawBanner(NAME, VERSION, extradata);
 
