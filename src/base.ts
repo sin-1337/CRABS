@@ -1,6 +1,7 @@
 import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
+type TemplateValue = string | { text: string };
 
 export default class CRABS {
   declare crabs: ModSDKModAPI;
@@ -122,23 +123,24 @@ export default class CRABS {
   }
 
   /*
-   * Prints HTMLElement objects into the DOM (Chat Window)  
+   * Prints HTMLElement objects into the DOM (Chat Window)
    * and scroll to bottom of chat window
    *
    * @param output: (HTMLElement) object to print
    */
   public sendoutput(output: HTMLElement): void {
-      const CHAT = document.getElementById("TextAreaChatLog");
-      if (CHAT) {
-          CHAT.appendChild(output);
-          ElementScrollToEnd("TextAreaChatLog");
-      }
-      else { 
-          console.log("CRABS ERROR: Could not find chat element!");
-      }
+    const CHAT = document.getElementById("TextAreaChatLog");
+    if (CHAT) {
+      CHAT.appendChild(output);
+      ElementScrollToEnd("TextAreaChatLog");
+    } else {
+      console.log("CRABS ERROR: Could not find chat element!");
+    }
   }
 
-
+  protected plaintext(value: string): TemplateValue {
+      return {text: value};
+  }
 
   /*
    * Takes a template name and outputs the filled out template HTMLElement
@@ -150,47 +152,63 @@ export default class CRABS {
    */
   protected template(
     templateString: string,
-    args: Record<string, string>,
+    args: Record<string, TemplateValue>,
     wrapper: boolean = true
   ): HTMLElement {
-
-    // Tokenize placeholders in the template string
-    const tokens: Record<string, string> = {};
+    const tokens: Record<string, TemplateValue> = {};
     let modifiedTemplate = templateString;
 
+    // Replace {{key}} with unique tokens
     for (const key in args) {
       const token = `__REPLACE_${key}__`;
-      tokens[token] = args[key]
+      tokens[token] = args[key];
       modifiedTemplate = modifiedTemplate.replace(
         new RegExp(`{{${key}}}`, "g"),
         token
       );
     }
 
-    // Wrap the content if needed
+    // Optionally wrap
     if (wrapper) {
-      const content = wrappertemplate.replace("{{content}}", modifiedTemplate);
-      modifiedTemplate = content;
+      modifiedTemplate = wrappertemplate.replace(
+        "{{content}}",
+        modifiedTemplate
+      );
     }
 
-    // Create a container and inject the modified template
-    const container = document.createElement("template"); // more efficient than div
+    // Parse template string into DOM
+    const container = document.createElement("template");
     container.innerHTML = modifiedTemplate;
 
-    // Replace tokens with safe text content using TreeWalker
+    // Replace safeText tokens in text nodes
     const walker = document.createTreeWalker(
       container.content,
       NodeFilter.SHOW_TEXT
     );
     let node: Text | null;
-
     while ((node = walker.nextNode() as Text | null)) {
       for (const [token, value] of Object.entries(tokens)) {
         if (node.nodeValue?.includes(token)) {
-          node.nodeValue = node.nodeValue.replace(
-              new RegExp(token, 'g'), value
-          );
+          if (typeof value === "object" && "text" in value) {
+            node.nodeValue = node.nodeValue.replace(
+              new RegExp(token, "g"),
+              value.text
+            );
+          }
         }
+      }
+    }
+
+    // Replace any remaining HTML tokens with raw HTML
+    for (const [token, value] of Object.entries(tokens)) {
+      const html =
+        typeof value === "string" ? value : "text" in value ? undefined : "";
+
+      if (html !== undefined) {
+        container.innerHTML = container.innerHTML.replace(
+          new RegExp(token, "g"),
+          html
+        );
       }
     }
 
