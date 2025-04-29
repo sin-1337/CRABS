@@ -161,12 +161,6 @@ export default class CRABS {
     for (const key in args) {
       const token = `__REPLACE_${key}__`;
       tokens[token] = args[key]
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#x27;")
-        .replace(/`/g, "&#x60;");
       modifiedTemplate = modifiedTemplate.replace(
         new RegExp(`{{${key}}}`, "g"),
         token
