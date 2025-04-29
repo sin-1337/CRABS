@@ -64,7 +64,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    ChatRoomSendLocal(HELP.showhelp());
+    HELP.sendoutput(HELP.showhelp());
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
