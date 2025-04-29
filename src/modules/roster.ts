@@ -171,7 +171,7 @@ export class Roster extends CRABS {
         0.5
       )}`,
       LabelColor: `${player.LabelColor || "#FFFFFF"}`,
-      PlayerName: this.plaintext(CharacterNickname(player).normalize("NFKC")),
+      PlayerName: CharacterNickname(player).normalize("NFKC"),
       PlayerIcons: player_icons,
       StatusIcons: `${this.setStatusIcons(player)}`,
     };
