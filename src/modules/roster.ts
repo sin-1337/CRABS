@@ -1,4 +1,4 @@
-import CRABS from "../base";
+import { CRABS, TemplateValue } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -162,7 +162,7 @@ export class Roster extends CRABS {
     badge: string,
     player_icons: string
   ): HTMLElement {
-    let templatevars: Record<string, string> = {
+    let templatevars: Record<string, string | TemplateValue> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
       LabelColorBorder: `${this.convertColor(

@@ -1,9 +1,9 @@
 import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
-type TemplateValue = string | { text: string };
+export type TemplateValue = string | { text: string };
 
-export default class CRABS {
+export class CRABS {
   declare crabs: ModSDKModAPI;
 
   // an dictionary containing all the icons that CRABS uses
