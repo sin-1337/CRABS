@@ -11,7 +11,11 @@ export class Banner extends CRABS {
     }
 
 
-    public drawBanner(name: string, version: string): string {
+    public drawBanner(
+        name: string, 
+        version: string,
+        extradata?: Record<string, string>
+    ): HTMLElement {
 
         // get player permissions
         const currentPermissionText = `${TextGetInScope(
@@ -28,6 +32,9 @@ export class Banner extends CRABS {
             "PlayerPermission": currentPermissionText,
             "RoomName": ChatRoomData.Name,
         }
+        
+        if (extradata) Object.assign(templatevars, extradata);
+
         return (this.template(bannertemplate, templatevars));
     }
 }

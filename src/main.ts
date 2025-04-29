@@ -32,7 +32,7 @@ ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data: any) => {
-    let output: string = "";
+    let output: HTMLElement;
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -48,13 +48,11 @@ ChatRoomRegisterMessageHandler({
         }
 
         // call the action to draw the banner
-        output = BANNER.drawBanner(NAME, VERSION);
-        output = output.replace(
-          "{{RosterCounters}}",
-          ROSTER.buildroster("count", false)
-        );
-        ChatRoomSendLocal(output);
-        ElementScrollToEnd("TextAreaChatLog");
+        let extradata = {
+            "RosterCounters": ROSTER.buildroster("count", false).outerHTML
+        };
+        output = BANNER.drawBanner(NAME, VERSION, extradata);
+        BANNER.sendoutput(output);
       }, 3600);
     }
 
@@ -124,8 +122,7 @@ CommandCombine([
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
-      if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
-      ElementScrollToEnd("TextAreaChatLog");
+      if (argcheck(args)) ROSTER.sendoutput(ROSTER.buildroster(args));
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
@@ -192,7 +189,7 @@ CommandCombine([
           splitArgs[i] != "gold" &&
           splitArgs[i] != "all"
         ) {
-          ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
+          ChatRoomSendLocal(`Argument '${splitArgs[i]}', was not understood.`);
         }
       }
     },

@@ -5,7 +5,7 @@ import helptemplate from "./templates/help.html";
 export class Help extends CRABS {
 
   // show help
-  public showhelp(): string {
+  public showhelp(): HTMLElement{
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>

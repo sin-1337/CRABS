@@ -161,7 +161,7 @@ export class Roster extends CRABS {
     player: PlayerCharacter,
     badge: string,
     player_icons: string
-  ): string {
+  ): HTMLElement {
     let templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
@@ -288,11 +288,6 @@ export class Roster extends CRABS {
     return player_icons;
   }
 
-  // Check if you and target player are the same
-  private checkIfMe(player: PlayerCharacter): boolean {
-    return player.MemberNumber == Player.MemberNumber ? true : false;
-  }
-
   /*
    *  prints the roster
    *
@@ -300,13 +295,16 @@ export class Roster extends CRABS {
    *  @param wrapper - boolean wrappar, should we draw the wrapper
    *  @returms - string html output
    */
-  public buildroster(args: string, wrapper: boolean = true): string {
+  public buildroster(
+      args: string, 
+      wrapper: boolean = true
+  ): HTMLElement {
     const SPLITARGS = args.split(" ");
 
-    let me_output_html = ""; // holds data about user who ran script
-    let admin_output_html = ""; // holds admins
-    let vip_output_html = ""; // holds whitelisted users
-    let player_output_html = ""; // holds normal players
+    let me_output_html: HTMLElement = document.createElement("div"); // holds data about user who ran script
+    let admin_output_html: HTMLElement = document.createElement("div"); // holds admins
+    let vip_output_html: HTMLElement = document.createElement("div"); // holds whitelisted users
+    let player_output_html : HTMLElement = document.createElement("div"); // holds normal players
     let player: PlayerCharacter; // the person we found in the room
     let admin_count = 0; // number of admins in the room
     let badge = ""; // holds the admin icon if the player is an admin
@@ -319,7 +317,7 @@ export class Roster extends CRABS {
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
     let templatevars: Record<string, string>;
-    let output_html: string = "";
+    let output_html: HTMLElement = document.createElement("div");
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -333,8 +331,9 @@ export class Roster extends CRABS {
 
       //bail out and return placeholder if player is not available.
       if (!player) {
-        player_output_html +=
-          "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
+        player_output_html.append(
+            "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n"
+        );
         continue;
       }
 
@@ -354,21 +353,21 @@ export class Roster extends CRABS {
       // check if the player is an admin and update the count, also flag the player as admin in the output list.
       if (ChatRoomData.Admin.includes(player.MemberNumber)) {
         admin_count++;
-        if (!this.checkIfMe(player)) {
+        if (!player.IsPlayer()) {
           // if the player is not me, output admin and skip rest of loop
-          admin_output_html += this.buildCard(player, badge, player_icons);
+          admin_output_html.appendChild(this.buildCard(player, badge, player_icons));
           continue;
         }
       } else if (
         ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-        !this.checkIfMe(player)
+        !player.IsPlayer()
       ) {
         // if the player isn't an admin, is the player is white listed?
-        vip_output_html += this.buildCard(player, badge, player_icons);
+        vip_output_html.appendChild(this.buildCard(player, badge, player_icons));
         continue;
-      } else if (!this.checkIfMe(player)) {
+      } else if (!player.IsPlayer()) {
         // player is normal, nonadmin, not whitelist, and not me.
-        player_output_html += this.buildCard(player, badge, player_icons);
+        player_output_html.appendChild(this.buildCard(player, badge, player_icons));
       }
     }
 
@@ -442,10 +441,10 @@ export class Roster extends CRABS {
     //output_html += `<table style="border: 0px;">`;
     let output_rows: string = "";
     // if the filter var resolves to true, add the respective output.
-    output_rows = showme ? output_rows + me_output_html : output_rows;
-    output_rows = showadmins ? output_rows + admin_output_html : output_rows;
-    output_rows = showvip ? output_rows + vip_output_html : output_rows;
-    output_rows = showplayers ? output_rows + player_output_html : output_rows;
+    output_rows = showme ? output_rows + me_output_html.outerHTML : output_rows;
+    output_rows = showadmins ? output_rows + admin_output_html.outerHTML : output_rows;
+    output_rows = showvip ? output_rows + vip_output_html.outerHTML : output_rows;
+    output_rows = showplayers ? output_rows + player_output_html.outerHTML : output_rows;
     templatevars["playerRows"] = output_rows;
 
     // run the template and fill it out
