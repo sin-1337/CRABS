@@ -1,4 +1,5 @@
-import { CRABS, TemplateValue } from "../base";
+import CRABS from "../base";
+import { TemplateValue } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";

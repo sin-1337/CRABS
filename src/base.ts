@@ -3,7 +3,7 @@ import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 export type TemplateValue = string | { text: string };
 
-export class CRABS {
+export default class CRABS {
   declare crabs: ModSDKModAPI;
 
   // an dictionary containing all the icons that CRABS uses

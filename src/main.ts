@@ -19,7 +19,7 @@ const CRABS = bcModSDK.registerMod({
 const BANNER = new Modules.Banner(CRABS);
 const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
 const ROSTER = new Modules.Roster(CRABS);
-const HELP = new Modules.Help(CRABS);
+const HELP = new Modules.Help();
 loadDOM();
 
 console.log(`CRABS v${VERSION} Loaded`);
