@@ -139,7 +139,7 @@ export default class CRABS {
   }
 
   protected plaintext(value: string): TemplateValue {
-      return {text: value};
+    return { text: value };
   }
 
   /*
@@ -150,7 +150,37 @@ export default class CRABS {
    * @param wrapper -  (boolean) [optional] that determines if we draw the wrapper or not
    * @return (HTMLElement) A promise that resolves to the final html string
    */
-  protected template(
+   protected template(
+    TEMPLATE: string,
+    ARGS: Record<string, string>,
+    WRAPPER: boolean = true
+  ): HTMLElement {
+    let regex: RegExp;
+
+    for (const [KEY, VALUE] of Object.entries(ARGS)) {
+      regex = new RegExp(`{{${KEY}}}`, "g");
+      TEMPLATE = TEMPLATE.replace(regex, VALUE);
+    }
+
+    if (WRAPPER) {
+      TEMPLATE = wrappertemplate.replace("{{content}}", TEMPLATE);
+    }
+
+    const CONTAINER = document.createElement("template");
+    CONTAINER.innerHTML = TEMPLATE.trim();
+
+    return CONTAINER.content.firstElementChild as HTMLElement;
+  }
+
+  /*
+   * Takes a template name and outputs the filled out template HTMLElement
+   *
+   * @param template_name - (string) Name of the HTML file, no extension or path
+   * @param args - (dictionary) where the key is a variable name to replace the template
+   * @param wrapper -  (boolean) [optional] that determines if we draw the wrapper or not
+   * @return (HTMLElement) A promise that resolves to the final html string
+   */
+  protected template_new(
     templateString: string,
     args: Record<string, TemplateValue>,
     wrapper: boolean = true
