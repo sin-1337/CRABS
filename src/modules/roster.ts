@@ -412,31 +412,26 @@ export class Roster extends CRABS {
       let displaykeys = ""; // determines how to show keys (css) in the roster
 
       // build a dictionary of the keys
-      let keys = {
+      const KEYS = {
         keyBronze: Player.MapData.PrivateState.HasKeyBronze,
         keySilver: Player.MapData.PrivateState.HasKeySilver,
         keyGold: Player.MapData.PrivateState.HasKeyGold,
       };
 
       // loop the dictionary and extract the key and name
-      for (const [KEY, VALUE] of Object.entries(keys)) {
+      for (const [KEY, VALUE] of Object.entries(KEYS)) {
         // if key is found, set icon and tool tip
-        if (VALUE) {
-          displaykeys += this.printicon(KEY);
-        } else {
-          displaykeys += this.printicon("keyNull");
-        }
+        displaykeys += this.printicon(VALUE ? KEY : "keyNull");
       }
 
       // replace the template objects for the values we determined above.
-      templatevars["online_player_border"] = "2px"; 
-      templatevars[
-        "collectedKeys"
-      ] = `<td style="border-right: 0px">${displaykeys}</td>`;
-      templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
+      templatevars["online_player_border"] = "2px";      
+      templatevars["collectedKeys"] = 
+          `<td style="border-right: 0px">${displaykeys}</td>`;
+      templatevars["columncount"] = "5";
     } else {
-      templatevars["online_player_border"] = "0px"; 
-      templatevars["collectedKeys"] = ``;
+      templatevars["online_players_border"] = "0px"; 
+      templatevars["collectedKeys"] = "";
       templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
 
