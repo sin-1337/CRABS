@@ -163,7 +163,7 @@ export class Roster extends CRABS {
     badge: string,
     player_icons: string
   ): HTMLElement {
-    let templatevars: Record<string, string | TemplateValue> = {
+    let templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
       LabelColorBorder: `${this.convertColor(
