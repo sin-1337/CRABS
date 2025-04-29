@@ -21,6 +21,18 @@
   display: inline-block;
 }
 
+.CRABS_header_icons {
+  width: 0.9em; /* or whatever size you need */
+  height: auto;
+  cursor: pointer;
+}
+
+.CRABS_badge {
+  width: 1.5em; /* or whatever size you need */
+  height: auto;
+  cursor: pointer;
+}
+
 .CRABS_icon {
   width: 1em; /* or whatever size you need */
   height: auto;

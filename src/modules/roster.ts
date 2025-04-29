@@ -224,12 +224,12 @@ export class Roster extends CRABS {
 
   // determine if player is admin or whitelisted in the room and set their badge icon
   private setbadge(player: PlayerCharacter): string {
-    let badge = this.printicon("player", "Guest");
+    let badge = this.printicon("player", "Guest", "CRABS_badge");
     badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
-      ? this.printicon("vip", "VIP")
+      ? this.printicon("vip", "VIP", "CRABS_badge")
       : badge;
     badge = ChatRoomData.Admin.includes(player.MemberNumber)
-      ? this.printicon("admin", "Admin")
+      ? this.printicon("admin", "Admin", "CRABS_badge")
       : badge;
     return badge;
   }
@@ -394,16 +394,16 @@ export class Roster extends CRABS {
       showplayers = false;
     }
     templatevars = {
-      adminIcon: `${this.printicon("admin", "Admins")}`,
+      adminIcon: `${this.printicon("admin", "Admins", "CRABS_header_icons")}`,
       adminsInRoom: `${admin_count}`,
       totalAdmins: `${ChatRoomData.Admin.length}`,
-      playerIcon: `${this.printicon("player", "Players")}`,
+      playerIcon: `${this.printicon("player", "Players", "CRABS_header_icons")}`,
       playersInRoom: `${ChatRoomCharacter.length}`,
       totalPlayers: `${ChatRoomData.Limit}`,
-      friendIcon: `${this.printicon("friend", "Friends")}`,
+      friendIcon: `${this.printicon("friend", "Friends", "CRABS_header_icons")}`,
       friendsOnline: this.onlineFriends?.toString() ?? "...",
       totalFriends: `${Player.FriendNames.size}`,
-      connectedIcon: `${this.printicon("connected", "Online Accounts")}`,
+      connectedIcon: `${this.printicon("connected", "Online Accounts", "CRABS_header_icons")}`,
       onlinePlayers: `${CurrentOnlinePlayers}`,
     };
 
@@ -429,11 +429,13 @@ export class Roster extends CRABS {
       }
 
       // replace the template objects for the values we determined above.
+      templatevars["online_player_border"] = "2px"; 
       templatevars[
         "collectedKeys"
       ] = `<td style="border-right: 0px">${displaykeys}</td>`;
       templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
     } else {
+      templatevars["online_player_border"] = "0px"; 
       templatevars["collectedKeys"] = ``;
       templatevars["columncount"] = "4"; // no keys? colspan is 4
     }

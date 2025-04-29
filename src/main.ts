@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import * as Modules from  "./modules";
+import * as Modules from "./modules";
 import loadDOM from "./modules/dom";
 
 // configure the version and mod name
@@ -24,15 +24,34 @@ loadDOM();
 
 console.log(`CRABS v${VERSION} Loaded`);
 
+function drawbanner() {
+  let output: HTMLElement;
+  // if the player left the room, bail!
+  if (Player.LastChatRoom === null) {
+    // Must return false, even if we are bailing out!
+    return false;
+  }
+
+  // configure extra roster input to the banner
+  // TODO: make this optional in the future
+  let extradata = {
+    RosterCounters: ROSTER.buildroster("count", false).outerHTML,
+  };
+  output = BANNER.drawBanner(NAME, VERSION, extradata);
+
+  // call the action to draw the banner
+  BANNER.sendoutput(output);
+}
+
 // TODO: create ui to turn this off!!
 // TODO: reformat this output maybe?
+// TODO: This only triggers on rooms I didn't make, why?
 // set up a handler for room entry
 // This sets up the banner!
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data: any) => {
-    let output: HTMLElement;
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -41,18 +60,9 @@ ChatRoomRegisterMessageHandler({
     ) {
       // work on a delay
       setTimeout(() => {
-        // if the player left the room, bail!
-        if (Player.LastChatRoom === null) {
-          // Must return false, even if we are bailing out!
-          return false;
-        }
-
-        // call the action to draw the banner
-        let extradata = {
-            "RosterCounters": ROSTER.buildroster("count", false).outerHTML
-        };
-        output = BANNER.drawBanner(NAME, VERSION, extradata);
-        BANNER.sendoutput(output);
+        // configure extra roster input to the banner
+        // TODO: make this optional in the future
+        drawbanner();
       }, 3600);
     }
 
@@ -69,6 +79,8 @@ function argcheck(args: string): boolean {
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
     return false;
+  } else if (SPLITARGS[0].toLowerCase() == "banner") {
+    drawbanner();
   }
   return true;
 }
