@@ -198,7 +198,7 @@ export default class CRABS {
     key: string,
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
-    style: string = "" // optional, css overwrite
+    css_style: string = "" // optional, css overwrite
   ): string {
     let ICON = this.ICONS["error"]; // fall back if the icon isn't found
     if (key in this.ICONS) {
@@ -212,8 +212,7 @@ export default class CRABS {
     html += `alt='${key}' `;
     html += `src='${ICON}' `;
     html += `class='${css_class}'`;
-    if (style != "") html += `style="${style}`;
-    if (status != "") html += `status="${status}"`;
+    if (css_style != "") html += `style="${css_style}"`;
     html += `>`;
     if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;
     if (tooltip != "") html += `</div>`;
