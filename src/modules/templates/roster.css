@@ -101,7 +101,7 @@
     height :1em;
     /*padding: 5px;*/
     display: inline-block;
-    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
+    filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
 
 .CRABS_status-icon_Blind {
@@ -110,7 +110,7 @@
     height :1em;
     /*padding: 5px;*/
     display: inline-block;
-    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
+    filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
 
 .CRABS_status-icon_Deaf {
@@ -119,7 +119,7 @@
     height :1em;
     /*padding: 5px;*/
     display: inline-block;
-    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
+    filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
 
 .CRABS_status-icons img:hover {
