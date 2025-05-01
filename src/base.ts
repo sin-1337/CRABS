@@ -212,6 +212,7 @@ export default class CRABS {
     html += `alt='${key}' `;
     html += `src='${ICON}' `;
     html += `class='${css_class}'`;
+    if (style != "") html += `style="${style}`;
     if (status != "") html += `status="${status}"`;
     html += `>`;
     if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;

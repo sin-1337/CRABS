@@ -130,7 +130,7 @@ export class Roster extends CRABS {
             effectName, // which icon do we print
             `${prefix}: ${effectValue}`, // set a tooltip
             `CRABS_status-icon_${prefix}`, // set a class
-            `--brightness: brightness(2.0)`, //style overwrite
+            "--brightness: brightness(2.0)", //style overwrite
           );
         }
       }
