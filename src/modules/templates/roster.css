@@ -98,9 +98,10 @@
 .CRABS_status-icons img {
     background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
     border-radius: 30px;
-    padding: 5px;
+    height :1em;
+    /*padding: 5px;*/
     display: inline-block;
-    filter: brightness(1.2); /* Brighten the image */
+    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
 }
 
 .CRABS_status-icons img:hover {
