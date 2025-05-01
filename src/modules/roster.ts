@@ -129,8 +129,10 @@ export class Roster extends CRABS {
           icons[prefix] = this.printicon(
             effectName, // which icon do we print
             `${prefix}: ${effectValue}`, // set a tooltip
-            `CRABS_status-icon_${prefix}`, // set a class
-            "--brightness: brightness(2.0)", //style overwrite
+            `CRABS_status-icon`, // set a class
+            `--brightness: brightness(2.5);
+            background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+            `, //style overwrite
           );
         }
       }

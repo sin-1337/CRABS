@@ -95,26 +95,7 @@
     text-overflow: ellipsis;
 }
 
-.CRABS_status-icon_Gag {
-    background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
-    border-radius: 30px;
-    height :1em;
-    /*padding: 5px;*/
-    display: inline-block;
-    filter: var(--brightness, brightness(0.2)); /* Brighten the image */
-}
-
-.CRABS_status-icon_Blind {
-    background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
-    border-radius: 30px;
-    height :1em;
-    /*padding: 5px;*/
-    display: inline-block;
-    filter: var(--brightness, brightness(0.2)); /* Brighten the image */
-}
-
-.CRABS_status-icon_Deaf {
-    background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+.CRABS_status-icon {
     border-radius: 30px;
     height :1em;
     /*padding: 5px;*/
