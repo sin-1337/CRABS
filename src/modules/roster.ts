@@ -127,8 +127,10 @@ export class Roster extends CRABS {
           (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
         ) {
           icons[prefix] = this.printicon(
-            effectName,
-            `${prefix}: ${effectValue}`
+            effectName, // which icon do we print
+            `${prefix}: ${effectValue}`, // set a tooltip
+            `CRABS_status-icon_${prefix}`, // set a class
+            `--brightness: brightness(2.0)`, //style overwrite
           );
         }
       }
@@ -144,9 +146,15 @@ export class Roster extends CRABS {
     }
 
     // Set default icons if no icon was set
-    icons.Blind = icons.Blind || this.printicon("blindNone");
-    icons.Gag = icons.Gag || this.printicon("gagNone");
-    icons.Deaf = icons.Deaf || this.printicon("deafNone");
+    icons.Blind = icons.Blind || this.printicon(
+        "blindNone", undefined, "CRABS_status-icon_Blind"
+    );
+    icons.Gag = icons.Gag || this.printicon(
+        "gagNone", undefined, "CRABS_status-icon_Gag"
+    );
+    icons.Deaf = icons.Deaf || this.printicon(
+        "deafNone", undefined, "CRABS_status-icon_Deaf"
+    );
 
     return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
   }

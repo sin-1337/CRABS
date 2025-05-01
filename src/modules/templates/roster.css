@@ -87,7 +87,7 @@
     line-height: 1em; 
 }
 
-.CRABS_status-icons {
+.CRABS_status-frame {
     text-align: right;
     white-space: nowrap;
     width: auto;
@@ -95,7 +95,25 @@
     text-overflow: ellipsis;
 }
 
-.CRABS_status-icons img {
+.CRABS_status-icon_Gag {
+    background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+    border-radius: 30px;
+    height :1em;
+    /*padding: 5px;*/
+    display: inline-block;
+    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
+}
+
+.CRABS_status-icon_Blind {
+    background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+    border-radius: 30px;
+    height :1em;
+    /*padding: 5px;*/
+    display: inline-block;
+    filter: var(--brightness, brightness(0.5)); /* Brighten the image */
+}
+
+.CRABS_status-icon_Deaf {
     background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
     border-radius: 30px;
     height :1em;

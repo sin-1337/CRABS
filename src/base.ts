@@ -197,7 +197,7 @@ export default class CRABS {
   protected printicon(
     key: string,
     tooltip: string = "", // optional tooltip
-    css_class: string = "CRABS_icon",
+    css_class: string = "CRABS_icon", //optional class overwrite
     style: string = "" // optional, css overwrite
   ): string {
     let ICON = this.ICONS["error"]; // fall back if the icon isn't found
