@@ -1,4 +1,5 @@
 import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
+import DOMPurify from 'dompurify';
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 export type TemplateValue = string | { text: string };
@@ -128,15 +129,22 @@ export default class CRABS {
    *
    * @param output: (HTMLElement) object to print
    */
-  public sendoutput(output: string): void {
+  public sendoutput(output: string): HTMLElement {
     const OUTPUT = document.createElement("template");
-    OUTPUT.innerHTML = output;
+
+    const CLEAN_HTML = DOMPurify.sanitize(output, {
+        USE_PROFILES: { html: true }, // Allow full HTML (but safe)
+    });
+
+    OUTPUT.innerHTML = CLEAN_HTML;
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       CHAT.appendChild(OUTPUT.content);
       ElementScrollToEnd("TextAreaChatLog");
+      return CHAT;
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
+      return document.createElement('div');
     }
   }
 

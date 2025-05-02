@@ -11,9 +11,15 @@
         <tr>
             <td colspan=3 style="text-shadow: 1px 1px 2px white; color: {{LabelColor}}">{{PlayerPermission}}</td>
         </tr>
+        <tr>
+            <td colspan=3>Room: {{RoomName}}</td>
+        </tr>
+        <tr>
+            <td>{{RosterCounters}}</td>
+            <hr>
+        </tr>
+        <tr>
+            <td>Use <a href="#" data-action="print-roster">/roster</a> to see the full output</td>
+        </tr>
     </tbody>
 </table>
-<div style="text-align: center"><br>Room: {{RoomName}}
-{{RosterCounters}}
-<hr>
-Use <a onclick="window.printRoster()">/roster</a> to see the full output

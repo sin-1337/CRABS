@@ -40,7 +40,15 @@ function drawbanner() {
   output = BANNER.drawBanner(NAME, VERSION, extradata);
 
   // call the action to draw the banner
-  BANNER.sendoutput(output);
+  const CHAT = BANNER.sendoutput(output);
+
+  // make the roster footer /roster a clickable url
+  const rosterLink = CHAT.querySelector('[data-action="print-roster"]');
+  if (rosterLink) {
+    rosterLink.addEventListener("click", () => {
+      window.printRoster();
+    });
+  }
 }
 
 // TODO: create ui to turn this off!!
