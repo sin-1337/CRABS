@@ -17,6 +17,11 @@
     max-width: 50px;
 }
 
+.CRABS_banner_version_container {
+    max-with: 150px;
+    overflow-wrap: break-word;
+    white-space: normal;
+
 .CRABS_banner_roomname_wrapper {
 }
 
