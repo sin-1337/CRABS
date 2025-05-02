@@ -15,6 +15,11 @@
     border-right: 1px solid #ccc; /* Add left border */
 }
 
+.CRABS_roster_center_table {
+    display: flex;
+    justify-content: center;
+}
+
 .CRABS_card-container {
     display: grid;
     grid-template-columns: 50% 50%;
