@@ -31,6 +31,11 @@
     gap: 2px;
 }
 
+.CRABS_player-id:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .CRABS_card {
     border-radius: 8px;
     padding: 2px 4px;
@@ -59,6 +64,10 @@
     display: flex;
 }
 
+.CRABS_player-badge-anchor {
+    cursor: pointer;
+}
+
 .CRABS_player-id {
     white-space: nowrap;
     cursor: pointer;
@@ -71,7 +80,9 @@
 }
 
 .CRABS_player-id:hover {
-    filter: brightness(2.0)
+    filter: brightness(2.0);
+    text-decoration: underline;
+    cursor: ponter;
 } 
 
 .CRABS_overflow-scroll {

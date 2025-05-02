@@ -151,6 +151,28 @@ CommandCombine([
       elements.forEach((el) => {
         el.style.overflow = "visible";
       });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".CRABS_player-id").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            const playerNumber = (e.currentTarget as HTMLElement).dataset
+              .playerNumber;
+            if (playerNumber) {
+              window.sendWhisper(playerNumber);
+            }
+          });
+        });
+
+        document.querySelectorAll(".CRABS_player-badge").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            const playerNumber = (e.currentTarget as HTMLElement).dataset
+              .playerNumber;
+            if (playerNumber) {
+              window.PlayerFocus(playerNumber); 
+            }
+          });
+        });
+      });
     },
   },
 ]);
