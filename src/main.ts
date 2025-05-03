@@ -199,8 +199,8 @@ CommandCombine([
         element.style.overflow = "visible";
       });
 
-      attachEvent("CRABS_player-badge", "PlayerFocus", "PlayerNumber");
-      attachEvent("CRABS_player-id", "sendWhisper", "PlayerNumber");
+      attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
+      attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
     },
   },
 ]);
