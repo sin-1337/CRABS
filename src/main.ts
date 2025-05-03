@@ -54,7 +54,7 @@ function attachEvent(
     for (const ELEMENT of ELEMENTS) {
       ELEMENT.addEventListener(event, (e) => {
         const TARGET = e.currentTarget as HTMLElement;
-        console.log("CRABS: working with element - " + ELEMENT);
+        console.log("CRABS: working with element - " + TARGET);
         if (data) {
             console.log(`CRABS: data found - ${data}`);
             const DATA = TARGET.dataset[data];
