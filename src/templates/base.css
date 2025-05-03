@@ -47,8 +47,7 @@
   text-align: center;
   padding: 6px 10px;
   border-radius: 4px;
-  display: block;
-  position: flex;
+  position: absolute;
   bottom: 120%; /* position above the image */
   left: 50%;
   transform: translateX(-50%);
