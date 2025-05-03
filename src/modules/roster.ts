@@ -1,4 +1,5 @@
 import CRABS from "../base";
+import { TemplateValue } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -126,8 +127,12 @@ export class Roster extends CRABS {
           (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
         ) {
           icons[prefix] = this.printicon(
-            effectName,
-            `${prefix}: ${effectValue}`
+            effectName, // which icon do we print
+            `${prefix}: ${effectValue}`, // set a tooltip
+            `CRABS_status-icon`, // set a class
+            `--brightness: brightness(2.5);
+            background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+            `, //style overwrite
           );
         }
       }
@@ -143,9 +148,15 @@ export class Roster extends CRABS {
     }
 
     // Set default icons if no icon was set
-    icons.Blind = icons.Blind || this.printicon("blindNone");
-    icons.Gag = icons.Gag || this.printicon("gagNone");
-    icons.Deaf = icons.Deaf || this.printicon("deafNone");
+    icons.Blind = icons.Blind || this.printicon(
+        "blindNone", undefined, "CRABS_status-icon"
+    );
+    icons.Gag = icons.Gag || this.printicon(
+        "gagNone", undefined, "CRABS_status-icon"
+    );
+    icons.Deaf = icons.Deaf || this.printicon(
+        "deafNone", undefined, "CRABS_status-icon"
+    );
 
     return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
   }
@@ -223,12 +234,12 @@ export class Roster extends CRABS {
 
   // determine if player is admin or whitelisted in the room and set their badge icon
   private setbadge(player: PlayerCharacter): string {
-    let badge = this.printicon("player", "Guest");
+    let badge = this.printicon("player", "Guest", "CRABS_badge");
     badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
-      ? this.printicon("vip", "VIP")
+      ? this.printicon("vip", "VIP", "CRABS_badge")
       : badge;
     badge = ChatRoomData.Admin.includes(player.MemberNumber)
-      ? this.printicon("admin", "Admin")
+      ? this.printicon("admin", "Admin", "CRABS_badge")
       : badge;
     return badge;
   }
@@ -288,11 +299,6 @@ export class Roster extends CRABS {
     return player_icons;
   }
 
-  // Check if you and target player are the same
-  private checkIfMe(player: PlayerCharacter): boolean {
-    return player.MemberNumber == Player.MemberNumber ? true : false;
-  }
-
   /*
    *  prints the roster
    *
@@ -300,13 +306,16 @@ export class Roster extends CRABS {
    *  @param wrapper - boolean wrappar, should we draw the wrapper
    *  @returms - string html output
    */
-  public buildroster(args: string, wrapper: boolean = true): string {
+  public buildroster(
+      args: string, 
+      wrapper: boolean = true
+  ): string {
     const SPLITARGS = args.split(" ");
 
-    let me_output_html = ""; // holds data about user who ran script
-    let admin_output_html = ""; // holds admins
-    let vip_output_html = ""; // holds whitelisted users
-    let player_output_html = ""; // holds normal players
+    let me_output_html: string = "" // holds data about user who ran script
+    let admin_output_html: string = "" // holds admins
+    let vip_output_html: string = "" // holds whitelisted users
+    let player_output_html : string = "" // holds normal players
     let player: PlayerCharacter; // the person we found in the room
     let admin_count = 0; // number of admins in the room
     let badge = ""; // holds the admin icon if the player is an admin
@@ -319,7 +328,7 @@ export class Roster extends CRABS {
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
     let templatevars: Record<string, string>;
-    let output_html: string = "";
+    let output_html: string = ""
 
     //get a list of players
     for (let person in ChatRoomData.Character) {
@@ -334,7 +343,7 @@ export class Roster extends CRABS {
       //bail out and return placeholder if player is not available.
       if (!player) {
         player_output_html +=
-          "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
+            "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
         continue;
       }
 
@@ -343,7 +352,7 @@ export class Roster extends CRABS {
       player_icons = this.setIcons(player);
 
       // if the player is me (person who ran the script)
-      if (this.checkIfMe(player)) {
+      if (player.IsPlayer()) {
         // mark me with a star icon
         player_icons = this.printicon("you", "You") + " " + player_icons;
 
@@ -354,19 +363,19 @@ export class Roster extends CRABS {
       // check if the player is an admin and update the count, also flag the player as admin in the output list.
       if (ChatRoomData.Admin.includes(player.MemberNumber)) {
         admin_count++;
-        if (!this.checkIfMe(player)) {
+        if (!player.IsPlayer()) {
           // if the player is not me, output admin and skip rest of loop
           admin_output_html += this.buildCard(player, badge, player_icons);
           continue;
         }
       } else if (
         ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-        !this.checkIfMe(player)
+        !player.IsPlayer()
       ) {
         // if the player isn't an admin, is the player is white listed?
         vip_output_html += this.buildCard(player, badge, player_icons);
         continue;
-      } else if (!this.checkIfMe(player)) {
+      } else if (!player.IsPlayer()) {
         // player is normal, nonadmin, not whitelist, and not me.
         player_output_html += this.buildCard(player, badge, player_icons);
       }
@@ -394,16 +403,16 @@ export class Roster extends CRABS {
       showplayers = false;
     }
     templatevars = {
-      adminIcon: `${this.printicon("admin", "Admins")}`,
+      adminIcon: `${this.printicon("admin", "Admins", "CRABS_header_icons")}`,
       adminsInRoom: `${admin_count}`,
       totalAdmins: `${ChatRoomData.Admin.length}`,
-      playerIcon: `${this.printicon("player", "Players")}`,
+      playerIcon: `${this.printicon("player", "Players", "CRABS_header_icons")}`,
       playersInRoom: `${ChatRoomCharacter.length}`,
       totalPlayers: `${ChatRoomData.Limit}`,
-      friendIcon: `${this.printicon("friend", "Friends")}`,
+      friendIcon: `${this.printicon("friend", "Friends", "CRABS_header_icons")}`,
       friendsOnline: this.onlineFriends?.toString() ?? "...",
       totalFriends: `${Player.FriendNames.size}`,
-      connectedIcon: `${this.printicon("connected", "Online Accounts")}`,
+      connectedIcon: `${this.printicon("connected", "Online Accounts", "CRABS_header_icons")}`,
       onlinePlayers: `${CurrentOnlinePlayers}`,
     };
 
@@ -412,29 +421,26 @@ export class Roster extends CRABS {
       let displaykeys = ""; // determines how to show keys (css) in the roster
 
       // build a dictionary of the keys
-      let keys = {
+      const KEYS = {
         keyBronze: Player.MapData.PrivateState.HasKeyBronze,
         keySilver: Player.MapData.PrivateState.HasKeySilver,
         keyGold: Player.MapData.PrivateState.HasKeyGold,
       };
 
       // loop the dictionary and extract the key and name
-      for (const [KEY, VALUE] of Object.entries(keys)) {
+      for (const [KEY, VALUE] of Object.entries(KEYS)) {
         // if key is found, set icon and tool tip
-        if (VALUE) {
-          displaykeys += this.printicon(KEY);
-        } else {
-          displaykeys += this.printicon("keyNull");
-        }
+        displaykeys += this.printicon(VALUE ? KEY : "keyNull");
       }
 
       // replace the template objects for the values we determined above.
-      templatevars[
-        "collectedKeys"
-      ] = `<td style="border-right: 0px">${displaykeys}</td>`;
-      templatevars["columncount"] = "5"; // if we print keys, set colspan to 5
+      templatevars["online_player_border"] = "2px";      
+      templatevars["collectedKeys"] = 
+          `<td style="border-right: 0px">${displaykeys}</td>`;
+      templatevars["columncount"] = "5";
     } else {
-      templatevars["collectedKeys"] = ``;
+      templatevars["online_players_border"] = "0px"; 
+      templatevars["collectedKeys"] = "";
       templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
 

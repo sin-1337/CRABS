@@ -1,10 +1,10 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import * as Modules from  "./modules";
+import * as Modules from "./modules";
 import loadDOM from "./modules/dom";
 
 // configure the version and mod name
-const VERSION = "1.1.0.233 Beta";
+const VERSION = "1.1.0.290 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
@@ -22,17 +22,79 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
-console.log(`CRABS v${VERSION} Loaded`);
+// print version and load success in console
+console.log(`CRABS v${VERSION} Loaded`);  // do not remove
+
+/*
+ * Attaches an event listener to any object matching the supplied class
+ *
+ *@param classname - (string) name of the class you are looking for
+ *@param action - (string) name of the function you want to call when the event is triggered
+ *@param data - (string) [optional] arguments to the function, MUST be camel   
+ *                                  case... ex: playerNumber
+ *@param event - (string) [default = click] type of event you wish this to trigger on
+ */
+function attachEvent(
+  classname: string,
+  action: string,
+  data?: string,
+  event: string = "click"
+) {
+  const CHAT = document.getElementById("TextAreaChatLog");
+
+  if (!CHAT) return; // if chat is not found, bail
+  // Select all roster links
+  const ELEMENTS = CHAT.getElementsByClassName(
+    classname
+  ) as HTMLCollectionOf<HTMLElement>;
+
+  // Attach event listeners to all roster links
+  for (const ELEMENT of ELEMENTS) {
+    ELEMENT.addEventListener(event, (e) => { // add listener
+      const TARGET = e.currentTarget as HTMLElement; // capture target
+      if (data) {
+        const DATA = TARGET.dataset[data]; // parse data
+        (window as any)[action](DATA);
+      } else {
+        (window as any)[action]();
+      }
+    });
+  }
+}
+
+/*
+ * draws the banner
+ */
+function drawbanner() {
+  let output: string = "";
+  // if the player left the room, bail!
+  if (Player.LastChatRoom === null) {
+    // Must return false, even if we are bailing out!
+    return false;
+  }
+
+  // configure extra roster input to the banner
+  // TODO: make this optional in the future
+  let extradata = {
+    RosterCounters: ROSTER.buildroster("count", false),
+  };
+  output = BANNER.drawBanner(NAME, VERSION, extradata);
+
+  // call the action to draw the banner
+  BANNER.sendoutput(output, "CRABS_Banner");
+
+  // make the roster footer /roster a clickable url
+  attachEvent("CRABS_banner_rosterlink", "printRoster");
+}
 
 // TODO: create ui to turn this off!!
-// TODO: reformat this output maybe?
+// TODO: This only triggers on rooms I didn't make, why?
 // set up a handler for room entry
 // This sets up the banner!
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
   Callback: (data: any) => {
-    let output: string = "";
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -41,20 +103,8 @@ ChatRoomRegisterMessageHandler({
     ) {
       // work on a delay
       setTimeout(() => {
-        // if the player left the room, bail!
-        if (Player.LastChatRoom === null) {
-          // Must return false, even if we are bailing out!
-          return false;
-        }
-
-        // call the action to draw the banner
-        output = BANNER.drawBanner(NAME, VERSION);
-        output = output.replace(
-          "{{RosterCounters}}",
-          ROSTER.buildroster("count", false)
-        );
-        ChatRoomSendLocal(output);
-        ElementScrollToEnd("TextAreaChatLog");
+        // configure extra roster input to the banner
+        drawbanner();
       }, 3600);
     }
 
@@ -66,10 +116,13 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    ChatRoomSendLocal(HELP.showhelp());
+    HELP.sendoutput(HELP.showhelp(), "CRABS_Help");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
+    return false;
+  } else if (SPLITARGS[0].toLowerCase() == "banner") {
+    drawbanner();
     return false;
   }
   return true;
@@ -124,16 +177,20 @@ CommandCombine([
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
-      if (argcheck(args)) ChatRoomSendLocal(ROSTER.buildroster(args));
-      ElementScrollToEnd("TextAreaChatLog");
+      if (argcheck(args))
+        ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
       );
 
-      elements.forEach((el) => {
-        el.style.overflow = "visible";
+      elements.forEach((element) => {
+        element.style.overflow = "visible";
       });
+
+      //attach intractable roster events
+      attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
+      attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
     },
   },
 ]);
@@ -221,7 +278,7 @@ CommandCombine([
           splitArgs[i] != "gold" &&
           splitArgs[i] != "all"
         ) {
-          ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
+          ChatRoomSendLocal(`Argument '${splitArgs[i]}', was not understood.`);
         }
       }
     },

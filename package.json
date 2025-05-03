@@ -36,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.52.0",
     "bc-stubs": "^97.0.0",
+    "dompurify": "^3.2.5",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.0.0",

@@ -1,6 +1,8 @@
 import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
+import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
+export type TemplateValue = string | { text: string };
 
 export default class CRABS {
   declare crabs: ModSDKModAPI;
@@ -42,38 +44,54 @@ export default class CRABS {
 
     //BC Icons:
     blindNone: "https://sin-1337.github.io/CRABS/icons/blindNone.svg",
-    blindLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
-    blindNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
-    blindHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
-    blindTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
-
+    blindLight:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
+    blindNormal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
+    blindHeavy:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
+    blindTotal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
 
     deafNone: "https://sin-1337.github.io/CRABS/icons/deafNone.svg",
-    deafLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
-    deafNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
-    deafHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
-    deafTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
-
+    deafLight:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
+    deafNormal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
+    deafHeavy:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
+    deafTotal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
 
     gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
-    gagVeryLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagEasy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagLight: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagNormal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
-    gagMedium: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
-    gagHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
-    gagVeryHeavy: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
-    gagTotal: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal2: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal3: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal4: "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-
+    gagVeryLight:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
+    gagEasy:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
+    gagLight:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
+    gagNormal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagMedium:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
+    gagHeavy:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
+    gagVeryHeavy:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
+    gagTotal:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
+    gagTotal2:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
+    gagTotal3:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
+    gagTotal4:
+      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
   };
 
   constructor(CRABS: ModSDKModAPI) {
     this.crabs = CRABS;
   }
-  
+
   /*
    * Takes a member number and opens that player's  "focus" screen.
    * This functions is setup up to be exposed to the global DOM
@@ -106,8 +124,49 @@ export default class CRABS {
   }
 
   /*
+   * Prints HTMLElement objects into the DOM (Chat Window)
+   * and scroll to bottom of chat window
+   *
+   * @param output: (HTMLElement) object to print
+   */
+  public sendoutput(output: string, elementId?: string): void {
+    const OUTPUT = document.createElement("template");
+
+    const CLEAN_HTML = DOMPurify.sanitize(output, {
+      USE_PROFILES: { html: true }, // Allow full HTML (but safe)
+    });
+
+    OUTPUT.innerHTML = CLEAN_HTML;
+
+    const CHAT = document.getElementById("TextAreaChatLog");
+    if (CHAT) {
+      if (elementId) {
+        const EXISTING = document.getElementById(elementId);
+        if (EXISTING) {
+          EXISTING.remove();
+        }
+
+        const WRAPPER = document.createElement("div");
+        WRAPPER.id = elementId;
+        WRAPPER.appendChild(OUTPUT.content);
+
+        CHAT.appendChild(WRAPPER);
+      } else {
+        CHAT.appendChild(OUTPUT);
+      }
+      ElementScrollToEnd("TextAreaChatLog");
+    } else {
+      console.log("CRABS ERROR: Could not find chat element!");
+    }
+  }
+
+  protected plaintext(value: string): TemplateValue {
+    return { text: value };
+  }
+
+  /*
    * Takes a template name and outputs the filled out template string
-   * 
+   *
    * @param template_name - Name of the HTML file, no extension or path
    * @param args - A dictionary where the key is a variable name to replace the template
    * @param wrapper -  A boolean that determines if we draw the wrapper or not
@@ -149,13 +208,21 @@ export default class CRABS {
   /*
    *  print icons
    *
-   *  @param key - string name of the icon you want
-   *  @param tooltip - string tool top 
-   *  @return - string html representing the icon
+   *  @param key - (string) name of the icon you want
+   *  @param tooltip - (string [optional] string tool top
+   *  @param style - (string) [optional] css style
+   *                    to overwrite the default style sheet.
+   *  @return - (string) html representing the icon
    */
-  protected printicon(key: string, tooltip: string = ""): string {
+  protected printicon(
+    key: string,
+    tooltip: string = "", // optional tooltip
+    css_class: string = "CRABS_icon", //optional class overwrite
+    css_style: string = "" // optional, css overwrite
+  ): string {
     let ICON = this.ICONS["error"]; // fall back if the icon isn't found
-    if (key in this.ICONS) {  // test if the key exists
+    if (key in this.ICONS) {
+      // test if the key exists
       ICON = this.ICONS[key];
     }
 
@@ -164,34 +231,35 @@ export default class CRABS {
     html += `<img `;
     html += `alt='${key}' `;
     html += `src='${ICON}' `;
-    html += `class='CRABS_tooltip-image'`;
+    html += `class='${css_class}'`;
+    if (css_style != "") html += `style="${css_style}"`;
     html += `>`;
     if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;
     if (tooltip != "") html += `</div>`;
     return html;
   }
 
-    /*
-     *  TypeScript: Function to convert hex color to rgba and add transparency
-     *
-     * @param: string hex value of the color
-     * @param: number for transparencey, bigger is more opaque. Optional, default 0
-     *  Alpha range: The alpha value ranges from -1 to 1:
-     *  alpha = 0 means fully opaque (no transparency).
-     *  alpha = -1 means fully transparent (completely invisible).
-     *
-     *  @return: string rgba value with alpha
-     */
-    protected convertColor(hex: string, alpha: number = 0): string {
-        // Remove the hash if it's there
-        hex = hex.replace(/^#/, "");
+  /*
+   *  TypeScript: Function to convert hex color to rgba and add transparency
+   *
+   * @param: string hex value of the color
+   * @param: number for transparencey, bigger is more opaque. Optional, default 0
+   *  Alpha range: The alpha value ranges from -1 to 1:
+   *  alpha = 0 means fully opaque (no transparency).
+   *  alpha = -1 means fully transparent (completely invisible).
+   *
+   *  @return: string rgba value with alpha
+   */
+  protected convertColor(hex: string, alpha: number = 0): string {
+    // Remove the hash if it's there
+    hex = hex.replace(/^#/, "");
 
-        // Parse the red, green, and blue components
-        let red = parseInt(hex.substr(0, 2), 16);
-        let green = parseInt(hex.substr(2, 2), 16);
-        let blue = parseInt(hex.substr(4, 2), 16);
+    // Parse the red, green, and blue components
+    let red = parseInt(hex.substr(0, 2), 16);
+    let green = parseInt(hex.substr(2, 2), 16);
+    let blue = parseInt(hex.substr(4, 2), 16);
 
-        // Return the rgba value with alpha transparency
-        return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-    }
+    // Return the rgba value with alpha transparency
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  }
 }

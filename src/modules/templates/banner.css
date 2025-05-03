@@ -11,3 +11,26 @@
     height: auto;
     color: white;
 }
+
+.CRABS_banner_logo_container {
+    width: 50px;
+    max-width: 50px;
+}
+
+.CRABS_banner_version_container {
+    max-width: 150px;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.CRABS_banner_roomname_wrapper {
+}
+
+.CRABS_banner_RosterCounters_wrapper {
+}
+
+.CRABS_banner_footer {
+}
+
+.CRABS_banner_URL {
+}
