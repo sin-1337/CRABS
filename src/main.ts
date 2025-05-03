@@ -52,11 +52,12 @@ function attachEvent(
 
     // Attach event listeners to all roster links
     for (const ELEMENT of ELEMENTS) {
-      ELEMENT.addEventListener(event, () => {
+      ELEMENT.addEventListener(event, (e) => {
+        const TARGET = e.currentTarget as HTMLElement;
         console.log("CRABS: working with element - " + ELEMENT);
         if (data) {
             console.log(`CRABS: data found - ${data}`);
-            const DATA = (ELEMENT as HTMLElement).dataset[data];
+            const DATA = TARGET.dataset[data];
             (window as any)[action](DATA);
             console.log("CRABS: attached event with data");
         }
