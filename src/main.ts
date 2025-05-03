@@ -22,7 +22,6 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
-
 console.log(`CRABS v${VERSION} Loaded`);
 
 /*
@@ -34,41 +33,42 @@ console.log(`CRABS v${VERSION} Loaded`);
  *@param event - (string) [default = click] type of event you wish this to trigger on
  */
 function attachEvent(
-    classname: string, 
-    action: string, 
-    data?: string,
-    event: string = "click", 
+  classname: string,
+  action: string,
+  data?: string,
+  event: string = "click"
 ) {
-    console.log("CRABS: attachEvent started");
-    const CHAT = document.getElementById("TextAreaChatLog");
+  console.log("CRABS: attachEvent started");
+  const CHAT = document.getElementById("TextAreaChatLog");
 
-    console.log("CRABS: attach event with " + classname + ", " + action);
+  console.log("CRABS: attach event with action - ", action);
 
-    if (!CHAT) return; // if chat is not found, bail
-    console.log("CRABS: CHAT was found - " + CHAT);
-    // Select all roster links
-    const ELEMENTS = CHAT.getElementsByClassName(classname) as HTMLCollectionOf<HTMLElement>;
-    console.log("CRABS: elements are as follows - " + ELEMENTS);
+  if (!CHAT) return; // if chat is not found, bail
+  console.log("CRABS: CHAT was found - ", CHAT);
+  // Select all roster links
+  const ELEMENTS = CHAT.getElementsByClassName(
+    classname
+  ) as HTMLCollectionOf<HTMLElement>;
+  console.log("CRABS: elements are as follows - ", ELEMENTS);
 
-    // Attach event listeners to all roster links
-    for (const ELEMENT of ELEMENTS) {
-      ELEMENT.addEventListener(event, (e) => {
-        const TARGET = e.currentTarget as HTMLElement;
-        console.log("CRABS: working with element - " + TARGET);
-        if (data) {
-            console.log(`CRABS: data found - ${data}`);
-            const DATA = TARGET.dataset[data];
-            (window as any)[action](DATA);
-            console.log("CRABS: attached event with data");
-        }
-        else {
-            console.log("CRABS: no data found");
-            (window as any)[action]();
-            console.log("CRABS: attached event with no data");
-            
-        }
-      });
-    }
+  // Attach event listeners to all roster links
+  for (const ELEMENT of ELEMENTS) {
+    ELEMENT.addEventListener(event, (e) => {
+      const TARGET = e.currentTarget as HTMLElement;
+      console.log("CRABS: working with element - ", TARGET);
+      console.log("CRABS: data set is - ", TARGET.dataset);
+      if (data) {
+        console.log("CRABS: data found - " ,data);
+        const DATA = TARGET.dataset[data];
+        (window as any)[action](DATA);
+        console.log("CRABS: attached event with data");
+      } else {
+        console.log("CRABS: no data found");
+        (window as any)[action]();
+        console.log("CRABS: attached event with no data");
+      }
+    });
+  }
 }
 
 /*
@@ -92,7 +92,6 @@ function drawbanner() {
 
   // call the action to draw the banner
   BANNER.sendoutput(output, "CRABS_Banner");
-
 
   // make the roster footer /roster a clickable url
   attachEvent("CRABS_banner_rosterlink", "printRoster");
@@ -189,8 +188,8 @@ CommandCombine([
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
       console.log("CRABS: drawing roster");
-      if (argcheck(args)) 
-          ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
+      if (argcheck(args))
+        ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
@@ -202,7 +201,6 @@ CommandCombine([
 
       attachEvent("CRABS_player-badge", "PlayerFocus", "PlayerNumber");
       attachEvent("CRABS_player-id", "sendWhisper", "PlayerNumber");
-
     },
   },
 ]);
