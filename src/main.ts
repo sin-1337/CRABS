@@ -42,20 +42,29 @@ function attachEvent(
     document.addEventListener("DOMContentLoaded", () => {
     const CHAT = document.getElementById("TextAreaChatLog");
 
+    console.log(`CRABS: attach event with ${classname}, ${action}`);
+
     if (!CHAT) return; // if chat is not found, bail
-    
+    console.log(`CRABS: CHAT was found - ${CHAT}`);
     // Select all roster links
     const ELEMENTS = CHAT.getElementsByClassName(classname) as HTMLCollectionOf<HTMLElement>;
+    console.log(`CRABS: elements are as follows - ${ELEMENTS}`);
 
     // Attach event listeners to all roster links
     for (const ELEMENT of ELEMENTS) {
       ELEMENT.addEventListener(event, () => {
+        console.log(`CRABS: working with element - ${ELEMENT}`);
         if (data) {
+            console.log(`CRABS: data found - ${data}`);
             const DATA = (ELEMENT as HTMLElement).dataset[data];
             (window as any)[action](DATA);
+            console.log(`CRABS: attached event with data`);
         }
         else {
+            console.log(`CRABS: no data found`);
             (window as any)[action]();
+            console.log(`CRABS: attached event with no data`);
+            
         }
       });
     }
