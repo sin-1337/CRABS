@@ -22,10 +22,57 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
-const CHAT = document.getElementById("TextAreaChatLog");
 
 console.log(`CRABS v${VERSION} Loaded`);
 
+function drawbanner() {
+  let output: string = "";
+  // if the player left the room, bail!
+  if (Player.LastChatRoom === null) {
+    // Must return false, even if we are bailing out!
+    return false;
+  }
+
+/*
+ * Attaches an event listener to any object matching the supplied class
+ *
+ *@param classname - (string) name of the class you are looking for
+ *@param action - (string) name of the function you want to call when the event is triggered
+ *@param data - (string) [optional] arguments to the function
+ *@param event - (string) [default = click] type of event you wish this to trigger on
+ */
+function attachEvent(
+    classname: string, 
+    action: string, 
+    data?: string,
+    event: string = "click", 
+) {
+    document.addEventListener("DOMContentLoaded", () => {
+    const CHAT = document.getElementById("TextAreaChatLog");
+
+    if (!CHAT) return; // if chat is not found, bail
+    
+    // Select all roster links
+    const ELEMENTS = CHAT.getElementsByClassName(classname) as HTMLCollectionOf<HTMLElement>;
+
+    // Attach event listeners to all roster links
+    for (const ELEMENT of ELEMENTS) {
+      ELEMENT.addEventListener(event, () => {
+        if (data) {
+            const DATA = (element as HTMLElement).dataset[data];
+            (window as any)[action](DATA);
+        }
+        else {
+            (window as any)[action]();
+        }
+      });
+    }
+  });
+}
+
+/*
+ * draws the banner
+ */
 function drawbanner() {
   let output: string = "";
   // if the player left the room, bail!
@@ -44,21 +91,10 @@ function drawbanner() {
   // call the action to draw the banner
   BANNER.sendoutput(output, "CRABS_Banner");
 
-  if (!CHAT) return; // if chat is not found, bail
 
   // make the roster footer /roster a clickable url
+  attachEvent("CRABS_banner_rosterlink", "printRoster")
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Select all roster links
-    const rosterLinks = CHAT.querySelectorAll('[data-action="print-roster"]');
-
-    // Attach event listeners to all roster links
-    rosterLinks.forEach((rosterLink) => {
-      rosterLink.addEventListener("click", () => {
-        window.printRoster();
-      });
-    });
-  });
 }
 
 // TODO: create ui to turn this off!!
@@ -161,6 +197,9 @@ CommandCombine([
       elements.forEach((element) => {
         element.style.overflow = "visible";
       });
+      attachEvent("CRABS_player-badge", "PlayerFocus", "PlayerNumber");
+      attachEvent("CRABS_player-id", "sendWhisper", "PlayerNumber");
+
     },
   },
 ]);
