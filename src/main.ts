@@ -153,40 +153,38 @@ CommandCombine([
       });
 
       document.addEventListener("DOMContentLoaded", () => {
-        // Listen for clicks on the parent table or any static parent element
-        const container = document.querySelector(".CRABS_card");
+      const container = document.querySelector(".CRABS_card");
 
-        if (container) {
-          container.addEventListener("click", (element) => {
-            // Check if the clicked element is a .CRABS_player-id
-            if (
-              element.target &&
-              (element.target as HTMLElement).classList.contains("CRABS_player-id")
-            ) {
-              const playerNumber = (e.target as HTMLElement).dataset
-                .playerNumber;
-              if (playerNumber) {
-                window.sendWhisper(playerNumber);
-              }
-            }
+      if (container) {
+        console.log("CRABS_card found, adding event listeners...");
 
-            // Check if the clicked element is a .CRABS_player-badge
-            if (
-              element.target &&
-              (element.target as HTMLElement).classList.contains("CRABS_player-badge")
-            ) {
-              const playerNumber = (e.target as HTMLElement).dataset
-                .playerNumber;
-              if (playerNumber) {
-                window.PlayerFocus(playerNumber);
-              }
+        container.addEventListener("click", (event) => {
+          const element = event.target as HTMLElement; // Explicitly naming 'element'
+
+          console.log("Click detected on:", element);
+
+          // Handle CRABS_player-id click
+          if (element && element.classList.contains("CRABS_player-id")) {
+            const playerNumber = element.dataset.playerNumber;
+            if (playerNumber) {
+              console.log("Sending whisper to player:", playerNumber);
+              window.sendWhisper(playerNumber);
             }
-          });
-        }
-      });
-    },
-  },
-]);
+          }
+
+          // Handle CRABS_player-badge click
+          if (element && element.classList.contains("CRABS_player-badge")) {
+            const playerNumber = element.dataset.playerNumber;
+            if (playerNumber) {
+              console.log("Focusing on player:", playerNumber);
+              window.PlayerFocus(playerNumber);
+            }
+          }
+        });
+      } else {
+        console.error("CRABS_card element not found, event listeners not attached.");
+      }
+   });
 
 // implements the /players command
 CommandCombine([
