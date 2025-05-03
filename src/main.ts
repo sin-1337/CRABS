@@ -25,14 +25,6 @@ loadDOM();
 
 console.log(`CRABS v${VERSION} Loaded`);
 
-function drawbanner() {
-  let output: string = "";
-  // if the player left the room, bail!
-  if (Player.LastChatRoom === null) {
-    // Must return false, even if we are bailing out!
-    return false;
-  }
-
 /*
  * Attaches an event listener to any object matching the supplied class
  *
@@ -59,7 +51,7 @@ function attachEvent(
     for (const ELEMENT of ELEMENTS) {
       ELEMENT.addEventListener(event, () => {
         if (data) {
-            const DATA = (element as HTMLElement).dataset[data];
+            const DATA = (ELEMENT as HTMLElement).dataset[data];
             (window as any)[action](DATA);
         }
         else {
@@ -93,8 +85,7 @@ function drawbanner() {
 
 
   // make the roster footer /roster a clickable url
-  attachEvent("CRABS_banner_rosterlink", "printRoster")
-
+  attachEvent("CRABS_banner_rosterlink", "printRoster");
 }
 
 // TODO: create ui to turn this off!!
