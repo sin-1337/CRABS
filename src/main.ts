@@ -40,7 +40,6 @@ function attachEvent(
     event: string = "click", 
 ) {
     console.log("CRABS: attachEvent started");
-    document.addEventListener("DOMContentLoaded", () => {
     const CHAT = document.getElementById("TextAreaChatLog");
 
     console.log("CRABS: attach event with " + classname + ", " + action);
@@ -69,7 +68,6 @@ function attachEvent(
         }
       });
     }
-  });
 }
 
 /*
