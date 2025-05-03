@@ -39,6 +39,7 @@ function attachEvent(
     data?: string,
     event: string = "click", 
 ) {
+    console.log("CRABS: attachEvent started");
     document.addEventListener("DOMContentLoaded", () => {
     const CHAT = document.getElementById("TextAreaChatLog");
 
@@ -75,6 +76,7 @@ function attachEvent(
  * draws the banner
  */
 function drawbanner() {
+  console.log("CRABS: drawbanner started");
   let output: string = "";
   // if the player left the room, bail!
   if (Player.LastChatRoom === null) {
@@ -187,6 +189,7 @@ CommandCombine([
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
+      console.log("CRABS: drawing roster");
       if (argcheck(args)) 
           ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
@@ -197,6 +200,7 @@ CommandCombine([
       elements.forEach((element) => {
         element.style.overflow = "visible";
       });
+
       attachEvent("CRABS_player-badge", "PlayerFocus", "PlayerNumber");
       attachEvent("CRABS_player-id", "sendWhisper", "PlayerNumber");
 
