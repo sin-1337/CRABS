@@ -148,30 +148,41 @@ CommandCombine([
         "div.ChatMessageNonDialogue"
       );
 
-      elements.forEach((el) => {
-        el.style.overflow = "visible";
+      elements.forEach((element) => {
+        element.style.overflow = "visible";
       });
 
       document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".CRABS_player-id").forEach((el) => {
-          el.addEventListener("click", (e) => {
-            const playerNumber = (e.currentTarget as HTMLElement).dataset
-              .playerNumber;
-            if (playerNumber) {
-              window.sendWhisper(playerNumber);
-            }
-          });
-        });
+        // Listen for clicks on the parent table or any static parent element
+        const container = document.querySelector(".CRABS_card");
 
-        document.querySelectorAll(".CRABS_player-badge").forEach((el) => {
-          el.addEventListener("click", (e) => {
-            const playerNumber = (e.currentTarget as HTMLElement).dataset
-              .playerNumber;
-            if (playerNumber) {
-              window.PlayerFocus(playerNumber); 
+        if (container) {
+          container.addEventListener("click", (element) => {
+            // Check if the clicked element is a .CRABS_player-id
+            if (
+              element.target &&
+              (element.target as HTMLElement).classList.contains("CRABS_player-id")
+            ) {
+              const playerNumber = (e.target as HTMLElement).dataset
+                .playerNumber;
+              if (playerNumber) {
+                window.sendWhisper(playerNumber);
+              }
+            }
+
+            // Check if the clicked element is a .CRABS_player-badge
+            if (
+              element.target &&
+              (element.target as HTMLElement).classList.contains("CRABS_player-badge")
+            ) {
+              const playerNumber = (e.target as HTMLElement).dataset
+                .playerNumber;
+              if (playerNumber) {
+                window.PlayerFocus(playerNumber);
+              }
             }
           });
-        });
+        }
       });
     },
   },
