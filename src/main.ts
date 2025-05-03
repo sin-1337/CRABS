@@ -22,14 +22,16 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
-console.log(`CRABS v${VERSION} Loaded`);
+// print version and load success in console
+console.log(`CRABS v${VERSION} Loaded`);  // do not remove
 
 /*
  * Attaches an event listener to any object matching the supplied class
  *
  *@param classname - (string) name of the class you are looking for
  *@param action - (string) name of the function you want to call when the event is triggered
- *@param data - (string) [optional] arguments to the function
+ *@param data - (string) [optional] arguments to the function, MUST be camel   
+ *                                  case... ex: playerNumber
  *@param event - (string) [default = click] type of event you wish this to trigger on
  */
 function attachEvent(
@@ -38,34 +40,23 @@ function attachEvent(
   data?: string,
   event: string = "click"
 ) {
-  console.log("CRABS: attachEvent started");
   const CHAT = document.getElementById("TextAreaChatLog");
 
-  console.log("CRABS: attach event with action - ", action);
-
   if (!CHAT) return; // if chat is not found, bail
-  console.log("CRABS: CHAT was found - ", CHAT);
   // Select all roster links
   const ELEMENTS = CHAT.getElementsByClassName(
     classname
   ) as HTMLCollectionOf<HTMLElement>;
-  console.log("CRABS: elements are as follows - ", ELEMENTS);
 
   // Attach event listeners to all roster links
   for (const ELEMENT of ELEMENTS) {
-    ELEMENT.addEventListener(event, (e) => {
-      const TARGET = e.currentTarget as HTMLElement;
-      console.log("CRABS: working with element - ", TARGET);
-      console.log("CRABS: data set is - ", TARGET.dataset);
+    ELEMENT.addEventListener(event, (e) => { // add listener
+      const TARGET = e.currentTarget as HTMLElement; // capture target
       if (data) {
-        console.log("CRABS: data found - " ,data);
-        const DATA = TARGET.dataset[data];
+        const DATA = TARGET.dataset[data]; // parse data
         (window as any)[action](DATA);
-        console.log("CRABS: attached event with data");
       } else {
-        console.log("CRABS: no data found");
         (window as any)[action]();
-        console.log("CRABS: attached event with no data");
       }
     });
   }
@@ -75,7 +66,6 @@ function attachEvent(
  * draws the banner
  */
 function drawbanner() {
-  console.log("CRABS: drawbanner started");
   let output: string = "";
   // if the player left the room, bail!
   if (Player.LastChatRoom === null) {
@@ -187,7 +177,6 @@ CommandCombine([
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
-      console.log("CRABS: drawing roster");
       if (argcheck(args))
         ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
@@ -199,6 +188,7 @@ CommandCombine([
         element.style.overflow = "visible";
       });
 
+      //attach intractable roster events
       attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
       attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
     },

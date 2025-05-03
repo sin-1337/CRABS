@@ -64,8 +64,13 @@
     display: flex;
 }
 
-.CRABS_player-badge-anchor {
+.CRABS_player-badge {
     cursor: pointer;
+}
+
+.CRABS_player-badge img:hover {
+    /*--border-color: lightyellow;*/ /* Lighten border color */
+    filter: brightness(2.0); /* Brighten the image */
 }
 
 .CRABS_player-id {
