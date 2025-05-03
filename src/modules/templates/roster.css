@@ -70,7 +70,7 @@
 
 .CRABS_player-badge img:hover {
     /*--border-color: lightyellow;*/ /* Lighten border color */
-    filter: brightness(2.0); /* Brighten the image */
+    filter: brightness(1.5); /* Brighten the image */
 }
 
 .CRABS_player-id {
@@ -84,10 +84,10 @@
     height: 1.1em;
 }
 
-.CRABS_player-id:hover {
+.CRABS_player-id:hover span {
     filter: brightness(1.5);
     text-decoration: underline;
-    cursor: ponter;
+    cursor: pointer;
 } 
 
 .CRABS_overflow-scroll {
