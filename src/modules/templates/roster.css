@@ -85,7 +85,7 @@
 }
 
 .CRABS_player-id:hover {
-    filter: brightness(2.0);
+    filter: brightness(1.5);
     text-decoration: underline;
     cursor: ponter;
 } 
