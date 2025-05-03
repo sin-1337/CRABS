@@ -22,6 +22,8 @@ const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
 loadDOM();
 
+const CHAT = document.getElementById("TextAreaChatLog");
+
 console.log(`CRABS v${VERSION} Loaded`);
 
 function drawbanner() {
@@ -40,19 +42,26 @@ function drawbanner() {
   output = BANNER.drawBanner(NAME, VERSION, extradata);
 
   // call the action to draw the banner
-  const CHAT = BANNER.sendoutput(output);
+  BANNER.sendoutput(output);
+
+  if (!CHAT) return; // if chat is not found, bail
 
   // make the roster footer /roster a clickable url
-  const rosterLink = CHAT.querySelector('[data-action="print-roster"]');
-  if (rosterLink) {
-    rosterLink.addEventListener("click", () => {
-      window.printRoster();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Select all roster links
+    const rosterLinks = CHAT.querySelectorAll('[data-action="print-roster"]');
+
+    // Attach event listeners to all roster links
+    rosterLinks.forEach((rosterLink) => {
+      rosterLink.addEventListener("click", () => {
+        window.printRoster();
+      });
     });
-  }
+  });
 }
 
 // TODO: create ui to turn this off!!
-// TODO: reformat this output maybe?
 // TODO: This only triggers on rooms I didn't make, why?
 // set up a handler for room entry
 // This sets up the banner!
@@ -69,7 +78,6 @@ ChatRoomRegisterMessageHandler({
       // work on a delay
       setTimeout(() => {
         // configure extra roster input to the banner
-        // TODO: make this optional in the future
         drawbanner();
       }, 3600);
     }
@@ -151,40 +159,9 @@ CommandCombine([
       elements.forEach((element) => {
         element.style.overflow = "visible";
       });
-
-      document.addEventListener("DOMContentLoaded", () => {
-      const container = document.querySelector(".CRABS_card");
-
-      if (container) {
-        console.log("CRABS_card found, adding event listeners...");
-
-        container.addEventListener("click", (event) => {
-          const element = event.target as HTMLElement; // Explicitly naming 'element'
-
-          console.log("Click detected on:", element);
-
-          // Handle CRABS_player-id click
-          if (element && element.classList.contains("CRABS_player-id")) {
-            const playerNumber = element.dataset.playerNumber;
-            if (playerNumber) {
-              console.log("Sending whisper to player:", playerNumber);
-              window.sendWhisper(playerNumber);
-            }
-          }
-
-          // Handle CRABS_player-badge click
-          if (element && element.classList.contains("CRABS_player-badge")) {
-            const playerNumber = element.dataset.playerNumber;
-            if (playerNumber) {
-              console.log("Focusing on player:", playerNumber);
-              window.PlayerFocus(playerNumber);
-            }
-          }
-        });
-      } else {
-        console.error("CRABS_card element not found, event listeners not attached.");
-      }
-   });
+    },
+  },
+]);
 
 // implements the /players command
 CommandCombine([
