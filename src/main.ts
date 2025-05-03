@@ -42,7 +42,7 @@ function drawbanner() {
   output = BANNER.drawBanner(NAME, VERSION, extradata);
 
   // call the action to draw the banner
-  BANNER.sendoutput(output);
+  BANNER.sendoutput(output, "CRABS_Banner");
 
   if (!CHAT) return; // if chat is not found, bail
 
@@ -90,13 +90,14 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showhelp());
+    HELP.sendoutput(HELP.showhelp(), "CRABS_Help");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "banner") {
     drawbanner();
+    return false;
   }
   return true;
 }
@@ -150,7 +151,8 @@ CommandCombine([
     Tag: "roster",
     Description: "Show the player count, helpful in maps.",
     Action: (args: string) => {
-      if (argcheck(args)) ROSTER.sendoutput(ROSTER.buildroster(args));
+      if (argcheck(args)) 
+          ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
         "div.ChatMessageNonDialogue"
