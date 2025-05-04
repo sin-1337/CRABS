@@ -9,20 +9,31 @@ export class Help extends CRABS {
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            CRABS help sheet</br>
-            /roster</br>
+            ${this.printlogo()}CRABS help sheet</br>
+            /roster [optional argument] </br>
             This command lists the number of admins and players
             in a room and gives you some informatoin about them </br>
             
-            /players is deprecated, but still works currently.
-
-            </br>
-            Arguments:
-            <hr>
+            <br>
+            /roster Arguments:
             help - show this menu </br>
             count - show only the player count </br>
             admins - show only a list of admins and the counts </br>
             vips - show only room whitelisted and the counts </br>
+            banner - draws the banner again </br>
+            version - shows the version of CRABS </br>
+
+            </br>
+            /whisper+ (player number) 
+            /w+ (player number)
+            Command that lets you whisper at range on maps, 
+            activated automatically by clicking the player
+            name in the roster. </br>
+
+            /dropkeys (gold silver bronze / all)
+            Command that lets you drop your keys, you can 
+            supply one or more key colors, or all to drop 
+            all keys. </br>
 
             </br>
             Badges:
@@ -57,10 +68,20 @@ export class Help extends CRABS {
             ${this.printicon("ghost")} = You have ghosted this person </br>
 
             </br>
+            Status Icons:
+            There are 3 icons on the right side of each player card.
+            They indicate if the player is gagged, blind, or deaf 
+            and will light up to show this stats.</br>
+
+            </br>
             Actions:
             <hr>
-            Click Badge - If you click the badge for a player it will be as if you clicked them to interact. </br>
-            Click name - If you click the name/number of a player it will whisper them without range constraints. </br>
+            Click Badge - If you click the badge for a player it will 
+            be as if you clicked them to interact. It shows the focus 
+            screen.</br>
+            Click name - If you click the name/number of a player it 
+            will activate whisper+ and let you whisper them without 
+            range constraints. </br>
             </span>
             </td>
             </tr>

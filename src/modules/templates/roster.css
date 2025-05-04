@@ -21,10 +21,11 @@
 }
 
 .CRABS_roster_header_align {
-    display: flex;
+    display: inline-flex;
     align-items:center;
     gap: 4px;
     height: 100%;
+    justify-content: center;
 }
 
 .CRABS_roster_header_align img,
