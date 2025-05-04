@@ -3,10 +3,26 @@
         <table class="CRABS_room-status">
             <tbody>
                 <tr>
-                    <td>{{adminIcon}}{{adminsInRoom}}/{{totalAdmins}}</td>
-                    <td>{{playerIcon}}{{playersInRoom}}/{{totalPlayers}}</td>
-                    <td>{{friendIcon}}{{friendsOnline}}/{{totalFriends}}</td>
-                    <td style="border-right:{{online_players_border}}">{{connectedIcon}}{{onlinePlayers}}</td>
+                    <td>
+                        <span class="CRABS_roster_cell-content">
+                            {{adminIcon}}{{adminsInRoom}}/{{totalAdmins}}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="CRABS_roster_cell-content">
+                            {{playerIcon}}{{playersInRoom}}/{{totalPlayers}}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="CRABS_roster_cell-content">
+                            {{friendIcon}}{{friendsOnline}}/{{totalFriends}}
+                        </span>
+                    </td>
+                    <td style="border-right:{{online_players_border}}">
+                        <span class="CRABS_roster_cell-content">
+                            {{connectedIcon}}{{onlinePlayers}}
+                        </span>
+                    </td>
                     {{collectedKeys}}
                 </tr>
             </tbody>

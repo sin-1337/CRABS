@@ -7,12 +7,20 @@
 }
 
 .CRABS_room-status > tbody > tr > td {
-    padding: 5px;
+    padding: 4px;
     text-align: center;
+    vertical-algn: middle;
     width: calc(100% / var(--col-count, 4));
     overflow: visible;
     height: auto;
     border-right: 1px solid #ccc; /* Add left border */
+}
+
+.CRABS_roster_cell-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px; /* space between icon and text */
 }
 
 .CRABS_roster_table_shrink {
