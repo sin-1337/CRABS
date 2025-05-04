@@ -23,6 +23,11 @@
     gap: 4px; /* space between icon and text */
 }
 
+.CRABS_roster_cell-content img,
+.CRABS_roster_cell-content svg {
+  vertical-align: middle;
+}
+
 .CRABS_roster_table_shrink {
     max-width: 96%;
 }
