@@ -25,8 +25,8 @@ export class Help extends CRABS {
             version - shows the version of CRABS </br>
 
             </br>
-            /whisper+ (player number) 
-            /w+ (player number)
+            /whisper+ (player number) </br>
+            /w+ (player number) </br>
             Command that lets you whisper at range on maps, 
             activated automatically by clicking the player
             name in the roster. </br></br>
