@@ -142,3 +142,16 @@
     display: inline-block;
     filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
+<<<<<<< HEAD
+
+.CRABS_status-icons img:hover {
+    /*--border-color: lightyellow;*/ /* Lighten border color */
+    filter: brightness(2.0); /* Brighten the image */
+}
+
+.CRABS_status-icons img:hover {
+    --border-color: lightyellow; /* Lighten border color */
+    filter: brightness(1.2); /* Brighten the image */
+}
+=======
+>>>>>>> Alpha
