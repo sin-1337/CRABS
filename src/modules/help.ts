@@ -31,7 +31,7 @@ export class Help extends CRABS {
             activated automatically by clicking the player
             name in the roster. </br></br>
 
-            /dropkeys (gold silver bronze / all)
+            /dropkeys (gold silver bronze / all) </br>
             Command that lets you drop your keys, you can 
             supply one or more key colors, or all to drop 
             all keys. </br>
