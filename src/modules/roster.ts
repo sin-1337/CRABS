@@ -402,6 +402,8 @@ export class Roster extends CRABS {
       showadmins = false;
       showplayers = false;
     }
+
+    // build table header
     templatevars = {
       adminIcon: `${this.printicon("admin", "Admins", "CRABS_header_icons")}`,
       adminsInRoom: `${admin_count}`,
@@ -444,8 +446,7 @@ export class Roster extends CRABS {
       templatevars["columncount"] = "4"; // no keys? colspan is 4
     }
 
-    // start the tabble and remove the boarders
-    //output_html += `<table style="border: 0px;">`;
+    // start the tabble
     let output_rows: string = "";
     // if the filter var resolves to true, add the respective output.
     output_rows = showme ? output_rows + me_output_html : output_rows;

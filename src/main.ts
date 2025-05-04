@@ -4,7 +4,7 @@ import * as Modules from "./modules";
 import loadDOM from "./modules/dom";
 
 // configure the version and mod name
-const VERSION = "1.1.0.291 Beta";
+const VERSION = "1.1.0.310 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
@@ -116,7 +116,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showhelp(), "CRABS_Help");
+    HELP.sendoutput(HELP.showhelp(VERSION), "CRABS_Help");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
@@ -231,40 +231,11 @@ CommandCombine([
             ChatRoomSendLocal(`Bronze key dropped.`);
           }
         }
-<<<<<<< HEAD
-        if (!ChatRoomMapViewIsActive()) {
-            ChatRoomSendLocal(`Key only work on a map...`);
-            return;
-        }
-        for (let i = 0; i < splitArgs.length; i++) {
-            if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
-                if (Player.MapData.PrivateState.HasKeyBronze) {
-                    Player.MapData.PrivateState.HasKeyBronze = false;
-                    ChatRoomSendLocal(`Bronze key dropped.`);
-                }
-            }
-            if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
-                if (Player.MapData.PrivateState.HasKeySilver) {
-                    Player.MapData.PrivateState.HasKeySilver = false;
-                    ChatRoomSendLocal(`Silver key dropped.`);
-                }
-            }
-            if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
-                if (Player.MapData.PrivateState.HasKeyGold) {
-                    Player.MapData.PrivateState.HasKeyGold = false;
-                    ChatRoomSendLocal(`Gold key dropped.`);
-                }
-            }
-            if (splitArgs[i] != "bronze" && splitArgs[i] != "silver" && splitArgs[i] != "gold" && splitArgs[i] != "all") {
-                ChatRoomSendLocal(`Argumet '${splitArgs[i]}', was not understood.`);
-            }
-=======
         if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
           if (Player.MapData.PrivateState.HasKeySilver) {
             Player.MapData.PrivateState.HasKeySilver = false;
             ChatRoomSendLocal(`Silver key dropped.`);
           }
->>>>>>> Alpha
         }
         if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
           if (Player.MapData.PrivateState.HasKeyGold) {

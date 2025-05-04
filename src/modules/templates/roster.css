@@ -7,8 +7,9 @@
 }
 
 .CRABS_room-status > tbody > tr > td {
-    padding: 5px;
+    padding: 4px;
     text-align: center;
+    vertical-align: middle;
     width: calc(100% / var(--col-count, 4));
     overflow: visible;
     height: auto;
@@ -19,6 +20,19 @@
     max-width: 96%;
 }
 
+.CRABS_roster_header_align {
+    display: inline-flex;
+    align-items:center;
+    gap: 4px;
+    height: 100%;
+    justify-content: center;
+}
+
+.CRABS_roster_header_align img,
+.CRABS_roster_header_align svg {
+    /*height: 1em;*/
+    vertical-align: middle;
+}
 
 .CRABS_roster_center_table {
     display: flex;
@@ -127,14 +141,4 @@
     /*padding: 5px;*/
     display: inline-block;
     filter: var(--brightness, brightness(0.2)); /* Brighten the image */
-}
-
-.CRABS_status-icons img:hover {
-    /*--border-color: lightyellow;*/ /* Lighten border color */
-    filter: brightness(2.0); /* Brighten the image */
-}
-
-.CRABS_status-icons img:hover {
-    --border-color: lightyellow; /* Lighten border color */
-    filter: brightness(1.2); /* Brighten the image */
 }
