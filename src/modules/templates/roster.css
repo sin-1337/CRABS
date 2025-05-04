@@ -23,7 +23,6 @@
 .CRABS_roster_header_align {
     display: flex;
     align-items:center;
-    justify-content: center;
     gap: 4px;
     height: 100%;
 }

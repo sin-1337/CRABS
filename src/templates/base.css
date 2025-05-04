@@ -19,13 +19,14 @@
 .CRABS_tooltip-wrapper {
   position: relative;
   display: inline-block;
+  height: 0.9em;
 }
 
 .CRABS_header_icons {
   width: 0.9em; /* or whatever size you need */
   height: auto;
   cursor: pointer;
-  vertical-alight: middle;
+  vertical-align: middle;
 }
 
 .CRABS_badge {
