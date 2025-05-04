@@ -25,6 +25,7 @@
   width: 0.9em; /* or whatever size you need */
   height: auto;
   cursor: pointer;
+  vertical-alight: middle;
 }
 
 .CRABS_badge {

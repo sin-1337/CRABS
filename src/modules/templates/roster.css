@@ -16,18 +16,6 @@
     border-right: 1px solid #ccc; /* Add left border */
 }
 
-.CRABS_roster_cell-content {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px; /* space between icon and text */
-}
-
-.CRABS_roster_cell-content img,
-.CRABS_roster_cell-content svg {
-  vertical-align: middle;
-}
-
 .CRABS_roster_table_shrink {
     max-width: 96%;
 }
@@ -140,9 +128,4 @@
     /*padding: 5px;*/
     display: inline-block;
     filter: var(--brightness, brightness(0.2)); /* Brighten the image */
-}
-
-.CRABS_status-icons img:hover {
-    /*--border-color: lightyellow;*/ /* Lighten border color */
-    filter: brightness(2.0); /* Brighten the image */
 }
