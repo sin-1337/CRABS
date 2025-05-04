@@ -5,17 +5,18 @@ import helptemplate from "./templates/help.html";
 export class Help extends CRABS {
 
   // show help
-  public showhelp(): string {
+  public showhelp(VERSION: string): string {
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            ${this.printlogo()}CRABS help sheet</br>
+            ${this.printlogo()}</br>
+            CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
             in a room and gives you some informatoin about them </br>
             
             <br>
-            /roster Arguments:
+            /roster Arguments: </br>
             help - show this menu </br>
             count - show only the player count </br>
             admins - show only a list of admins and the counts </br>
@@ -28,7 +29,7 @@ export class Help extends CRABS {
             /w+ (player number)
             Command that lets you whisper at range on maps, 
             activated automatically by clicking the player
-            name in the roster. </br>
+            name in the roster. </br></br>
 
             /dropkeys (gold silver bronze / all)
             Command that lets you drop your keys, you can 
@@ -69,16 +70,23 @@ export class Help extends CRABS {
 
             </br>
             Status Icons:
+            <hr>
             There are 3 icons on the right side of each player card.
             They indicate if the player is gagged, blind, or deaf 
             and will light up to show this stats.</br>
+
+            </br>
+            Keys:
+            <hr>
+            When on a map, 3 key icons in the upper right corner of
+            the roster will light up as you collect the different keys. </br>
 
             </br>
             Actions:
             <hr>
             Click Badge - If you click the badge for a player it will 
             be as if you clicked them to interact. It shows the focus 
-            screen.</br>
+            screen.</br></br>
             Click name - If you click the name/number of a player it 
             will activate whisper+ and let you whisper them without 
             range constraints. </br>

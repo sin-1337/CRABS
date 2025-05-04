@@ -116,7 +116,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showhelp(), "CRABS_Help");
+    HELP.sendoutput(HELP.showhelp(VERSION), "CRABS_Help");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
