@@ -5,7 +5,7 @@
 <h1 align="center">Crazy Roster Add-on By Sin - Beta</h1>
 
 ## Warnings: 
-* This is the Beta Branch where testing takes place!
+* This is the Beta branch where testing takes place!
 * This branch is mostly stable with more regular updates and changes
 * Not recommened if stability is most important to you.
 
