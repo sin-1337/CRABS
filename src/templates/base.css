@@ -18,8 +18,8 @@
 
 .CRABS_tooltip-wrapper {
   position: relative;
-  display: inline-block;
-  height: 0.9em;
+  display: inline-flex;
+  align-items: center;
 }
 
 .CRABS_header_icons {
