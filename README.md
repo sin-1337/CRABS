@@ -2,7 +2,7 @@
   <img src="https://sin-1337.github.io/CRABS/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
 </div>
 
-<h1 align="center">Crazy Roster Add-on By Sin - Alpha</h1>
+<h1 align="center">Crazy Roster Add-on By Sin - Beta</h1>
 
 ## Warnings: 
 * This is the Beta Branch where testing takes place!
