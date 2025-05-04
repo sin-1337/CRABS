@@ -9,7 +9,7 @@
 .CRABS_room-status > tbody > tr > td {
     padding: 4px;
     text-align: center;
-    vertical-algn: middle;
+    vertical-align: middle;
     width: calc(100% / var(--col-count, 4));
     overflow: visible;
     height: auto;
@@ -23,6 +23,15 @@
 .CRABS_roster_header_align {
     display: flex;
     align-items:center;
+    justify-content: center;
+    gap: 4px;
+    height: 100%;
+}
+
+.CRABS_roster_header_align img,
+.CRABS_roster_header_align svg {
+    /*height: 1em;*/
+    vertical-align: middle;
 }
 
 .CRABS_roster_center_table {
