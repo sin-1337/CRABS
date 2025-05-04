@@ -13,7 +13,7 @@ export class Help extends CRABS {
             CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
-            in a room and gives you some informatoin about them </br>
+            in a room and gives you some information about them </br>
             
             <br>
             /roster Arguments: </br>
