@@ -1,362 +1,462 @@
-import WhisperPlus from "./whisperplus";
 import CRABS from "../base";
-import {ModSDKModAPI} from "bondage-club-mod-sdk";
-import bcModSdk from "bondage-club-mod-sdk";
-window.sendWhisper = WhisperPlus.sendWhisper;
+import { TemplateValue } from "../base";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import "./templates/roster.css";
+import rostertemplate from "./templates/roster.html";
+import rostercardstemplate from "./templates/roster_cards.html";
 
-export default class Roster extends CRABS {
+export class Roster extends CRABS {
+  private onlineFriends: number | undefined = undefined;
+  private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
-    private onlineFriends: number | undefined = undefined;
-    private lastSentTime: number = 0;  // Timestamp for the last ServerSend call
+  /*
+   * Constructor
+   *
+   * @param CRABS - (ModSDKModAPI) object containing the modsdkapi
+   */
+  constructor(CRABS: ModSDKModAPI) {
+    super(CRABS);
+    this.loadFriendList();
+  }
 
-    constructor(icon_height: number, icon_width: number, CRABS: ModSDKModAPI) {
-        super(icon_height, icon_width, CRABS);
-        this.loadFriendList();
-        // expose showPlayerFocus to the DOM
-        window.PlayerFocus = Roster.showPlayerFocus;
-    }
-
-    // show help
-    private showhelp() : string {
-            let output = `<table style="width: 100%"><tr><td>
-            <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
-            <hr>
-            CRABS help sheet</br>
-            /roster</br>
-            This command lists the number of admins and players
-            in a room and gives you some informatoin about them </br>
-            
-            /players is deprecated, but still works currently.</br>
-
-            </br>
-            Arguments:
-            <hr>
-            help - show this menu </br>
-            count - show only the player count </br>
-            admins - show only a list of admins and the counts </br>
-            vips - show only room whitelisted and the counts </br>
-
-            </br>
-            Badges:
-            <hr>
-            ${this.printicon("admin")} = Person is Admin</br>
-            ${this.printicon("vip")} = Person is whitelisted in the room </br>
-            ${this.printicon("player")} = Person is a normal user </br>
-
-            </br>
-            Icons:
-            <hr>
-            ${this.printicon("you")} = Person is you </br>
-            ${this.printicon("owner")} = Person is your owner </br>
-            ${this.printicon("sub")} = Person is your submissive </br>
-            ${this.printicon("trial")} = Person is on trial with you </br>
-            ${this.printicon("lover")} = Person is your lover </br>`;
-            
-            //prints only if the BCTweaks module is detected.
-            if (this.detectMod("BCTweaks")) {
-                output += `${this.printicon("bestfriend")} = Person is a best friend </br>`
-            }
-
-            output += `${this.printicon("friend")} = Person is a friend </br>
-            ${this.printicon("whitelist")} = You have this person whitelisted </br>
-            ${this.printicon("blacklist")} = You have this person blacklisted </br>
-            ${this.printicon("ghost")} = You have ghosted this person </br>
-
-            </br>
-            Actions:
-            <hr>
-            Click Badge - If you click the badge for a player it will be as if you clicked them to interact. </br>
-            Click name - If you click the name/number of a player it will whisper them without range constraints. </br>
-            </span>
-            </td>
-            </tr>
-            </table>`;
-        return(output);
-    }
-
-    // formats the data for outputting
-    private formatoutput(player: any, badge: string, player_icons: string, isMe: boolean) : string {
-        let output = `<tr>
-                <td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="cursor:pointer;" onclick="PlayerFocus(${player.MemberNumber})">${badge}</span></td>`;
-
-      // set up whispering
-        output += `<td style="padding-left: 5px; padding-right-5px; padding-bottom: 1px; padding-top: 0;"><span style="color:${player.LabelColor || '#000000'}; cursor:pointer;
-                font-family: Arial, sans-serif;
-                text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7); white-space: nowrap;"
-                onclick="sendWhisper(${player.MemberNumber})"
-                onmouseover="this.style.textDecoration='underline';"
-                onmouseout="this.style.textDecoration='none';">
-                  ${CharacterNickname(player).normalize("NFKC")}[${player.MemberNumber}]
-              </span>${player_icons}</td>
-          </tr>`;
-
-      return output;
-    }
-
-    //query the server for friendslist
-    private loadFriendList(): void {
-        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-          const [DATA]: Array<Record<string, any>> = args;
-          this.onlineFriends = DATA.length;
-          this.lastSentTime = Date.now()
-          // console.log(`Number of online friends: ${this.onlineFriends}`);
-          return next(args);
-        });
-    }
-
-    /*
-    //query the server for friendslist
-    private loadFriendList(): void {
-        this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-            console.log([args])
-            this.onlineFriends = [args].length;
-            this.lastSentTime = Date.now()
-            // console.log(`Number of online friends: ${this.onlineFriends}`);
-            return next(args);
-        });
-    }*/
-    
-      // Debounce function to control the timing of ServerSend
-    private canSendServerRequest(): boolean {
-      const now = Date.now();
-      if (now - this.lastSentTime >= 10 * 60 * 1000) { // 10 minutes in milliseconds
-        this.lastSentTime = now;  // Update the lastSentTime to the current time
-        return true;
+  /*
+   * Prints the roster as if the user ran the command
+   * Meant to be attached to the DOM
+   *
+   * @param action - (string) that determines what the roster should print
+   */
+  public static printRoster(action: string = "all"): void {
+    for (const [_, COMMAND] of Commands.entries()) {
+      if (COMMAND.Tag === `roster`) {
+        COMMAND.Action(action);
+        break;
       }
-      return false;
     }
+  }
 
-    // Function to get the online friend count
-    public async getOnlineFriendCount(): Promise<number> {
-      // Check if it's okay to send the server request
-      if (this.canSendServerRequest()) {
-        // Send server request if it's been more than 2 minutes
-        await ServerSend("AccountQuery", { Query: "OnlineFriends" });
-      }
+  /*
+   * detect overflow in cards and scroll the text
+   *
+   * @param containerSelector - string, containing the css container we want to target
+   */
+  public initScrollingOverflow(
+    containerSelector: string = ".CRABS_overflow-wrapper"
+  ): void {
+    const wrappers = document.querySelectorAll<HTMLElement>(containerSelector);
 
-      // Wait for the hook function to finish (assuming `next` ensures it completes)
-      return new Promise<number>((resolve) => {
-        const CHECKONLINEFRIENDS = () => {
-          if (this.onlineFriends !== undefined) {
-            resolve(this.onlineFriends);  // Return the online friends count
-          } else {
-            setTimeout(CHECKONLINEFRIENDS, 100);  // Check again after 100ms
-          }
-        };
-        
-        CHECKONLINEFRIENDS();  // Start the checking process
+    wrappers.forEach((wrapper) => {
+      const scroller = wrapper.querySelector<HTMLElement>(
+        ".CRABS_overflow-scroll"
+      );
+      if (!scroller) return;
+
+      // Remove previous values
+      wrapper.classList.remove("scrolling");
+      scroller.style.removeProperty("--scroll-distance");
+
+      // Wait for layout
+      requestAnimationFrame(() => {
+        const scrollWidth = scroller.scrollWidth;
+        const wrapperWidth = wrapper.offsetWidth;
+
+        if (scrollWidth > wrapperWidth) {
+          const scrollAmount = scrollWidth - wrapperWidth;
+          scroller.style.setProperty("--scroll-distance", `-${scrollAmount}px`);
+          wrapper.classList.add("scrolling");
+        }
       });
+    });
+  }
+
+  /*
+   * setStatusIcons determines if a player is Deaf, Blind, or Gagged
+   * and sets icons accordingly
+   *
+   * @param player - PlayerCharater, the player object
+   * @return - string list of icons
+   */
+  private setStatusIcons(player: PlayerCharacter): string {
+    const PREFIXES = ["Blind", "Gag", "Deaf"];
+    const EFFECTS = CharacterGetEffects(player);
+
+    // Effect lists mapping
+    const EFFECT_LISTS: { [key: string]: { [key: string]: number } } = {
+      Blind: {
+        BlindLight: 1,
+        BlindNormal: 2,
+        BlindHeavy: 3,
+        BlindTotal: 4,
+      },
+      Gag: {
+        GagVeryLight: 1,
+        GagEasy: 1,
+        GagLight: 1,
+        GagNormal: 2,
+        GagMedium: 2,
+        GagHeavy: 3,
+        GagVeryHeavy: 3,
+        GagTotal: 4,
+        GagTotal2: 4,
+        GagTotal3: 4,
+        GagTotal4: 4,
+      },
+      Deaf: {
+        DeafLight: 1,
+        DeafNormal: 2,
+        DeafHeavy: 3,
+        DeafTotal: 4,
+      },
+    };
+
+    // Initialize icons as empty strings
+    let icons: { [key: string]: string } = {
+      Blind: "",
+      Gag: "",
+      Deaf: "",
+    };
+
+    // Helper function to determine the maximum value for each prefix and set the corresponding icon
+    const updateIcon = (prefix: string, effect: string): void => {
+      const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
+      const effectList = EFFECT_LISTS[prefix];
+
+      if (effect in effectList) {
+        const effectValue = effectList[effect];
+        if (
+          effectValue >
+          (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
+        ) {
+          icons[prefix] = this.printicon(
+            effectName, // which icon do we print
+            `${prefix}: ${effectValue}`, // set a tooltip
+            `CRABS_status-icon`, // set a class
+            `--brightness: brightness(2.5);
+            background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
+            `, //style overwrite
+          );
+        }
+      }
+    };
+
+    // Process effects
+    for (let effect of EFFECTS) {
+      for (let prefix of PREFIXES) {
+        if (effect.startsWith(prefix)) {
+          updateIcon(prefix, effect);
+        }
+      }
     }
 
-    // determine if player is admin or whitelisted in the room and set their badge icon
-    private setbadge(player: any) : string {
-      let badge = this.printicon("player");
-      badge = ChatRoomData.Whitelist.includes(player.MemberNumber) ? this.printicon("vip") : badge;
-      badge = ChatRoomData.Admin.includes(player.MemberNumber) ? this.printicon("admin") : badge
-      return badge;
+    // Set default icons if no icon was set
+    icons.Blind = icons.Blind || this.printicon(
+        "blindNone", undefined, "CRABS_status-icon"
+    );
+    icons.Gag = icons.Gag || this.printicon(
+        "gagNone", undefined, "CRABS_status-icon"
+    );
+    icons.Deaf = icons.Deaf || this.printicon(
+        "deafNone", undefined, "CRABS_status-icon"
+    );
+
+    return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
+  }
+  /*
+   * builds the cards that get injected into the roster
+   *
+   * @param player -  PlayerCharacter that we are working with
+   * @param badge - string for the badge showing if the player is admin
+   * @param player_icons - string for the different icons relevant to the player
+   * @return - string containing the output html from the template.
+   */
+  private buildCard(
+    player: PlayerCharacter,
+    badge: string,
+    player_icons: string
+  ): string {
+    let templatevars: Record<string, string> = {
+      PlayerNumber: `${player.MemberNumber}`,
+      Badge: badge,
+      LabelColorBorder: `${this.convertColor(
+        player.LabelColor ?? "#FFFFFF",
+        0.5
+      )}`,
+      LabelColor: `${player.LabelColor || "#FFFFFF"}`,
+      PlayerName: CharacterNickname(player).normalize("NFKC"),
+      PlayerIcons: player_icons,
+      StatusIcons: `${this.setStatusIcons(player)}`,
+    };
+
+    return this.template(rostercardstemplate, templatevars, false);
+  }
+
+  //query the server for friendslist
+  private loadFriendList(): void {
+    this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+      const [DATA]: Array<Record<string, any>> = args;
+      this.onlineFriends = DATA.length;
+      this.lastSentTime = Date.now();
+      return next(args);
+    });
+  }
+
+  // Debounce function to control the timing of ServerSend
+  private canSendServerRequest(): boolean {
+    const now = Date.now();
+    if (now - this.lastSentTime >= 10 * 60 * 1000) {
+      // 10 minutes in milliseconds
+      this.lastSentTime = now; // Update the lastSentTime to the current time
+      return true;
+    }
+    return false;
+  }
+
+  // Function to get the online friend count
+  public async getOnlineFriendCount(): Promise<number> {
+    // Check if it's okay to send the server request
+    if (this.canSendServerRequest()) {
+      // Send server request if it's been more than 2 minutes
+      await ServerSend("AccountQuery", { Query: "OnlineFriends" });
     }
 
-    private setIcons(player: any) : string {
-      let player_icons = "";
-      if (Player.OwnerNumber() == player.MemberNumber) {
-        // person owns you
-        player_icons += this.printicon("owner") + " ";
-      }
-
-      else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber)) {
-        // if they don't own you but you are in their family, we assume you own them
-        if (Player.IsOwnedByPlayer(player.membernumber)) {
-          // The person is fully owned if this is true
-          player_icons += this.printicon("sub") + " ";
-        }
-        else {
-          // person is on trial
-          player_icons += this.printicon("trial") + " "
-        }
-      }
-      if (Player.GetLoversNumbers().includes(player.MemberNumber)) {
-        // person is a lover
-        player_icons += this.printicon("lover") + " ";
-      }
-      else {
-          if (this.detectMod("BCTweaks")) {
-              // BCTweaks mod is found
-              if (Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)) {
-                  //Player is a best friend, skip checking if they are a friend.
-                  player_icons += this.printicon("bestfriend") + " ";
-              }
-              else if (Player.FriendList.includes(player.MemberNumber)) {
-                  // Player is not a best friend, but they are a freind
-                  player_icons += this.printicon("friend") + " ";
-              }
-          }
-          else if (Player.FriendList.includes(player.MemberNumber)) {
-            // person is a friend, and the BCTweaks mod is not found
-            player_icons += this.printicon("friend") + " ";
-          }
-      }
-      if (Player.WhiteList.includes(player.MemberNumber)) {
-        // Player is whitelisted
-        player_icons += this.printicon("whitelist") + " ";
-      }
-      else if (Player.BlackList.includes(player.MemberNumber)) {
-        // Player is blacklisted
-        player_icons += this.printicon("blacklist") + " ";
-      }
-      if (Player.GhostList.includes(player.MemberNumber)) {
-        // Player is ghosted
-        player_icons += this.printicon("ghost") + " ";
-      }
-      return player_icons;
-    }
-
-    // Check if you and target player are the same
-    private checkIfMe(player: any) : boolean {
-      return player.MemberNumber == Player.MemberNumber ? true : false;
-    }
-
-    // prints the roster
-    public displayroster(args: any): void {
-        const SPLITARGS = args.split(" ");
-        if (SPLITARGS[0].toLowerCase() == "help") {
-            ChatRoomSendLocal(this.showhelp());
-            return;
-        }
-
-        let me_output_html = ""; // holds data about user who ran script
-        let admin_output_html = ""; // holds admins
-        let vip_output_html = ""; // holds whitelisted users
-        let player_output_html = ""; // holds normal players
-        let player; // the person we found in the room
-        let admin_count = 0; // number of admins in the room
-        let badge = ""; // holds the admin icon if the player is an admin
-        let player_icons = ""; // holds the list of player/status icons (string)
-        let MemberNumber: number;
-        // filter variables, show or not show certain output
-        let showme = true; // person who ran the script (you)
-        let showadmins = true; // room admins
-        let showvip = true; // room whitelists
-        let showplayers = true; // normal players
-
-
-        //get a list of players
-        for (let person in ChatRoomData.Character) {
-            // find member number for current player in list
-            MemberNumber = ChatRoomData.Character[person].MemberNumber;
-
-            // Find player
-            player = ChatRoomCharacter.find((C: any) => C.MemberNumber == MemberNumber);
-
-            //bail out and return placeholder if player is not available.
-            if (!player) {
-                player_output_html +=
-                    "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
-                continue;
-            }
-
-            // check if the player is also an admin or vip and add icon with admin given priority
-            badge = this.setbadge(player);
-            player_icons = this.setIcons(player);
-
-            // if the player is me (person who ran the script)
-            if (this.checkIfMe(player)) {
-                // mark me with a star icon
-                player_icons = this.printicon("you") + " " + player_icons;
-
-                // format my output and store
-                me_output_html = this.formatoutput(player, badge, player_icons, true);
-            }
-
-            // check if the player is an admin and update the count, also flag the player as admin in the output list.
-            if (ChatRoomData.Admin.includes(player.MemberNumber)) {
-                admin_count++;
-                if (!this.checkIfMe(player)) {
-                    // if the player is not me, output admin and skip rest of loop
-                    admin_output_html += this.formatoutput(
-                        player,
-                        badge,
-                        player_icons,
-                        false
-                    );
-                    continue;
-                }
-            } else if (
-                ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-                !this.checkIfMe(player)
-            ) {
-                // if the player isn't an admin, is the player is white listed?
-                vip_output_html += this.formatoutput(player, badge, player_icons, false);
-                continue;
-            } else if (!this.checkIfMe(player)) {
-                // player is normal, nonadmin, not whitelist, and not me.
-                player_output_html += this.formatoutput(
-                    player,
-                    badge,
-                    player_icons,
-                    false
-                );
-            }
-        }
-
-        // if argument is "count", set filter vars and skip loop
-        if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
-            showme = false;
-            showadmins = false;
-            showvip = false;
-            showplayers = false;
-        }
-
-        // if argument is admins, set filter vars to only show admins and continue
-        if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
-            showme = false;
-            showvip = false;
-            showplayers = false;
-        }
-
-        // if argument is vips, set filter vars to only show vips (white listed) and continue
-        if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
-            showme = false;
-            showadmins = false;
-            showplayers = false;
-        }
-
-        //output total number of players/admins
-        ChatRoomSendLocal(
-            `<div>There are ${admin_count}/${ChatRoomData.Admin.length} admins in the room.`
-        );
-        ChatRoomSendLocal(
-            `There are ${ChatRoomCharacter.length}/${ChatRoomData.Limit} total players in the room.`
-        );
+    // Wait for the hook function to finish (assuming `next` ensures it completes)
+    return new Promise<number>((resolve) => {
+      const CHECKONLINEFRIENDS = () => {
         if (this.onlineFriends !== undefined) {
-            ChatRoomSendLocal(
-                `You have ${this.onlineFriends}/${Player.FriendNames.size} friends online.`
-            );
+          resolve(this.onlineFriends); // Return the online friends count
+        } else {
+          setTimeout(CHECKONLINEFRIENDS, 100); // Check again after 100ms
         }
-        else {
-            ChatRoomSendLocal(
-                `You have .../${Player.FriendNames.size} friends online. <- Polling ...`
-            );
-        }
-        ChatRoomSendLocal(
-            `There are ${CurrentOnlinePlayers} online players</div>`
-        );
-        let output_html = "";
+      };
 
-        // start the tabble and remove the boarders
-        output_html += `<table style="border: 0px;">`;
+      CHECKONLINEFRIENDS(); // Start the checking process
+    });
+  }
 
-        // if the filter var resolves to true, add the respective output.
-        output_html = showme ? output_html + me_output_html : output_html;
-        output_html = showadmins ? output_html + admin_output_html : output_html;
-        output_html = showvip ? output_html + vip_output_html : output_html;
-        output_html = showplayers
-            ? output_html + player_output_html
-            : output_html;
+  // determine if player is admin or whitelisted in the room and set their badge icon
+  private setbadge(player: PlayerCharacter): string {
+    let badge = this.printicon("player", "Guest", "CRABS_badge");
+    badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
+      ? this.printicon("vip", "VIP", "CRABS_badge")
+      : badge;
+    badge = ChatRoomData.Admin.includes(player.MemberNumber)
+      ? this.printicon("admin", "Admin", "CRABS_badge")
+      : badge;
+    return badge;
+  }
 
-        // finish the table
-        output_html += `</table>`;
-
-        // show the final output
-        ChatRoomSendLocal(output_html);
+  /*
+   * Sets the icons relevant to the player
+   *
+   * @param player - PlayerCharacter object
+   * @return - string, html string containing the icons.
+   */
+  private setIcons(player: PlayerCharacter): string {
+    let player_icons = "";
+    if (Player.OwnerNumber() == player.MemberNumber) {
+      // person owns you
+      player_icons += this.printicon("owner", "Your Owner") + " ";
+    } else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
+      // if they don't own you but you are in their family, we assume you own them
+      if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
+        // The person is fully owned if this is true
+        player_icons += this.printicon("sub", "Submissive") + " ";
+      } else {
+        // person is on trial
+        player_icons += this.printicon("trial", "Trial") + " ";
+      }
     }
+    if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
+      // person is a lover
+      player_icons += this.printicon("lover", "Lover") + " ";
+    } else {
+      if (this.detectMod("BCTweaks")) {
+        // BCTweaks mod is found
+        if (
+          Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
+        ) {
+          //Player is a best friend, skip checking if they are a friend.
+          player_icons += this.printicon("bestfriend", "Best Friend") + " ";
+        } else if (Player.FriendList.includes(player.MemberNumber)) {
+          // Player is not a best friend, but they are a friend
+          player_icons += this.printicon("friend", "Friend") + " ";
+        }
+      } else if (Player.FriendList.includes(player.MemberNumber)) {
+        // person is a friend, and the BCTweaks mod is not found
+        player_icons += this.printicon("friend", "Friend") + " ";
+      }
+    }
+    if (Player.WhiteList.includes(player.MemberNumber)) {
+      // Player is whitelisted
+      player_icons += this.printicon("whitelist", "Whitelist") + " ";
+    } else if (Player.BlackList.includes(player.MemberNumber)) {
+      // Player is blacklisted
+      player_icons += this.printicon("blacklist", "Blacklist") + " ";
+    }
+    if (Player.GhostList.includes(player.MemberNumber)) {
+      // Player is ghosted
+      player_icons += this.printicon("ghost", "Ghosted") + " ";
+    }
+    return player_icons;
+  }
+
+  /*
+   *  prints the roster
+   *
+   *  @param args - string arguments passed from user
+   *  @param wrapper - boolean wrappar, should we draw the wrapper
+   *  @returms - string html output
+   */
+  public buildroster(
+      args: string, 
+      wrapper: boolean = true
+  ): string {
+    const SPLITARGS = args.split(" ");
+
+    let me_output_html: string = "" // holds data about user who ran script
+    let admin_output_html: string = "" // holds admins
+    let vip_output_html: string = "" // holds whitelisted users
+    let player_output_html : string = "" // holds normal players
+    let player: PlayerCharacter; // the person we found in the room
+    let admin_count = 0; // number of admins in the room
+    let badge = ""; // holds the admin icon if the player is an admin
+    let player_icons = ""; // holds the list of player/status icons (string)
+    let MemberNumber: number;
+
+    // filter variables, show or not show certain output
+    let showme = true; // person who ran the script (you)
+    let showadmins = true; // room admins
+    let showvip = true; // room whitelists
+    let showplayers = true; // normal players
+    let templatevars: Record<string, string>;
+    let output_html: string = ""
+
+    //get a list of players
+    for (let person in ChatRoomData.Character) {
+      // find member number for current player in list
+      MemberNumber = ChatRoomData.Character[person].MemberNumber;
+
+      // Find player
+      player = ChatRoomCharacter.find(
+        (C: any) => C.MemberNumber == MemberNumber
+      );
+
+      //bail out and return placeholder if player is not available.
+      if (!player) {
+        player_output_html +=
+            "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
+        continue;
+      }
+
+      // check if the player is also an admin or vip and add icon with admin given priority
+      badge = this.setbadge(player);
+      player_icons = this.setIcons(player);
+
+      // if the player is me (person who ran the script)
+      if (player.IsPlayer()) {
+        // mark me with a star icon
+        player_icons = this.printicon("you", "You") + " " + player_icons;
+
+        // format my output and store
+        me_output_html = this.buildCard(player, badge, player_icons);
+      }
+
+      // check if the player is an admin and update the count, also flag the player as admin in the output list.
+      if (ChatRoomData.Admin.includes(player.MemberNumber)) {
+        admin_count++;
+        if (!player.IsPlayer()) {
+          // if the player is not me, output admin and skip rest of loop
+          admin_output_html += this.buildCard(player, badge, player_icons);
+          continue;
+        }
+      } else if (
+        ChatRoomData.Whitelist.includes(player.MemberNumber) &&
+        !player.IsPlayer()
+      ) {
+        // if the player isn't an admin, is the player is white listed?
+        vip_output_html += this.buildCard(player, badge, player_icons);
+        continue;
+      } else if (!player.IsPlayer()) {
+        // player is normal, nonadmin, not whitelist, and not me.
+        player_output_html += this.buildCard(player, badge, player_icons);
+      }
+    }
+
+    // if argument is "count", set filter vars and skip loop
+    if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
+      showme = false;
+      showadmins = false;
+      showvip = false;
+      showplayers = false;
+    }
+
+    // if argument is admins, set filter vars to only show admins and continue
+    if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
+      showme = false;
+      showvip = false;
+      showplayers = false;
+    }
+
+    // if argument is vips, set filter vars to only show vips (white listed) and continue
+    if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
+      showme = false;
+      showadmins = false;
+      showplayers = false;
+    }
+
+    // build table header
+    templatevars = {
+      adminIcon: `${this.printicon("admin", "Admins", "CRABS_header_icons")}`,
+      adminsInRoom: `${admin_count}`,
+      totalAdmins: `${ChatRoomData.Admin.length}`,
+      playerIcon: `${this.printicon("player", "Players", "CRABS_header_icons")}`,
+      playersInRoom: `${ChatRoomCharacter.length}`,
+      totalPlayers: `${ChatRoomData.Limit}`,
+      friendIcon: `${this.printicon("friend", "Friends", "CRABS_header_icons")}`,
+      friendsOnline: this.onlineFriends?.toString() ?? "...",
+      totalFriends: `${Player.FriendNames.size}`,
+      connectedIcon: `${this.printicon("connected", "Online Accounts", "CRABS_header_icons")}`,
+      onlinePlayers: `${CurrentOnlinePlayers}`,
+    };
+
+    // are we on a map?
+    if (ChatRoomMapViewIsActive()) {
+      let displaykeys = ""; // determines how to show keys (css) in the roster
+
+      // build a dictionary of the keys
+      const KEYS = {
+        keyBronze: Player.MapData.PrivateState.HasKeyBronze,
+        keySilver: Player.MapData.PrivateState.HasKeySilver,
+        keyGold: Player.MapData.PrivateState.HasKeyGold,
+      };
+
+      // loop the dictionary and extract the key and name
+      for (const [KEY, VALUE] of Object.entries(KEYS)) {
+        // if key is found, set icon and tool tip
+        displaykeys += this.printicon(VALUE ? KEY : "keyNull");
+      }
+
+      // replace the template objects for the values we determined above.
+      templatevars["online_player_border"] = "2px";      
+      templatevars["collectedKeys"] = 
+          `<td style="border-right: 0px">${displaykeys}</td>`;
+      templatevars["columncount"] = "5";
+    } else {
+      templatevars["online_players_border"] = "0px"; 
+      templatevars["collectedKeys"] = "";
+      templatevars["columncount"] = "4"; // no keys? colspan is 4
+    }
+
+    // start the tabble
+    let output_rows: string = "";
+    // if the filter var resolves to true, add the respective output.
+    output_rows = showme ? output_rows + me_output_html : output_rows;
+    output_rows = showadmins ? output_rows + admin_output_html : output_rows;
+    output_rows = showvip ? output_rows + vip_output_html : output_rows;
+    output_rows = showplayers ? output_rows + player_output_html : output_rows;
+    templatevars["playerRows"] = output_rows;
+
+    // run the template and fill it out
+    output_html = this.template(rostertemplate, templatevars, wrapper);
+    return output_html;
+  }
 }

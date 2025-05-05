@@ -17,12 +17,13 @@ declare global {
   interface Window {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
+    printRoster: typeof Roster.printRoster;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
     CommandSet(payload: string): void;
   }
 
   interface HTMLElement {
-      value: string;
+    value: string;
   }
 
   interface Lovership {
@@ -88,6 +89,14 @@ declare global {
       OOCAutoClose: boolean;
     };
 
+    MapData: {
+      PrivateState: {
+        HasKeyBronze?: boolean;
+        HasKeySilver?: boolean;
+        HasKeyGold?: boolean;
+      };
+    };
+
     // You can add the rest of the methods as needed
   }
 
@@ -95,6 +104,7 @@ declare global {
 
   function addChatMessage(msg: string): void;
   function CommandCombine(command: Array<any>);
+  function CharacterGetEffects(Player: PlayerCharacter): Array<string>;
   function CharacterNickname(Player: PlayerCharacter): string;
   function ChatRoomFocusCharacter(player: PlayerCharacter): void;
   function ChatRoomGenerateChatRoomChatMessage(
@@ -123,6 +133,7 @@ declare global {
     target: PlayerCharacter
   ): boolean;
   function ChatRoomMapViewIsActive(): boolean;
+  function ElementScrollToEnd(element: string): void;
   function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
   function TextGetInScope(path_to_csv: string, permission: string): void;

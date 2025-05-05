@@ -1,0 +1,34 @@
+<div class="CRABS_roster_center_table">
+    <div class="CRABS_roster_table_shrink">
+        <table class="CRABS_room-status">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="CRABS_roster_header_align">
+                            {{adminIcon}}{{adminsInRoom}}/{{totalAdmins}}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="CRABS_roster_header_align">
+                            {{playerIcon}}{{playersInRoom}}/{{totalPlayers}}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="CRABS_roster_header_align">
+                            {{friendIcon}}{{friendsOnline}}/{{totalFriends}}
+                        </div>
+                    </td>
+                    <td style="border-right:{{online_players_border}}">
+                        <div class="CRABS_roster_header_align">
+                            {{connectedIcon}}{{onlinePlayers}}
+                        </div>
+                    </td>
+                    {{collectedKeys}}
+                </tr>
+            </tbody>
+        </table>
+        <div class="CRABS_card-container">
+            {{playerRows}}
+        </div>
+    </div>
+</div>
