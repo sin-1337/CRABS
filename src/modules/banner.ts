@@ -13,6 +13,10 @@ export class Banner extends CRABS {
     version: string,
     extradata?: Record<string, string>
   ): string {
+    // bail if ChatRoomData is null or blank 
+    if (!ChatRoomData || Object.keys(ChatRoomData).length === 0) {
+        return "ChatRoomData wasn't populated!";
+    }
     // get player permissions
     const currentPermissionText = `${TextGetInScope(
       "Screens/Character/InformationSheet/Text_InformationSheet.csv",
