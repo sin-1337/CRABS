@@ -29,6 +29,11 @@
   vertical-align: middle;
 }
 
+.CRABS_logo {
+  width: 100px; /* or whatever size you need */
+  height: 100px; /* or whatever size you need */
+}
+
 .CRABS_badge {
   width: 1.5em; /* or whatever size you need */
   height: auto;

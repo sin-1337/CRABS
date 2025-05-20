@@ -9,7 +9,7 @@ export class Help extends CRABS {
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            ${this.printimage("logo", undefined, undefined, "height: 100px; width: 100px;")}</br>
+            ${this.printimage("logo", undefined, "CRABS_logo")}</br>
             CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
