@@ -4,7 +4,7 @@ import * as Modules from "./modules";
 import loadDOM from "./modules/dom";
 
 // configure the version and mod name
-const VERSION = "1.2.0.5 Alpha";
+const VERSION = "1.2.0.6 Alpha";
 const NAME = "Crazy Roster Add-on By Sin";
 const NICKNAME = "CRABS";
 
