@@ -2,90 +2,70 @@ import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
-export type TemplateValue = string | { text: string };
 
 export default class CRABS {
   declare crabs: ModSDKModAPI;
 
   // an dictionary containing all the icons that CRABS uses
-  protected readonly ICONS: Record<string, string> = {
+  protected readonly IMAGES: Record<string, string> = {
     // logo
-    logo: "https://sin-1337.github.io/CRABS/CRABS_Logo.png",
+    logo: "CRABS_Logo.png",
 
     // error icon
-    error: "https://sin-1337.github.io/CRABS/error.svg",
+    error: "error.svg",
 
     // badges
-    admin: "https://sin-1337.github.io/CRABS/icons/admin.svg",
-    vip: "https://sin-1337.github.io/CRABS/icons/vip.svg",
-    player: "https://sin-1337.github.io/CRABS/icons/player.svg",
+    admin: "admin.svg",
+    vip: "vip.svg",
+    player: "player.svg",
 
     // icons
-    you: "https://sin-1337.github.io/CRABS/icons/you.svg",
-    owner: "https://sin-1337.github.io/CRABS/icons/owner.svg",
-    sub: "https://sin-1337.github.io/CRABS/icons/sub.svg",
-    trial: "https://sin-1337.github.io/CRABS/icons/trial.svg",
-    lover: "https://sin-1337.github.io/CRABS/icons/lover.svg",
-    bestfriend: "https://sin-1337.github.io/CRABS/icons/bestfriend.svg",
-    friend: "https://sin-1337.github.io/CRABS/icons/friends.svg",
-    whitelist: "https://sin-1337.github.io/CRABS/icons/whitelist.svg",
-    blacklist: "https://sin-1337.github.io/CRABS/icons/blacklist.svg",
-    ghost: "https://sin-1337.github.io/CRABS/icons/ghost.svg",
-    thought: "https://sin-1337.github.io/CRABS/icons/thought.svg",
+    you: "you.svg",
+    owner: "owner.svg",
+    sub: "sub.svg",
+    trial: "trial.svg",
+    lover: "lover.svg",
+    bestfriend: "bestfriend.svg",
+    friend: "friends.svg",
+    whitelist: "whitelist.svg",
+    blacklist: "blacklist.svg",
+    ghost: "ghost.svg",
+    thought: "thought.svg",
 
     // globe icon for all BC players
-    connected: "https://sin-1337.github.io/CRABS/icons/connected.svg",
+    connected: "connected.svg",
 
     //map keys
-    keyGold: "https://sin-1337.github.io/CRABS/icons/keyGold.png",
-    keySilver: "https://sin-1337.github.io/CRABS/icons/keySilver.png",
-    keyBronze: "https://sin-1337.github.io/CRABS/icons/keyBronze.png",
-    keyNull: "https://sin-1337.github.io/CRABS/icons/keyNull.svg",
+    keyGold: "keyGold.png",
+    keySilver: "keySilver.png",
+    keyBronze: "keyBronze.png",
+    keyNull: "keyNull.svg",
 
     //BC Icons:
-    blindNone: "https://sin-1337.github.io/CRABS/icons/blindNone.svg",
-    blindLight:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindLight.png",
-    blindNormal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindNormal.png",
-    blindHeavy:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
-    blindTotal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/BlindHeavy.png",
+    blindNone: "blindNone.svg",
+    blindLight: "BlindLight.png",
+    blindNormal: "BlindNormal.png",
+    blindHeavy: "BlindHeavy.png",
+    blindTotal: "BlindHeavy.png",
 
-    deafNone: "https://sin-1337.github.io/CRABS/icons/deafNone.svg",
-    deafLight:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafLight.png",
-    deafNormal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafNormal.png",
-    deafHeavy:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
-    deafTotal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/DeafHeavy.png",
+    deafNone: "deafNone.svg",
+    deafLight: "DeafLight.png",
+    deafNormal: "DeafNormal.png",
+    deafHeavy: "DeafHeavy.png",
+    deafTotal: "DeafHeavy.png",
 
-    gagNone: "https://sin-1337.github.io/CRABS/icons/gagNone.svg",
-    gagVeryLight:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagEasy:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagLight:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagLight.png",
-    gagNormal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
-    gagMedium:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagNormal.png",
-    gagHeavy:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
-    gagVeryHeavy:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagHeavy.png",
-    gagTotal:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal2:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal3:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
-    gagTotal4:
-      "https://www.bondageprojects.elementfx.com/R115/BondageClub/Icons/Previews/GagTotal.png",
+    gagNone: "gagNone.svg",
+    gagVeryLight: "GagLight.png",
+    gagEasy: "GagLight.png",
+    gagLight: "GagLight.png",
+    gagNormal: "GagNormal.png",
+    gagMedium: "GagNormal.png",
+    gagHeavy: "GagHeavy.png",
+    gagVeryHeavy: "GagHeavy.png",
+    gagTotal: "GagTotal.png",
+    gagTotal2: "GagTotal.png",
+    gagTotal3: "GagTotal.png",
+    gagTotal4: "GagTotal.png",
   };
 
   constructor(CRABS: ModSDKModAPI) {
@@ -160,10 +140,6 @@ export default class CRABS {
     }
   }
 
-  protected plaintext(value: string): TemplateValue {
-    return { text: value };
-  }
-
   /*
    * Takes a template name and outputs the filled out template string
    *
@@ -192,20 +168,6 @@ export default class CRABS {
   }
 
   /*
-   * print the crabs logo
-   * @return html string for the logo
-   */
-  protected printlogo(): string {
-    let html = "";
-    html += `<img `;
-    html += `alt='CRABS' `;
-    html += `src='${this.ICONS["logo"]}' `;
-    html += `height="100px" width="100px"`;
-    html += `>`;
-    return html;
-  }
-
-  /*
    *  print icons
    *
    *  @param key - (string) name of the icon you want
@@ -214,23 +176,24 @@ export default class CRABS {
    *                    to overwrite the default style sheet.
    *  @return - (string) html representing the icon
    */
-  protected printicon(
+  protected printimage(
     key: string,
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
     css_style: string = "" // optional, css overwrite
   ): string {
-    let ICON = this.ICONS["error"]; // fall back if the icon isn't found
-    if (key in this.ICONS) {
+    let icon = this.IMAGES["error"]; // fall back if the icon isn't found
+    if (key in this.IMAGES) {
       // test if the key exists
-      ICON = this.ICONS[key];
+      icon = this.IMAGES[key];
     }
+    const BASEPATH = "https://sin-1337.github.io/CRABS/images/";
 
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
     html += `alt='${key}' `;
-    html += `src='${ICON}' `;
+    html += `src='${BASEPATH}${icon}' `;
     html += `class='${css_class}'`;
     if (css_style != "") html += `style="${css_style}"`;
     html += `>`;
@@ -255,9 +218,9 @@ export default class CRABS {
     hex = hex.replace(/^#/, "");
 
     // Parse the red, green, and blue components
-    let red = parseInt(hex.substr(0, 2), 16);
-    let green = parseInt(hex.substr(2, 2), 16);
-    let blue = parseInt(hex.substr(4, 2), 16);
+    let red = parseInt(hex.slice(0, 2), 16);
+    let green = parseInt(hex.slice(2, 4), 16);
+    let blue = parseInt(hex.slice(4, 6), 16);
 
     // Return the rgba value with alpha transparency
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;

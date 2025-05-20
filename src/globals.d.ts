@@ -126,7 +126,7 @@ declare global {
   function ChatRoomSendLocal(Content: string, Timeout?: number): void;
   function ChatRoomSendLocalChatRoomSendLocal(
     Content: string,
-    Timeout?: numbeer
+    Timeout?: number
   ): void;
   function ChatRoomStatusUpdate(payload: string): any;
   function ChatRoomMapViewCharacterOnWhisperRange(

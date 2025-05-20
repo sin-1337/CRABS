@@ -104,6 +104,7 @@ ChatRoomRegisterMessageHandler({
       // work on a delay
       setTimeout(() => {
         // configure extra roster input to the banner
+        if(!ChatRoomData) return; // bail if ChatRoomData isn't initialized 
         drawbanner();
       }, 3600);
     }
