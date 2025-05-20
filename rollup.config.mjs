@@ -5,8 +5,7 @@ import typescript from "@rollup/plugin-typescript";
 import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import progress from "rollup-plugin-progress";
-import packageJson from "./package.json" assert { type: "json" };
-import simpleGit from "simple-git";
+import packageJson from "./package.json";
 import { string } from "rollup-plugin-string";
 import postcss from "rollup-plugin-postcss";
 
@@ -57,6 +56,7 @@ console.debug("CRABS: Parse start...");
   plugins: [
     progress({ clearLine: true }),
     resolve({ browser: true }),
+    json(),
     postcss({
       inject: true,      // ✅ Inline <style> tag into output JS
       minimize: true,    // Optional: Minify CSS
