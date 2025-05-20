@@ -25,7 +25,7 @@ export class Banner extends CRABS {
 
     // set up the template and populate the fields.
     let templatevars = {
-      Logo: this.printlogo(),
+      Logo: this.printimage("logo", undefined, undefined, "height: 100px; width: 100px;"),
       Name: name,
       Version: version,
       LabelColor: `${Player.LabelColor}`,

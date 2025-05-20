@@ -9,7 +9,7 @@ export class Help extends CRABS {
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            ${this.printlogo()}</br>
+            ${this.printimage("logo", undefined, undefined, "height: 100px; width: 100px;")}</br>
             CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
@@ -39,34 +39,34 @@ export class Help extends CRABS {
             </br>
             Badges:
             <hr>
-            ${this.printicon("admin")} = Person is Admin</br>
-            ${this.printicon("vip")} = Person is whitelisted in the room </br>
-            ${this.printicon("player")} = Person is a normal user </br>
+            ${this.printimage("admin")} = Person is Admin</br>
+            ${this.printimage("vip")} = Person is whitelisted in the room </br>
+            ${this.printimage("player")} = Person is a normal user </br>
 
             </br>
             Icons:
             <hr>
-            ${this.printicon("you")} = Person is you </br>
-            ${this.printicon("owner")} = Person is your owner </br>
-            ${this.printicon("sub")} = Person is your submissive </br>
-            ${this.printicon("trial")} = Person is on trial with you </br>
-            ${this.printicon("lover")} = Person is your lover </br>`;
+            ${this.printimage("you")} = Person is you </br>
+            ${this.printimage("owner")} = Person is your owner </br>
+            ${this.printimage("sub")} = Person is your submissive </br>
+            ${this.printimage("trial")} = Person is on trial with you </br>
+            ${this.printimage("lover")} = Person is your lover </br>`;
 
     //prints only if the BCTweaks module is detected.
     if (this.detectMod("BCTweaks")) {
-      output += `${this.printicon(
+      output += `${this.printimage(
         "bestfriend"
       )} = Person is a best friend </br>`;
     }
 
-    output += `${this.printicon("friend")} = Person is a friend </br>
-            ${this.printicon(
+    output += `${this.printimage("friend")} = Person is a friend </br>
+            ${this.printimage(
               "whitelist"
             )} = You have this person whitelisted </br>
-            ${this.printicon(
+            ${this.printimage(
               "blacklist"
             )} = You have this person blacklisted </br>
-            ${this.printicon("ghost")} = You have ghosted this person </br>
+            ${this.printimage("ghost")} = You have ghosted this person </br>
 
             </br>
             Status Icons:
