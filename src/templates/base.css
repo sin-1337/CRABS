@@ -12,7 +12,7 @@
   background-attachment: fixed;
   border-radius: 12px;
   border: 2px solid #fff;
-  postion: relative;
+  position: relative;
   z-index: 0;
 }
 
@@ -29,6 +29,11 @@
   vertical-align: middle;
 }
 
+.CRABS_logo {
+  width: 100px; /* or whatever size you need */
+  height: 100px; /* or whatever size you need */
+}
+
 .CRABS_badge {
   width: 1.5em; /* or whatever size you need */
   height: auto;
@@ -38,7 +43,6 @@
 .CRABS_icon {
   width: 1em; /* or whatever size you need */
   height: auto;
-  cursor: pointer;
 }
 
 .CRABS_tooltip {

@@ -13,6 +13,10 @@ export class Banner extends CRABS {
     version: string,
     extradata?: Record<string, string>
   ): string {
+    // bail if ChatRoomData is null or blank 
+    if (!ChatRoomData || Object.keys(ChatRoomData).length === 0) {
+        return "ChatRoomData wasn't populated!";
+    }
     // get player permissions
     const currentPermissionText = `${TextGetInScope(
       "Screens/Character/InformationSheet/Text_InformationSheet.csv",
@@ -21,7 +25,7 @@ export class Banner extends CRABS {
 
     // set up the template and populate the fields.
     let templatevars = {
-      Logo: this.printlogo(),
+      Logo: this.printimage("logo", undefined, "CRABS_logo"),
       Name: name,
       Version: version,
       LabelColor: `${Player.LabelColor}`,
