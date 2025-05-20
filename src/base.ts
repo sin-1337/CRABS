@@ -15,30 +15,30 @@ export default class CRABS {
     error: "error.svg",
 
     // badges
-    admin: "icons/admin.svg",
-    vip: "icons/vip.svg",
-    player: "icons/player.svg",
+    admin: "admin.svg",
+    vip: "vip.svg",
+    player: "player.svg",
 
     // icons
-    you: "icons/you.svg",
-    owner: "icons/owner.svg",
-    sub: "icons/sub.svg",
-    trial: "icons/trial.svg",
-    lover: "icons/lover.svg",
-    bestfriend: "icons/bestfriend.svg",
-    friend: "icons/friends.svg",
-    whitelist: "icons/whitelist.svg",
-    blacklist: "icons/blacklist.svg",
-    ghost: "icons/ghost.svg",
-    thought: "icons/thought.svg",
+    you: "you.svg",
+    owner: "owner.svg",
+    sub: "sub.svg",
+    trial: "trial.svg",
+    lover: "lover.svg",
+    bestfriend: "bestfriend.svg",
+    friend: "friends.svg",
+    whitelist: "whitelist.svg",
+    blacklist: "blacklist.svg",
+    ghost: "ghost.svg",
+    thought: "thought.svg",
 
     // globe icon for all BC players
-    connected: "icons/connected.svg",
+    connected: "connected.svg",
 
     //map keys
-    keyGold: "icons/keyGold.png",
-    keySilver: "icons/keySilver.png",
-    keyBronze: "icons/keyBronze.png",
+    keyGold: "keyGold.png",
+    keySilver: "keySilver.png",
+    keyBronze: "keyBronze.png",
     keyNull: "keyNull.svg",
 
     //BC Icons:
@@ -182,10 +182,10 @@ export default class CRABS {
     css_class: string = "CRABS_icon", //optional class overwrite
     css_style: string = "" // optional, css overwrite
   ): string {
-    let ICON = this.IMAGES["error"]; // fall back if the icon isn't found
+    let icon = this.IMAGES["error"]; // fall back if the icon isn't found
     if (key in this.IMAGES) {
       // test if the key exists
-      ICON = this.IMAGES[key];
+      icon = this.IMAGES[key];
     }
     const BASEPATH = "https://sin-1337.github.io/CRABS/images/";
 
@@ -193,7 +193,7 @@ export default class CRABS {
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
     html += `alt='${key}' `;
-    html += `src='${BASEPATH}${ICON}' `;
+    html += `src='${BASEPATH}${icon}' `;
     html += `class='${css_class}'`;
     if (css_style != "") html += `style="${css_style}"`;
     html += `>`;
