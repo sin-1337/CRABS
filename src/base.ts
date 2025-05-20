@@ -7,7 +7,7 @@ export default class CRABS {
   declare crabs: ModSDKModAPI;
 
   // an dictionary containing all the icons that CRABS uses
-  protected readonly ICONS: Record<string, string> = {
+  protected readonly IMAGES: Record<string, string> = {
     // logo
     logo: "CRABS_Logo.png",
 
@@ -182,12 +182,12 @@ export default class CRABS {
     css_class: string = "CRABS_icon", //optional class overwrite
     css_style: string = "" // optional, css overwrite
   ): string {
-    let ICON = this.ICONS["error"]; // fall back if the icon isn't found
-    if (key in this.ICONS) {
+    let ICON = this.IMAGES["error"]; // fall back if the icon isn't found
+    if (key in this.IMAGES) {
       // test if the key exists
-      ICON = this.ICONS[key];
+      ICON = this.IMAGES[key];
     }
-    const BASEPATH = "https://sin-1337.github.io/CRABS/icons/";
+    const BASEPATH = "https://sin-1337.github.io/CRABS/images/";
 
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
