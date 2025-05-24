@@ -23,25 +23,25 @@
 }
 
 .CRABS_header_icons {
-  width: 0.9em; /* or whatever size you need */
+  width: 0.9em; 
   height: auto;
   cursor: pointer;
   vertical-align: middle;
 }
 
 .CRABS_logo {
-  width: 100px; /* or whatever size you need */
-  height: 100px; /* or whatever size you need */
+  width: 2.5em; 
+  height: 2.5em; 
 }
 
 .CRABS_badge {
-  width: 1.5em; /* or whatever size you need */
+  width: 1.5em; 
   height: auto;
   cursor: pointer;
 }
 
 .CRABS_icon {
-  width: 1em; /* or whatever size you need */
+  width: 1em; 
   height: auto;
 }
 
@@ -54,18 +54,18 @@
   padding: 6px 10px;
   border-radius: 4px;
   position: absolute;
-  bottom: 120%; /* position above the image */
+  bottom: 120%; 
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  z-index: 9999; /* HIGH value to ensure it's on top */;
+  z-index: 9999; 
   transition: opacity 0.2s ease-in-out;
 }
 
 .CRABS_tooltip::after {
   content: "";
   position: absolute;
-  top: 100%; /* arrow pointing down */
+  top: 100%; 
   left: 50%;
   transform: translateX(-50%);
   border-width: 5px;
