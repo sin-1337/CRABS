@@ -180,7 +180,7 @@ export default class CRABS {
     if (wrapper) {
       template = wrappertemplate
       .replace("{{content}}", template)
-      .replace("{{Close}}", template);
+      .replace("{{Close}}", this.printimage("close", undefined, "CRABS_close"));
     }
 
     return template;
