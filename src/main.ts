@@ -85,6 +85,9 @@ function drawbanner() {
 
   // make the roster footer /roster a clickable url
   attachEvent("CRABS_banner_rosterlink", "printRoster");
+
+  // make the close button functional
+  attachEvent("CRABS_close", "crabsCloseItem", "banner");
 }
 
 // TODO: create ui to turn this off!!

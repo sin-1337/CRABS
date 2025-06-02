@@ -109,6 +109,21 @@ export default class CRABS {
   }
 
   /*
+   * Removes and element from the DOM by id
+   * @param elementId: (stirng) id of html element to remove
+   *
+   * return void
+   */
+  public static close(elementId: string): void {
+    if (elementId) {
+      const EXISTING = document.getElementById(elementId);
+      if (EXISTING) {
+        EXISTING.remove();
+      }
+    }
+  }
+
+  /*
    * Prints HTMLElement objects into the DOM (Chat Window)
    * and scroll to bottom of chat window
    *
@@ -126,10 +141,7 @@ export default class CRABS {
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       if (elementId) {
-        const EXISTING = document.getElementById(elementId);
-        if (EXISTING) {
-          EXISTING.remove();
-        }
+        CRABS.close(elementId);
 
         const WRAPPER = document.createElement("div");
         WRAPPER.id = elementId;
