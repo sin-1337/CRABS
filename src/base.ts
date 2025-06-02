@@ -14,6 +14,11 @@ export default class CRABS {
     // error icon
     error: "error.svg",
 
+    // options:
+    close: "close.svg",
+    help: "help.svg",
+    settings: "settings.svg",
+
     // badges
     admin: "admin.svg",
     vip: "vip.svg",

@@ -40,6 +40,12 @@
   cursor: pointer;
 }
 
+.CRRABS_close {
+    width: 0.8em;
+    height: auto;
+    cursor: pointer;
+}
+
 .CRABS_icon {
   width: 1em; 
   height: auto;
