@@ -178,7 +178,9 @@ export default class CRABS {
     }
 
     if (wrapper) {
-      template = wrappertemplate.replace("{{content}}", template);
+      template = wrappertemplate
+      .replace("{{content}}", template)
+      .replace("{{Close}}", template);
     }
 
     return template;

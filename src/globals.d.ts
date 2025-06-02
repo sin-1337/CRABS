@@ -18,6 +18,7 @@ declare global {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
     printRoster: typeof Roster.printRoster;
+    crabsCloseItem: typeof Roster.close;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
     CommandSet(payload: string): void;
   }
