@@ -20,6 +20,8 @@
   display: flex;
   justify-content: flex-end;
   padding: 6px 8px 0 0; /* small top and right padding */
+  width: 100%; /* <-- ensure it stretches full width */
+  box-sizing: border-box; /* <-- prevent padding from collapsing layout */
 }
 
 .CRABS_wrapper_close {
