@@ -114,7 +114,7 @@ export default class CRABS {
    *
    * return void
    */
-  public static close(elementId: string): void {
+  public static closeElement(elementId: string): void {
     if (elementId) {
       const EXISTING = document.getElementById(elementId);
       if (EXISTING) {
