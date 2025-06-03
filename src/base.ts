@@ -115,9 +115,12 @@ export default class CRABS {
    * return void
    */
   public static closeElement(elementId: string): void {
+    console.log("CRABS Closing: " + elementId)
     if (elementId) {
       const EXISTING = document.getElementById(elementId);
+      console.log("CRABS EXISTING: " + EXISTING)
       if (EXISTING) {
+          console.log("CRABES removing element!")
         EXISTING.remove();
       }
     }
