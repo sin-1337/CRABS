@@ -141,7 +141,7 @@ export default class CRABS {
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       if (elementId) {
-        CRABS.close(elementId);
+        CRABS.closeElement(elementId);
 
         const WRAPPER = document.createElement("div");
         WRAPPER.id = elementId;
