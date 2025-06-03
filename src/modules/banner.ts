@@ -34,7 +34,7 @@ export class Banner extends CRABS {
     };
 
     let wrappervars = {
-        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementId", "CRABS_Banner"])
+        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Banner"])
     }
 
     if (extradata) Object.assign(templatevars, extradata);
