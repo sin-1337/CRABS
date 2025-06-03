@@ -33,6 +33,10 @@ export class Banner extends CRABS {
       RoomName: ChatRoomData.Name,
     };
 
+    let wrappervars = {
+        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["element", "CRABS_Banner"])
+    }
+
     if (extradata) Object.assign(templatevars, extradata);
 
     return this.template(bannertemplate, templatevars);

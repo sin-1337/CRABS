@@ -115,12 +115,12 @@ export default class CRABS {
    * return void
    */
   public static closeElement(elementId: string): void {
-    console.log("CRABS Closing: " + elementId)
+    console.log("CRABS Closing: " + elementId);
     if (elementId) {
       const EXISTING = document.getElementById(elementId);
-      console.log("CRABS EXISTING: " + EXISTING)
+      console.log("CRABS EXISTING: " + EXISTING);
       if (EXISTING) {
-          console.log("CRABES removing element!")
+        console.log("CRABES removing element!");
         EXISTING.remove();
       }
     }
@@ -166,24 +166,30 @@ export default class CRABS {
    * @param template_name - Name of the HTML file, no extension or path
    * @param args - A dictionary where the key is a variable name to replace the template
    * @param wrapper -  A boolean that determines if we draw the wrapper or not
+   * @param wrapperArgs - [optional] A dictionary of key/values that populate the wrapper
    * @return A promise that resolves to the final html string
    */
   protected template(
     template: string,
     args: Record<string, string>,
-    wrapper: boolean = true
+    wrapper: boolean = true,
+    wrapperArgs?: Record<string, string>
   ): string {
     let regex: RegExp;
 
-    for (const [key, value] of Object.entries(args)) {
-      regex = new RegExp(`{{${key}}}`, "g");
-      template = template.replace(regex, value);
+    for (const [KEY, VALUE] of Object.entries(args)) {
+      regex = new RegExp(`{{${KEY}}}`, "g");
+      template = template.replace(regex, VALUE);
     }
 
     if (wrapper) {
-      template = wrappertemplate
-      .replace("{{content}}", template)
-      .replace("{{Close}}", this.printimage("close", undefined, "CRABS_close"));
+      template = wrappertemplate.replace("{{content}}", template);
+      if (wrapperArgs) {
+        for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
+          regex = new RegExp(`{{${KEY}}}`, "g");
+          template = template.replace(regex, VALUE);
+        }
+      }
     }
 
     return template;
@@ -196,13 +202,15 @@ export default class CRABS {
    *  @param tooltip - (string [optional] string tool top
    *  @param style - (string) [optional] css style
    *                    to overwrite the default style sheet.
+   *  @param data - (Record) [optional] dictionary of strings to provide data to event listeners.
    *  @return - (string) html representing the icon
    */
   protected printimage(
     key: string,
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
-    css_style: string = "" // optional, css overwrite
+    css_style: string = "", // optional, css overwrite
+    data?: Array<string> // optional, facilitates special data for event listeners
   ): string {
     let icon = this.IMAGES["error"]; // fall back if the icon isn't found
     if (key in this.IMAGES) {
@@ -214,6 +222,7 @@ export default class CRABS {
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
+    if (data) html += `data-${data[0]}=${data[1]} `;
     html += `alt='${key}' `;
     html += `src='${BASEPATH}${icon}' `;
     html += `class='${css_class}'`;
