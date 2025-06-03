@@ -1,5 +1,5 @@
 <div width=100% align="center">
-  <img src="https://sin-1337.github.io/CRABS/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
+  <img src="https://sin-1337.github.io/CRABS/images/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
 </div>
 
 <h1 align="center">Crazy Roster Add-on By Sin</h1>
@@ -51,14 +51,14 @@ supply one or more key colors, or all to drop
 all keys. </p>
 
 <p>
-### Badges: <br>
+Badges: <br>
 <img src="https://sin-1337.github.io/CRABS/icons/admin.svg" alt="Admin" width="40" height="40" align="center"> = Person is Admin<br>
 <img src="https://sin-1337.github.io/CRABS/icons/vip.svg" alt="VIP" width="40" height="40" align="center"> = Person is whitelisted in the room<br>
 <img src="https://sin-1337.github.io/CRABS/icons/player.svg" alt="Player" width="40" height="40" align="center"> = Person is a normal user<br>
 </p>
 
 <p>
-### Icons: <br>
+Icons: <br>
 <img src="https://sin-1337.github.io/CRABS/icons/you.svg" alt="You" width="40" height="40" align="center"> = Person is you<br>
 <img src="https://sin-1337.github.io/CRABS/icons/owner.svg" alt="Owner" width="40" height="40" align="center"> = Person is your owner<br>
 <img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive<br>
