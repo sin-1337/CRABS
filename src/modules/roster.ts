@@ -454,8 +454,13 @@ export class Roster extends CRABS {
     output_rows = showplayers ? output_rows + player_output_html : output_rows;
     templatevars["playerRows"] = output_rows;
 
+    let wrappervars = {
+        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["element", "CRABS_Roster"])
+    }
+
+
     // run the template and fill it out
-    output_html = this.template(rostertemplate, templatevars, wrapper);
+    output_html = this.template(rostertemplate, templatevars, wrapper, wrappervars);
     return output_html;
   }
 }

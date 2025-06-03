@@ -173,7 +173,7 @@ export default class CRABS {
     template: string,
     args: Record<string, string>,
     wrapper: boolean = true,
-    wrapperArgs?: Record<string, string>
+    wrapperArgs?: Record<string, string> // ignored when wrapper == false
   ): string {
     let regex: RegExp;
 

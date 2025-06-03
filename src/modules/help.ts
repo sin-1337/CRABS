@@ -98,6 +98,11 @@ export class Help extends CRABS {
     let templatevars = {
         "HelpOutput": output,
     };
-    return(this.template(helptemplate, templatevars));
+    
+    let wrappervars = {
+        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["element", "CRABS_Help"])
+    }
+
+    return(this.template(helptemplate, templatevars, true, wrappervars));
   }
 }
