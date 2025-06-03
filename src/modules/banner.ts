@@ -39,6 +39,6 @@ export class Banner extends CRABS {
 
     if (extradata) Object.assign(templatevars, extradata);
 
-    return this.template(bannertemplate, templatevars);
+    return this.template(bannertemplate, templatevars, true, wrappervars);
   }
 }
