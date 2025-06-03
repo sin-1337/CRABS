@@ -32,14 +32,16 @@ console.log(`CRABS v${VERSION} Loaded`);  // do not remove
  *@param action - (string) name of the function you want to call when the event is triggered
  *@param data - (string) [optional] arguments to the function, MUST be camel   
  *                                  case... ex: playerNumber
+ *@param arg - (string) [optional] direct argument to pass, mutually exclusive with data, if passed, data ignored.
  *@param event - (string) [default = click] type of event you wish this to trigger on
  */
 function attachEvent(
   classname: string,
   action: string,
   data?: string,
+  arg?: string,
   event: string = "click"
-) {
+): void {
   const CHAT = document.getElementById("TextAreaChatLog");
 
   if (!CHAT) return; // if chat is not found, bail
@@ -52,11 +54,17 @@ function attachEvent(
   for (const ELEMENT of ELEMENTS) {
     ELEMENT.addEventListener(event, (e) => { // add listener
       const TARGET = e.currentTarget as HTMLElement; // capture target
+      if (arg) {
+        (window as any)[action](arg);
+        return;
+      }
       if (data) {
         const DATA = TARGET.dataset[data]; // parse data
         (window as any)[action](DATA);
+        return;
       } else {
         (window as any)[action]();
+        return;
       }
     });
   }
