@@ -183,7 +183,9 @@ export default class CRABS {
     }
 
     if (wrapper) {
-      template = wrappertemplate.replace("{{content}}", template);
+      template = wrappertemplate
+        .replace("{{Help}}", this.printimage("help", "Help", "CRABS_Help_Icon"))
+        .replace("{{content}}", template);
       if (wrapperArgs) {
         for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
           regex = new RegExp(`{{${KEY}}}`, "g");

@@ -129,6 +129,8 @@ function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
     HELP.sendoutput(HELP.showhelp(VERSION), "CRABS_Help");
+    const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
+    if (HELPBUTTON) HELPBUTTON.style.display = "none";
     attachEvent("CRABS_close", "crabsCloseItem", "elementid");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
