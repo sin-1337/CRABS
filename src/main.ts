@@ -95,7 +95,7 @@ function drawbanner() {
   attachEvent("CRABS_banner_rosterlink", "printRoster");
 
   // make the close button functional
-  attachEvent("CRABS_close", "crabsCloseItem", undefined, "CRABS_Banner");
+  attachEvent("CRABS_close", "crabsCloseItem", "CRABS_Banner");
 }
 
 // TODO: create ui to turn this off!!
@@ -129,7 +129,7 @@ function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
     HELP.sendoutput(HELP.showhelp(VERSION), "CRABS_Help");
-    attachEvent("CRABS_close", "crabsCloseItem", undefined, "CRABS_Help");
+    attachEvent("CRABS_close", "crabsCloseItem", "CRABS_Help");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
@@ -204,7 +204,7 @@ CommandCombine([
       //attach intractable roster events
       attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
       attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
-      attachEvent("CRABS_close", "crabsCloseItem", undefined, "CRABS_Roster");
+      attachEvent("CRABS_close", "crabsCloseItem", "CRABS_Roster");
     },
   },
 ]);
