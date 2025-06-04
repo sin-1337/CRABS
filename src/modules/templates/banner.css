@@ -22,16 +22,32 @@
     overflow-wrap: break-word;
     white-space: normal;
 }
-/*
-.CRABS_banner_roomname_wrapper {
+
+.CRABS_dropdown_label {
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+  margin-bottom: 4px;
+  display: inline-block;
 }
 
-.CRABS_banner_RosterCounters_wrapper {
+.CRABS_dropdown {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 1em;
+  background-color: #3a364a;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 6px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
 }
 
-.CRABS_banner_footer {
+.CRABS_dropdown:focus {
+  outline: none;
+  border-color: #888;
+  background-color: #504b5d;
 }
-
-.CRABS_banner_URL {
-}
-*/
