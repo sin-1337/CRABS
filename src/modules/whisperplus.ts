@@ -83,7 +83,7 @@ export class WhisperPlus extends CRABS {
      * @param {number} memberNumber - Member number of the target.
      * @returns {void}
      */
-    public static sendWhisper(memberNumber: number): void {
+    public sendWhisper(memberNumber: number): void {
       for ( const command of Commands ) {
         if (command.Tag == "whisper+") {
           window.CommandSet(command.Tag + " " + memberNumber)

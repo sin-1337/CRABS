@@ -20,61 +20,21 @@ const BANNER = new Modules.Banner(CRABS);
 const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
 const ROSTER = new Modules.Roster(CRABS);
 const HELP = new Modules.Help(CRABS);
-loadDOM();
+
+window.sendWhisper = WHISPERPLUS.sendWhisper;
+window.PlayerFocus = ROSTER.showPlayerFocus;
+window.printRoster = ROSTER.printRoster;
+window.crabsCloseItem = ROSTER.closeElement;
+window.crabsHelp = HELP.showHelp;
 
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`);  // do not remove
 
 /** 
- * Attaches an event listener to any object matching the supplied class.
- * 
- * @param {string} classname - Name of the class you are looking for.
- * @param {string} action - Name of the function you want to call when the event is triggered.
- * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
- * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
- * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
- * @returns {void}
- */
-function attachEvent(
-  classname: string,
-  action: string,
-  data?: string,
-  arg?: string,
-  event: string = "click"
-): void {
-  const CHAT = document.getElementById("TextAreaChatLog");
-
-  if (!CHAT) return; // if chat is not found, bail
-  // Select all roster links
-  const ELEMENTS = CHAT.getElementsByClassName(
-    classname
-  ) as HTMLCollectionOf<HTMLElement>;
-
-  // Attach event listeners to all roster links
-  for (const ELEMENT of ELEMENTS) {
-    ELEMENT.addEventListener(event, (e) => { // add listener
-      const TARGET = e.currentTarget as HTMLElement; // capture target
-      if (arg) {
-        (window as any)[action](arg);
-        return;
-      }
-      if (data) {
-        const DATA = TARGET.dataset[data]; // parse data
-        (window as any)[action](DATA);
-        return;
-      } else {
-        (window as any)[action]();
-        return;
-      }
-    });
-  }
-}
-
-/** 
  * Draws the banner 
-*  
-*  @returns {void}
-*/
+ *  
+ * @returns void
+ */
 function drawbanner() {
   let output: string = "";
   // if the player left the room, bail!
@@ -94,10 +54,7 @@ function drawbanner() {
   BANNER.sendoutput(output, "CRABS_Banner");
 
   // make the roster footer /roster a clickable url
-  attachEvent("CRABS_banner_rosterlink", "printRoster");
-
-  // make the close button functional
-  attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+  BANNER.attachEvent("CRABS_banner_rosterlink", "printRoster");
 }
 
 // TODO: create ui to turn this off!!
@@ -130,10 +87,9 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showhelp(VERSION), "CRABS_Help");
+    HELP.sendoutput(HELP.showHelp(VERSION), "CRABS_Help");
     const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
     if (HELPBUTTON) HELPBUTTON.style.display = "none";
-    attachEvent("CRABS_close", "crabsCloseItem", "elementid");
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
     ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
@@ -206,9 +162,8 @@ CommandCombine([
       });
 
       //attach intractable roster events
-      attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
-      attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
-      attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+      ROSTER.attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
+      ROSTER.attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
     },
   },
 ]);

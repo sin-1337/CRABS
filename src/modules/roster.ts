@@ -12,7 +12,7 @@ export class Roster extends CRABS {
    * Constructor
    * 
    * @param {ModSDKModAPI} CRABS - Object containing the modsdkapi
-   * @returns {void}
+   * @returns void
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS);
@@ -23,9 +23,9 @@ export class Roster extends CRABS {
    * Prints the roster as if the user ran the command Meant to be attached to the DOM.
    * 
    * @param {string} action - String that determines what the roster should print.
-   * @returns {void}
+   * @returns void
    */
-  public static printRoster(action: string = "all"): void {
+  public printRoster(action: string = "all"): void {
     for (const [_, COMMAND] of Commands.entries()) {
       if (COMMAND.Tag === `roster`) {
         COMMAND.Action(action);
@@ -38,7 +38,7 @@ export class Roster extends CRABS {
    * detect overflow in cards and scroll the text.
    * 
    * @param {string} containerSelector - String containing the css container we want to target.
-   * @returns {void}
+   * @returns void
    */
   public initScrollingOverflow(
     containerSelector: string = ".CRABS_overflow-wrapper"
@@ -192,7 +192,7 @@ export class Roster extends CRABS {
   /** 
    * Query the server for friendslist.
    * 
-   * @returns {void}
+   * @returns void
    */
   private loadFriendList(): void {
     this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
@@ -206,7 +206,7 @@ export class Roster extends CRABS {
   /** 
    * Debounce function to control the timing of ServerSend.
    * 
-   * @returns {void}
+   * @returns void
    */
   private canSendServerRequest(): boolean {
     const now = Date.now();
@@ -221,7 +221,7 @@ export class Roster extends CRABS {
   /** 
    * Function to get the online friend count.
    *
-   * @returns {void}
+   * @returns void
    */
   public async getOnlineFriendCount(): Promise<number> {
     // Check if it's okay to send the server request
@@ -247,7 +247,7 @@ export class Roster extends CRABS {
   /** 
    * Determine if player is admin or whitelisted in the room and set their badge icon.
    * 
-   * @returns {void}
+   * @returns void
    */
   private setbadge(player: PlayerCharacter): string {
     let badge = this.printimage("player", "Guest", "CRABS_badge");

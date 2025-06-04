@@ -20,6 +20,7 @@ declare global {
     printRoster: typeof Roster.printRoster;
     crabsCloseItem: typeof Roster.close;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
+    crabsHelp: typeof HELP.showHelp;
     CommandSet(payload: string): void;
   }
 

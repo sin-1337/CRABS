@@ -77,14 +77,14 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
-  /** 
+  /**
    * Takes a member number and opens that player's  "focus" screen.
    * This function is setup up to be exposed to the global DOM.
-   * 
+   *
    * @param {number} MemberNumber - The member number for the player in question.
    * @returns {void}
    */
-  public static showPlayerFocus(MemberNumber: number): void {
+  public showPlayerFocus(MemberNumber: number): void {
     // Check if the person is still in the room
     const PLAYER = ChatRoomCharacter.find(
       (C) => C.MemberNumber == MemberNumber
@@ -106,13 +106,13 @@ export default class CRABS {
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
-  /** 
+  /**
    * Removes an element from the DOM by id
-   * 
+   *
    * @param {string} elementId - ID of HTML element to remove
    * @returns {void}
    */
-  public static closeElement(elementId: string): void {
+  public closeElement(elementId: string): void {
     console.log("CRABS Closing: " + elementId);
     if (elementId) {
       const EXISTING = document.getElementById(elementId);
@@ -125,10 +125,56 @@ export default class CRABS {
   }
 
   /**
+   * Attaches an event listener to any object matching the supplied class.
+   *
+   * @param {string} classname - Name of the class you are looking for.
+   * @param {string} action - Name of the function you want to call when the event is triggered.
+   * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
+   * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
+   * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
+   * @returns {void}
+   */
+  public attachEvent(
+    classname: string,
+    action: string,
+    data?: string,
+    arg?: string,
+    event: string = "click"
+  ): void {
+    const CHAT = document.getElementById("TextAreaChatLog");
+
+    if (!CHAT) return; // if chat is not found, bail
+    // Select all roster links
+    const ELEMENTS = CHAT.getElementsByClassName(
+      classname
+    ) as HTMLCollectionOf<HTMLElement>;
+
+    // Attach event listeners to all roster links
+    for (const ELEMENT of ELEMENTS) {
+      ELEMENT.addEventListener(event, (e) => {
+        // add listener
+        const TARGET = e.currentTarget as HTMLElement; // capture target
+        if (arg) {
+          (window as any)[action](arg);
+          return;
+        }
+        if (data) {
+          const DATA = TARGET.dataset[data]; // parse data
+          (window as any)[action](DATA);
+          return;
+        } else {
+          (window as any)[action]();
+          return;
+        }
+      });
+    }
+  }
+
+  /**
    * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
-   * 
+   *
    * @param {HTMLElement} output - Object to print
-   * @param {string} elementId - Name of the element 
+   * @param {string} elementId - Name of the element
    * @returns {void}
    */
   public sendoutput(output: string, elementId?: string): void {
@@ -143,7 +189,7 @@ export default class CRABS {
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       if (elementId) {
-        CRABS.closeElement(elementId);
+        this.closeElement(elementId);
 
         const WRAPPER = document.createElement("div");
         WRAPPER.id = elementId;
@@ -157,9 +203,11 @@ export default class CRABS {
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
     }
+    this.attachEvent("CRABS_Help_Icon", "crabsHelp");
+    this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
   }
 
-  /** 
+  /**
    * Takes a template name and outputs the filled out template string
    *
    * @param {string} template_name - Name of the HTML file, no extension or path
@@ -196,9 +244,9 @@ export default class CRABS {
     return template;
   }
 
-  /** 
+  /**
    * print icons
-   * 
+   *
    * @param {string} key - Name of the icon you want
    * @param {string} [tooltip] - [optional] String tooltip
    * @param {string} [style] - [optional] CSS styles to overwrite the default style sheet.
@@ -233,7 +281,7 @@ export default class CRABS {
     return html;
   }
 
-  /** 
+  /**
    * Function to convert hex color to rgba and add transparency
    *
    * @param {string} hex - value of the color
@@ -254,6 +302,5 @@ export default class CRABS {
 
     // Return the rgba value with alpha transparency
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-    prin
   }
 }
