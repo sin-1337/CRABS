@@ -7,7 +7,11 @@ export class WhisperPlus extends CRABS {
         window.sendWhisper = WhisperPlus.sendWhisper;
     } 
 
-    // send chat message at range
+    /** Send chat message at range.
+     *  @param {any} target - whisper target.
+     *  @param {string} string - message to send.
+     *  @returns {boolean} Was the message sent?
+     */
     private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
         if (msg == "") {
             return false;
@@ -71,7 +75,10 @@ export class WhisperPlus extends CRABS {
         return false;
     }
 
-    // This starts /whisper+ if you click on the roster
+    /** This starts /whisper+ if you click on the roster.
+     *  @param {number} memberNumber - Member number of the target.
+     *  @returns {void}
+     */
     public static sendWhisper(memberNumber: number): void {
       for ( const command of Commands ) {
         if (command.Tag == "whisper+") {
@@ -80,7 +87,11 @@ export class WhisperPlus extends CRABS {
       }
     };
 
-    // this runs when a player enters the /whisper+ command or clicks the roster
+    /** This runs when a player enters the /whisper+ command or clicks the roster.
+     *  @param {string} args - arguments passed from player (message).
+     *  @param {string} command - arguments passed as command (BC quirk).
+     *  @returns {number} 0 indicts success, 1 is an error.
+     */
     public whisperplus(args: string, command: string): number {
         // parse arguments into MEMBERNUMBER and messsage
         const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
