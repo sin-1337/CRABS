@@ -77,7 +77,6 @@ export class Banner extends CRABS {
 
     // set up the template and populate the fields.
     let templatevars = {
-      TitleBar: `${NAME} v${VERSION}`,
       Logo: this.printimage("logo", undefined, "CRABS_logo"),
       Name: name,
       Version: version,
@@ -87,6 +86,7 @@ export class Banner extends CRABS {
     };
 
     let wrappervars = {
+      TitleBar: `${NAME} v${VERSION}`,
       Close: this.printimage("close", undefined, "CRABS_close", undefined, [
         "elementid",
         "CRABS_Banner",
