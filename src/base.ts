@@ -113,12 +113,9 @@ export default class CRABS {
    * @returns {void}
    */
   public closeElement(elementId: string): void {
-    console.log("CRABS Closing: " + elementId);
     if (elementId) {
       const EXISTING = document.getElementById(elementId);
-      console.log("CRABS EXISTING: " + EXISTING);
       if (EXISTING) {
-        console.log("CRABES removing element!");
         EXISTING.remove();
       }
     }
@@ -219,8 +216,8 @@ export default class CRABS {
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
     }
-    // this.attachEvent("CRABS_Help_Icon", "crabsHelp");
-    this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
+    this.attachEvent("CRABS_Help_Icon", "crabsHelp");
+    //this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
     this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
   }
 

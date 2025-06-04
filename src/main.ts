@@ -1,7 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from "./modules";
-import loadDOM from "./modules/dom";
 
 // configure the version and mod name
 const VERSION = "1.3.1.30 Alpha";
