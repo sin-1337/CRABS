@@ -25,7 +25,7 @@ window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
 window.printRoster = ROSTER.printRoster;
 window.crabsCloseItem = ROSTER.closeElement;
-window.crabsHelp = HELP.showHelp;
+window.crabsHelp = HELP.showHelp.bind(HELP);
 
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`);  // do not remove

@@ -220,7 +220,7 @@ export default class CRABS {
       console.log("CRABS ERROR: Could not find chat element!");
     }
     // this.attachEvent("CRABS_Help_Icon", "crabsHelp");
-    this.attachEventWithCallback("CRABS_Help_Icon", (e) => this.crabsHelp(e));
+    this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
     this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
   }
 
