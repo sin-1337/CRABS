@@ -44,7 +44,7 @@
 
 .CRABS_wrapper_content {
   padding: 8px;
-  overflow: auto;
+  overflow: visible;
 }
 
 .CRABS_tooltip-wrapper {
