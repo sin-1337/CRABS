@@ -24,7 +24,7 @@ window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
 window.printRoster = ROSTER.printRoster;
 window.crabsCloseItem = ROSTER.closeElement;
-window.crabsHelp = Modules.Help.showHelp;
+window.crabsHelp = HELP.showHelp.bind(HELP);
 
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`);  // do not remove
@@ -86,7 +86,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(Modules.Help.showHelp(VERSION), "CRABS_Help");
+    HELP.sendoutput(HELP.showHelp(), "CRABS_Help");
     const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
     if (HELPBUTTON) HELPBUTTON.style.display = "none";
     return false;
