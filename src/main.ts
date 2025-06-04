@@ -3,9 +3,9 @@ import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from "./modules";
 
 // configure the version and mod name
-const VERSION = "1.3.1.31 Alpha";
-const NAME = "Crazy Roster Add-on By Sin";
-const NICKNAME = "CRABS";
+(globalThis as any).VERSION = "1.3.1.31 Alpha";
+(globalThis as any).NAME = "Crazy Roster Add-on By Sin";
+(globalThis as any).NICKNAME = "CRABS";
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
@@ -24,7 +24,7 @@ window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
 window.printRoster = ROSTER.printRoster;
 window.crabsCloseItem = ROSTER.closeElement;
-window.crabsHelp = HELP.showHelp.bind(HELP);
+window.crabsHelp = Modules.Help.showHelp;
 
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`);  // do not remove
@@ -86,7 +86,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showHelp(VERSION), "CRABS_Help");
+    HELP.sendoutput(Modules.Help.showHelp(VERSION), "CRABS_Help");
     const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
     if (HELPBUTTON) HELPBUTTON.style.display = "none";
     return false;
