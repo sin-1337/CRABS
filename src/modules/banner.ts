@@ -18,7 +18,7 @@ export class Banner extends CRABS {
       let SELECTED: number = Player.ItemPermission;
         for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
             const PERMISISON_TEXT = TextGetInScope("Screens/Character/InformationSheet/Text_InformationSheet.csv", "PermissionLevel" + NUMBER.toString());
-            _output += `<option${NUMBER === SELECTED ? " selected" : ""} value="${NUMBER}">${PERMISISON_TEXT}</option>`;
+            output += `<option${NUMBER === SELECTED ? " selected" : ""} value="${NUMBER}">${PERMISISON_TEXT}</option>`;
         }
         return output;
 
