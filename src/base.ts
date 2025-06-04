@@ -85,7 +85,7 @@ export default class CRABS {
    */
   public fakePlayerCommand(action: string = "all"): void {
     for (const [_, COMMAND] of Commands.entries()) {
-      if (COMMAND.Tag === `roster`) {
+      if (COMMAND.Tag === `crabs`) {
         COMMAND.Action(action);
         break;
       }

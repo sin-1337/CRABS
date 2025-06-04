@@ -9,6 +9,30 @@ export class Banner extends CRABS {
   }
 
   /** 
+   * Outputs the HTML permission levels
+   *
+   * @returns {string}
+   */
+  private drawPermission() {
+      let output: string = "";
+      let selectedPermission: number = Player.ItemPermission;
+      let permissionText: string = "";
+        for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
+            permissionText = TextGetInScope("Screens/Character/InformationSheet/Text_InformationSheet.csv", "PermissionLevel" + number.toString());
+            if (NUMBER == selectedPermission) {
+                output += "<option selected " 
+            }
+            else {
+                output += "<option "
+            }
+            output += `value=${NUMBER}>${permissionText}</option>`
+        }
+        return output;
+
+    }
+  
+
+  /** 
    * Draws the banner
    * 
    * @param {string} name - Name of the program.
@@ -25,11 +49,6 @@ export class Banner extends CRABS {
     if (!ChatRoomData || Object.keys(ChatRoomData).length === 0) {
         return "ChatRoomData wasn't populated!";
     }
-    // get player permissions
-    const currentPermissionText = `${TextGetInScope(
-      "Screens/Character/InformationSheet/Text_InformationSheet.csv",
-      "PermissionLevel" + Player.ItemPermission.toString()
-    )} (${Player.ItemPermission})`;
 
     // set up the template and populate the fields.
     let templatevars = {
@@ -37,7 +56,7 @@ export class Banner extends CRABS {
       Name: name,
       Version: version,
       LabelColor: `${Player.LabelColor}`,
-      PlayerPermission: currentPermissionText,
+      PermissionOptions: this.drawPermission(),
       RoomName: ChatRoomData.Name,
     };
 
