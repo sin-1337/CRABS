@@ -4,7 +4,6 @@ export class WhisperPlus extends CRABS {
 
     constructor(CRABS: ModSDKModAPI) {
         super(CRABS);
-        window.sendWhisper = WhisperPlus.sendWhisper;
     } 
 
     /** 
