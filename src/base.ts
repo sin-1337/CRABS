@@ -170,6 +170,22 @@ export default class CRABS {
     }
   }
 
+  public attachEventWithCallback(
+    classname: string,
+    callback: (e: Event) => void,
+    event: string = "click"
+  ): void {
+    const CHAT = document.getElementById("TextAreaChatLog");
+    if (!CHAT) return;
+
+    const ELEMENTS = CHAT.getElementsByClassName(
+      classname
+    ) as HTMLCollectionOf<HTMLElement>;
+    for (const ELEMENT of ELEMENTS) {
+      ELEMENT.addEventListener(event, callback);
+    }
+  }
+
   /**
    * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
    *
@@ -203,7 +219,8 @@ export default class CRABS {
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
     }
-    this.attachEvent("CRABS_Help_Icon", "crabsHelp");
+    // this.attachEvent("CRABS_Help_Icon", "crabsHelp");
+    this.attachEventWithCallback("CRABS_Help_Icon", (e) => this.crabsHelp(e));
     this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
   }
 
