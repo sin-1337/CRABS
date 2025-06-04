@@ -8,6 +8,25 @@ export class Banner extends CRABS {
     super(CRABS);
   }
 
+  public attachPermissionChangeHandler(): void {
+  const select = document.getElementById("CRABS_Permission_Select") as HTMLSelectElement;
+
+  if (select) {
+    select.addEventListener("change", (event: Event) => {
+      const target = event.target as HTMLSelectElement;
+      const newValue = parseInt(target.value, 10);
+
+      // 🔧 Do something with newValue:
+      console.log("New permission level selected:", newValue);
+
+      // Example: Update some player state
+      Player.ItemPermission = newValue;
+    });
+  } else {
+    console.warn("CRABS_Permission_Select not found in DOM");
+  }
+}
+
   /** 
    * Outputs the HTML permission levels
    *
@@ -31,16 +50,17 @@ export class Banner extends CRABS {
    * @param {string} name - Name of the program.
    * @param {string} version - Version number.
    * @param {Record<sring, string>} [extradata] - [optional] Additional data record.
-   * @returns {string} Completed HTML template.
+   * @returns void
    */
   public drawBanner(
     name: string,
     version: string,
     extradata?: Record<string, string>
-  ): string {
+  ): void {
     // bail if ChatRoomData is null or blank 
     if (!ChatRoomData || Object.keys(ChatRoomData).length === 0) {
-        return "ChatRoomData wasn't populated!";
+        console.log("CRABS: ChatRoomData wasn't populated")
+        return;
     }
 
     // set up the template and populate the fields.
@@ -59,6 +79,11 @@ export class Banner extends CRABS {
 
     if (extradata) Object.assign(templatevars, extradata);
 
-    return this.template(bannertemplate, templatevars, true, wrappervars);
+    this.sendoutput(
+        this.template(bannertemplate, templatevars, true, wrappervars), 
+        "CRABS_Banner"
+    );
+    this.attachPermissionChangeHandler();
+    this.attachEvent("CRABS_banner_rosterlink", "fakePlayerCommand")
   }
 }

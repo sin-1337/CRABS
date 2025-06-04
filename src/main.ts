@@ -47,13 +47,7 @@ function drawbanner() {
   let extradata = {
     RosterCounters: ROSTER.buildroster("count", false),
   };
-  output = BANNER.drawBanner(NAME, VERSION, extradata);
-
-  // call the action to draw the banner
-  BANNER.sendoutput(output, "CRABS_Banner");
-
-  // make the roster footer /roster a clickable url
-  BANNER.attachEvent("CRABS_banner_rosterlink", "fakePlayerCommand");
+  BANNER.drawBanner(NAME, VERSION, extradata);
 }
 
 // TODO: create ui to turn this off!!
