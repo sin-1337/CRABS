@@ -77,6 +77,7 @@ export class Banner extends CRABS {
 
     // set up the template and populate the fields.
     let templatevars = {
+      TitleBar: `${NAME} v${VERSION}`,
       Logo: this.printimage("logo", undefined, "CRABS_logo"),
       Name: name,
       Version: version,
