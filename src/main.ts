@@ -22,7 +22,7 @@ const HELP = new Modules.Help(CRABS);
 
 window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
-window.printRoster = ROSTER.printRoster;
+window.fakePlayerCommand = ROSTER.fakePlayerCommand;
 window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
 window.crabsHelp = HELP.showHelp.bind(HELP);
 
@@ -53,7 +53,7 @@ function drawbanner() {
   BANNER.sendoutput(output, "CRABS_Banner");
 
   // make the roster footer /roster a clickable url
-  BANNER.attachEvent("CRABS_banner_rosterlink", "printRoster");
+  BANNER.attachEvent("CRABS_banner_rosterlink", "fakePlayerCommand");
 }
 
 // TODO: create ui to turn this off!!

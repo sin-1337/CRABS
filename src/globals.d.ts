@@ -20,7 +20,7 @@ declare global {
   interface Window {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
-    printRoster: typeof Roster.printRoster;
+    fakePlayerCommand: typeof Roster.fakePlayerCommand;
     crabsCloseItem: typeof Roster.close;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
     crabsHelp: typeof HELP.showHelp;
