@@ -77,6 +77,21 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
+  /** 
+   * Fakes a roster command as if the user ran the command themselves.
+   * 
+   * @param {string} action - String that determines what the roster should print.
+   * @returns void
+   */
+  public fakePlayerCommand(action: string = "all"): void {
+    for (const [_, COMMAND] of Commands.entries()) {
+      if (COMMAND.Tag === `roster`) {
+        COMMAND.Action(action);
+        break;
+      }
+    }
+  }
+
   /**
    * Takes a member number and opens that player's  "focus" screen.
    * This function is setup up to be exposed to the global DOM.
@@ -216,7 +231,7 @@ export default class CRABS {
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
     }
-    this.attachEvent("CRABS_Help_Icon", "crabsHelp");
+    this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
     // this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
     this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
     // this.attachEventWithCallback("CRABS_close", (e) => window.crabsCloseItem(e));

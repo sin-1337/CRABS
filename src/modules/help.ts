@@ -11,7 +11,6 @@ export class Help extends CRABS {
    * @returns {string} Completed HTML for help output.
    */
   public showHelp(): string {
-      console.log("CRABS:  Help runs")
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>

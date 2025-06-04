@@ -20,21 +20,6 @@ export class Roster extends CRABS {
   }
 
   /** 
-   * Prints the roster as if the user ran the command Meant to be attached to the DOM.
-   * 
-   * @param {string} action - String that determines what the roster should print.
-   * @returns void
-   */
-  public printRoster(action: string = "all"): void {
-    for (const [_, COMMAND] of Commands.entries()) {
-      if (COMMAND.Tag === `roster`) {
-        COMMAND.Action(action);
-        break;
-      }
-    }
-  }
-
-  /** 
    * detect overflow in cards and scroll the text.
    * 
    * @param {string} containerSelector - String containing the css container we want to target.
