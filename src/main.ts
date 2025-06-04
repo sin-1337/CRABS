@@ -23,7 +23,7 @@ const HELP = new Modules.Help(CRABS);
 window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
 window.printRoster = ROSTER.printRoster;
-window.crabsCloseItem = ROSTER.closeElement;
+window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
 window.crabsHelp = HELP.showHelp.bind(HELP);
 
 // print version and load success in console

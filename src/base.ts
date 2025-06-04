@@ -218,7 +218,8 @@ export default class CRABS {
     }
     //this.attachEvent("CRABS_Help_Icon", "crabsHelp", undefined, VERSION);
     this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
-    this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+    //this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+    this.attachEventWithCallback("CRABS_close", (e) => window.crabsCloseItem(e));
   }
 
   /**
@@ -264,7 +265,7 @@ export default class CRABS {
    * @param {string} key - Name of the icon you want
    * @param {string} [tooltip] - [optional] String tooltip
    * @param {string} [style] - [optional] CSS styles to overwrite the default style sheet.
-   * @param {Array<string>} [data] - [optional] Dictionary of strings to provide data to event listeners.
+   * @param {[string, string]} [data] - [optional] Dictionary of strings to provide data to event listeners.
    * @returns {sring} HTML representing the icon
    */
   protected printimage(
@@ -272,7 +273,7 @@ export default class CRABS {
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
     css_style: string = "", // optional, css overwrite
-    data?: Array<string> // optional, facilitates special data for event listeners
+    data?: [string, string] // optional, facilitates special data for event listeners
   ): string {
     let icon = this.IMAGES["error"]; // fall back if the icon isn't found
     if (key in this.IMAGES) {
