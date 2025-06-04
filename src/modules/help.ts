@@ -4,9 +4,11 @@ import helptemplate from "./templates/help.html";
 
 export class Help extends CRABS {
 
-  /** Shows help output
-   *  @param {string} VERSION - the version number for CRABS.
-   *  @returns {string} Completed HTML for help output.
+  /** 
+   * Shows help output
+   * 
+   * @param {string} VERSION - the version number for CRABS.
+   * @returns {string} Completed HTML for help output.
    */
   public showhelp(VERSION: string): string {
     let output = `<table style="width: 100%"><tr><td>

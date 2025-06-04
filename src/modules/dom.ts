@@ -1,7 +1,9 @@
 import * as Modules from "."
 
-/** Loads DOM functions into the window object
- *  @returns {void}
+/** 
+ * Loads DOM functions into the window object
+ * 
+ * @returns {void}
  */
 export default function loadDOM() {
     window.sendWhisper = Modules.WhisperPlus.sendWhisper;

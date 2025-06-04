@@ -77,10 +77,12 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
-  /** Takes a member number and opens that player's  "focus" screen.
-   *  This functions is setup up to be exposed to the global DOM.
-   *  @param {number} MemberNumber - A number for the player in question.
-   *  @returns {void}
+  /** 
+   * Takes a member number and opens that player's  "focus" screen.
+   * This function is setup up to be exposed to the global DOM.
+   * 
+   * @param {number} MemberNumber - The member number for the player in question.
+   * @returns {void}
    */
   public static showPlayerFocus(MemberNumber: number): void {
     // Check if the person is still in the room
@@ -104,9 +106,11 @@ export default class CRABS {
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
-  /** Removes and element from the DOM by id
-   *  @param {string} elementId - id of html element to remove
-   *  @returns {void}
+  /** 
+   * Removes an element from the DOM by id
+   * 
+   * @param {string} elementId - ID of HTML element to remove
+   * @returns {void}
    */
   public static closeElement(elementId: string): void {
     console.log("CRABS Closing: " + elementId);
@@ -120,10 +124,12 @@ export default class CRABS {
     }
   }
 
-  /** Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
-   *  @param {HTMLElement} output - Object to print
-   *  @param {string} elementId - Name of the element 
-   *  @returns {void}
+  /**
+   * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
+   * 
+   * @param {HTMLElement} output - Object to print
+   * @param {string} elementId - Name of the element 
+   * @returns {void}
    */
   public sendoutput(output: string, elementId?: string): void {
     const OUTPUT = document.createElement("template");
@@ -153,12 +159,14 @@ export default class CRABS {
     }
   }
 
-  /** Takes a template name and outputs the filled out template string
-   *  @param {string} template_name - Name of the HTML file, no extension or path
-   *  @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
-   *  @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
-   *  @param {Record<string, string>} wrapperArgs - [optional] A dictionary of key/values that populate the wrapper
-   *  @returns {string } HTML string
+  /** 
+   * Takes a template name and outputs the filled out template string
+   *
+   * @param {string} template_name - Name of the HTML file, no extension or path
+   * @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
+   * @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
+   * @param {Record<string, string>} [wrapperArgs] - [optional] A dictionary of key/values that populate the wrapper
+   * @returns {string } HTML string
    */
   protected template(
     template: string,
@@ -188,12 +196,14 @@ export default class CRABS {
     return template;
   }
 
-  /** print icons
-   *  @param {string} key - Name of the icon you want
-   *  @param {sring} tooltip - [optional] String tool top
-   *  @param {string} style - [optional] CSS styles to overwrite the default style sheet.
-   *  @param {Array<sring>} data - [optional] Dictionary of strings to provide data to event listeners.
-   *  @returns {sring} HTML representing the icon
+  /** 
+   * print icons
+   * 
+   * @param {string} key - Name of the icon you want
+   * @param {string} [tooltip] - [optional] String tooltip
+   * @param {string} [style] - [optional] CSS styles to overwrite the default style sheet.
+   * @param {Array<string>} [data] - [optional] Dictionary of strings to provide data to event listeners.
+   * @returns {sring} HTML representing the icon
    */
   protected printimage(
     key: string,
@@ -223,13 +233,15 @@ export default class CRABS {
     return html;
   }
 
-  /** Function to convert hex color to rgba and add transparency
-   *  @param {string} hex - value of the color
-   *  @param {number} alpha - for transparencey, bigger is more opaque. Optional, default 0
-   *   Alpha range: The alpha value ranges from -1 to 1:
-   *   alpha = 0: means fully opaque (no transparency).
-   *   alpha = -1: means fully transparent (completely invisible).
-   *  @returns {string} RGBA value with alpha
+  /** 
+   * Function to convert hex color to rgba and add transparency
+   *
+   * @param {string} hex - value of the color
+   * @param {number} [alpha] - for transparencey, bigger is more opaque. Optional, default 0
+   *  Alpha range: The alpha value ranges from -1 to 1:
+   *  alpha = 0: means fully opaque (no transparency).
+   *  alpha = -1: means fully transparent (completely invisible).
+   * @returns {string} RGBA value with alpha
    */
   protected convertColor(hex: string, alpha: number = 0): string {
     // Remove the hash if it's there
@@ -242,5 +254,6 @@ export default class CRABS {
 
     // Return the rgba value with alpha transparency
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    prin
   }
 }
