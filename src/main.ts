@@ -25,15 +25,13 @@ loadDOM();
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`);  // do not remove
 
-/*
- * Attaches an event listener to any object matching the supplied class
- *
- *@param classname - (string) name of the class you are looking for
- *@param action - (string) name of the function you want to call when the event is triggered
- *@param data - (string) [optional] arguments to the function, MUST be camel   
- *                                  case... ex: playerNumber
- *@param arg - (string) [optional] direct argument to pass, mutually exclusive with data, if passed, data ignored.
- *@param event - (string) [default = click] type of event you wish this to trigger on
+/** Attaches an event listener to any object matching the supplied class.
+ *  @param {string} classname - Name of the class you are looking for.
+ *  @param {string} action - Name of the function you want to call when the event is triggered.
+ *  @param {string} data - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
+ *  @param {string} arg - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
+ *  @param {string} event - [default = click] Type of event you wish this to trigger on.
+ *  @returns {void}
  */
 function attachEvent(
   classname: string,
@@ -70,9 +68,9 @@ function attachEvent(
   }
 }
 
-/*
- * draws the banner
- */
+/** Draws the banner 
+*   @returns {void}
+*/
 function drawbanner() {
   let output: string = "";
   // if the player left the room, bail!

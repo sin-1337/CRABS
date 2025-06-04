@@ -8,21 +8,18 @@ export class Roster extends CRABS {
   private onlineFriends: number | undefined = undefined;
   private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
-  /*
-   * Constructor
-   *
-   * @param CRABS - (ModSDKModAPI) object containing the modsdkapi
+  /** Constructor
+   *  @param {ModSDKModAPI} CRABS - Object containing the modsdkapi
+   *  @returns {void}
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS);
     this.loadFriendList();
   }
 
-  /*
-   * Prints the roster as if the user ran the command
-   * Meant to be attached to the DOM
-   *
-   * @param action - (string) that determines what the roster should print
+  /** Prints the roster as if the user ran the command Meant to be attached to the DOM.
+   *  @param {string} action - String that determines what the roster should print.
+   *  @returns {void}
    */
   public static printRoster(action: string = "all"): void {
     for (const [_, COMMAND] of Commands.entries()) {
@@ -33,10 +30,9 @@ export class Roster extends CRABS {
     }
   }
 
-  /*
-   * detect overflow in cards and scroll the text
-   *
-   * @param containerSelector - string, containing the css container we want to target
+  /** detect overflow in cards and scroll the text.
+   *  @param {string} containerSelector - String containing the css container we want to target.
+   *  @returns {void}
    */
   public initScrollingOverflow(
     containerSelector: string = ".CRABS_overflow-wrapper"
@@ -67,12 +63,9 @@ export class Roster extends CRABS {
     });
   }
 
-  /*
-   * setStatusIcons determines if a player is Deaf, Blind, or Gagged
-   * and sets icons accordingly
-   *
-   * @param player - PlayerCharater, the player object
-   * @return - string list of icons
+  /** Determines if a player is Deaf, Blind, or Gagged and sets icons accordingly.
+   *  @param {PlayerCharacter} player - Player Charater, the player object.
+   *  @returns {string} List of icons.
    */
   private setStatusIcons(player: PlayerCharacter): string {
     const PREFIXES = ["Blind", "Gag", "Deaf"];
@@ -159,13 +152,11 @@ export class Roster extends CRABS {
 
     return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
   }
-  /*
-   * builds the cards that get injected into the roster
-   *
-   * @param player -  PlayerCharacter that we are working with
-   * @param badge - string for the badge showing if the player is admin
-   * @param player_icons - string for the different icons relevant to the player
-   * @return - string containing the output html from the template.
+  /** Builds the cards that get injected into the roster.
+   *  @param {PlayerCharacter} player - Player character that we are working with.
+   *  @param {string} badge - String for the badge showing if the player is admin.
+   *  @param {string} player_icons - String for the different icons relevant to the player.
+   *  @returns {string} The output html from the template.
    */
   private buildCard(
     player: PlayerCharacter,
@@ -188,7 +179,9 @@ export class Roster extends CRABS {
     return this.template(rostercardstemplate, templatevars, false);
   }
 
-  //query the server for friendslist
+  /** Query the server for friendslist.
+   *  @returns {void}
+   */
   private loadFriendList(): void {
     this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
       const [DATA]: Array<Record<string, any>> = args;
@@ -198,7 +191,9 @@ export class Roster extends CRABS {
     });
   }
 
-  // Debounce function to control the timing of ServerSend
+  /** Debounce function to control the timing of ServerSend.
+   *  @returns {void}
+   */
   private canSendServerRequest(): boolean {
     const now = Date.now();
     if (now - this.lastSentTime >= 10 * 60 * 1000) {
@@ -231,7 +226,9 @@ export class Roster extends CRABS {
     });
   }
 
-  // determine if player is admin or whitelisted in the room and set their badge icon
+  /** Determine if player is admin or whitelisted in the room and set their badge icon.
+   *  @returns {void}
+   */
   private setbadge(player: PlayerCharacter): string {
     let badge = this.printimage("player", "Guest", "CRABS_badge");
     badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
@@ -243,11 +240,9 @@ export class Roster extends CRABS {
     return badge;
   }
 
-  /*
-   * Sets the icons relevant to the player
-   *
-   * @param player - PlayerCharacter object
-   * @return - string, html string containing the icons.
+  /** Sets the icons relevant to the player
+   *  @param {PlayerCharacter} player - Player character object.
+   *  @return {string} HTML string containing the icons.
    */
   private setIcons(player: PlayerCharacter): string {
     let player_icons = "";
@@ -298,12 +293,10 @@ export class Roster extends CRABS {
     return player_icons;
   }
 
-  /*
-   *  prints the roster
-   *
-   *  @param args - string arguments passed from user
-   *  @param wrapper - boolean wrappar, should we draw the wrapper
-   *  @returms - string html output
+  /** prints the roster
+   *  @param {string} args - Arguments passed from user.
+   *  @param {boolean} wrapper - Should we draw the wrapper?
+   *  @returns {string} HTML output.
    */
   public buildroster(
       args: string, 

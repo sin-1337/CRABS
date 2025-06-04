@@ -8,6 +8,12 @@ export class Banner extends CRABS {
     super(CRABS);
   }
 
+  /** Draws the banner
+   *  @param {string} name - Name of the program.
+   *  @param {string} version - Version number.
+   *  @param {Record<sring, string>} extradata - [optional] Additional data record.
+   *  @returns {string} Completed HTML template.
+   */
   public drawBanner(
     name: string,
     version: string,

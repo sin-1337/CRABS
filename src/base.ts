@@ -77,12 +77,10 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
-  /*
-   * Takes a member number and opens that player's  "focus" screen.
-   * This functions is setup up to be exposed to the global DOM
-   *
-   * @param MemberNumber - A number for the player in question
-   * @return void
+  /** Takes a member number and opens that player's  "focus" screen.
+   *  This functions is setup up to be exposed to the global DOM.
+   *  @param {number} MemberNumber - A number for the player in question.
+   *  @returns {void}
    */
   public static showPlayerFocus(MemberNumber: number): void {
     // Check if the person is still in the room
@@ -97,22 +95,18 @@ export default class CRABS {
     }
   }
 
-  /*
-   * Takes a string target mod name and returns a true if found
-   *
-   * @param targetmod - string name of the mod
-   * @return boolean true if found, false if not
+  /** Takes a string target mod name and returns a true if found.
+   *  @param {string} targetmod - String name of the mod.
+   *  @returns {boolean} True if found, false if not.
    */
   protected detectMod(targetmod: string): boolean {
     let modlist = bcModSdk.getModsInfo();
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
-  /*
-   * Removes and element from the DOM by id
-   * @param elementId: (stirng) id of html element to remove
-   *
-   * return void
+  /** Removes and element from the DOM by id
+   *  @param {string} elementId - id of html element to remove
+   *  @returns {void}
    */
   public static closeElement(elementId: string): void {
     console.log("CRABS Closing: " + elementId);
@@ -126,11 +120,10 @@ export default class CRABS {
     }
   }
 
-  /*
-   * Prints HTMLElement objects into the DOM (Chat Window)
-   * and scroll to bottom of chat window
-   *
-   * @param output: (HTMLElement) object to print
+  /** Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
+   *  @param {HTMLElement} output - Object to print
+   *  @param {string} elementId - Name of the element 
+   *  @returns {void}
    */
   public sendoutput(output: string, elementId?: string): void {
     const OUTPUT = document.createElement("template");
@@ -160,14 +153,12 @@ export default class CRABS {
     }
   }
 
-  /*
-   * Takes a template name and outputs the filled out template string
-   *
-   * @param template_name - Name of the HTML file, no extension or path
-   * @param args - A dictionary where the key is a variable name to replace the template
-   * @param wrapper -  A boolean that determines if we draw the wrapper or not
-   * @param wrapperArgs - [optional] A dictionary of key/values that populate the wrapper
-   * @return A promise that resolves to the final html string
+  /** Takes a template name and outputs the filled out template string
+   *  @param {string} template_name - Name of the HTML file, no extension or path
+   *  @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
+   *  @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
+   *  @param {Record<string, string>} wrapperArgs - [optional] A dictionary of key/values that populate the wrapper
+   *  @returns {string } HTML string
    */
   protected template(
     template: string,
@@ -197,15 +188,12 @@ export default class CRABS {
     return template;
   }
 
-  /*
-   *  print icons
-   *
-   *  @param key - (string) name of the icon you want
-   *  @param tooltip - (string [optional] string tool top
-   *  @param style - (string) [optional] css style
-   *                    to overwrite the default style sheet.
-   *  @param data - (Record) [optional] dictionary of strings to provide data to event listeners.
-   *  @return - (string) html representing the icon
+  /** print icons
+   *  @param {string} key - Name of the icon you want
+   *  @param {sring} tooltip - [optional] String tool top
+   *  @param {string} style - [optional] CSS styles to overwrite the default style sheet.
+   *  @param {Array<sring>} data - [optional] Dictionary of strings to provide data to event listeners.
+   *  @returns {sring} HTML representing the icon
    */
   protected printimage(
     key: string,
@@ -235,16 +223,13 @@ export default class CRABS {
     return html;
   }
 
-  /*
-   *  TypeScript: Function to convert hex color to rgba and add transparency
-   *
-   * @param: string hex value of the color
-   * @param: number for transparencey, bigger is more opaque. Optional, default 0
-   *  Alpha range: The alpha value ranges from -1 to 1:
-   *  alpha = 0 means fully opaque (no transparency).
-   *  alpha = -1 means fully transparent (completely invisible).
-   *
-   *  @return: string rgba value with alpha
+  /** Function to convert hex color to rgba and add transparency
+   *  @param {string} hex - value of the color
+   *  @param {number} alpha - for transparencey, bigger is more opaque. Optional, default 0
+   *   Alpha range: The alpha value ranges from -1 to 1:
+   *   alpha = 0: means fully opaque (no transparency).
+   *   alpha = -1: means fully transparent (completely invisible).
+   *  @returns {string} RGBA value with alpha
    */
   protected convertColor(hex: string, alpha: number = 0): string {
     // Remove the hash if it's there
