@@ -105,6 +105,7 @@ export class Help extends CRABS {
     };
     
     let wrappervars = {
+        TitleBar: `CRABS: Help`,
         Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Help"])
     }
 
