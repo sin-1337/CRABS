@@ -78,15 +78,13 @@ export class Banner extends CRABS {
     // set up the template and populate the fields.
     let templatevars = {
       Logo: this.printimage("logo", undefined, "CRABS_logo"),
-      Name: name,
-      Version: version,
       LabelColor: `${Player.LabelColor}`,
       PermissionOptions: this.drawPermission(),
       RoomName: ChatRoomData.Name,
     };
 
     let wrappervars = {
-      TitleBar: `${NAME} v${VERSION}`,
+      TitleBar: `${NAME}:  ${VERSION}`,
       Close: this.printimage("close", undefined, "CRABS_close", undefined, [
         "elementid",
         "CRABS_Banner",
