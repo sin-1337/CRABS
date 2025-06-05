@@ -13,8 +13,8 @@
 }
 
 .CRABS_banner_logo_container {
-    width: 50px;
-    max-width: 50px;
+    width: 80px;
+    max-width: 80px;
 }
 
 .CRABS_banner_version_container {
@@ -32,7 +32,7 @@
 }
 
 .CRABS_dropdown {
-  width: 68%;
+  width: auto;
   text-align: center;
   padding: 6px 8px;
   font-size: 1em;
