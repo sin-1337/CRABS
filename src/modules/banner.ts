@@ -23,11 +23,9 @@ export class Banner extends CRABS {
         const TARGET = event.target as HTMLSelectElement;
         const NEW_PERM_LEVEL = parseInt(TARGET.value, 10);
 
-        // 🔧 Do something with newValue:
-        console.log("New permission level selected:", NEW_PERM_LEVEL);
-
-        // Example: Update some player state
+        // Update player permissions based on selection
         Player.ItemPermission = NEW_PERM_LEVEL;
+        ServerAccountUpdate.QueueData({ ItemPermission: Player.ItemPermission });
       });
     } else {
       console.warn("CRABS_Permission_Select not found in DOM");
