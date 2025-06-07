@@ -77,9 +77,9 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
-  /** 
+  /**
    * Fakes a roster command as if the user ran the command themselves.
-   * 
+   *
    * @param {string} action - String that determines what the roster should print.
    * @returns void
    */
@@ -182,6 +182,13 @@ export default class CRABS {
     }
   }
 
+  /**
+   * Attach event listener to DOM object with callback
+   *
+   * @param {string} classname - name of the class
+   * @param {event} callback - callback event function
+   * @param {string} event - the event
+   */
   public attachEventWithCallback(
     classname: string,
     callback: (e: Event) => void,
