@@ -37,15 +37,15 @@ export class Banner extends CRABS {
    *
    * @returns {string}
    */
-  private drawPermission() {
+  private drawPermission(): string {
     let output: string = "";
     let SELECTED: number = Player.ItemPermission;
 
     // TODO: update this to support an arbitrary number of permission levels.
     for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
       const PERMISISON_TEXT = TextGetInScope(
-        "Screens/Character/InformationSheet/Text_InformationSheet.csv",
-        "PermissionLevel" + NUMBER.toString()
+        "Screens/Character/Perference/Text_Preference.csv",
+        "AllowedInteraction" + NUMBER.toString()
       );
       output += `<option${
         NUMBER === SELECTED ? " selected" : ""
