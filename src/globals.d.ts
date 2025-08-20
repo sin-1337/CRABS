@@ -51,7 +51,7 @@ declare global {
     MemberNumber?: number;
     Type?: string;
 
-    ItemPermission: number;
+    AllowedInteractions: number;
     LabelColor?: string;
     LastChatRoom?: any;
 
@@ -139,6 +139,7 @@ declare global {
   ): boolean;
   function ChatRoomMapViewIsActive(): boolean;
   function ElementScrollToEnd(element: string): void;
+  function ServerAcountUpdate();
   function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
   function TextGetInScope(path_to_csv: string, permission: string): void;
