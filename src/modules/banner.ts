@@ -24,7 +24,7 @@ export class Banner extends CRABS {
         const NEW_PERM_LEVEL = parseInt(TARGET.value, 10);
 
         // Update player permissions based on selection
-        Player.ItemPermission = NEW_PERM_LEVEL;
+        Player.AllowedInteractions = NEW_PERM_LEVEL;
         ServerAccountUpdate.QueueData({ ItemPermission: Player.ItemPermission });
       });
     } else {
@@ -39,12 +39,12 @@ export class Banner extends CRABS {
    */
   private drawPermission(): string {
     let output: string = "";
-    let SELECTED: number = Player.ItemPermission;
+    let SELECTED: number = Player.AllowedInteractions;
 
     // TODO: update this to support an arbitrary number of permission levels.
     for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
       const PERMISISON_TEXT = TextGetInScope(
-        "Screens/Character/Perference/Text_Preference.csv",
+        "Screens/Character/Preference/Text_Preference.csv",
         "AllowedInteraction" + NUMBER.toString()
       );
       output += `<option${
