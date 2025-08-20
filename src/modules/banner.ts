@@ -25,7 +25,7 @@ export class Banner extends CRABS {
 
         // Update player permissions based on selection
         Player.AllowedInteractions = NEW_PERM_LEVEL;
-        ServerAccountUpdate.QueueData({ ItemPermission: Player.ItemPermission });
+        ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
       });
     } else {
       console.warn("CRABS_Permission_Select not found in DOM");
