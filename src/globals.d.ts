@@ -1,7 +1,8 @@
 // globals.d.ts
 declare global {
   const NAME: string;
-  const NICKNAME: string;1
+  const NICKNAME: string;
+  1;
   const VERSION: string;
   var ChatRoomCharacter: Array<any>;
   var ChatRoomData: any;
@@ -105,6 +106,14 @@ declare global {
     // You can add the rest of the methods as needed
   }
 
+  type QueueDataPayload = {
+    AllowedInteractions: typeof Player.AllowedInteractions;
+  };
+
+  declare const ServerAccountUpdate: {
+    QueueData(data: QueueDataPayload): void;
+  };
+
   var Player: PlayerCharacter;
 
   function addChatMessage(msg: string): void;
@@ -139,7 +148,6 @@ declare global {
   ): boolean;
   function ChatRoomMapViewIsActive(): boolean;
   function ElementScrollToEnd(element: string): void;
-  function ServerAccountUpdate();
   function ServerSend(message: string, ...args: any): Promise;
   function TextGet(text: string): void;
   function TextGetInScope(path_to_csv: string, permission: string): void;
