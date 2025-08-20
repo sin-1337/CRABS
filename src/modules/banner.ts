@@ -44,8 +44,8 @@ export class Banner extends CRABS {
     // TODO: update this to support an arbitrary number of permission levels.
     for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
       const PERMISISON_TEXT = TextGetInScope(
-        "Screens/Character/Preference/Text_Preference.csv",
-        "RoomCustomizationLevel" + NUMBER.toString()
+        "Screens/Character/InformationSheet/Text_InformationSheet.csv",
+        "AllowedInteraction" + NUMBER.toString()
       );
       output += `<option${
         NUMBER === SELECTED ? " selected" : ""
