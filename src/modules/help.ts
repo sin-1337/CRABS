@@ -4,8 +4,13 @@ import helptemplate from "./templates/help.html";
 
 export class Help extends CRABS {
 
-  // show help
-  public showhelp(VERSION: string): string {
+  /** 
+   * Shows help output
+   * 
+   * @param {string} VERSION - the version number for CRABS.
+   * @returns {string} Completed HTML for help output.
+   */
+  public showHelp(): string {
     let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
@@ -98,6 +103,12 @@ export class Help extends CRABS {
     let templatevars = {
         "HelpOutput": output,
     };
-    return(this.template(helptemplate, templatevars));
+    
+    let wrappervars = {
+        TitleBar: `CRABS: Help`,
+        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Help"])
+    }
+
+    return(this.template(helptemplate, templatevars, true, wrappervars));
   }
 }
