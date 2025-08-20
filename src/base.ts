@@ -14,6 +14,11 @@ export default class CRABS {
     // error icon
     error: "error.svg",
 
+    // options:
+    close: "close.svg",
+    help: "help.svg",
+    settings: "settings.svg",
+
     // badges
     admin: "admin.svg",
     vip: "vip.svg",
@@ -72,14 +77,29 @@ export default class CRABS {
     this.crabs = CRABS;
   }
 
-  /*
-   * Takes a member number and opens that player's  "focus" screen.
-   * This functions is setup up to be exposed to the global DOM
+  /**
+   * Fakes a roster command as if the user ran the command themselves.
    *
-   * @param MemberNumber - A number for the player in question
-   * @return void
+   * @param {string} action - String that determines what the roster should print.
+   * @returns void
    */
-  public static showPlayerFocus(MemberNumber: number): void {
+  public fakePlayerCommand(action: string = "all"): void {
+    for (const [_, COMMAND] of Commands.entries()) {
+      if (COMMAND.Tag === `crabs`) {
+        COMMAND.Action(action);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Takes a member number and opens that player's  "focus" screen.
+   * This function is setup up to be exposed to the global DOM.
+   *
+   * @param {number} MemberNumber - The member number for the player in question.
+   * @returns {void}
+   */
+  public showPlayerFocus(MemberNumber: number): void {
     // Check if the person is still in the room
     const PLAYER = ChatRoomCharacter.find(
       (C) => C.MemberNumber == MemberNumber
@@ -92,22 +112,105 @@ export default class CRABS {
     }
   }
 
-  /*
-   * Takes a string target mod name and returns a true if found
-   *
-   * @param targetmod - string name of the mod
-   * @return boolean true if found, false if not
+  /** Takes a string target mod name and returns a true if found.
+   *  @param {string} targetmod - String name of the mod.
+   *  @returns {boolean} True if found, false if not.
    */
   protected detectMod(targetmod: string): boolean {
     let modlist = bcModSdk.getModsInfo();
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
-  /*
-   * Prints HTMLElement objects into the DOM (Chat Window)
-   * and scroll to bottom of chat window
+  /**
+   * Removes an element from the DOM by id
    *
-   * @param output: (HTMLElement) object to print
+   * @param {string} elementId - ID of HTML element to remove
+   * @returns {void}
+   */
+  public closeElement(elementId: string): void {
+    if (elementId) {
+      const EXISTING = document.getElementById(elementId);
+      if (EXISTING) {
+        EXISTING.remove();
+      }
+    }
+  }
+
+  /**
+   * Attaches an event listener to any object matching the supplied class.
+   *
+   * @param {string} classname - Name of the class you are looking for.
+   * @param {string} action - Name of the function you want to call when the event is triggered.
+   * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
+   * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
+   * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
+   * @returns {void}
+   */
+  public attachEvent(
+    classname: string,
+    action: string,
+    data?: string,
+    arg?: string,
+    event: string = "click"
+  ): void {
+    const CHAT = document.getElementById("TextAreaChatLog");
+
+    if (!CHAT) return; // if chat is not found, bail
+    // Select all roster links
+    const ELEMENTS = CHAT.getElementsByClassName(
+      classname
+    ) as HTMLCollectionOf<HTMLElement>;
+
+    // Attach event listeners to all roster links
+    for (const ELEMENT of ELEMENTS) {
+      ELEMENT.addEventListener(event, (e) => {
+        // add listener
+        const TARGET = e.currentTarget as HTMLElement; // capture target
+        if (arg) {
+          (window as any)[action](arg);
+          return;
+        }
+        if (data) {
+          const DATA = TARGET.dataset[data]; // parse data
+          (window as any)[action](DATA);
+          return;
+        } else {
+          (window as any)[action]();
+          return;
+        }
+      });
+    }
+  }
+
+  /**
+   * Attach event listener to DOM object with callback
+   *
+   * @param {string} classname - name of the class
+   * @param {event} callback - callback event function
+   * @param {string} event - the event
+   */
+  public attachEventWithCallback(
+    classname: string,
+    callback: (e: Event) => void,
+    event: string = "click"
+  ): void {
+    const CHAT = document.getElementById("TextAreaChatLog");
+    if (!CHAT) return;
+
+    const ELEMENTS = CHAT.getElementsByClassName(
+      classname
+    ) as HTMLCollectionOf<HTMLElement>;
+    for (const ELEMENT of ELEMENTS) {
+      ELEMENT.addEventListener(event, callback);
+    }
+  }
+
+  /**
+   * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
+   *
+   * @param {HTMLElement} output - Object to print
+   * @param {string} elementId - Name of the element
+   * @returns {void}
    */
   public sendoutput(output: string, elementId?: string): void {
     const OUTPUT = document.createElement("template");
@@ -121,10 +224,7 @@ export default class CRABS {
     const CHAT = document.getElementById("TextAreaChatLog");
     if (CHAT) {
       if (elementId) {
-        const EXISTING = document.getElementById(elementId);
-        if (EXISTING) {
-          EXISTING.remove();
-        }
+        this.closeElement(elementId);
 
         const WRAPPER = document.createElement("div");
         WRAPPER.id = elementId;
@@ -138,49 +238,64 @@ export default class CRABS {
     } else {
       console.log("CRABS ERROR: Could not find chat element!");
     }
+    this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
+    // this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
+    this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+    // this.attachEventWithCallback("CRABS_close", (e) => window.crabsCloseItem(e));
   }
 
-  /*
+  /**
    * Takes a template name and outputs the filled out template string
    *
-   * @param template_name - Name of the HTML file, no extension or path
-   * @param args - A dictionary where the key is a variable name to replace the template
-   * @param wrapper -  A boolean that determines if we draw the wrapper or not
-   * @return A promise that resolves to the final html string
+   * @param {string} template_name - Name of the HTML file, no extension or path
+   * @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
+   * @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
+   * @param {Record<string, string>} [wrapperArgs] - [optional] A dictionary of key/values that populate the wrapper
+   * @returns {string } HTML string
    */
   protected template(
     template: string,
     args: Record<string, string>,
-    wrapper: boolean = true
+    wrapper: boolean = true,
+    wrapperArgs?: Record<string, string> // ignored when wrapper == false
   ): string {
     let regex: RegExp;
 
-    for (const [key, value] of Object.entries(args)) {
-      regex = new RegExp(`{{${key}}}`, "g");
-      template = template.replace(regex, value);
+    for (const [KEY, VALUE] of Object.entries(args)) {
+      regex = new RegExp(`{{${KEY}}}`, "g");
+      template = template.replace(regex, VALUE);
     }
 
     if (wrapper) {
-      template = wrappertemplate.replace("{{content}}", template);
+      template = wrappertemplate
+        .replace("{{Help}}", this.printimage("help", "Help", "CRABS_Help_Icon"))
+        .replace("{{content}}", template);
+      if (wrapperArgs) {
+        for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
+          regex = new RegExp(`{{${KEY}}}`, "g");
+          template = template.replace(regex, VALUE);
+        }
+      }
     }
 
     return template;
   }
 
-  /*
-   *  print icons
+  /**
+   * print icons
    *
-   *  @param key - (string) name of the icon you want
-   *  @param tooltip - (string [optional] string tool top
-   *  @param style - (string) [optional] css style
-   *                    to overwrite the default style sheet.
-   *  @return - (string) html representing the icon
+   * @param {string} key - Name of the icon you want
+   * @param {string} [tooltip] - [optional] String tooltip
+   * @param {string} [style] - [optional] CSS styles to overwrite the default style sheet.
+   * @param {[string, string]} [data] - [optional] Dictionary of strings to provide data to event listeners.
+   * @returns {sring} HTML representing the icon
    */
   protected printimage(
     key: string,
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
-    css_style: string = "" // optional, css overwrite
+    css_style: string = "", // optional, css overwrite
+    data?: [string, string] // optional, facilitates special data for event listeners
   ): string {
     let icon = this.IMAGES["error"]; // fall back if the icon isn't found
     if (key in this.IMAGES) {
@@ -192,6 +307,7 @@ export default class CRABS {
     let html = "";
     if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
     html += `<img `;
+    if (data) html += `data-${data[0]}=${data[1]} `;
     html += `alt='${key}' `;
     html += `src='${BASEPATH}${icon}' `;
     html += `class='${css_class}'`;
@@ -202,16 +318,15 @@ export default class CRABS {
     return html;
   }
 
-  /*
-   *  TypeScript: Function to convert hex color to rgba and add transparency
+  /**
+   * Function to convert hex color to rgba and add transparency
    *
-   * @param: string hex value of the color
-   * @param: number for transparencey, bigger is more opaque. Optional, default 0
+   * @param {string} hex - value of the color
+   * @param {number} [alpha] - for transparencey, bigger is more opaque. Optional, default 0
    *  Alpha range: The alpha value ranges from -1 to 1:
-   *  alpha = 0 means fully opaque (no transparency).
-   *  alpha = -1 means fully transparent (completely invisible).
-   *
-   *  @return: string rgba value with alpha
+   *  alpha = 0: means fully opaque (no transparency).
+   *  alpha = -1: means fully transparent (completely invisible).
+   * @returns {string} RGBA value with alpha
    */
   protected convertColor(hex: string, alpha: number = 0): string {
     // Remove the hash if it's there

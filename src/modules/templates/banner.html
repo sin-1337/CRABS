@@ -1,15 +1,16 @@
 <table class="CRABS_banner">
     <tbody>
         <tr>
+        </tr>
+        <tr>
             <td class="CRABS_banner_logo_container">{{Logo}}</td>
-            <td>{{Name}}</td>
-            <td class="CRABS_banner_version_container">{{Version}}</td>
-        </tr>
-        <tr>
-            <td colspan=3><br>Item Permission:</td>
-        </tr>
-        <tr>
-            <td colspan=3 style="text-shadow: 1px 1px 2px white; color: {{LabelColor}}">{{PlayerPermission}}</td>
+            <td>
+                <label for="CRABS_permission_select" class="CRABS_dropdown_label">Item Permission:</label><br>
+                <select id="CRABS_permission_select" class="CRABS_dropdown">
+                    {{PermissionOptions}}
+                </select>
+            </td>
+            <td class="CRABS_banner_logo_container"></td>
         </tr>
         <tr>
             <td colspan=3>Room: {{RoomName}}</td>

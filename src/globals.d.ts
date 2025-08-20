@@ -1,5 +1,9 @@
 // globals.d.ts
 declare global {
+  const NAME: string;
+  const NICKNAME: string;
+  1;
+  const VERSION: string;
   var ChatRoomCharacter: Array<any>;
   var ChatRoomData: any;
   var Commands: Array<any>;
@@ -17,8 +21,10 @@ declare global {
   interface Window {
     PlayerFocus: typeof Roster.showPlayerFocus;
     sendWhisper: typeof WhisperPlus.sentWhisper;
-    printRoster: typeof Roster.printRoster;
+    fakePlayerCommand: typeof Roster.fakePlayerCommand;
+    crabsCloseItem: typeof Roster.close;
     ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
+    crabsHelp: typeof HELP.showHelp;
     CommandSet(payload: string): void;
   }
 
@@ -46,7 +52,7 @@ declare global {
     MemberNumber?: number;
     Type?: string;
 
-    ItemPermission: number;
+    AllowedInteractions: number;
     LabelColor?: string;
     LastChatRoom?: any;
 
@@ -99,6 +105,14 @@ declare global {
 
     // You can add the rest of the methods as needed
   }
+
+  type QueueDataPayload = {
+    AllowedInteractions: typeof Player.AllowedInteractions;
+  };
+
+  declare const ServerAccountUpdate: {
+    QueueData(data: QueueDataPayload): void;
+  };
 
   var Player: PlayerCharacter;
 
