@@ -3,9 +3,9 @@ import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from "./modules";
 
 // configure the version and mod name
-(globalThis as any).VERSION = "1.3.2.1 Alpha";
-(globalThis as any).NAME = "Crazy Roster Add-on By Sin";
-(globalThis as any).NICKNAME = "CRABS";
+//globalThis.VERSION = "1.3.2.1 Alpha";
+//globalThis.NAME = "Crazy Roster Add-on By Sin";
+//globalThis.NICKNAME = "CRABS";
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
