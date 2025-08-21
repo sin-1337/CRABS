@@ -7,6 +7,7 @@ import terser from "@rollup/plugin-terser";
 import progress from "rollup-plugin-progress";
 import { string } from "rollup-plugin-string";
 import postcss from "rollup-plugin-postcss";
+import replace from "@rollup/plugin-replace";
 
 // ✅ Import createRequire for loading JSON without assert
 import { createRequire } from "node:module";
@@ -58,6 +59,12 @@ console.debug("CRABS: Parse start...");
   },
   treeshake: false,
   plugins: [
+	replace({
+		preventAssignment: true,
+		NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
+		NICKNAME: JSON.stringify("CRABS"),
+  		VERSION: JSON.stringify("1.3.2.6"),
+	}),
     progress({ clearLine: true }),
     resolve({ browser: true }),
     json(),

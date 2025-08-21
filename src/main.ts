@@ -2,11 +2,6 @@
 import bcModSDK from "bondage-club-mod-sdk";
 import * as Modules from "./modules";
 
-// configure the version and mod name
-const VERSION = "1.3.1.0";
-const NAME = "Crazy Roster Add-on By Sin";
-const NICKNAME = "CRABS";
-
 //register the mod
 const CRABS = bcModSDK.registerMod({
   name: NICKNAME,
@@ -47,7 +42,7 @@ function drawbanner() {
   let extradata = {
     RosterCounters: ROSTER.buildroster("count", false),
   };
-  BANNER.drawBanner(NAME, VERSION, extradata);
+  BANNER.drawBanner(extradata);
 }
 
 // TODO: create ui to turn this off!!
