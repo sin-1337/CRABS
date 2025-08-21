@@ -47,7 +47,7 @@ function drawbanner() {
   let extradata = {
     RosterCounters: ROSTER.buildroster("count", false),
   };
-  BANNER.drawBanner(NAME, VERSION, extradata);
+  BANNER.drawBanner(extradata);
 }
 
 // TODO: create ui to turn this off!!

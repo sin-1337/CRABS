@@ -1,8 +1,8 @@
-declare const NAME: string;
-declare const NICKNAME: string;
-declare const VERSION: string;
 // globals.d.ts
 declare global {
+  const NAME: string;
+  const NICKNAME: string;
+  const VERSION: string;
   var ChatRoomCharacter: Array<any>;
   var ChatRoomData: any;
   var Commands: Array<any>;

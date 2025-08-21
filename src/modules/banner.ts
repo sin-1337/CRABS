@@ -63,8 +63,8 @@ export class Banner extends CRABS {
    * @returns void
    */
   public drawBanner(
-    NAME: string,
-    VERSION: string,
+    //NAME: string,
+    //VERSION: string,
     extradata?: Record<string, string>
   ): void {
     // bail if ChatRoomData is null or blank
