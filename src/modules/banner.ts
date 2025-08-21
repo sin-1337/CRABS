@@ -57,14 +57,10 @@ export class Banner extends CRABS {
   /**
    * Draws the banner
    *
-   * @param {string} name - Name of the program.
-   * @param {string} version - Version number.
    * @param {Record<sring, string>} [extradata] - [optional] Additional data record.
    * @returns void
    */
   public drawBanner(
-    //NAME: string,
-    //VERSION: string,
     extradata?: Record<string, string>
   ): void {
     // bail if ChatRoomData is null or blank
