@@ -22,11 +22,11 @@ window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
 window.crabsHelp = HELP.showHelp.bind(HELP);
 
 // print version and load success in console
-console.log(`CRABS v${VERSION} Loaded`);  // do not remove
+console.log(`CRABS v${VERSION} Loaded`); // do not remove
 
-/** 
- * Draws the banner 
- *  
+/**
+ * Draws the banner
+ *
  * @returns void
  */
 function drawbanner() {
@@ -62,7 +62,7 @@ ChatRoomRegisterMessageHandler({
       // work on a delay
       setTimeout(() => {
         // configure extra roster input to the banner
-        if(!ChatRoomData) return; // bail if ChatRoomData isn't initialized 
+        if (!ChatRoomData) return; // bail if ChatRoomData isn't initialized
         drawbanner();
       }, 3600);
     }
@@ -76,7 +76,7 @@ function argcheck(args: string): boolean {
   const SPLITARGS = args.split(" ");
   if (SPLITARGS[0].toLowerCase() == "help") {
     HELP.sendoutput(HELP.showHelp(), "CRABS_Help");
-    const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
+    const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
     if (HELPBUTTON) HELPBUTTON.style.display = "none";
     return false;
   } else if (SPLITARGS[0].toLowerCase() == "version") {
@@ -142,7 +142,7 @@ CommandCombine([
         ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
       ROSTER.initScrollingOverflow();
       const elements = document.querySelectorAll<HTMLDivElement>(
-        "div.ChatMessageNonDialogue"
+        "div.ChatMessageNonDialogue",
       );
 
       elements.forEach((element) => {
@@ -152,6 +152,13 @@ CommandCombine([
       //attach intractable roster events
       ROSTER.attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
       ROSTER.attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
+      ROSTER.attachEvent(
+        "CRABS_player-id",
+        "copyToClipboard",
+        "playerNumber",
+        "",
+        "contextmenu",
+      );
     },
   },
 ]);
@@ -177,7 +184,7 @@ CommandCombine([
       const splitArgs = args.toLowerCase().split(" ");
       if (splitArgs.length < 1) {
         ChatRoomSendLocal(
-          `You must supply which key to drop, or 'all' to drop them all.`
+          `You must supply which key to drop, or 'all' to drop them all.`,
         );
         return;
       }

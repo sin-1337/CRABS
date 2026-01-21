@@ -1,4 +1,4 @@
-import bcModSdk, { ModSDKModAPI, ModSDKModInfo } from "bondage-club-mod-sdk";
+import bcModSdk, { ModSDKModAPI } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
@@ -102,13 +102,30 @@ export default class CRABS {
   public showPlayerFocus(MemberNumber: number): void {
     // Check if the person is still in the room
     const PLAYER = ChatRoomCharacter.find(
-      (C) => C.MemberNumber == MemberNumber
+      (C) => C.MemberNumber == MemberNumber,
     );
     if (PLAYER) {
       ChatRoomStatusUpdate("Preference");
       ChatRoomFocusCharacter(PLAYER);
     } else {
       ChatRoomSendLocal("This person is no longer in the room.");
+    }
+  }
+
+  /**
+   * Takes Player ID as input and copies it to the user's clipboard
+   * @param {string} data - string representing whatever data to copy to clipbard.
+   *
+   * @returns {void} Don't return anything
+   */
+  public async copyToClipboard(data: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(data);
+      // console.log("DEBUG: Text copied to clipboard: ", data);
+      return;
+    } catch (error) {
+      console.error("Copy to clipboard failed", error);
+      return;
     }
   }
 
@@ -151,14 +168,14 @@ export default class CRABS {
     action: string,
     data?: string,
     arg?: string,
-    event: string = "click"
+    event: string = "click",
   ): void {
     const CHAT = document.getElementById("TextAreaChatLog");
 
     if (!CHAT) return; // if chat is not found, bail
     // Select all roster links
     const ELEMENTS = CHAT.getElementsByClassName(
-      classname
+      classname,
     ) as HTMLCollectionOf<HTMLElement>;
 
     // Attach event listeners to all roster links
@@ -192,13 +209,13 @@ export default class CRABS {
   public attachEventWithCallback(
     classname: string,
     callback: (e: Event) => void,
-    event: string = "click"
+    event: string = "click",
   ): void {
     const CHAT = document.getElementById("TextAreaChatLog");
     if (!CHAT) return;
 
     const ELEMENTS = CHAT.getElementsByClassName(
-      classname
+      classname,
     ) as HTMLCollectionOf<HTMLElement>;
     for (const ELEMENT of ELEMENTS) {
       ELEMENT.addEventListener(event, callback);
@@ -247,7 +264,7 @@ export default class CRABS {
   /**
    * Takes a template name and outputs the filled out template string
    *
-   * @param {string} template_name - Name of the HTML file, no extension or path
+   * @param {string} template - Name of the HTML file, no extension or path
    * @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
    * @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
    * @param {Record<string, string>} [wrapperArgs] - [optional] A dictionary of key/values that populate the wrapper
@@ -257,7 +274,7 @@ export default class CRABS {
     template: string,
     args: Record<string, string>,
     wrapper: boolean = true,
-    wrapperArgs?: Record<string, string> // ignored when wrapper == false
+    wrapperArgs?: Record<string, string>, // ignored when wrapper == false
   ): string {
     let regex: RegExp;
 
@@ -286,7 +303,8 @@ export default class CRABS {
    *
    * @param {string} key - Name of the icon you want
    * @param {string} [tooltip] - [optional] String tooltip
-   * @param {string} [style] - [optional] CSS styles to overwrite the default style sheet.
+   * @param {string} [css_class] - [optional] CSS class default style sheet.
+   * @param {string} [css_style] - [optional] CSS styles to overwrite the default style sheet.
    * @param {[string, string]} [data] - [optional] Dictionary of strings to provide data to event listeners.
    * @returns {sring} HTML representing the icon
    */
@@ -294,8 +312,8 @@ export default class CRABS {
     key: string,
     tooltip: string = "", // optional tooltip
     css_class: string = "CRABS_icon", //optional class overwrite
-    css_style: string = "", // optional, css overwrite
-    data?: [string, string] // optional, facilitates special data for event listeners
+    css_style: string = "", // optional, CSS overwrite
+    data?: [string, string], // optional, facilitates special data for event listeners
   ): string {
     let icon = this.IMAGES["error"]; // fall back if the icon isn't found
     if (key in this.IMAGES) {
