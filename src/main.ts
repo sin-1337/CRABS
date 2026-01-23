@@ -30,7 +30,7 @@ console.log(`CRABS v${VERSION} Loaded`); // do not remove
  * @returns void
  */
 function drawbanner() {
-  let output: string = "";
+  //let output: string = "";
   // if the player left the room, bail!
   if (Player.LastChatRoom === null) {
     // Must return false, even if we are bailing out!

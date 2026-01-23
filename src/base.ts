@@ -113,7 +113,7 @@ export default class CRABS {
   }
 
   /**
-   * Takes Player ID as input and copies it to the user's clipboard
+   * Takes some data as input and copies it to the user's clipboard
    * @param {string} data - string representing whatever data to copy to clipbard.
    *
    * @returns {void} Don't return anything
