@@ -39,7 +39,7 @@ export class Banner extends CRABS {
    */
   private drawPermission(): string {
     let output: string = "";
-    let SELECTED: number = Player.AllowedInteractions;
+    const SELECTED: number = Player.AllowedInteractions;
 
     // TODO: update this to support an arbitrary number of permission levels.
     for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
@@ -70,14 +70,14 @@ export class Banner extends CRABS {
     }
 
     // set up the template and populate the fields.
-    let templatevars = {
+    const templatevars = {
       Logo: this.printimage("logo", undefined, "CRABS_logo"),
       LabelColor: `${Player.LabelColor}`,
       PermissionOptions: this.drawPermission(),
       RoomName: ChatRoomData.Name,
     };
 
-    let wrappervars = {
+    const wrappervars = {
       TitleBar: `${NAME}:  ${VERSION}`,
       Close: this.printimage("close", undefined, "CRABS_close", undefined, [
         "elementid",

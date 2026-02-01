@@ -9,24 +9,24 @@ export class WhisperPlus extends CRABS {
     /** 
      * Send chat message at range.
      * 
-     * @param {any} target - whisper target.
+     * @param {Character} target - whisper target.
      * @param {string} string - message to send.
      * @returns {boolean} Was the message sent?
      */
-    private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
+    private ChatRoomSendWhisperRanged(targetArg: Character | number, msg: string): boolean {
         if (msg == "") {
             return false;
         }
 
         // First ensure we have a valid target object
-        const TARGETMEMEBER = typeof target === 'object' ? target : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(target));
-        if (!TARGETMEMEBER) {
-            ChatRoomSendLocalChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
+        const target = typeof targetArg === 'object' ? targetArg : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(targetArg, 10));
+        if (!target) {
+            ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${targetArg}.`, 30_000);
             return false;
         }
 
         // Handle self whispers with gray text and memo emoji
-        if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
+        if (target.MemberNumber === Player.MemberNumber) {
             const SELFMESSAGE = `<span style="color:#989898">${this.printimage("thought")} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
             ChatRoomSendLocal(SELFMESSAGE);
             return false;
@@ -38,7 +38,7 @@ export class WhisperPlus extends CRABS {
 
 
         // check if target and player are the same
-        if (target.MemberNumber == Player.MemberNumber) {
+        if (target.IsPlayer()) {
             addChatMessage(msg);
         } else {
             if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && msg[0] != "(") {
@@ -46,13 +46,13 @@ export class WhisperPlus extends CRABS {
             }
 
             // Prepare the message - now with ⤵ instead of :
-            let formattedMsg = `+: ${msg}`;
+            const formattedMsg = `+: ${msg}`;
             //if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
             //    formattedMsg += '）';
             //}
 
             // build data payload
-            let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+            const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
             /*if (!data) {
                 data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
             }*/
@@ -61,7 +61,7 @@ export class WhisperPlus extends CRABS {
             data.Target = target.MemberNumber;
 
             //send the whisper
-            const serverData = { ...data, Type: "Whisper" }
+            const serverData: ServerChatRoomMessage = { ...data, Type: "Whisper" }
             ServerSend("ChatRoomChat", serverData);
 
             // tell it who we are
@@ -116,7 +116,7 @@ export class WhisperPlus extends CRABS {
 
         // find player based no membernumber
         const TARGET = ChatRoomCharacter.find(
-            (C: any) => C.MemberNumber == MEMBERNUMBER
+            (C) => C.MemberNumber == MEMBERNUMBER
         );
         this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
         return 0;

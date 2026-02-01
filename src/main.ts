@@ -30,7 +30,6 @@ console.log(`CRABS v${VERSION} Loaded`); // do not remove
  * @returns void
  */
 function drawbanner() {
-  let output: string = "";
   // if the player left the room, bail!
   if (Player.LastChatRoom === null) {
     // Must return false, even if we are bailing out!
@@ -39,7 +38,7 @@ function drawbanner() {
 
   // configure extra roster input to the banner
   // TODO: make this optional in the future
-  let extradata = {
+  const extradata = {
     RosterCounters: ROSTER.buildroster("count", false),
   };
   BANNER.drawBanner(extradata);
@@ -52,7 +51,7 @@ function drawbanner() {
 ChatRoomRegisterMessageHandler({
   Description: "Send room stats on entry.",
   Priority: 0, // trigger immediately
-  Callback: (data: any) => {
+  Callback: (data) => {
     // check if we are a player and we entered a room
     if (
       data.Type === "Action" &&
@@ -194,19 +193,19 @@ CommandCombine([
       }
       for (let i = 0; i < splitArgs.length; i++) {
         if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeyBronze) {
+          if (Player.MapData?.PrivateState.HasKeyBronze) {
             Player.MapData.PrivateState.HasKeyBronze = false;
             ChatRoomSendLocal(`Bronze key dropped.`);
           }
         }
         if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeySilver) {
+          if (Player.MapData?.PrivateState.HasKeySilver) {
             Player.MapData.PrivateState.HasKeySilver = false;
             ChatRoomSendLocal(`Silver key dropped.`);
           }
         }
         if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeyGold) {
+          if (Player.MapData?.PrivateState.HasKeyGold) {
             Player.MapData.PrivateState.HasKeyGold = false;
             ChatRoomSendLocal(`Gold key dropped.`);
           }

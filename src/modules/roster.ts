@@ -57,10 +57,10 @@ export class Roster extends CRABS {
   /** 
    * Determines if a player is Deaf, Blind, or Gagged and sets icons accordingly.
    * 
-   * @param {PlayerCharacter} player - Player Charater, the player object.
-   * @returns {string} List of icons.
+   * @param player - Player Charater, the player object.
+   * @returns List of icons.
    */
-  private setStatusIcons(player: PlayerCharacter): string {
+  private setStatusIcons(player: Character): string {
     const PREFIXES = ["Blind", "Gag", "Deaf"];
     const EFFECTS = CharacterGetEffects(player);
 
@@ -94,7 +94,7 @@ export class Roster extends CRABS {
     };
 
     // Initialize icons as empty strings
-    let icons: { [key: string]: string } = {
+    const icons: { [key: string]: string } = {
       Blind: "",
       Gag: "",
       Deaf: "",
@@ -124,8 +124,8 @@ export class Roster extends CRABS {
     };
 
     // Process effects
-    for (let effect of EFFECTS) {
-      for (let prefix of PREFIXES) {
+    for (const effect of EFFECTS) {
+      for (const prefix of PREFIXES) {
         if (effect.startsWith(prefix)) {
           updateIcon(prefix, effect);
         }
@@ -148,17 +148,17 @@ export class Roster extends CRABS {
   /** 
    * Builds the cards that get injected into the roster.
    * 
-   * @param {PlayerCharacter} player - Player character that we are working with.
-   * @param {string} badge - String for the badge showing if the player is admin.
-   * @param {string} player_icons - String for the different icons relevant to the player.
-   * @returns {string} The output html from the template.
+   * @param player - Player character that we are working with.
+   * @param badge - String for the badge showing if the player is admin.
+   * @param player_icons - String for the different icons relevant to the player.
+   * @returns The output html from the template.
    */
   private buildCard(
-    player: PlayerCharacter,
+    player: Character,
     badge: string,
     player_icons: string
   ): string {
-    let templatevars: Record<string, string> = {
+    const templatevars: Record<string, string> = {
       PlayerNumber: `${player.MemberNumber}`,
       Badge: badge,
       LabelColorBorder: `${this.convertColor(
@@ -181,7 +181,7 @@ export class Roster extends CRABS {
    */
   private loadFriendList(): void {
     this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-      const [DATA]: Array<Record<string, any>> = args;
+      const [DATA] = args;
       this.onlineFriends = DATA.length;
       this.lastSentTime = Date.now();
       return next(args);
@@ -231,15 +231,13 @@ export class Roster extends CRABS {
 
   /** 
    * Determine if player is admin or whitelisted in the room and set their badge icon.
-   * 
-   * @returns void
    */
-  private setbadge(player: PlayerCharacter): string {
+  private setbadge(player: Character): string {
     let badge = this.printimage("player", "Guest", "CRABS_badge");
-    badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
+    badge = ChatRoomData?.Whitelist.includes(player.MemberNumber ?? -1)
       ? this.printimage("vip", "VIP", "CRABS_badge")
       : badge;
-    badge = ChatRoomData.Admin.includes(player.MemberNumber)
+    badge = ChatRoomData?.Admin.includes(player.MemberNumber ?? -1)
       ? this.printimage("admin", "Admin", "CRABS_badge")
       : badge;
     return badge;
@@ -248,17 +246,17 @@ export class Roster extends CRABS {
   /**
    * Sets the icons relevant to the player
    * 
-   * @param {PlayerCharacter} player - Player character object.
-   * @return {string} HTML string containing the icons.
+   * @param player - Player character object.
+   * @return HTML string containing the icons.
    */
-  private setIcons(player: PlayerCharacter): string {
+  private setIcons(player: Character): string {
     let player_icons = "";
     if (Player.OwnerNumber() == player.MemberNumber) {
       // person owns you
       player_icons += this.printimage("owner", "Your Owner") + " ";
     } else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
       // if they don't own you but you are in their family, we assume you own them
-      if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
+      if (player.IsOwned()) {
         // The person is fully owned if this is true
         player_icons += this.printimage("sub", "Submissive") + " ";
       } else {
@@ -273,27 +271,28 @@ export class Roster extends CRABS {
       if (this.detectMod("BCTweaks")) {
         // BCTweaks mod is found
         if (
+          // @ts-expect-error no typings for that
           Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
         ) {
           //Player is a best friend, skip checking if they are a friend.
           player_icons += this.printimage("bestfriend", "Best Friend") + " ";
-        } else if (Player.FriendList.includes(player.MemberNumber)) {
+        } else if (Player.FriendList.includes(player.MemberNumber ?? -1)) {
           // Player is not a best friend, but they are a friend
           player_icons += this.printimage("friend", "Friend") + " ";
         }
-      } else if (Player.FriendList.includes(player.MemberNumber)) {
+      } else if (Player.FriendList.includes(player.MemberNumber ?? -1)) {
         // person is a friend, and the BCTweaks mod is not found
         player_icons += this.printimage("friend", "Friend") + " ";
       }
     }
-    if (Player.WhiteList.includes(player.MemberNumber)) {
+    if (Player.WhiteList.includes(player.MemberNumber ?? -1)) {
       // Player is whitelisted
       player_icons += this.printimage("whitelist", "Whitelist") + " ";
-    } else if (Player.BlackList.includes(player.MemberNumber)) {
+    } else if (Player.BlackList.includes(player.MemberNumber ?? -1)) {
       // Player is blacklisted
       player_icons += this.printimage("blacklist", "Blacklist") + " ";
     }
-    if (Player.GhostList.includes(player.MemberNumber)) {
+    if (Player.GhostList.includes(player.MemberNumber ?? -1)) {
       // Player is ghosted
       player_icons += this.printimage("ghost", "Ghosted") + " ";
     }
@@ -328,7 +327,6 @@ export class Roster extends CRABS {
     let showadmins = true; // room admins
     let showvip = true; // room whitelists
     let showplayers = true; // normal players
-    let templatevars: Record<string, string>;
     let output_html: string = ""
 
     //get a list of players
@@ -383,7 +381,7 @@ export class Roster extends CRABS {
     }
 
     // if argument is "count", set filter vars and skip loop
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
+    if (SPLITARGS.some((item) => item.toLowerCase() === "count")) {
       showme = false;
       showadmins = false;
       showvip = false;
@@ -391,27 +389,27 @@ export class Roster extends CRABS {
     }
 
     // if argument is admins, set filter vars to only show admins and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
+    if (SPLITARGS.some((item) => item.toLowerCase() === "admins")) {
       showme = false;
       showvip = false;
       showplayers = false;
     }
 
     // if argument is vips, set filter vars to only show vips (white listed) and continue
-    if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
+    if (SPLITARGS.some((item) => item.toLowerCase() === "vips")) {
       showme = false;
       showadmins = false;
       showplayers = false;
     }
 
     // build table header
-    templatevars = {
+    const templatevars: Record<string, string> = {
       adminIcon: `${this.printimage("admin", "Admins", "CRABS_header_icons")}`,
       adminsInRoom: `${admin_count}`,
-      totalAdmins: `${ChatRoomData.Admin.length}`,
+      totalAdmins: `${ChatRoomData?.Admin.length ?? 0}`,
       playerIcon: `${this.printimage("player", "Players", "CRABS_header_icons")}`,
       playersInRoom: `${ChatRoomCharacter.length}`,
-      totalPlayers: `${ChatRoomData.Limit}`,
+      totalPlayers: `${ChatRoomData?.Limit ?? `<unknown>`}`,
       friendIcon: `${this.printimage("friend", "Friends", "CRABS_header_icons")}`,
       friendsOnline: this.onlineFriends?.toString() ?? "...",
       totalFriends: `${Player.FriendNames.size}`,
@@ -425,9 +423,9 @@ export class Roster extends CRABS {
 
       // build a dictionary of the keys
       const KEYS = {
-        keyBronze: Player.MapData.PrivateState.HasKeyBronze,
-        keySilver: Player.MapData.PrivateState.HasKeySilver,
-        keyGold: Player.MapData.PrivateState.HasKeyGold,
+        keyBronze: Player.MapData?.PrivateState.HasKeyBronze,
+        keySilver: Player.MapData?.PrivateState.HasKeySilver,
+        keyGold: Player.MapData?.PrivateState.HasKeyGold,
       };
 
       // loop the dictionary and extract the key and name
@@ -456,7 +454,7 @@ export class Roster extends CRABS {
     output_rows = showplayers ? output_rows + player_output_html : output_rows;
     templatevars["playerRows"] = output_rows;
 
-    let wrappervars = {
+    const wrappervars: Record<string, string> = {
         TitleBar: `CRABS: Roster`,
         Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Roster"])
     }
