@@ -88,15 +88,6 @@ function argcheck(args: string): boolean {
   return true;
 }
 
-function commandRedirect(command: string, args: string): void {
-  for (const [_, COMMAND] of Commands.entries()) {
-    if (COMMAND.Tag === command) {
-      COMMAND.Action(args);
-      break;
-    }
-  }
-}
-
 // implements the whisper+ command
 CommandCombine([
   {
@@ -125,9 +116,7 @@ CommandCombine([
   {
     Tag: "crabs",
     Description: "Show the player count, helpful in maps.",
-    Action: (args: string) => {
-      commandRedirect("roster", args);
-    },
+    Reference: "roster",
   },
 ]);
 
@@ -167,9 +156,7 @@ CommandCombine([
   {
     Tag: "players",
     Description: "Deprecated: Show the player count, helpful in maps.",
-    Action: (args: string) => {
-      commandRedirect("roster", args);
-    },
+    Reference: "roster",
   },
 ]);
 
