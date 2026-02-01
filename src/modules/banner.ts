@@ -21,10 +21,10 @@ export class Banner extends CRABS {
     if (select) {
       select.addEventListener("change", (event: Event) => {
         const TARGET = event.target as HTMLSelectElement;
-        const NEW_PERM_LEVEL = parseInt(TARGET.value, 10);
+        const NEW_PERM_LEVEL = CommonParseInt(TARGET.value, 10) ?? 0;
 
         // Update player permissions based on selection
-        Player.AllowedInteractions = NEW_PERM_LEVEL;
+        Player.AllowedInteractions = CommonClamp(NEW_PERM_LEVEL, 0, 5) as AllowedInteractions;
         ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
       });
     } else {
@@ -39,7 +39,7 @@ export class Banner extends CRABS {
    */
   private drawPermission(): string {
     let output: string = "";
-    let SELECTED: number = Player.AllowedInteractions;
+    const SELECTED: number = Player.AllowedInteractions;
 
     // TODO: update this to support an arbitrary number of permission levels.
     for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
@@ -70,14 +70,14 @@ export class Banner extends CRABS {
     }
 
     // set up the template and populate the fields.
-    let templatevars = {
+    const templatevars = {
       Logo: this.printimage("logo", undefined, "CRABS_logo"),
       LabelColor: `${Player.LabelColor}`,
       PermissionOptions: this.drawPermission(),
       RoomName: ChatRoomData.Name,
     };
 
-    let wrappervars = {
+    const wrappervars = {
       TitleBar: `${NAME}:  ${VERSION}`,
       Close: this.printimage("close", undefined, "CRABS_close", undefined, [
         "elementid",

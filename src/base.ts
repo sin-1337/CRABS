@@ -84,12 +84,7 @@ export default class CRABS {
    * @returns void
    */
   public fakePlayerCommand(action: string = "all"): void {
-    for (const [_, COMMAND] of Commands.entries()) {
-      if (COMMAND.Tag === `crabs`) {
-        COMMAND.Action(action);
-        break;
-      }
-    }
+    CommandExecute(["crabs", action].join(" "));
   }
 
   /**
@@ -134,7 +129,7 @@ export default class CRABS {
    *  @returns {boolean} True if found, false if not.
    */
   protected detectMod(targetmod: string): boolean {
-    let modlist = bcModSdk.getModsInfo();
+    const modlist = bcModSdk.getModsInfo();
     return modlist.filter((x) => x.name == targetmod).length > 0;
   }
 
@@ -351,9 +346,9 @@ export default class CRABS {
     hex = hex.replace(/^#/, "");
 
     // Parse the red, green, and blue components
-    let red = parseInt(hex.slice(0, 2), 16);
-    let green = parseInt(hex.slice(2, 4), 16);
-    let blue = parseInt(hex.slice(4, 6), 16);
+    const red = parseInt(hex.slice(0, 2), 16);
+    const green = parseInt(hex.slice(2, 4), 16);
+    const blue = parseInt(hex.slice(4, 6), 16);
 
     // Return the rgba value with alpha transparency
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
