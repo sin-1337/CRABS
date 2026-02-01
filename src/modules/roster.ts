@@ -316,11 +316,9 @@ export class Roster extends CRABS {
     let admin_output_html: string = "" // holds admins
     let vip_output_html: string = "" // holds whitelisted users
     let player_output_html : string = "" // holds normal players
-    let player: PlayerCharacter; // the person we found in the room
     let admin_count = 0; // number of admins in the room
     let badge = ""; // holds the admin icon if the player is an admin
     let player_icons = ""; // holds the list of player/status icons (string)
-    let MemberNumber: number;
 
     // filter variables, show or not show certain output
     let showme = true; // person who ran the script (you)
@@ -330,53 +328,47 @@ export class Roster extends CRABS {
     let output_html: string = ""
 
     //get a list of players
-    for (let person in ChatRoomData.Character) {
-      // find member number for current player in list
-      MemberNumber = ChatRoomData.Character[person].MemberNumber;
-
-      // Find player
-      player = ChatRoomCharacter.find(
-        (C: any) => C.MemberNumber == MemberNumber
-      );
+    for (const char of ChatRoomCharacter) {
+      const charNumber = char.MemberNumber ?? -1;
 
       //bail out and return placeholder if player is not available.
-      if (!player) {
+      if (!char) {
         player_output_html +=
             "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
         continue;
       }
 
       // check if the player is also an admin or vip and add icon with admin given priority
-      badge = this.setbadge(player);
-      player_icons = this.setIcons(player);
+      badge = this.setbadge(char);
+      player_icons = this.setIcons(char);
 
       // if the player is me (person who ran the script)
-      if (player.IsPlayer()) {
+      if (char.IsPlayer()) {
         // mark me with a star icon
         player_icons = this.printimage("you", "You") + " " + player_icons;
 
         // format my output and store
-        me_output_html = this.buildCard(player, badge, player_icons);
+        me_output_html = this.buildCard(char, badge, player_icons);
       }
 
       // check if the player is an admin and update the count, also flag the player as admin in the output list.
-      if (ChatRoomData.Admin.includes(player.MemberNumber)) {
+      if (ChatRoomData?.Admin.includes(charNumber)) {
         admin_count++;
-        if (!player.IsPlayer()) {
+        if (!char.IsPlayer()) {
           // if the player is not me, output admin and skip rest of loop
-          admin_output_html += this.buildCard(player, badge, player_icons);
+          admin_output_html += this.buildCard(char, badge, player_icons);
           continue;
         }
       } else if (
-        ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-        !player.IsPlayer()
+        ChatRoomData?.Whitelist.includes(charNumber) &&
+        !char.IsPlayer()
       ) {
         // if the player isn't an admin, is the player is white listed?
-        vip_output_html += this.buildCard(player, badge, player_icons);
+        vip_output_html += this.buildCard(char, badge, player_icons);
         continue;
-      } else if (!player.IsPlayer()) {
+      } else if (!char.IsPlayer()) {
         // player is normal, nonadmin, not whitelist, and not me.
-        player_output_html += this.buildCard(player, badge, player_icons);
+        player_output_html += this.buildCard(char, badge, player_icons);
       }
     }
 
