@@ -21,10 +21,10 @@ export class Banner extends CRABS {
     if (select) {
       select.addEventListener("change", (event: Event) => {
         const TARGET = event.target as HTMLSelectElement;
-        const NEW_PERM_LEVEL = parseInt(TARGET.value, 10);
+        const NEW_PERM_LEVEL = CommonParseInt(TARGET.value, 10) ?? 0;
 
         // Update player permissions based on selection
-        Player.AllowedInteractions = NEW_PERM_LEVEL;
+        Player.AllowedInteractions = CommonClamp(NEW_PERM_LEVEL, 0, 5) as AllowedInteractions;
         ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
       });
     } else {
