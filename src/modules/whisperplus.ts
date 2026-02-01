@@ -1,5 +1,6 @@
 import {ModSDKModAPI} from "bondage-club-mod-sdk";
 import CRABS from "../base"
+import { isBCXRuleEnforced } from "../bcx";
 export class WhisperPlus extends CRABS {
 
     constructor(CRABS: ModSDKModAPI) {
@@ -15,6 +16,11 @@ export class WhisperPlus extends CRABS {
      */
     private ChatRoomSendWhisperRanged(targetArg: Character | number, msg: string): boolean {
         if (msg == "") {
+            return false;
+        }
+
+        if (isBCXRuleEnforced("speech_restrict_whisper_send")) {
+            ChatRoomSendLocal(`Sending whispers is blocked by BCX.`, 30_000);
             return false;
         }
 
