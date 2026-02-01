@@ -8,5 +8,8 @@
     "skipLibCheck": true,    // Skip type checking of declaration files
     "strict": true           // Enables strict mode (good practice)
   },
-  "include": ["src/**/*.ts"] // Include your source TypeScript files
+  "include": [
+    "node_modules/bc-stubs/bc/**/*.d.ts",
+    "src/**/*.ts",
+  ],
 }
