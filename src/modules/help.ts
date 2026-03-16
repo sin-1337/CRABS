@@ -4,17 +4,16 @@ import helptemplate from "./templates/help.html";
 
 export class Help extends CRABS {
 
-  /** 
-   * Shows help output
-   * 
-   * @param {string} VERSION - the version number for CRABS.
-   * @returns {string} Completed HTML for help output.
-   */
-  public showHelp(): string {
-    let output = `<table style="width: 100%"><tr><td>
+	/** 
+	 * Shows help output
+	 * 
+	 * @returns {string} Completed HTML for help output.
+	 */
+	public showHelp(): string {
+		let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            ${this.printimage("logo", undefined, "CRABS_logo")}</br>
+            ${this.printimage({ key: "logo" })}</br>
             CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
@@ -44,34 +43,28 @@ export class Help extends CRABS {
             </br>
             Badges:
             <hr>
-            ${this.printimage("admin")} = Person is Admin</br>
-            ${this.printimage("vip")} = Person is whitelisted in the room </br>
-            ${this.printimage("player")} = Person is a normal user </br>
+            ${this.printimage({ key: "admin" })} = Person is Admin</br>
+            ${this.printimage({ key: "vip" })} = Person is whitelisted in the room </br>
+            ${this.printimage({ key: "player" })} = Person is a normal user </br>
 
             </br>
             Icons:
             <hr>
-            ${this.printimage("you")} = Person is you </br>
-            ${this.printimage("owner")} = Person is your owner </br>
-            ${this.printimage("sub")} = Person is your submissive </br>
-            ${this.printimage("trial")} = Person is on trial with you </br>
-            ${this.printimage("lover")} = Person is your lover </br>`;
+            ${this.printimage({ key: "you" })} = Person is you </br>
+            ${this.printimage({ key: "owner" })} = Person is your owner </br>
+            ${this.printimage({ key: "sub" })} = Person is your submissive </br>
+            ${this.printimage({ key: "trial" })} = Person is on trial with you </br>
+            ${this.printimage({ key: "lover" })} = Person is your lover </br>`;
 
-    //prints only if the BCTweaks module is detected.
-    if (this.detectMod("BCTweaks")) {
-      output += `${this.printimage(
-        "bestfriend"
-      )} = Person is a best friend </br>`;
-    }
+		//prints only if the BCTweaks module is detected.
+		if (this.detectMod("BCTweaks")) {
+			output += `${this.printimage({ key: "bestfriend" })} = Person is a best friend </br>`;
+		}
 
-    output += `${this.printimage("friend")} = Person is a friend </br>
-            ${this.printimage(
-              "whitelist"
-            )} = You have this person whitelisted </br>
-            ${this.printimage(
-              "blacklist"
-            )} = You have this person blacklisted </br>
-            ${this.printimage("ghost")} = You have ghosted this person </br>
+		output += `${this.printimage({ key: "friend" })} = Person is a friend </br>
+            ${this.printimage({ key: "whitelist" })} = You have this person whitelisted </br>
+            ${this.printimage({ key: "blacklist" })} = You have this person blacklisted </br>
+            ${this.printimage({ key: "ghost" })} = You have ghosted this person </br>
 
             </br>
             Status Icons:
@@ -100,15 +93,15 @@ export class Help extends CRABS {
             </tr>
             </table>`;
 
-    let templatevars = {
-        "HelpOutput": output,
-    };
-    
-    let wrappervars = {
-        TitleBar: `CRABS: Help`,
-        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Help"])
-    }
+		let templatevars = {
+			"HelpOutput": output,
+		};
 
-    return(this.template(helptemplate, templatevars, true, wrappervars));
-  }
+		let wrappervars = {
+			TitleBar: `CRABS: Help`,
+			Close: this.printimage({ key: "close", data: ["elementid", "CRABS_Help"] })
+		}
+
+		return (this.template(helptemplate, templatevars, true, wrappervars));
+	}
 }
