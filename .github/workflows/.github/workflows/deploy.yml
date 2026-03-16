@@ -1,0 +1,75 @@
+name: Deploy and Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Field to increment (major, minor, patch, build) or specific version (1.2.3.4)"
+        required: true
+        default: "build"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Process Version and Deploy
+        run: |
+          # 1. Get current version from deploy.sh (parsing your VERSION= line)
+          CURRENT_VERSION=$(grep -oP '^VERSION=\K[0-9.]+' deploy.sh)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+          echo "Current Version: $CURRENT_VERSION"
+          echo "Current Branch: $BRANCH"
+
+          # 2. Update config files for current branch
+          sed -i "s|file:.*|file: \"../Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
+          sed -i "s|\"main\": .*|\"main\": \"$BRANCH/bundle.js\",|" package.json
+
+          # 3. Handle Version Bumping (Logic from your script)
+          IFS='.' read -r major minor patch build <<< "$CURRENT_VERSION"
+
+          INPUT="${{ github.event.inputs.version_type }}"
+
+          if [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            NEW_VERSION=$INPUT
+          else
+            case $INPUT in
+              major) ((major++)); minor=0; patch=0; build=0 ;;
+              minor) ((minor++)); patch=0; build=0 ;;
+              patch) ((patch++)); build=0 ;;
+              build|*) ((build++)) ;;
+            esac
+            NEW_VERSION="$major.$minor.$patch.$build"
+          fi
+
+          echo "New Version: $NEW_VERSION"
+
+          # 4. Apply updates
+          sed -i "s/VERSION: JSON.stringify(\".*\")/VERSION: JSON.stringify(\"$NEW_VERSION\"),/" rollup.config.mjs
+          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\",/" package.json
+          sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
+          sed -i "s/^VERSION=[0-9.]*/VERSION=$NEW_VERSION/" deploy.sh
+
+          # 5. Build and Push
+          npm install
+          npx rollup -c
+
+          git add .
+          git commit -m "build #$NEW_VERSION perform deploy"
+          git push origin $BRANCH
