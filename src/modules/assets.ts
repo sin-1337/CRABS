@@ -26,7 +26,7 @@ type ImageStore = {
 export abstract class Assets {
 
 	protected static readonly IMAGES: ImageStore = {
-		basePath: "https://sin-1337.github.io/CRABS/images/",
+		basePath: "https://cdn.jsdelivr.net/gh/sin-1337/CRABS@__BRANCH__/images/",
 
 		// logo
 		image: {
