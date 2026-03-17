@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -28,7 +29,6 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          # Since package-lock.json is in the root, we point directly to it
           cache-dependency-path: package-lock.json
           registry-url: "https://registry.npmjs.org/"
 
@@ -52,7 +52,6 @@ jobs:
         run: |
           set -e
 
-          # CURRENT_VERSION is hardcoded as per your initial script
           CURRENT_VERSION="1.3.2.9"
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
@@ -60,16 +59,15 @@ jobs:
           echo "Current Branch: $BRANCH"
 
           # Update config files for current branch
-          # Using relative paths based on your tree structure
           sed -i "s|file:.*|file: \"../Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
           sed -i "s|\"main\": .*|\"main\": \"$BRANCH/bundle.js\",|" package.json
 
-          # Commit and push changes to current branch (Alpha)
+          # Commit and push changes to current branch first
           git add .
           git commit -m "build #$CURRENT_VERSION perform deploy"
           git push origin $BRANCH
 
-          # Handle Version Bumping Logic
+          # Handle Version Bumping
           ARGUMENT="${{ github.event.inputs.version_type }}"
 
           if [[ "$ARGUMENT" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -100,16 +98,15 @@ jobs:
           NEW_VERSION="$major.$minor.$patch.$build"
           echo "New Version: $NEW_VERSION"
 
-          # Update version in metadata files
-          sed -i "s/VERSION: JSON.stringify(\".*\")/VERSION: JSON.stringify(\"$NEW_VERSION\"),/" rollup.config.mjs
-          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\",/" package.json
+          # Update version using safer regex to avoid injecting syntax errors
+          sed -i "s/VERSION: JSON.stringify(\"[^\"]*\")/VERSION: JSON.stringify(\"$NEW_VERSION\")/" rollup.config.mjs
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
           sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
 
           # Build the project
           npx rollup -c
 
-          # Deploy to Live/Main
-          # We commit the version bump here first
+          # Commit the version bump
           git add .
           git commit -m "Update version number to $NEW_VERSION"
 
