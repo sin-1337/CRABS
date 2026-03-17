@@ -87,33 +87,41 @@ jobs:
 
           # 1. Temporarily inject the branch name for CDN links
           sed -i "s/__BRANCH__/$BRANCH/g" src/modules/assets.ts
-          sed -i "s/__BRANCH__/$BRANCH/g" crabsloader.user.js
 
           # 2. Build the project (Rollup bakes the injected branch into bundle.js)
           npx rollup -c
 
           # 3. Undo the branch injection so local files stay as __BRANCH__
           git restore src/modules/assets.ts
-          git restore crabsloader.user.js
 
           # --- PERMANENT BUMPS ---
 
-          # 4. Apply permanent version bumps
+          # 4. Apply permanent version bumps and dynamic branch links
           sed -i "s/VERSION: JSON.stringify(\"[^\"]*\")/VERSION: JSON.stringify(\"$NEW_VERSION\")/" rollup.config.mjs
           sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
           sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
+
+          # Force the correct branch into the loader without needing __BRANCH__ placeholders
+          sed -i "s|// @icon .*|// @icon https://cdn.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/images/CRABS_Logo.png|" crabsloader.user.js
+          sed -i "s|script.src = .*|script.src = \`https://cdn.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/Live/CRABS/$BRANCH/bundle.js?\${Date.now()}\`;|" crabsloader.user.js
 
           # 5. Commit and push back to Source Repo
           git add rollup.config.mjs package.json tsconfig.json crabsloader.user.js Live/
           git commit -m "build #$NEW_VERSION" || true
           git push origin $BRANCH
 
-          # Create GitHub Release on Source Repo
-          gh release create "v$NEW_VERSION" --title "Release $NEW_VERSION" --notes "Automated release ($BRANCH)"
+          # --- CREATE GITHUB RELEASE ---
+          if [ "$BRANCH" == "Stable" ]; then
+            TAG_NAME="v$NEW_VERSION"
+            RELEASE_TITLE="v$NEW_VERSION"
+          else
+            TAG_NAME="$BRANCH-v$NEW_VERSION"
+            RELEASE_TITLE="$BRANCH $NEW_VERSION"
+          fi
+
+          gh release create "$TAG_NAME" --title "$RELEASE_TITLE" --notes "Automated release ($BRANCH)"
 
           # --- BUST CACHE ---
-
-          # Bust the jsDelivr cache for this specific branch build
           echo "Purging jsDelivr cache..."
           curl -X POST https://purge.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/Live/CRABS/$BRANCH/bundle.js
 
