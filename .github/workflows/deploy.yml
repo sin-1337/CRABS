@@ -20,11 +20,21 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Code
+      # 1. Checkout the source code
+      - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Checkout the Pages repo into a subfolder named 'pages-repo'
+      - name: Checkout Pages Repo
+        uses: actions/checkout@v4
+        with:
+          repository: sin-1337/YOUR_PAGES_REPO_NAME # <--- REMEMBER TO CHANGE THIS
+          ref: main
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }} # <--- REQUIRES NEW SECRET
+          path: pages-repo
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -32,21 +42,14 @@ jobs:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: package-lock.json
-          registry-url: "https://registry.npmjs.org/"
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Show dependency versions
-        run: |
-          echo "Dependency versions:"
-          npm outdated || true
-          echo "----------------"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Process Version and Deploy
         env:
@@ -54,18 +57,14 @@ jobs:
         run: |
           set -e
 
-          # Read current version dynamically from package.json
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           BRANCH=${GITHUB_REF_NAME}
 
-          echo "Current Version: $CURRENT_VERSION"
-          echo "Current Branch: $BRANCH"
+          echo "Building branch: $BRANCH (Current Version: $CURRENT_VERSION)"
 
-          # Update config files to output inside the repo structure
+          # Setup output directories for Rollup
           sed -i "s|file:.*|file: \"Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
           sed -i "s|\"main\": .*|\"main\": \"Live/CRABS/$BRANCH/bundle.js\",|" package.json
-
-          # Force tsconfig.json's outDir to match the dynamic Rollup output folder
           sed -i "s|\"outDir\": *\"[^\"]*\"|\"outDir\": \"Live/CRABS/$BRANCH\"|" tsconfig.json
 
           # Handle Version Bumping
@@ -86,35 +85,55 @@ jobs:
               patch) ((patch++)); build=0 ;;
               build) ((build++)) ;;
               NULL) ;;
-              *) echo "Invalid field"; exit 1 ;;
+              *) exit 1 ;;
             esac
           }
 
-          if [ -z "$field" ]; then
-            increment_version "build"
-          else
-            increment_version "$field"
-          fi
-
+          if [ -z "$field" ]; then increment_version "build"; else increment_version "$field"; fi
           NEW_VERSION="$major.$minor.$patch.$build"
           echo "New Version: $NEW_VERSION"
 
-          # Update version using safer regex to prevent syntax errors
+          # --- THE SWITCHEROO (Inject, Build, Restore) ---
+
+          # 1. Temporarily inject the branch name for CDN links
+          sed -i "s/__BRANCH__/$BRANCH/g" src/modules/assets.ts
+          sed -i "s/__BRANCH__/$BRANCH/g" crabsloader.user.js
+
+          # 2. Build the project (Rollup bakes the injected branch into bundle.js)
+          npx rollup -c
+
+          # 3. Undo the branch injection so local files stay as __BRANCH__
+          git restore src/modules/assets.ts
+          git restore crabsloader.user.js
+
+          # --- PERMANENT BUMPS ---
+
+          # 4. Apply permanent version bumps
           sed -i "s/VERSION: JSON.stringify(\"[^\"]*\")/VERSION: JSON.stringify(\"$NEW_VERSION\")/" rollup.config.mjs
           sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
           sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
 
-          # Build the project
-          npx rollup -c
-
-          # Commit everything (version bumps and built artifacts)
-          git add .
-          git commit -m "build #$NEW_VERSION perform deploy" || echo "No changes to commit"
-
-          # Push directly back to the branch that triggered the action
+          # 5. Commit and push back to Source Repo
+          git add rollup.config.mjs package.json tsconfig.json crabsloader.user.js Live/
+          git commit -m "build #$NEW_VERSION" || true
           git push origin $BRANCH
 
-          # Create GitHub Release
-          gh release create "v$NEW_VERSION" --title "Release $NEW_VERSION" --notes "Automated release from GitHub Actions ($BRANCH branch)"
+          # Create GitHub Release on Source Repo
+          gh release create "v$NEW_VERSION" --title "Release $NEW_VERSION" --notes "Automated release ($BRANCH)"
 
-          echo "The new version is: $NEW_VERSION deployed to $BRANCH"
+          # --- DEPLOY TO PAGES & BUST CACHE ---
+
+          # Copy bundle to Pages Repo and deploy
+          mkdir -p pages-repo/$BRANCH
+          cp Live/CRABS/$BRANCH/bundle.js pages-repo/$BRANCH/bundle.js
+
+          cd pages-repo
+          git add $BRANCH/bundle.js
+          git commit -m "Deploy $BRANCH bundle v$NEW_VERSION" || true
+          git push origin main
+
+          # Bust the jsDelivr cache for this specific branch build
+          echo "Purging jsDelivr cache..."
+          curl -X POST https://purge.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/Live/CRABS/$BRANCH/bundle.js
+
+          echo "Deployment complete!"
