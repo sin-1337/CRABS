@@ -20,21 +20,11 @@ jobs:
       contents: write
 
     steps:
-      # 1. Checkout the source code
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      # 2. Checkout the Pages repo into a subfolder named 'pages-repo'
-      - name: Checkout Pages Repo
-        uses: actions/checkout@v4
-        with:
-          repository: sin-1337/YOUR_PAGES_REPO_NAME # <--- REMEMBER TO CHANGE THIS
-          ref: main
-          token: ${{ secrets.PAGES_DEPLOY_TOKEN }} # <--- REQUIRES NEW SECRET
-          path: pages-repo
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -121,16 +111,7 @@ jobs:
           # Create GitHub Release on Source Repo
           gh release create "v$NEW_VERSION" --title "Release $NEW_VERSION" --notes "Automated release ($BRANCH)"
 
-          # --- DEPLOY TO PAGES & BUST CACHE ---
-
-          # Copy bundle to Pages Repo and deploy
-          mkdir -p pages-repo/$BRANCH
-          cp Live/CRABS/$BRANCH/bundle.js pages-repo/$BRANCH/bundle.js
-
-          cd pages-repo
-          git add $BRANCH/bundle.js
-          git commit -m "Deploy $BRANCH bundle v$NEW_VERSION" || true
-          git push origin main
+          # --- BUST CACHE ---
 
           # Bust the jsDelivr cache for this specific branch build
           echo "Purging jsDelivr cache..."
