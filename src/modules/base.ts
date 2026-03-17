@@ -1,10 +1,13 @@
-import bcModSdk, { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import { IMAGES } from "./assets";
 import wrappertemplate from "./templates/wrapper.html";
 
-export default class CRABS {
+/**
+ * BASE CLASS, inherent and extend, do not instantiate.
+ */
+export abstract class CRABS_Base {
 	declare crabs: ModSDKModAPI;
 
 	constructor(CRABS: ModSDKModAPI) {
@@ -17,14 +20,14 @@ export default class CRABS {
 	 * @param {string} action - String that determines what the roster should print.
 	 * @returns void
 	 */
-	public fakePlayerCommand(action: string = "all"): void {
-		for (const [_, COMMAND] of Commands.entries()) {
-			if (COMMAND.Tag === `crabs`) {
-				COMMAND.Action(action);
-				break;
-			}
-		}
-	}
+	// public fakePlayerCommand(action: string = "all"): void {
+	// 	for (let [_, command] of Commands.entries()) {
+	// 		if (command.Tag === `crabs`) {
+	// 			command.Action(action);
+	// 			break;
+	// 		}
+	// 	}
+	// }
 
 	/**
 	 * Takes a member number and opens that player's  "focus" screen.
@@ -63,15 +66,6 @@ export default class CRABS {
 		}
 	}
 
-	/** Takes a string target mod name and returns a true if found.
-	 *  @param {string} targetmod - String name of the mod.
-	 *  @returns {boolean} True if found, false if not.
-	 */
-	protected detectMod(targetmod: string): boolean {
-		let modlist = bcModSdk.getModsInfo();
-		return modlist.filter((x) => x.name == targetmod).length > 0;
-	}
-
 	/**
 	 * Removes an element from the DOM by id
 	 *
@@ -80,9 +74,9 @@ export default class CRABS {
 	 */
 	public closeElement(elementId: string): void {
 		if (elementId) {
-			const EXISTING = document.getElementById(elementId);
-			if (EXISTING) {
-				EXISTING.remove();
+			const existing = document.getElementById(elementId);
+			if (existing) {
+				existing.remove();
 			}
 		}
 	}
@@ -104,26 +98,26 @@ export default class CRABS {
 		arg?: string,
 		event: string = "click",
 	): void {
-		const CHAT = document.getElementById("TextAreaChatLog");
+		const chat = document.getElementById("TextAreaChatLog");
 
-		if (!CHAT) return; // if chat is not found, bail
+		if (!chat) return; // if chat is not found, bail
 		// Select all roster links
-		const ELEMENTS = CHAT.getElementsByClassName(
+		const elmements = chat.getElementsByClassName(
 			classname,
 		) as HTMLCollectionOf<HTMLElement>;
 
 		// Attach event listeners to all roster links
-		for (const ELEMENT of ELEMENTS) {
-			ELEMENT.addEventListener(event, (e) => {
+		for (let element of elmements) {
+			element.addEventListener(event, (e) => {
 				// add listener
-				const TARGET = e.currentTarget as HTMLElement; // capture target
+				const target = e.currentTarget as HTMLElement; // capture target
 				if (arg) {
 					(window as any)[action](arg);
 					return;
 				}
 				if (data) {
-					const DATA = TARGET.dataset[data]; // parse data
-					(window as any)[action](DATA);
+					const parsed_data = target.dataset[data]; // parse data
+					(window as any)[action](parsed_data);
 					return;
 				} else {
 					(window as any)[action]();
@@ -148,11 +142,11 @@ export default class CRABS {
 		const CHAT = document.getElementById("TextAreaChatLog");
 		if (!CHAT) return;
 
-		const ELEMENTS = CHAT.getElementsByClassName(
+		const elements = CHAT.getElementsByClassName(
 			classname,
 		) as HTMLCollectionOf<HTMLElement>;
-		for (const ELEMENT of ELEMENTS) {
-			ELEMENT.addEventListener(event, callback);
+		for (let element of elements) {
+			element.addEventListener(event, callback);
 		}
 	}
 
@@ -164,35 +158,33 @@ export default class CRABS {
 	 * @returns {void}
 	 */
 	public sendoutput(output: string, elementId?: string): void {
-		const OUTPUT = document.createElement("template");
+		const template = document.createElement("template");
 
-		const CLEAN_HTML = DOMPurify.sanitize(output, {
+		const cleanHtml = DOMPurify.sanitize(output, {
 			USE_PROFILES: { html: true }, // Allow full HTML (but safe)
 		});
 
-		OUTPUT.innerHTML = CLEAN_HTML;
+		template.innerHTML = cleanHtml;
 
-		const CHAT = document.getElementById("TextAreaChatLog");
-		if (CHAT) {
+		let chat = document.getElementById("TextAreaChatLog");
+		if (chat) {
 			if (elementId) {
 				this.closeElement(elementId);
 
-				const WRAPPER = document.createElement("div");
-				WRAPPER.id = elementId;
-				WRAPPER.appendChild(OUTPUT.content);
+				let wrapper = document.createElement("div");
+				wrapper.id = elementId;
+				wrapper.appendChild(template.content);
 
-				CHAT.appendChild(WRAPPER);
+				chat.appendChild(wrapper);
 			} else {
-				CHAT.appendChild(OUTPUT);
+				chat.appendChild(template);
 			}
 			ElementScrollToEnd("TextAreaChatLog");
 		} else {
 			console.log("CRABS ERROR: Could not find chat element!");
 		}
 		this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
-		// this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
 		this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
-		// this.attachEventWithCallback("CRABS_close", (e) => window.crabsCloseItem(e));
 	}
 
 	/**
@@ -283,9 +275,9 @@ export default class CRABS {
 		hex = hex.replace(/^#/, "");
 
 		// Parse the red, green, and blue components
-		let red = parseInt(hex.slice(0, 2), 16);
-		let green = parseInt(hex.slice(2, 4), 16);
-		let blue = parseInt(hex.slice(4, 6), 16);
+		const red = parseInt(hex.slice(0, 2), 16);
+		const green = parseInt(hex.slice(2, 4), 16);
+		const blue = parseInt(hex.slice(4, 6), 16);
 
 		// Return the rgba value with alpha transparency
 		return `rgba(${red}, ${green}, ${blue}, ${alpha})`;

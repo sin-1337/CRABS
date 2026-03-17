@@ -1,8 +1,12 @@
-import CRABS from "../base";
+import {
+	CRABS_Base,
+	Assets,
+	Mod
+} from ".";
 import helptemplate from "./templates/help.html";
 
 
-export class Help extends CRABS {
+export class Help extends CRABS_Base {
 
 	/** 
 	 * Shows help output
@@ -57,7 +61,7 @@ export class Help extends CRABS {
             ${this.printimage({ key: "lover" })} = Person is your lover </br>`;
 
 		//prints only if the BCTweaks module is detected.
-		if (this.detectMod("BCTweaks")) {
+		if (Mod.detectMod("BCTweaks")) {
 			output += `${this.printimage({ key: "bestfriend" })} = Person is a best friend </br>`;
 		}
 

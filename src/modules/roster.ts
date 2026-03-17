@@ -1,10 +1,10 @@
-import CRABS from "../base";
+import { CRABS_Base, Mod } from ".";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
 
-export class Roster extends CRABS {
+export class Roster extends CRABS_Base {
 	private onlineFriends: number | undefined = undefined;
 	private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
@@ -61,11 +61,11 @@ export class Roster extends CRABS {
 	 * @returns {string} List of icons.
 	 */
 	private setStatusIcons(player: PlayerCharacter): string {
-		const PREFIXES = ["Blind", "Gag", "Deaf"];
-		const EFFECTS = CharacterGetEffects(player);
+		const prefixes = ["Blind", "Gag", "Deaf"];
+		const effects = CharacterGetEffects(player);
 
 		// Effect lists mapping
-		const EFFECT_LISTS: { [key: string]: { [key: string]: number } } = {
+		const effectLists: { [key: string]: { [key: string]: number } } = {
 			Blind: {
 				BlindLight: 1,
 				BlindNormal: 2,
@@ -94,7 +94,7 @@ export class Roster extends CRABS {
 		};
 
 		// Initialize icons as empty strings
-		let icons: { [key: string]: string } = {
+		const icons: { [key: string]: string } = {
 			Blind: "",
 			Gag: "",
 			Deaf: "",
@@ -103,7 +103,7 @@ export class Roster extends CRABS {
 		// Helper function to determine the maximum value for each prefix and set the corresponding icon
 		const updateIcon = (prefix: string, effect: string): void => {
 			const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
-			const effectList = EFFECT_LISTS[prefix];
+			const effectList = effectLists[prefix];
 
 			if (effect in effectList) {
 				const effectValue = effectList[effect];
@@ -124,8 +124,8 @@ export class Roster extends CRABS {
 		};
 
 		// Process effects
-		for (let effect of EFFECTS) {
-			for (let prefix of PREFIXES) {
+		for (let effect of effects) {
+			for (let prefix of prefixes) {
 				if (effect.startsWith(prefix)) {
 					updateIcon(prefix, effect);
 				}
@@ -181,8 +181,8 @@ export class Roster extends CRABS {
 	 */
 	private loadFriendList(): void {
 		this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-			const [DATA]: Array<Record<string, any>> = args;
-			this.onlineFriends = DATA.length;
+			const [data]: Array<Record<string, any>> = args;
+			this.onlineFriends = data.length;
 			this.lastSentTime = Date.now();
 			return next(args);
 		});
@@ -217,15 +217,15 @@ export class Roster extends CRABS {
 
 		// Wait for the hook function to finish (assuming `next` ensures it completes)
 		return new Promise<number>((resolve) => {
-			const CHECKONLINEFRIENDS = () => {
+			const checkOnlineFrineds = () => {
 				if (this.onlineFriends !== undefined) {
 					resolve(this.onlineFriends); // Return the online friends count
 				} else {
-					setTimeout(CHECKONLINEFRIENDS, 100); // Check again after 100ms
+					setTimeout(checkOnlineFrineds, 100); // Check again after 100ms
 				}
 			};
 
-			CHECKONLINEFRIENDS(); // Start the checking process
+			checkOnlineFrineds(); // Start the checking process
 		});
 	}
 
@@ -270,7 +270,7 @@ export class Roster extends CRABS {
 			// person is a lover
 			player_icons += this.printimage({ key: "lover" }) + " ";
 		} else {
-			if (this.detectMod("BCTweaks")) {
+			if (Mod.detectMod("BCTweaks")) {
 				// BCTweaks mod is found
 				if (
 					Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
@@ -485,4 +485,5 @@ export class Roster extends CRABS {
 		output_html = this.template(rostertemplate, templatevars, wrapper, wrappervars);
 		return output_html;
 	}
+
 }

@@ -16,14 +16,6 @@ declare global {
 		Sender: number;
 	};
 
-	type PrintImage = {
-		key: string,
-		css_class_override?: string,
-		css_style?: string,
-		tooltip_override?: string,
-		alt_override?: string,
-		data?: [string, string]
-	};
 
 	// unique to crabs
 	interface Window {
@@ -36,10 +28,20 @@ declare global {
 		CommandSet(payload: string): void;
 	}
 
+	type PrintImage = {
+		key: string,
+		css_class_override?: string,
+		css_style?: string,
+		tooltip_override?: string,
+		alt_override?: string,
+		data?: [string, string]
+	};
+
 	interface HTMLElement {
 		value: string;
 	}
 
+	// BC objects
 	interface Lovership {
 		Name: string;
 		MemberNumber?: number;

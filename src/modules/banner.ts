@@ -1,9 +1,9 @@
-import CRABS from "../base";
+import { CRABS_Base } from ".";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
 
-export class Banner extends CRABS {
+export class Banner extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 	}
