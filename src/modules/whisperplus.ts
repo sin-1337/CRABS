@@ -14,10 +14,8 @@
  */
 
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import {
-	CRABS_Base,
-	Assets,
-} from "."
+import { CRABS_Base } from "./base";
+import { Assets } from "./assets";
 
 export class WhisperPlus extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {

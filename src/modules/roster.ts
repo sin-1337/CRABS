@@ -10,11 +10,9 @@
  *
  */
 
-import {
-	CRABS_Base,
-	Assets,
-	Mod,
-} from ".";
+import { CRABS_Base } from "./base";
+import { Assets } from "./assets";
+import { Mod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";

@@ -12,11 +12,9 @@
  * the CRABS mod's features and commands.
  */
 
-import {
-	CRABS_Base,
-	Assets,
-	Mod
-} from ".";
+import { CRABS_Base } from "./base";
+import { Assets } from "./assets";
+import { Mod } from "./crossmod";
 import helptemplate from "./templates/help.html";
 
 
