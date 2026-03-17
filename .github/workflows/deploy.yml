@@ -30,6 +30,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          cd /home/runner/work/CRABS/CRABS/Dev
           npm ci
           npm install
 
@@ -40,6 +41,7 @@ jobs:
 
       - name: Show dependency versions
         run: |
+          cd /home/runner/work/CRABS/CRABS/Dev
           echo "Dependency versions:"
           npm outdated
           echo "----------------"
@@ -47,6 +49,9 @@ jobs:
       - name: Process Version and Deploy
         run: |
           set -e  # Exit on any error
+
+          # Change to Dev directory
+          cd /home/runner/work/CRABS/CRABS/Dev
 
           # Get current version (hardcoded since we're removing deploy.sh dependency)
           CURRENT_VERSION="1.3.2.9"
