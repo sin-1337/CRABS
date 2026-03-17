@@ -1,12 +1,22 @@
+/**
+ * CRABS Base Module
+ *
+ * This is the base class for all CRABS mod modules. It provides:
+ * - Core functionality that all modules inherit
+ * - Utility methods for chat room interactions
+ * - Common helper functions for mod operations
+ * - Base initialization and setup procedures
+ *
+ * All other CRABS modules should extend this class to inherit common functionality.
+ */
+
+
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { Assets } from ".";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
-import { IMAGES } from "./assets";
 import wrappertemplate from "./templates/wrapper.html";
 
-/**
- * BASE CLASS, inherent and extend, do not instantiate.
- */
 export abstract class CRABS_Base {
 	declare crabs: ModSDKModAPI;
 
@@ -211,7 +221,7 @@ export abstract class CRABS_Base {
 
 		if (wrapper) {
 			template = wrappertemplate
-				.replace("{{Help}}", this.printimage({ key: "help" }))
+				.replace("{{Help}}", Assets.printimage({ key: "help" }))
 				.replace("{{content}}", template);
 			if (wrapperArgs) {
 				for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
@@ -222,42 +232,6 @@ export abstract class CRABS_Base {
 		}
 
 		return template;
-	}
-
-	/**
-		 * print images
-		 * @param {PrintImage} params - Object containing image configuration
-		 * @returns {string} HTML representing the icon
-		 */
-	protected printimage({
-		key,
-		css_class_override, //optional class overwrite
-		css_style = "", // optional, CSS overwrite
-		tooltip_override, // optional tooltip
-		alt_override, // optional tooltip
-		data, // optional, facilitates special data for event listeners
-	}: PrintImage): string {
-		let icon = IMAGES.image["error"].file; // fall back if the icon isn't found
-		if (key in IMAGES) {
-			// test if the key exists
-			icon = IMAGES.image[key].file;
-		}
-		const css_class = css_class_override || IMAGES.image[key].class || "";
-		const tooltip = tooltip_override || IMAGES.image[key].toolTip || "";
-		const alt = alt_override || IMAGES.image[key].alt || key;
-
-		let html = "";
-		if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
-		html += `<img `;
-		if (data) html += `data-${data[0]}=${data[1]} `;
-		if (alt != "") html += `alt='${alt}' `;
-		html += `src='${IMAGES.basePath}${icon}' `;
-		html += `class='${css_class} || ""'`;
-		if (css_style != "") html += `style="${css_style}"`;
-		html += `>`;
-		if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;
-		if (tooltip != "") html += `</div>`;  // this is for the tooltip wrapper
-		return html;
 	}
 
 	/**

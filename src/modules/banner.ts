@@ -1,3 +1,16 @@
+/**
+ * CRABS Banner Module
+ *
+ * This module implements the banner functionality for the CRABS mod.
+ * It provides:
+ * - Custom banner display in chat rooms
+ * - Banner template rendering system
+ * - CSS styling for banner elements
+ * - Integration with the CRABS base class for consistent functionality
+ *
+ * The banner module enhances the visual presentation of the CRABS mod in chat rooms.
+ */
+
 import { CRABS_Base } from ".";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";

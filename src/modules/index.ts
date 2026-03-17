@@ -1,4 +1,4 @@
-// Import from this directory
+// Allows import from this directory
 // EX: import {Roster} from ".";
 export * from "./assets";
 export * from "./banner";

@@ -1,3 +1,17 @@
+/**
+ * CRABS Cross-Mod Integration Module
+ *
+ * This module provides cross-mod integration capabilities for the CRABS mod.
+ * It enables:
+ * - Detection and identification of other installed mods
+ * - Integration with other mods' APIs and features
+ * - Compatibility checking between mods
+ * - Shared functionality between CRABS and other mods
+ *
+ * The cross-mod module allows CRABS to work harmoniously with other
+ * bondage club mods and extend its functionality through integration.
+ */
+
 import bcModSdk from "bondage-club-mod-sdk";
 
 export abstract class Mod {

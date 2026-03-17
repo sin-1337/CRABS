@@ -1,5 +1,13 @@
 /**
- * Asset images (logos and icons)
+ * CRABS Assets Module
+ *
+ * This module handles all asset management for the CRABS mod, including:
+ * - Image assets (logos, icons, and other graphical elements)
+ * - Asset storage and retrieval system
+ * - Image printing functionality for displaying icons in chat
+ *
+ * The module provides a centralized location for all image assets used throughout
+ * the mod, for managing and updating graphical elements.
  */
 
 type ImageStore = {

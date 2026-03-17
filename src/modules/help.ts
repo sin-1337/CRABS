@@ -1,3 +1,17 @@
+/**
+ * CRABS Help Module
+ *
+ * This module implements the help system for the CRABS mod.
+ * It provides:
+ * - Help command functionality
+ * - Help template rendering
+ * - Documentation display for mod features
+ * - Integration with the CRABS base class and asset system
+ *
+ * The help module makes it easy for users to access information about
+ * the CRABS mod's features and commands.
+ */
+
 import {
 	CRABS_Base,
 	Assets,
@@ -17,7 +31,7 @@ export class Help extends CRABS_Base {
 		let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
-            ${this.printimage({ key: "logo" })}</br>
+            ${Assets.printimage({ key: "logo" })}</br>
             CRABS ${VERSION} help sheet</br>
             /roster [optional argument] </br>
             This command lists the number of admins and players
@@ -47,28 +61,28 @@ export class Help extends CRABS_Base {
             </br>
             Badges:
             <hr>
-            ${this.printimage({ key: "admin" })} = Person is Admin</br>
-            ${this.printimage({ key: "vip" })} = Person is whitelisted in the room </br>
-            ${this.printimage({ key: "player" })} = Person is a normal user </br>
+            ${Assets.printimage({ key: "admin" })} = Person is Admin</br>
+            ${Assets.printimage({ key: "vip" })} = Person is whitelisted in the room </br>
+            ${Assets.printimage({ key: "player" })} = Person is a normal user </br>
 
             </br>
             Icons:
             <hr>
-            ${this.printimage({ key: "you" })} = Person is you </br>
-            ${this.printimage({ key: "owner" })} = Person is your owner </br>
-            ${this.printimage({ key: "sub" })} = Person is your submissive </br>
-            ${this.printimage({ key: "trial" })} = Person is on trial with you </br>
-            ${this.printimage({ key: "lover" })} = Person is your lover </br>`;
+            ${Assets.printimage({ key: "you" })} = Person is you </br>
+            ${Assets.printimage({ key: "owner" })} = Person is your owner </br>
+            ${Assets.printimage({ key: "sub" })} = Person is your submissive </br>
+            ${Assets.printimage({ key: "trial" })} = Person is on trial with you </br>
+            ${Assets.printimage({ key: "lover" })} = Person is your lover </br>`;
 
 		//prints only if the BCTweaks module is detected.
 		if (Mod.detectMod("BCTweaks")) {
-			output += `${this.printimage({ key: "bestfriend" })} = Person is a best friend </br>`;
+			output += `${Assets.printimage({ key: "bestfriend" })} = Person is a best friend </br>`;
 		}
 
-		output += `${this.printimage({ key: "friend" })} = Person is a friend </br>
-            ${this.printimage({ key: "whitelist" })} = You have this person whitelisted </br>
-            ${this.printimage({ key: "blacklist" })} = You have this person blacklisted </br>
-            ${this.printimage({ key: "ghost" })} = You have ghosted this person </br>
+		output += `${Assets.printimage({ key: "friend" })} = Person is a friend </br>
+            ${Assets.printimage({ key: "whitelist" })} = You have this person whitelisted </br>
+            ${Assets.printimage({ key: "blacklist" })} = You have this person blacklisted </br>
+            ${Assets.printimage({ key: "ghost" })} = You have ghosted this person </br>
 
             </br>
             Status Icons:
@@ -103,7 +117,7 @@ export class Help extends CRABS_Base {
 
 		let wrappervars = {
 			TitleBar: `CRABS: Help`,
-			Close: this.printimage({ key: "close", data: ["elementid", "CRABS_Help"] })
+			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Help"] })
 		}
 
 		return (this.template(helptemplate, templatevars, true, wrappervars));

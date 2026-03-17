@@ -1,87 +1,152 @@
+/**
+ * CRABS Whisper+ Module
+ *
+ * This module implements the enhanced whisper functionality for the CRABS mod.
+ * It extends the base whisper command with additional features including:
+ * - Range-based whisper handling
+ * - Enhanced message formatting
+ * - Self-whisper support with visual indicators
+ * - Bracket replacement for better visual distinction
+ * - Integration with the CRABS asset system for icons
+ *
+ * The module provides both command-line and roster-based interfaces for sending
+ * whispers to other players in the chat room.
+ */
+
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import {
 	CRABS_Base,
 	Assets,
 } from "."
-export class WhisperPlus extends CRABS_Base {
 
+export class WhisperPlus extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 	}
 
-	/** 
-	 * Send chat message at range.
-	 * 
-	 * @param {any} target - whisper target.
-	 * @param {string} msg - message to send.
-	 * @returns {boolean} Was the message sent?
+	/**
+	 * Parses the command arguments to extract member number and message
+	 *
+	 * @param {string} args - The arguments string passed to the command
+	 * @param {string} command - The full command string
+	 * @returns {Object} Parsed member number and message
 	 */
-	private ChatRoomSendWhisperRanged(target: any, msg: string): boolean {
-		if (msg == "") {
+	private parseArguments(args: string, command: string): { memberNumber: number, message: string } {
+		// Extract member number (first part of the args)
+		const firstSpaceIndex = args.indexOf(" ");
+		let memberNumber: number;
+		let message: string;
+
+		if (firstSpaceIndex !== -1) {
+			// If there's a space, parse the member number from the beginning
+			const memberNumberStr = args.slice(0, firstSpaceIndex);
+			memberNumber = parseInt(memberNumberStr);
+			message = args.slice(firstSpaceIndex + 1);
+		} else {
+			// If no space, try to parse the entire args string
+			memberNumber = parseInt(args);
+			message = "";
+		}
+
+		// If parsing failed, try alternative approach using command string
+		if (isNaN(memberNumber)) {
+			const commandParts = command.trim().split(/\s+/);
+			if (commandParts.length >= 2) {
+				memberNumber = parseInt(commandParts[1]);
+				message = commandParts.slice(2).join(" ");
+			}
+		}
+
+		return { memberNumber, message };
+	}
+
+	/**
+	 * Validates that the target member exists
+	 *
+	 * @param {any} target - The target (either member number or character object)
+	 * @returns {Object|null} Validated target character or null if invalid
+	 */
+	private validateTarget(target: any): any {
+		if (typeof target === 'object' && target !== null) {
+			return target;
+		}
+
+		const memberNumber = parseInt(target);
+		if (isNaN(memberNumber)) {
+			return null;
+		}
+
+		return ChatRoomCharacter.find(C => C.MemberNumber === memberNumber);
+	}
+
+	/**
+	 * Sends a whisper message to a target character
+	 *
+	 * @param {any} target - The target character or member number
+	 * @param {string} msg - The message to send
+	 * @returns {boolean} Whether the message was sent successfully
+	 */
+	private sendWhisperMessage(target: any, msg: string): boolean {
+		if (!msg) {
 			return false;
 		}
 
-		// First ensure we have a valid target object
-		const TARGETMEMEBER = typeof target === 'object' ? target : ChatRoomCharacter.find(C => C.MemberNumber === parseInt(target));
-		if (!TARGETMEMEBER) {
-			ChatRoomSendLocalChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
+		const targetMember = this.validateTarget(target);
+		if (!targetMember) {
+			ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
 			return false;
 		}
 
 		// Handle self whispers with gray text and memo emoji
-		if (TARGETMEMEBER.MemberNumber === Player.MemberNumber) {
+		if (targetMember.MemberNumber === Player.MemberNumber) {
 			const SELFMESSAGE = `<span style="color:#989898">${Assets.printimage({ key: "thought" })} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
 			ChatRoomSendLocal(SELFMESSAGE);
 			return false;
 		}
 
 		// Replace normal brackets with fake ones in the message
-		msg = msg.replace(/\(/g, "❪"); //replace the ( for consistency
-		msg = msg.replace(/\)/g, "❫"); // technically only this one is really needed
+		let formattedMsg = msg.replace(/\(/g, "❪").replace(/\)/g, "❫");
 
-
-		// check if target and player are the same
-		if (target.MemberNumber == Player.MemberNumber) {
-			addChatMessage(msg);
+		// Check if target and player are the same
+		if (target.MemberNumber === Player.MemberNumber) {
+			addChatMessage(formattedMsg);
+			return true;
 		} else {
-			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && msg[0] != "(") {
-				msg = `(${msg})`;
+			// Add parentheses if needed for range checking
+			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && formattedMsg[0] !== "(") {
+				formattedMsg = `(${formattedMsg})`;
 			}
 
-			// Prepare the message - now with ⤵ instead of :
-			let formattedMsg = `+: ${msg}`;
-			//if (Player.ChatSettings.OOCAutoClose && !msg.endsWith('）')) {
-			//    formattedMsg += '）';
-			//}
+			// Prepare the message with the +: prefix
+			formattedMsg = `+: ${formattedMsg}`;
 
-			// build data payload
-			let data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
-			/*if (!data) {
-				data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
-			}*/
+			// Build data payload
+			const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
+			if (!data) {
+				return false;
+			}
 
-			// set the whisper target
-			data.Target = target.MemberNumber;
+			// Set the whisper target
+			data.Target = targetMember.MemberNumber;
 
-			//send the whisper
-			const serverData = { ...data, Type: "Whisper" }
+			// Send the whisper to the server
+			const serverData = { ...data, Type: "Whisper" };
 			ServerSend("ChatRoomChat", serverData);
 
-			// tell it who we are
+			// Tell it who we are
 			data.Sender = Player.MemberNumber;
 
-			// send the chat to our window too
+			// Send the chat to our window too
 			ChatRoomMessage(data);
 
-			// message was sent
+			// Message was sent successfully
 			return true;
 		}
-		return false;
 	}
 
-	/** 
+	/**
 	 * This starts /whisper+ if you click on the roster.
-	 * 
+	 *
 	 * @param {number} memberNumber - Member number of the target.
 	 * @returns {void}
 	 */
@@ -91,37 +156,38 @@ export class WhisperPlus extends CRABS_Base {
 				window.CommandSet(command.Tag + " " + memberNumber)
 			}
 		}
-	};
+	}
 
-	/** 
+	/**
 	 * This runs when a player enters the /whisper+ command or clicks the roster.
-	 * 
+	 *
 	 * @param {string} args - arguments passed from player (message).
 	 * @param {string} command - arguments passed as command (BC quirk).
-	 * @returns {number} 0 indicts success, 1 is an error.
+	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(args: string, command: string): number {
-		// parse arguments into MEMBERNUMBER and messsage
-		const MEMBERNUMBER = parseInt(args.slice(0, args.indexOf(" ")));
-		//const MESSAGE = args.slice(args.indexOf(" ") + 1);
-		const MESSAGE = command.substring(command.indexOf(' ') + MEMBERNUMBER.toString().length + 2);
+		// Parse arguments
+		const { memberNumber, message } = this.parseArguments(args, command);
 
-		// if membernumber is not a valid number, bail
-		if (Number.isNaN(MEMBERNUMBER)) {
+		// Validate member number
+		if (isNaN(memberNumber)) {
 			ChatRoomSendLocal("Member number is invalid.", 30_000);
 			return 1;
 		}
 
-		if (MESSAGE == "") {
+		// Validate message
+		if (!message) {
 			ChatRoomSendLocal("Message was blank", 30_000);
 			return 1;
 		}
 
-		// find player based no membernumber
-		const TARGET = ChatRoomCharacter.find(
-			(C: any) => C.MemberNumber == MEMBERNUMBER
+		// Find player based on member number
+		const target = ChatRoomCharacter.find(
+			(C: any) => C.MemberNumber == memberNumber
 		);
-		this.ChatRoomSendWhisperRanged(TARGET || MEMBERNUMBER, MESSAGE);
-		return 0;
+
+		// Send the whisper message
+		const success = this.sendWhisperMessage(target || memberNumber, message);
+		return success ? 0 : 1;
 	}
 }

@@ -1,4 +1,20 @@
-import { CRABS_Base, Mod } from ".";
+/**
+ * CRABS Roster Module
+ *
+ * This module implements the enhanced roster functionality for the CRABS mod.
+ * It provides:
+ * - Custom roster display with enhanced features
+ * - Roster template rendering system
+ * - CSS styling for roster elements
+ * - Online friends tracking
+ *
+ */
+
+import {
+	CRABS_Base,
+	Assets,
+	Mod,
+} from ".";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -111,7 +127,7 @@ export class Roster extends CRABS_Base {
 					effectValue >
 					(icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
 				) {
-					icons[prefix] = this.printimage({
+					icons[prefix] = Assets.printimage({
 						key: effectName, // which icon do we print
 						tooltip_override: `${prefix}: ${effectValue}`, // set a tooltip
 						css_class_override: `CRABS_status-icon`, // set a class
@@ -133,13 +149,13 @@ export class Roster extends CRABS_Base {
 		}
 
 		// Set default icons if no icon was set
-		icons.Blind = icons.Blind || this.printimage({
+		icons.Blind = icons.Blind || Assets.printimage({
 			key: "blindNone", css_class_override: "CRABS_status-icon"
 		});
-		icons.Gag = icons.Gag || this.printimage({
+		icons.Gag = icons.Gag || Assets.printimage({
 			key: "gagNone", css_class_override: "CRABS_status-icon"
 		});
-		icons.Deaf = icons.Deaf || this.printimage({
+		icons.Deaf = icons.Deaf || Assets.printimage({
 			key: "deafNone", css_class_override: "CRABS_status-icon"
 		});
 
@@ -235,12 +251,12 @@ export class Roster extends CRABS_Base {
 	 * @returns void
 	 */
 	private setbadge(player: PlayerCharacter): string {
-		let badge = this.printimage({ key: "player" });
+		let badge = Assets.printimage({ key: "player" });
 		badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
-			? this.printimage({ key: "vip" })
+			? Assets.printimage({ key: "vip" })
 			: badge;
 		badge = ChatRoomData.Admin.includes(player.MemberNumber)
-			? this.printimage({ key: "admin" })
+			? Assets.printimage({ key: "admin" })
 			: badge;
 		return badge;
 	}
@@ -255,20 +271,20 @@ export class Roster extends CRABS_Base {
 		let player_icons = "";
 		if (Player.OwnerNumber() == player.MemberNumber) {
 			// person owns you
-			player_icons += this.printimage({ key: "owner" }) + " ";
+			player_icons += Assets.printimage({ key: "owner" }) + " ";
 		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
 			// if they don't own you but you are in their family, we assume you own them
 			if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
 				// The person is fully owned if this is true
-				player_icons += this.printimage({ key: "sub" }) + " ";
+				player_icons += Assets.printimage({ key: "sub" }) + " ";
 			} else {
 				// person is on trial
-				player_icons += this.printimage({ key: "subfamily" }) + " ";
+				player_icons += Assets.printimage({ key: "subfamily" }) + " ";
 			}
 		}
 		if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
 			// person is a lover
-			player_icons += this.printimage({ key: "lover" }) + " ";
+			player_icons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
 			if (Mod.detectMod("BCTweaks")) {
 				// BCTweaks mod is found
@@ -276,26 +292,26 @@ export class Roster extends CRABS_Base {
 					Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
 				) {
 					//Player is a best friend, skip checking if they are a friend.
-					player_icons += this.printimage({ key: "bestfriend" }) + " ";
+					player_icons += Assets.printimage({ key: "bestfriend" }) + " ";
 				} else if (Player.FriendList.includes(player.MemberNumber)) {
 					// Player is not a best friend, but they are a friend
-					player_icons += this.printimage({ key: "friend" }) + " ";
+					player_icons += Assets.printimage({ key: "friend" }) + " ";
 				}
 			} else if (Player.FriendList.includes(player.MemberNumber)) {
 				// person is a friend, and the BCTweaks mod is not found
-				player_icons += this.printimage({ key: "friend" }) + " ";
+				player_icons += Assets.printimage({ key: "friend" }) + " ";
 			}
 		}
 		if (Player.WhiteList.includes(player.MemberNumber)) {
 			// Player is whitelisted
-			player_icons += this.printimage({ key: "whitelist" }) + " ";
+			player_icons += Assets.printimage({ key: "whitelist" }) + " ";
 		} else if (Player.BlackList.includes(player.MemberNumber)) {
 			// Player is blacklisted
-			player_icons += this.printimage({ key: "blacklist" }) + " ";
+			player_icons += Assets.printimage({ key: "blacklist" }) + " ";
 		}
 		if (Player.GhostList.includes(player.MemberNumber)) {
 			// Player is ghosted
-			player_icons += this.printimage({ key: "ghost" }) + " ";
+			player_icons += Assets.printimage({ key: "ghost" }) + " ";
 		}
 		return player_icons;
 	}
@@ -355,7 +371,7 @@ export class Roster extends CRABS_Base {
 			// if the player is me (person who ran the script)
 			if (player.IsPlayer()) {
 				// mark me with a star icon
-				player_icons = this.printimage({ key: "you" }) + " " + player_icons;
+				player_icons = Assets.printimage({ key: "you" }) + " " + player_icons;
 
 				// format my output and store
 				me_output_html = this.buildCard(player, badge, player_icons);
@@ -406,28 +422,28 @@ export class Roster extends CRABS_Base {
 
 		// build table header
 		templatevars = {
-			adminIcon: `${this.printimage({
+			adminIcon: `${Assets.printimage({
 				key: "admin",
 				tooltip_override: "Admins",
 				css_class_override: "CRABS_header_icons"
 			})}`,
 			adminsInRoom: `${admin_count}`,
 			totalAdmins: `${ChatRoomData.Admin.length}`,
-			playerIcon: `${this.printimage({
+			playerIcon: `${Assets.printimage({
 				key: "player",
 				tooltip_override: "Players",
 				css_class_override: "CRABS_header_icons"
 			})}`,
 			playersInRoom: `${ChatRoomCharacter.length}`,
 			totalPlayers: `${ChatRoomData.Limit}`,
-			friendIcon: `${this.printimage({
+			friendIcon: `${Assets.printimage({
 				key: "friend",
 				tooltip_override: "Friends",
 				css_class_override: "CRABS_header_icons"
 			})}`,
 			friendsOnline: this.onlineFriends?.toString() ?? "...",
 			totalFriends: `${Player.FriendNames.size}`,
-			connectedIcon: `${this.printimage({
+			connectedIcon: `${Assets.printimage({
 				key: "connected",
 				tooltip_override: "Online Accounts",
 				css_class_override: "CRABS_header_icons"
@@ -449,7 +465,7 @@ export class Roster extends CRABS_Base {
 			// loop the dictionary and extract the key and name
 			for (const [KEY, VALUE] of Object.entries(KEYS)) {
 				// if key is found, set icon and tool tip
-				displaykeys += this.printimage({ key: VALUE ? KEY : "keyNull" });
+				displaykeys += Assets.printimage({ key: VALUE ? KEY : "keyNull" });
 			}
 
 			// replace the template objects for the values we determined above.
@@ -474,7 +490,7 @@ export class Roster extends CRABS_Base {
 
 		let wrappervars = {
 			TitleBar: `CRABS: Roster`,
-			Close: this.printimage({
+			Close: Assets.printimage({
 				key: "close",
 				data: ["elementid", "CRABS_Roster"],
 			})

@@ -17,7 +17,6 @@ const HELP = new Modules.Help(CRABS);
 
 window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
-window.fakePlayerCommand = ROSTER.fakePlayerCommand;
 window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
 window.crabsHelp = HELP.showHelp.bind(HELP);
 
