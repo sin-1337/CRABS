@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import * as Modules from "./modules";
+import { Banner, WhisperPlus, Roster, Help } from "./modules";
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
@@ -10,10 +10,10 @@ const CRABS = bcModSDK.registerMod({
 	repository: "https://github.com/sin-1337/CRABS",
 });
 
-const BANNER = new Modules.Banner(CRABS);
-const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
-const ROSTER = new Modules.Roster(CRABS);
-const HELP = new Modules.Help(CRABS);
+const BANNER = new Banner(CRABS);
+const WHISPERPLUS = new WhisperPlus(CRABS);
+const ROSTER = new Roster(CRABS);
+const HELP = new Help(CRABS);
 
 window.sendWhisper = WHISPERPLUS.sendWhisper;
 window.PlayerFocus = ROSTER.showPlayerFocus;
