@@ -54,16 +54,16 @@ jobs:
         run: |
           set -e
 
-          CURRENT_VERSION="1.3.2.9"
-          # GITHUB_REF_NAME automatically grabs the branch name (e.g., Alpha, Beta, or Stable)
+          # Read current version dynamically from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
           BRANCH=${GITHUB_REF_NAME}
 
           echo "Current Version: $CURRENT_VERSION"
           echo "Current Branch: $BRANCH"
 
-          # Update config files for current branch
-          sed -i "s|file:.*|file: \"../Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
-          sed -i "s|\"main\": .*|\"main\": \"$BRANCH/bundle.js\",|" package.json
+          # Update config files to output inside the repo structure
+          sed -i "s|file:.*|file: \"Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
+          sed -i "s|\"main\": .*|\"main\": \"Live/CRABS/$BRANCH/bundle.js\",|" package.json
 
           # Handle Version Bumping
           ARGUMENT="${{ github.event.inputs.version_type }}"
@@ -96,7 +96,7 @@ jobs:
           NEW_VERSION="$major.$minor.$patch.$build"
           echo "New Version: $NEW_VERSION"
 
-          # Update version using safer regex to avoid injecting syntax errors
+          # Update version using safer regex to prevent syntax errors
           sed -i "s/VERSION: JSON.stringify(\"[^\"]*\")/VERSION: JSON.stringify(\"$NEW_VERSION\")/" rollup.config.mjs
           sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
           sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
@@ -104,7 +104,7 @@ jobs:
           # Build the project
           npx rollup -c
 
-          # Commit everything (the version bump AND the rollup build artifacts)
+          # Commit everything (version bumps and built artifacts)
           git add .
           git commit -m "build #$NEW_VERSION perform deploy" || echo "No changes to commit"
 
