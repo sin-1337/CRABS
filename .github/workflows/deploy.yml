@@ -65,6 +65,9 @@ jobs:
           sed -i "s|file:.*|file: \"Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
           sed -i "s|\"main\": .*|\"main\": \"Live/CRABS/$BRANCH/bundle.js\",|" package.json
 
+          # Force tsconfig.json's outDir to match the dynamic Rollup output folder
+          sed -i "s|\"outDir\": *\"[^\"]*\"|\"outDir\": \"Live/CRABS/$BRANCH\"|" tsconfig.json
+
           # Handle Version Bumping
           ARGUMENT="${{ github.event.inputs.version_type }}"
 
