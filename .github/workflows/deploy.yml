@@ -7,6 +7,9 @@ on:
         description: "Field to increment (major, minor, patch, build) or specific version (1.2.3.4)"
         required: true
         default: "build"
+  push:
+    branches:
+      - "Alpha"
 
 jobs:
   build-and-deploy:
@@ -22,54 +25,118 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Show dependency versions
+        run: |
+          echo "Dependency versions:"
+          npm outdated
+          echo "----------------"
+
       - name: Process Version and Deploy
         run: |
-          # 1. Get current version from deploy.sh (parsing your VERSION= line)
-          CURRENT_VERSION=$(grep -oP '^VERSION=\K[0-9.]+' deploy.sh)
+          set -e  # Exit on any error
+
+          # Get current version (hardcoded since we're removing deploy.sh dependency)
+          CURRENT_VERSION="1.3.2.9"
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
           echo "Current Version: $CURRENT_VERSION"
           echo "Current Branch: $BRANCH"
 
-          # 2. Update config files for current branch
+          # Update config files for current branch
           sed -i "s|file:.*|file: \"../Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
           sed -i "s|\"main\": .*|\"main\": \"$BRANCH/bundle.js\",|" package.json
 
-          # 3. Handle Version Bumping (Logic from your script)
-          IFS='.' read -r major minor patch build <<< "$CURRENT_VERSION"
+          # Commit and push changes to current branch first
+          git add .
+          git commit -m "build #$CURRENT_VERSION perform deploy"
+          git push origin $BRANCH
 
-          INPUT="${{ github.event.inputs.version_type }}"
+          # Handle Version Bumping (Logic from deploy.sh)
+          ARGUMENT="${{ github.event.inputs.version_type }}"
 
-          if [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            NEW_VERSION=$INPUT
+          # If the argument is a valid version number (e.g., "1.0.3.0"), set it as the version
+          if [[ "$ARGUMENT" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            # This is a valid version number
+            IFS='.' read -r major minor patch build <<< "$ARGUMENT"
+            field="NULL"  # No specific field to increment
           else
-            case $INPUT in
-              major) ((major++)); minor=0; patch=0; build=0 ;;
-              minor) ((minor++)); patch=0; build=0 ;;
-              patch) ((patch++)); build=0 ;;
-              build|*) ((build++)) ;;
-            esac
-            NEW_VERSION="$major.$minor.$patch.$build"
+            IFS='.' read -r major minor patch build <<< "$CURRENT_VERSION"
+            field=""
           fi
+
+          # Function to increment the version field
+          increment_version() {
+            case $1 in
+              major)
+                ((major++))
+                minor=0
+                patch=0
+                build=0
+                ;;
+              minor)
+                ((minor++))
+                patch=0
+                build=0
+                ;;
+              patch)
+                ((patch++))
+                build=0
+                ;;
+              build)
+                ((build++))
+                ;;
+              NULL)
+                ;;
+              *)
+                echo "Invalid version field specified. Use 'major', 'minor', 'patch', or 'build'."
+                exit 1
+                ;;
+            esac
+          }
+
+          # If no field was specified (i.e., no argument), assume "build" and increment it
+          if [ -z "$field" ]; then
+            increment_version "build"
+          else
+            increment_version "$field"
+          fi
+
+          # Rebuild the version number with the updated field
+          NEW_VERSION="$major.$minor.$patch.$build"
 
           echo "New Version: $NEW_VERSION"
 
-          # 4. Apply updates
+          # Update version in all relevant files (without calling deploy.sh)
           sed -i "s/VERSION: JSON.stringify(\".*\")/VERSION: JSON.stringify(\"$NEW_VERSION\"),/" rollup.config.mjs
           sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\",/" package.json
           sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
-          sed -i "s/^VERSION=[0-9.]*/VERSION=$NEW_VERSION/" deploy.sh
 
-          # 5. Build and Push
+          # Build the project
           npm install
           npx rollup -c
 
+          # Commit and push to Live branch
+          cd ../Live || exit 1
+          git checkout main
+          cd ../Dev || exit 1
+
+          # Commit and push to Live branch
           git add .
-          git commit -m "build #$NEW_VERSION perform deploy"
-          git push origin $BRANCH
+          git commit -m "Update version number to $NEW_VERSION"
+          cd ../Live || exit 1
+          git add .
+          git commit -m "build #$NEW_VERSION"
+          git push origin main
+
+          # Create GitHub Release
+          echo "Creating release for version $NEW_VERSION"
+          gh release create "v$NEW_VERSION" --title "Release $NEW_VERSION" --notes "Automated release from GitHub Actions"
+
+          echo "The new version will be:  $NEW_VERSION"
