@@ -54,7 +54,7 @@ console.debug("CRABS: Parse start...");
 			preventAssignment: true,
 			NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
 			NICKNAME: JSON.stringify("CRABS"),
-			VERSION: JSON.stringify("1.3.2.20 Alpha"),
+			VERSION: JSON.stringify("1.3.2.21 Alpha"),
 		}),
 		progress({ clearLine: true }),
 		resolve({ browser: true }),
