@@ -91,6 +91,16 @@ export abstract class CRABS_Base {
 		}
 	}
 
+	/**
+	 * Attaches an event listener to any object matching the supplied class.
+	 *
+	 * @param {string} classname - Name of the class you are looking for.
+	 * @param {string} action - Name of the function you want to call when the event is triggered.
+	 * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
+	 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
+	 * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
+	 * @returns {void}
+	 */
 	public attachEvent(
 		classname: string,
 		action: string,
@@ -126,6 +136,7 @@ export abstract class CRABS_Base {
 			});
 		}
 	}
+
 
 	/**
 	   * Attach event listener to DOM object with callback
