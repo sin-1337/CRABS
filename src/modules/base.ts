@@ -25,19 +25,19 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Fakes a roster command as if the user ran the command themselves.
+	 * fakes a roster command as if the user ran the command themselves.
 	 *
-	 * @param {string} action - String that determines what the roster should print.
+	 * @param {string} action - string that determines what the roster should print.
 	 * @returns void
 	 */
-	// public fakePlayerCommand(action: string = "all"): void {
-	// 	for (let [_, command] of Commands.entries()) {
-	// 		if (command.Tag === `crabs`) {
-	// 			command.Action(action);
-	// 			break;
-	// 		}
-	// 	}
-	// }
+	public fakeplayercommand(action: string = "all"): void {
+		for (const [_, command] of Commands.entries()) {
+			if (command.tag === `crabs`) {
+				command.Action(action);
+				break;
+			}
+		}
+	}
 
 	/**
 	 * Takes a member number and opens that player's  "focus" screen.
@@ -91,43 +91,33 @@ export abstract class CRABS_Base {
 		}
 	}
 
-	/**
-	 * Attaches an event listener to any object matching the supplied class.
-	 *
-	 * @param {string} classname - Name of the class you are looking for.
-	 * @param {string} action - Name of the function you want to call when the event is triggered.
-	 * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
-	 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
-	 * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
-	 * @returns {void}
-	 */
 	public attachEvent(
 		classname: string,
 		action: string,
 		data?: string,
 		arg?: string,
-		event: string = "click",
+		event: string = "click"
 	): void {
-		const chat = document.getElementById("TextAreaChatLog");
+		const CHAT = document.getElementById("TextAreaChatLog");
 
-		if (!chat) return; // if chat is not found, bail
+		if (!CHAT) return; // if chat is not found, bail
 		// Select all roster links
-		const elmements = chat.getElementsByClassName(
-			classname,
+		const ELEMENTS = CHAT.getElementsByClassName(
+			classname
 		) as HTMLCollectionOf<HTMLElement>;
 
 		// Attach event listeners to all roster links
-		for (let element of elmements) {
-			element.addEventListener(event, (e) => {
+		for (const ELEMENT of ELEMENTS) {
+			ELEMENT.addEventListener(event, (e) => {
 				// add listener
-				const target = e.currentTarget as HTMLElement; // capture target
+				const TARGET = e.currentTarget as HTMLElement; // capture target
 				if (arg) {
 					(window as any)[action](arg);
 					return;
 				}
 				if (data) {
-					const parsed_data = target.dataset[data]; // parse data
-					(window as any)[action](parsed_data);
+					const DATA = TARGET.dataset[data]; // parse data
+					(window as any)[action](DATA);
 					return;
 				} else {
 					(window as any)[action]();
@@ -138,25 +128,25 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Attach event listener to DOM object with callback
-	 *
-	 * @param {string} classname - name of the class
-	 * @param {event} callback - callback event function
-	 * @param {string} event - the event
-	 */
+	   * Attach event listener to DOM object with callback
+	   *
+	   * @param {string} classname - name of the class
+	   * @param {event} callback - callback event function
+	   * @param {string} event - the event
+	   */
 	public attachEventWithCallback(
 		classname: string,
 		callback: (e: Event) => void,
-		event: string = "click",
+		event: string = "click"
 	): void {
 		const CHAT = document.getElementById("TextAreaChatLog");
 		if (!CHAT) return;
 
-		const elements = CHAT.getElementsByClassName(
-			classname,
+		const ELEMENTS = CHAT.getElementsByClassName(
+			classname
 		) as HTMLCollectionOf<HTMLElement>;
-		for (let element of elements) {
-			element.addEventListener(event, callback);
+		for (const ELEMENT of ELEMENTS) {
+			ELEMENT.addEventListener(event, callback);
 		}
 	}
 
@@ -193,8 +183,14 @@ export abstract class CRABS_Base {
 		} else {
 			console.log("CRABS ERROR: Could not find chat element!");
 		}
-		this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
-		this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+		this.attachEventWithCallback("CRABS_Help_Icon", () => {
+			this.fakeplayercommand("help");
+		});
+		this.attachEventWithCallback("CRABS_close", (e: Event) => {
+			const target = e.currentTarget as HTMLElement;
+			const id = target.dataset.elementid;
+			(window as any).crabsCloseItem(id);
+		});
 	}
 
 	/**

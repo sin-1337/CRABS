@@ -140,13 +140,17 @@ CommandCombine([
 			//attach intractable roster events
 			ROSTER.attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
 			ROSTER.attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
-			ROSTER.attachEvent(
-				"CRABS_player-id",
-				"copyToClipboard",
-				"playerNumber",
-				"",
-				"contextmenu",
-			);
+
+			//TODO: add copyToClipboard functionality
+			// ROSTER.attachEventWithCallback("CRABS_player-id", (e: Event) => {
+			// 	e.preventDefault(); // Stops the browser's right-click menu from appearing
+
+			// 	const target = e.currentTarget as HTMLElement;
+			// 	const playerNumber = target.dataset.playernumber;
+
+			// 	// Assuming copyToClipboard is a method in this file or imported
+			// 	copyToClipboard(playerNumber);
+			// }, "contextmenu");
 		},
 	},
 ]);

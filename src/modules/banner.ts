@@ -13,7 +13,6 @@
 
 import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
-import { Mod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
@@ -109,6 +108,8 @@ export class Banner extends CRABS_Base {
 			"CRABS_Banner"
 		);
 		this.attachPermissionChangeHandler();
-		this.attachEvent("CRABS_banner_rosterlink", "fakePlayerCommand");
+		this.attachEventWithCallback("CRABS_Help_Icon", () => {
+			this.fakeplayercommand("help");
+		});
 	}
 }
