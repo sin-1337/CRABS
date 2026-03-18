@@ -11,7 +11,7 @@
  */
 
 
-import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import bcModSdk, { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Assets } from "./assets";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
