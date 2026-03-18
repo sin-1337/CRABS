@@ -25,8 +25,11 @@ type ImageStore = {
 
 export abstract class Assets {
 
+	// @ts-ignore
+	const BRANCH = CRABSBRANCH
+
 	protected static readonly IMAGES: ImageStore = {
-		basePath: "https://cdn.jsdelivr.net/gh/sin-1337/CRABS@__BRANCH__/images/",
+		basePath: `https://cdn.jsdelivr.net/gh/sin-1337/CRABS@${BRANCH}/images/`,
 
 		// logo
 		image: {

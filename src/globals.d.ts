@@ -3,6 +3,8 @@ declare global {
 	const NAME: string;
 	const NICKNAME: string;
 	const VERSION: string;
+	const BRANCH: string;
+
 	var ChatRoomCharacter: Array<any>;
 	var ChatRoomData: any;
 	var Commands: Array<any>;
@@ -26,6 +28,13 @@ declare global {
 		ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
 		crabsHelp: typeof HELP.showHelp;
 		CommandSet(payload: string): void;
+	}
+
+	type crabs = {
+		readonly name: string,
+		readonly fullname: string,
+		readonly version: string,
+		readonly branch: string,
 	}
 
 	type PrintImage = {

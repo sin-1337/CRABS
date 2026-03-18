@@ -2,6 +2,7 @@
 import bcModSDK from "bondage-club-mod-sdk";
 import { Banner, WhisperPlus, Roster, Help } from "./modules";
 
+
 //register the mod
 const CRABS = bcModSDK.registerMod({
 	name: NICKNAME,

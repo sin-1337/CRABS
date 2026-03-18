@@ -1,3 +1,4 @@
+// @ts-nocheck
 // rollup.config.js
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
@@ -54,7 +55,7 @@ console.debug("CRABS: Parse start...");
 			NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
 			NICKNAME: JSON.stringify("CRABS"),
 			VERSION: JSON.stringify("1.3.2.16"),
-			'__BRANCH__': process.env.BRANCH || 'Alpha' // Inject pipeline var or fallback to Alpha
+			CRABSBRANCH: JSON.stringify(process.env.BRANCH),
 		}),
 		progress({ clearLine: true }),
 		resolve({ browser: true }),
