@@ -31,9 +31,9 @@ export abstract class CRABS_Base {
 	 * @returns void
 	 */
 	public fakePlayerCommand(action: string = "all"): void {
-		for (const [_, COMMAND] of Commands.entries()) {
-			if (COMMAND.Tag === `crabs`) {
-				COMMAND.Action(action);
+		for (let [_, command] of Commands.entries()) {
+			if (command.Tag === `crabs`) {
+				command.Action(action);
 				break;
 			}
 		}
@@ -108,7 +108,7 @@ export abstract class CRABS_Base {
 	 * @param {string} action - Name of the function you want to call when the event is triggered.
 	 * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
 	 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
-	 * @param {string} [event] - [default = click] Type of event you wish this to trigger on.
+	 * @param {string} [event] - [default = click] Type of event you wish this to trigger on. (for right click use "contextmenu"
 	 * @returns {void}
 	 */
 	public attachEvent(
@@ -129,6 +129,12 @@ export abstract class CRABS_Base {
 		// Attach event listeners to all roster links
 		for (const ELEMENT of ELEMENTS) {
 			ELEMENT.addEventListener(event, (e) => {
+
+				//block standard context menu.
+				if (event === "contextmenu") {
+					e.preventDefault();
+				}
+
 				// add listener
 				const TARGET = e.currentTarget as HTMLElement; // capture target
 				if (arg) {
