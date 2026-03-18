@@ -31,9 +31,9 @@ export abstract class Assets {
 		// logo
 		image: {
 			logo: {
-				file: "CRABS_Logo.png",
+				file: "CRABS_logo.png",
 				alt: "CRABS",
-				class: "CRABS_Logo",
+				class: "CRABS_logo",
 			},
 
 			// error icon
@@ -47,7 +47,7 @@ export abstract class Assets {
 				file: "close.svg",
 				alt: "Close",
 				toolTip: "Close",
-				class: "CRABS_Close",
+				class: "CRABS_close",
 			},
 			help: {
 				file: "help.svg",
