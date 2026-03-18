@@ -3,7 +3,6 @@ declare global {
 	const NAME: string;
 	const NICKNAME: string;
 	const VERSION: string;
-	const BRANCH: string;
 
 	var ChatRoomCharacter: Array<any>;
 	var ChatRoomData: any;
