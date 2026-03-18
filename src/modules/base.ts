@@ -25,15 +25,15 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * fakes a roster command as if the user ran the command themselves.
+	 * Fakes a roster command as if the user ran the command themselves.
 	 *
-	 * @param {string} action - string that determines what the roster should print.
+	 * @param {string} action - String that determines what the roster should print.
 	 * @returns void
 	 */
-	public fakeplayercommand(action: string = "all"): void {
-		for (const [_, command] of Commands.entries()) {
-			if (command.tag === `crabs`) {
-				command.Action(action);
+	public fakePlayerCommand(action: string = "all"): void {
+		for (const [_, COMMAND] of Commands.entries()) {
+			if (COMMAND.Tag === `crabs`) {
+				COMMAND.Action(action);
 				break;
 			}
 		}
@@ -57,6 +57,16 @@ export abstract class CRABS_Base {
 		} else {
 			ChatRoomSendLocal("This person is no longer in the room.");
 		}
+	}
+
+
+	/** Takes a string target mod name and returns a true if found.
+	 *  @param {string} targetmod - String name of the mod.
+	 *  @returns {boolean} True if found, false if not.
+	 */
+	protected detectMod(targetmod: string): boolean {
+		let modlist = bcModSdk.getModsInfo();
+		return modlist.filter((x) => x.name == targetmod).length > 0;
 	}
 
 	/**
