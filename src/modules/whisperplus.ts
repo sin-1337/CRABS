@@ -149,7 +149,6 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {void}
 	 */
 	public sendWhisper(memberNumber: number): void {
-		console.log("it whispers!");
 		for (const command of Commands) {
 			if (command.Tag == "whisper+") {
 				window.CommandSet(command.Tag + " " + memberNumber)
@@ -190,6 +189,7 @@ export class WhisperPlus extends CRABS_Base {
 		return success ? 0 : 1;
 	}
 	public override buildui(): void {
+		console.log("it whispers!");
 		this.attachEvent("CRABS_player-id", this.sendWhisper, "playerNumber");
 
 	}
