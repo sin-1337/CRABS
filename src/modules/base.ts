@@ -204,9 +204,8 @@ export abstract class CRABS_Base {
 		} else {
 			console.log("CRABS ERROR: Could not find chat element!");
 		}
-		this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
-		// this.attachEventWithCallback("CRABS_Help_Icon", (e) => window.crabsHelp(e));
-		this.attachEvent("CRABS_close", "crabsCloseItem", "elementid");
+		this.attachEvent("CRABS_Help_Icon", this.fakePlayerCommand, undefined, "help");
+		this.attachEvent("CRABS_close", this.closeElement, "elementid");
 	}
 
 	/**

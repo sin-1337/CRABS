@@ -108,10 +108,6 @@ export class Banner extends CRABS_Base {
 			"CRABS_Banner"
 		);
 		this.attachPermissionChangeHandler();
-		this.attachEvent("CRABS_Help_Icon", "fakePlayerCommand", undefined, "help");
-
-		//this.attachEventWithCallback("CRABS_Help_Icon", () => {
-		//	this.fakePlayerCommand("help");
-		//});
+		this.attachEvent("CRABS_banner_rosterlink", this.fakePlayerCommand, "", "help");
 	}
 }

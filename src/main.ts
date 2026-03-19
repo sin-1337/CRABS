@@ -90,9 +90,9 @@ function argcheck(args: string): boolean {
 }
 
 function commandRedirect(command: string, args: string): void {
-	for (let [_, command] of Commands.entries()) {
-		if (command.Tag === command) {
-			command.Action(args);
+	for (let [_, COMMAND] of Commands.entries()) {
+		if (COMMAND.Tag === command) {
+			COMMAND.Action(args);
 			break;
 		}
 	}
@@ -116,7 +116,7 @@ CommandCombine([
 		Description:
 			"Enables the /w+ command that does global whisper in a map room",
 		Action: (args: string, command: string) => {
-			WHISPERPLUS.whisperplus(args, command);
+			commandRedirect("whisper+", args);
 		},
 	},
 ]);
