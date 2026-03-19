@@ -102,72 +102,46 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-		   * Attaches an event listener to any object matching the supplied class.  * * @param classname - CSS class to target.
-		   * 
-		 * @param {string} classname - Name of the class you are looking for.
-		 * @param {function} callback  - The function to execute.
-		 * @param {string} [data] - camelcase dataset key (e.g., "userid" for data-user-id).
-		 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
-		 * @param {string} [event] - [default = click] Type of event you wish this to trigger on. (for right click use "contextmenu"
-		 * @returns {void}
-		 * */
+	 * Attaches an event listener to any object matching the supplied class or id.
+	 * @param {string} selectorName - Name of the class or id you are looking for.
+	 * @param {function} callback - The function to execute.
+	 * @param {string} [data] - camelcase dataset key (e.g., "userid" for data-user-id).
+	 * @param {any} [arg] - [optional] Direct argument to pass, mutually exclusive with data.
+	 * @param {string} [event="click"] - Type of event you wish this to trigger on.
+	 * @param {"class" | "id"} [findBy="class"] - Optional: Whether to search by class or id. Defaults to class.
+	 * @returns {void}
+	 */
 	public attachEvent(
-		classname: string,
+		selectorName: string,
 		callback: (val?: any) => void,
 		data?: string,
 		arg?: any,
-		event: string = "click"
+		event: string = "click",
+		findBy: "class" | "id" = "class"
 	): void {
-		const CHAT = document.getElementById("TextAreaChatLog");
-		if (!CHAT) return;
+		const chat = document.getElementById("TextAreaChatLog");
+		if (!chat) return;
 
-		const ELEMENTS = CHAT.getElementsByClassName(classname) as HTMLCollectionOf<HTMLElement>;
+		const elements: HTMLElement[] = [];
 
-		for (const ELEMENT of ELEMENTS) {
-			ELEMENT.addEventListener(event, (e: Event) => {
-				// Block standard context menu for right-clicks
-				if (event === "contextmenu") {
-					e.preventDefault();
-				}
-
-				const TARGET = e.currentTarget as HTMLElement;
-
-				if (arg !== undefined) {
-					// Priority: Direct argument
-					callback(arg);
-				} else if (data) {
-					// Priority: Dataset attribute
-					const DATA_VALUE = TARGET.dataset[data];
-					callback(DATA_VALUE);
-				} else {
-					// Default: Pass the event object itself
-					callback(e);
-				}
-			});
+		if (findBy === "id") {
+			const el = document.getElementById(selectorName);
+			if (el) elements.push(el);
+		} else {
+			const classElements = chat.getElementsByClassName(selectorName);
+			elements.push(...Array.from(classElements as HTMLCollectionOf<HTMLElement>));
 		}
-	}
 
+		for (let element of elements) {
+			element.addEventListener(event, (e: Event) => {
+				if (event === "contextmenu") e.preventDefault();
 
-	/**
-	   * Attach event listener to DOM object with callback
-	   *
-	   * @param {string} classname - name of the class
-	   * @param {event} callback - callback event function
-	   * @param {string} event - the event
-	   */
-	public attachEventWithCallback(
-		classname: string,
-		callback: (e: Event) => void,
-		event: string = "click"
-	): void {
-		const CHAT = document.getElementById("TextAreaChatLog");
-		if (!CHAT) return;
+				const target = e.currentTarget as HTMLElement;
 
-		const ELEMENTS = CHAT.getElementsByClassName(
-			classname
-		) as HTMLCollectionOf<HTMLElement>;
-		for (const ELEMENT of ELEMENTS) {
-			ELEMENT.addEventListener(event, callback);
+				if (arg !== undefined) callback(arg);
+				else if (data) callback(target.dataset[data]);
+				else callback(e);
+			});
 		}
 	}
 

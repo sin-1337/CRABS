@@ -46,6 +46,15 @@ export class Banner extends CRABS_Base {
 		}
 	}
 
+	private selectPermission(object: any): void {
+		const target = object.target as HTMLSelectElement;
+		const newPermLevel = parseInt(target.value, 10);
+
+		// Update player permissions based on selection
+		Player.AllowedInteractions = newPermLevel;
+		ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
+	}
+
 	/**
 	 * Outputs the HTML permission levels
 	 *
@@ -53,16 +62,16 @@ export class Banner extends CRABS_Base {
 	 */
 	private drawPermission(): string {
 		let output: string = "";
-		let SELECTED: number = Player.AllowedInteractions;
+		let selected: number = Player.AllowedInteractions;
 
 		// TODO: update this to support an arbitrary number of permission levels.
-		for (const NUMBER of [0, 1, 2, 3, 4, 5]) {
-			const PERMISISON_TEXT = TextGetInScope(
+		for (let number of [0, 1, 2, 3, 4, 5]) {
+			const permission_text = TextGetInScope(
 				"Screens/Character/InformationSheet/Text_InformationSheet.csv",
-				"AllowedInteraction" + NUMBER.toString()
+				"AllowedInteraction" + number.toString()
 			);
-			output += `<option${NUMBER === SELECTED ? " selected" : ""
-				} value="${NUMBER}">${PERMISISON_TEXT}</option>`;
+			output += `<option${number === selected ? " selected" : ""
+				} value="${number}">${permission_text}</option>`;
 		}
 		return output;
 	}
@@ -111,6 +120,7 @@ export class Banner extends CRABS_Base {
 	public override buildui(output: string, elementId?: string): void {
 		super.buildui(output, elementId);
 		this.attachPermissionChangeHandler();
+		this.attachEvent("CRABS_Permission_Select", this.selectPermission, undefined, undefined, "change");
 		this.attachEvent("CRABS_banner_rosterlink", this.fakePlayerCommand, "", "roster");
 	}
 

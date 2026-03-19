@@ -105,7 +105,6 @@ CommandCombine([
 		Description: "Enables the /whisper+ command that does global whisper in a map room",
 		Action: (args: string, command: string) => {
 			WHISPERPLUS.whisperplus(args, command);
-			WHISPERPLUS.buildui();
 		},
 	},
 ]);
@@ -138,9 +137,13 @@ CommandCombine([
 		Tag: "roster",
 		Description: "Show the player count, helpful in maps.",
 		Action: (args: string) => {
-			if (argcheck(args))
+			if (argcheck(args)) {
 				ROSTER.buildui(ROSTER.buildroster(args), "CRABS_Roster");
-			ROSTER.initScrollingOverflow();
+
+				// call this to set the whisper plus event in the roster ui
+				WHISPERPLUS.buildui();
+				ROSTER.initScrollingOverflow();
+			}
 			const elements = document.querySelectorAll<HTMLDivElement>(
 				"div.ChatMessageNonDialogue",
 			);
