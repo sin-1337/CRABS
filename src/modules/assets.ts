@@ -31,7 +31,7 @@ export abstract class Assets {
 		// logo
 		image: {
 			logo: {
-				file: "CRABS_logo.png",
+				file: "CRABS_Logo.png",
 				alt: "CRABS",
 				class: "CRABS_logo",
 			},
