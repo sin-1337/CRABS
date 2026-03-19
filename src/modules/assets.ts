@@ -262,7 +262,7 @@ export abstract class Assets {
 				toolTip: "Gag 2"
 			},
 			gagMedium: {
-				file: "GagMedium.png",
+				file: "GagNormal.png",
 				alt: "gag medium",
 				toolTip: "Gag 3"
 			},
