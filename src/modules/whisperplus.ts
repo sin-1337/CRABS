@@ -149,7 +149,7 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {void}
 	 */
 	public sendWhisper(memberNumber: number): void {
-		console.log("it whispers!"
+		console.log("it whispers!");
 		for (const command of Commands) {
 			if (command.Tag == "whisper+") {
 				window.CommandSet(command.Tag + " " + memberNumber)
