@@ -32,7 +32,6 @@ if (window.CRABS_Loaded !== undefined) {
   throw "Already loaded";
 }
 window.CRABS_Loaded = false;
-console.debug("CRABS: Parse start...");
 `,
 		intro: async () => {
 			let CRABS_VERSION = packageJson.version;

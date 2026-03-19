@@ -103,11 +103,15 @@ export class Banner extends CRABS_Base {
 
 		if (extradata) Object.assign(templatevars, extradata);
 
-		this.sendoutput(
+		this.buildui(
 			this.template(bannertemplate, templatevars, true, wrappervars),
 			"CRABS_Banner"
 		);
+	}
+	public override buildui(output: string, elementId?: string): void {
+		super.buildui(output, elementId);
 		this.attachPermissionChangeHandler();
 		this.attachEvent("CRABS_banner_rosterlink", this.fakePlayerCommand, "", "roster");
 	}
+
 }

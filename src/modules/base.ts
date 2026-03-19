@@ -178,7 +178,7 @@ export abstract class CRABS_Base {
 	 * @param {string} elementId - Name of the element
 	 * @returns {void}
 	 */
-	public sendoutput(output: string, elementId?: string): void {
+	public buildui(output: string, elementId?: string): void {
 		const template = document.createElement("template");
 
 		const cleanHtml = DOMPurify.sanitize(output, {

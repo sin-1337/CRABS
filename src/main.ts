@@ -75,7 +75,7 @@ ChatRoomRegisterMessageHandler({
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
-		HELP.sendoutput(HELP.showHelp(), "CRABS_Help");
+		HELP.buildui(HELP.showHelp(), "CRABS_Help");
 		const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
 		if (HELPBUTTON) HELPBUTTON.style.display = "none";
 		return false;
@@ -102,10 +102,10 @@ function commandRedirect(command: string, args: string): void {
 CommandCombine([
 	{
 		Tag: "whisper+",
-		Description:
-			"Enables the /whisper+ command that does global whisper in a map room",
+		Description: "Enables the /whisper+ command that does global whisper in a map room",
 		Action: (args: string, command: string) => {
 			WHISPERPLUS.whisperplus(args, command);
+			WHISPERPLUS.buildui();
 		},
 	},
 ]);
@@ -115,7 +115,7 @@ CommandCombine([
 		Tag: "w+",
 		Description:
 			"Enables the /w+ command that does global whisper in a map room",
-		Action: (args: string, command: string) => {
+		Action: (args: string) => {
 			commandRedirect("whisper+", args);
 		},
 	},
@@ -139,7 +139,7 @@ CommandCombine([
 		Description: "Show the player count, helpful in maps.",
 		Action: (args: string) => {
 			if (argcheck(args))
-				ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
+				ROSTER.buildui(ROSTER.buildroster(args), "CRABS_Roster");
 			ROSTER.initScrollingOverflow();
 			const elements = document.querySelectorAll<HTMLDivElement>(
 				"div.ChatMessageNonDialogue",

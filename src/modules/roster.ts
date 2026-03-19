@@ -500,8 +500,8 @@ export class Roster extends CRABS_Base {
 		return output_html;
 	}
 
-	public override sendoutput(output: string, elementId?: string): void {
-		super.sendoutput(output, elementId);
+	public override buildui(output: string, elementId?: string): void {
+		super.buildui(output, elementId);
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber");
 		this.attachEvent(
 			"CRABS_player-id",
