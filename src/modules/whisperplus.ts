@@ -188,4 +188,8 @@ export class WhisperPlus extends CRABS_Base {
 		const success = this.sendWhisperMessage(target || memberNumber, message);
 		return success ? 0 : 1;
 	}
+	pulic override sendoutput(output: string, elementId?: string): void {
+		this.attachEvent("CRABS_player-id", sendWhisper, "playerNumber");
+
+	}
 }

@@ -102,52 +102,46 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Attaches an event listener to any object matching the supplied class.
-	 *
-	 * @param {string} classname - Name of the class you are looking for.
-	 * @param {string} action - Name of the function you want to call when the event is triggered.
-	 * @param {string} [data] - [optional] Arguments to the function, MUST be camelcase... ex: playerNumber.
-	 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
-	 * @param {string} [event] - [default = click] Type of event you wish this to trigger on. (for right click use "contextmenu"
-	 * @returns {void}
-	 */
+		   * Attaches an event listener to any object matching the supplied class.  * * @param classname - CSS class to target.
+		   * 
+		 * @param {string} classname - Name of the class you are looking for.
+		 * @param {function} callback  - The function to execute.
+		 * @param {string} [data] - camelcase dataset key (e.g., "userid" for data-user-id).
+		 * @param {string} [arg] - [optional] Direct argument to pass, mutually exclusive with data, if passed, data ignored.
+		 * @param {string} [event] - [default = click] Type of event you wish this to trigger on. (for right click use "contextmenu"
+		 * @returns {void}
+		 * */
 	public attachEvent(
 		classname: string,
-		action: string,
+		callback: (val?: any) => void,
 		data?: string,
-		arg?: string,
+		arg?: any,
 		event: string = "click"
 	): void {
 		const CHAT = document.getElementById("TextAreaChatLog");
+		if (!CHAT) return;
 
-		if (!CHAT) return; // if chat is not found, bail
-		// Select all roster links
-		const ELEMENTS = CHAT.getElementsByClassName(
-			classname
-		) as HTMLCollectionOf<HTMLElement>;
+		const ELEMENTS = CHAT.getElementsByClassName(classname) as HTMLCollectionOf<HTMLElement>;
 
-		// Attach event listeners to all roster links
 		for (const ELEMENT of ELEMENTS) {
-			ELEMENT.addEventListener(event, (e) => {
-
-				//block standard context menu.
+			ELEMENT.addEventListener(event, (e: Event) => {
+				// Block standard context menu for right-clicks
 				if (event === "contextmenu") {
 					e.preventDefault();
 				}
 
-				// add listener
-				const TARGET = e.currentTarget as HTMLElement; // capture target
-				if (arg) {
-					(window as any)[action](arg);
-					return;
-				}
-				if (data) {
-					const DATA = TARGET.dataset[data]; // parse data
-					(window as any)[action](DATA);
-					return;
+				const TARGET = e.currentTarget as HTMLElement;
+
+				if (arg !== undefined) {
+					// Priority: Direct argument
+					callback(arg);
+				} else if (data) {
+					// Priority: Dataset attribute
+					const DATA_VALUE = TARGET.dataset[data];
+					callback(DATA_VALUE);
 				} else {
-					(window as any)[action]();
-					return;
+					// Default: Pass the event object itself
+					callback(e);
 				}
 			});
 		}

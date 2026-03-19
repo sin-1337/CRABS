@@ -89,6 +89,15 @@ function argcheck(args: string): boolean {
 	return true;
 }
 
+function commandRedirect(command: string, args: string): void {
+	for (let [_, command] of Commands.entries()) {
+		if (command.Tag === command) {
+			command.Action(args);
+			break;
+		}
+	}
+}
+
 // implements the whisper+ command
 CommandCombine([
 	{
@@ -117,7 +126,9 @@ CommandCombine([
 	{
 		Tag: "crabs",
 		Description: "Show the player count, helpful in maps.",
-		Reference: "roster",
+		Action: (args: string) => {
+			commandRedirect("roster", args);
+		},
 	},
 ]);
 
@@ -137,17 +148,6 @@ CommandCombine([
 			elements.forEach((element) => {
 				element.style.overflow = "visible";
 			});
-
-			//attach intractable roster events
-			ROSTER.attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
-			ROSTER.attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
-			ROSTER.attachEvent(
-				"CRABS_player-id",
-				"crabsCloseItem",
-				"playerNumber",
-				undefined,
-				"contextmenu")
-
 		},
 	},
 ]);
