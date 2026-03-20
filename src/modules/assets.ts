@@ -319,35 +319,34 @@ export abstract class Assets {
 		 */
 	public static printimage({
 		key,
-		css_class_override, //optional class overwrite
-		css_style = "", // optional, CSS overwrite
-		tooltip_override = "", // optional tooltip
-		alt_override, // optional tooltip
-		data, // optional, facilitates special data for event listeners
+		css_class_override,
+		css_style = "",
+		tooltip_override = "",
+		alt_override,
+		data,
 	}: PrintImage): string {
-		let images = Assets.IMAGES.image;
-		let icon = images["error"].file; // fall back if the icon isn't found
-		if (key in images) {
-			// test if the key exists
-			icon = images[key].file;
-		}
+		const images = Assets.IMAGES.image;
 
-		// extract extra data from the asset if no override is found
-		const css_class = css_class_override || images[key].class || "";
-		const tooltip = tooltip_override || images[key].toolTip || "";
-		const alt = alt_override || images[key].alt || key; //fall back to the key
+		const imgData = (key in images) ? images[key as keyof typeof images] : images["error"];
+
+		const css_class = css_class_override || imgData.class || "";
+		const tooltip = tooltip_override || imgData.toolTip || "";
+		const alt = alt_override || imgData.alt || key;
 
 		let html = "";
-		if (tooltip != "") html += `< div class='CRABS_tooltip-wrapper' > `; // skip the tool tip if string wasn't set
-		html += `< img`;
-		if (data) html += `data - ${data[0]}=${data[1]} `;
-		if (alt != "") html += `alt = '${alt}' `;
-		html += `src = '${Assets.IMAGES.basePath}${icon}' `;
-		html += `class='${css_class} || ""'`;
-		if (css_style != "") html += `style = "${css_style}"`;
-		html += `> `;
-		if (tooltip != "") html += `< div class='CRABS_tooltip' > ${tooltip} </div>`;
-		if (tooltip != "") html += `</div>`;  // this is for the tooltip wrapper
+		// Notice: No spaces after the '<'
+		if (tooltip !== "") html += `<div class='CRABS_tooltip-wrapper'>`;
+
+		html += `<img `;
+		if (data) html += `data-${data[0]}="${data[1]}" `;
+		if (alt !== "") html += `alt="${alt}" `;
+		html += `src="${Assets.IMAGES.basePath}${imgData.file}" `;
+		if (css_class !== "") html += `class="${css_class}" `;
+		if (css_style !== "") html += `style="${css_style}" `;
+		html += `>`;
+
+		if (tooltip !== "") html += `<div class='CRABS_tooltip'>${tooltip}</div></div>`;
+
 		return html;
 	}
 }
