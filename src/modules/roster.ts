@@ -194,7 +194,7 @@ export class Roster extends CRABS_Base {
 	 * @returns void
 	 */
 	private loadFriendList(): void {
-		this.crabs.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
 			const [data]: Array<Record<string, any>> = args;
 			this.onlineFriends = data.length;
 			this.lastSentTime = Date.now();
