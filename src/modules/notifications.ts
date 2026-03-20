@@ -17,7 +17,7 @@ export abstract class Notification {
 		message: string,
 		title: string = "CRABS",
 		image: string = "logo",
-		duration: number = 4000,
+		duration: number = 3000,
 	) {
 		ToastManager.custom(message, "CRABS_Notification", {
 			title: title,

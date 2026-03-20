@@ -79,7 +79,7 @@ export abstract class CRABS_Base {
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(data);
-			Notification.send(`${data} copied to clipboard.`)
+			Notification.send(`"${data}" copied to clipboard.`)
 			// console.log("DEBUG: Text copied to clipboard: ", data);
 			return;
 		} catch (error) {
