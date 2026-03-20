@@ -306,7 +306,7 @@ export abstract class Assets {
 	 */
 	public static getimage(key: string): string {
 		if (key in Assets.IMAGES.image) {
-			return `${Assets.basePath}${Assets.IMAGES.image[key].file}`;
+			return `${Assets.IMAGES.basePath}${Assets.IMAGES.image[key].file}`;
 		}
 		return Assets.IMAGES.image["error"].file;
 	}
