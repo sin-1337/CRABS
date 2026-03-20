@@ -23,12 +23,14 @@ export class Drawer extends CRABS_Base {
 		const element = doc.getElementById(this.DRAWER_ID);
 
 		if (element) {
+			// Hide it by default before appending to body
+			element.style.display = "none";
 			document.body.appendChild(element);
 			this.instance = element;
 			this.bindEvents();
 
-			// Check visibility immediately on load
-			this.updateVisibility();
+			// REMOVE the direct call to this.updateVisibility() here
+			// It will be called by main.ts once the player is valid.
 		}
 	}
 
@@ -38,10 +40,12 @@ export class Drawer extends CRABS_Base {
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		// If not in a room, hide the element entirely
-		if (Player.LastChatRoom === null) {
+		// Check if Player exists and if they are in a room
+		const inRoom = typeof Player !== 'undefined' && Player?.LastChatRoom !== null;
+
+		if (!inRoom) {
 			this.instance.style.display = "none";
-			this.close(); // Force close if they leave while it's open
+			this.close();
 		} else {
 			this.instance.style.display = "flex";
 			this.refresh();

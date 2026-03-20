@@ -90,6 +90,18 @@ ChatRoomRegisterMessageHandler({
 	},
 });
 
+function startupVisibilityCheck() {
+	// Wait for the game to be "Ready"
+	if (typeof Player !== 'undefined' && Player && Player.MemberNumber) {
+		DRAWER.updateVisibility();
+	} else {
+		// If player isn't ready yet, check again in a second
+		setTimeout(startupVisibilityCheck, 999);
+	}
+}
+
+startupVisibilityCheck();
+
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
