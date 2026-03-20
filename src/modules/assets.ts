@@ -304,8 +304,16 @@ export abstract class Assets {
 	 * @param {string} key - Image key from the assets object
 	 * @returns {string} Full path URL to image.
 	 */
-	public static getimage(key: keyof typeof Assets.IMAGES.image): string {
-		return `${Assets.IMAGES.basePath}${Assets.IMAGES.image[key].file}`;
+	public static getimage(key: Extract<keyof typeof Assets.IMAGES.image, string>): string {
+		const imgObj = Assets.IMAGES.image[key];
+
+		// If the key is missing or undefined at runtime, gracefully return the error image
+		if (!imgObj) {
+			console.warn(`Missing image key: ${key}`);
+			return `${Assets.IMAGES.basePath}${Assets.IMAGES.image["error"].file}`;
+		}
+
+		return `${Assets.IMAGES.basePath}${imgObj.file}`;
 	}
 
 	/**
