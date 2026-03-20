@@ -299,6 +299,17 @@ export abstract class Assets {
 		},
 	} as const;
 
+	/**
+	 * simply outputs a string with the image path 
+	 * @param {string} key - Image key from the assets object
+	 * @returns {string} URL to image.
+	 */
+	public static getimage(key: string): string {
+		if (key in Assets.IMAGES.image) {
+			return Assets.IMAGES.image[key].file;
+		}
+		return Assets.IMAGES.image["error"].file;
+	}
 
 	/**
 		 * printimage
@@ -309,7 +320,7 @@ export abstract class Assets {
 		 * @param {PrintImage} params - Object containing image configuration
 		 * @returns {string} HTML representing the icon
 		 */
-	static printimage({
+	public static printimage({
 		key,
 		css_class_override, //optional class overwrite
 		css_style = "", // optional, CSS overwrite

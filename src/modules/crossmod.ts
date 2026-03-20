@@ -14,7 +14,7 @@
 
 import bcModSdk from "bondage-club-mod-sdk";
 
-export abstract class Mod {
+export abstract class CrossMod {
 
 	/** Takes a string target mod name and returns a true if found.
 	 *  @param {string} targetmod - String name of the mod.
@@ -34,17 +34,17 @@ export abstract class Mod {
 	 */
 	protected static getBcxApi(): BCX_ModAPI | null {
 		if (!window.bcx) return null;
-		if (!Mod.bcxModApi) {
-			Mod.bcxModApi = window.bcx.getModApi(NICKNAME);
+		if (!CrossMod.bcxModApi) {
+			CrossMod.bcxModApi = window.bcx.getModApi(NICKNAME);
 		}
-		return Mod.bcxModApi;
+		return CrossMod.bcxModApi;
 	}
 
 	/**
 	 * Check for BCX's availability and rule state
 	 */
 	static isBCXRuleEnforced<ID extends BCX_Rule>(name: ID): boolean {
-		const api = Mod.getBcxApi();
+		const api = CrossMod.getBcxApi();
 		if (!api) return false; // BCX not available, don't bother.
 		const rule = api.getRuleState(name);
 		return !rule?.isEnforced;

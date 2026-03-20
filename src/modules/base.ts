@@ -13,6 +13,7 @@
 
 import bcModSdk, { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Assets } from "./assets";
+import { Notification } from "./notifications";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
@@ -78,6 +79,7 @@ export abstract class CRABS_Base {
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(data);
+			Notification.send(`${data} copied to clipboard.`)
 			// console.log("DEBUG: Text copied to clipboard: ", data);
 			return;
 		} catch (error) {

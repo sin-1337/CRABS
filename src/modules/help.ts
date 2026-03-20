@@ -14,7 +14,7 @@
 
 import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
-import { Mod } from "./crossmod";
+import { CrossMod } from "./crossmod";
 import helptemplate from "./templates/help.html";
 
 
@@ -73,7 +73,7 @@ export class Help extends CRABS_Base {
             ${Assets.printimage({ key: "lover" })} = Person is your lover </br>`;
 
 		//prints only if the BCTweaks module is detected.
-		if (Mod.detectMod("BCTweaks")) {
+		if (CrossMod.detectMod("BCTweaks")) {
 			output += `${Assets.printimage({ key: "bestfriend" })} = Person is a best friend </br>`;
 		}
 
