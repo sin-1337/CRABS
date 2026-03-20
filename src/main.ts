@@ -16,10 +16,8 @@ const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 
-window.sendWhisper = WHISPERPLUS.sendWhisper;
-window.PlayerFocus = ROSTER.showPlayerFocus;
-window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
-window.crabsHelp = HELP.showHelp.bind(HELP);
+// Initialize Whisper+ hooks for continuous conversation
+WHISPERPLUS.setupHooks();
 
 // print version and load success in console
 console.log(`CRABS v${VERSION} Loaded`); // do not remove

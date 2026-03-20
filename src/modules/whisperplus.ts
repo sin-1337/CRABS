@@ -23,6 +23,60 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
+	 * Initializes the hooks for constant WhisperPlus conversation flow
+	 */
+	public setupHooks(): void {
+		/**
+		 * Hook: ChatRoomMessageNameClick
+		 * * Intercepts clicks on a character's name or the quick-reply arrow in the chat log.
+		 * Allows the base game to populate the chat input with the standard `/whisper` command
+		 * first. It then checks if the target message was sent via Whisper+ (identified by 
+		 * the "+:" prefix). If true, it automatically upgrades the input command to `/whisper+`.
+		 * * @param {HTMLElement} this - The HTML element (button/span) that was clicked. Must not be an arrow function to preserve context.
+		 * @param {any[]} args - The original arguments passed to the function.
+		 * @param {Function} next - Callback to execute the original base game function.
+		 */
+		this.CRABS.hookFunction("ChatRoomMessageNameClick", 10, function (this: HTMLElement, args, next) {
+			const contentNode = this.parentElement?.querySelector('.chat-room-message-content');
+			const isWhisperPlus = contentNode?.textContent?.includes("+:");
+
+			next(args); // Let the base game populate "/whisper 1234 "
+
+			if (isWhisperPlus) {
+				const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
+				if (chatInput?.value.startsWith("/whisper ")) {
+					chatInput.value = chatInput.value.replace(/^\/whisper /, "/whisper+ ");
+				}
+			}
+		});
+
+		/**
+		 * Hook: ChatRoomMessageSetReply
+		 * * Intercepts the action of selecting "Reply" from a message's three-dot context menu.
+		 * Allows the base game to set up the reply state and target, then reads the specific 
+		 * message via its ID to check for the Whisper+ prefix ("+:"). Upgrades the populated 
+		 * `/whisper` command in the chat input to `/whisper+` if applicable.
+		 * * @param {any[]} args - The original arguments, where args[0] is the unique message ID.
+		 * @param {Function} next - Callback to execute the original base game function.
+		 */
+		this.CRABS.hookFunction("ChatRoomMessageSetReply", 10, (args, next) => {
+			const msgId = args[0];
+			const contentNode = document.querySelector(`[msgid="${msgId}"]`)?.parentElement?.querySelector('.chat-room-message-content');
+			const isWhisperPlus = contentNode?.textContent?.includes("+:");
+
+			next(args); // Let the base game populate "/whisper 1234 "
+
+			if (isWhisperPlus) {
+				const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
+				if (chatInput?.value.startsWith("/whisper ")) {
+					chatInput.value = chatInput.value.replace(/^\/whisper /, "/whisper+ ");
+				}
+			}
+		});
+	}
+
+
+	/**
 	 * Parses the command arguments to extract member number and message
 	 *
 	 * @param {string} args - The arguments string passed to the command
