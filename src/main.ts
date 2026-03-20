@@ -11,6 +11,9 @@ const CRABS = bcModSDK.registerMod({
 	repository: "https://github.com/sin-1337/CRABS",
 });
 
+// print version early, so you know what version is running even if it fails.
+console.log(`CRABS v${VERSION} Loading`); // do not remove
+
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
@@ -19,7 +22,7 @@ const HELP = new Help(CRABS);
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();
 
-// print version and load success in console
+// print version and confirm load success in console
 console.log(`CRABS v${VERSION} Loaded`); // do not remove
 
 /**
