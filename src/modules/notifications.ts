@@ -16,7 +16,7 @@ export abstract class Notification {
 	public static send(
 		message: string,
 		title: string = "CRABS",
-		image: string = "CRABS_logo",
+		image: string = "logo",
 		duration: number = 4000,
 	) {
 		ToastManager.custom(message, "CRABS_Notification", {
