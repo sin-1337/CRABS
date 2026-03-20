@@ -1,4 +1,5 @@
 import { Assets } from "./assets";
+import "./templates/notifications.css";
 
 /**
  * Utility class for managing CRABS custom notifications.
