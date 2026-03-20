@@ -26,7 +26,7 @@ type ImageStore = {
 export abstract class Assets {
 
 	protected static readonly IMAGES: ImageStore = {
-		basePath: `https://sin-1337.github.io/CRABS/images/`,
+		basePath: "https://sin-1337.github.io/CRABS/images/",
 
 		// logo
 		image: {
@@ -304,11 +304,8 @@ export abstract class Assets {
 	 * @param {string} key - Image key from the assets object
 	 * @returns {string} Full path URL to image.
 	 */
-	public static getimage(key: string): string {
-		if (key in Assets.IMAGES.image) {
-			return `${Assets.IMAGES.basePath}${Assets.IMAGES.image[key].file}`;
-		}
-		return Assets.IMAGES.image["error"].file;
+	public static getimage(key: keyof typeof Assets.IMAGES.image): string {
+		return `${Assets.IMAGES.basePath}${Assets.IMAGES.image[key].file}`;
 	}
 
 	/**

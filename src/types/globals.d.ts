@@ -37,7 +37,7 @@ declare global {
 	}
 
 	type PrintImage = {
-		key: string,
+		key: Extract<keyof typeof Assets.IMAGES.image, string>,
 		css_class_override?: string,
 		css_style?: string,
 		tooltip_override?: string,
