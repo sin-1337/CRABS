@@ -19,10 +19,10 @@ import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 
 export abstract class CRABS_Base {
-	declare crabs: ModSDKModAPI;
+	declare CRABS: ModSDKModAPI;
 
 	constructor(CRABS: ModSDKModAPI) {
-		this.crabs = CRABS;
+		this.CRABS = CRABS;
 	}
 
 	/**
