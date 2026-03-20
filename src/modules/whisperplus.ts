@@ -74,13 +74,12 @@ export class WhisperPlus extends CRABS_Base {
 		});
 
 		/**
-		 * Hook: ChatRoomMessageDisplay
-		 * Intercepts the final rendering of chat messages. If a Whisper+ message is detected,
-		 * we manipulate the DOM element directly to inject our stylized HTML after the base 
-		 * game has safely escaped the rest of the text.
-		 * @param {any[]} args 
-		 * @param {Function} next 
-		 */
+				 * Hook: ChatRoomMessageDisplay
+				 * Intercepts the final rendering of chat messages. If a Whisper+ message is detected,
+				 * we safely update the "Whisper" text node to "Whisper+" and hide the prefix.
+				 * @param {any[]} args 
+				 * @param {Function} next 
+				 */
 		this.CRABS.hookFunction("ChatRoomMessageDisplay" as any, 10, (args: any[], next: (args: any[]) => HTMLDivElement) => {
 			const data = args[0];
 			const msg = args[1] as string;
@@ -88,20 +87,24 @@ export class WhisperPlus extends CRABS_Base {
 			// Let the base game generate and append the HTML element
 			const div = next(args);
 
-			// If it's a whisper and contains our prefix, stylize it!
 			if (div && data?.Type === "Whisper" && msg?.includes("+:")) {
-				// Grab the actual message content node (ignoring quoted replies)
+				// 1. Hide the "+:" (and the space after it) in the message body
 				const contents = div.querySelectorAll('.chat-room-message-content');
 				const contentNode = contents[contents.length - 1];
 
 				if (contentNode && contentNode.innerHTML) {
-					// Inject the stylized HTML directly into the element
-					// Note: If you want to use your thought bubble icon instead of [W+], 
-					// you can replace '[W+]' below with: ${Assets.printimage({ key: "thought" })}
-					const stylizedTag = `<span style="color: #ff99bb; font-weight: bold; text-shadow: 1px 1px 2px #000;">[W+]<span style="display:none;">+:</span></span>`;
-
-					contentNode.innerHTML = contentNode.innerHTML.replace("+:", stylizedTag);
+					// Regex \+:\s? catches "+:" and an optional trailing space
+					contentNode.innerHTML = contentNode.innerHTML.replace(/\+:\s?/, '<span style="display:none;">$&</span>');
 				}
+
+				// 2. Safely change the "Whisper to/from" text without breaking event listeners
+				div.childNodes.forEach(node => {
+					if (node.nodeType === Node.TEXT_NODE && node.textContent) {
+						if (node.textContent.includes("Whisper")) {
+							node.textContent = node.textContent.replace("Whisper", "Whisper+");
+						}
+					}
+				});
 			}
 
 			return div;
