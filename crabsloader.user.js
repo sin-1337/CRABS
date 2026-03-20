@@ -11,7 +11,7 @@
 // @match https://www.bondageprojects.com/*
 // @match https://www.bondage-asia.com/*
 // @match http://localhost:*/*
-// @icon https://cdn.jsdelivr.net/gh/sin-1337/CRABS@Alpha/images/CRABS_Logo.png
+// @icon https://sin-1337.github.io/CRABS/Alpha/images/CRABS_Logo.png
 // @grant none
 // @run-at document-end
 // ==/UserScript==
