@@ -302,11 +302,11 @@ export abstract class Assets {
 	/**
 	 * simply outputs a string with the image path 
 	 * @param {string} key - Image key from the assets object
-	 * @returns {string} URL to image.
+	 * @returns {string} Full path URL to image.
 	 */
 	public static getimage(key: string): string {
 		if (key in Assets.IMAGES.image) {
-			return Assets.IMAGES.image[key].file;
+			return `${Assets.basePath}${Assets.IMAGES.image[key].file}`;
 		}
 		return Assets.IMAGES.image["error"].file;
 	}
@@ -341,15 +341,15 @@ export abstract class Assets {
 		const alt = alt_override || images[key].alt || key; //fall back to the key
 
 		let html = "";
-		if (tooltip != "") html += `<div class='CRABS_tooltip-wrapper'>`; // skip the tool tip if string wasn't set
-		html += `<img `;
-		if (data) html += `data-${data[0]}=${data[1]} `;
-		if (alt != "") html += `alt='${alt}' `;
-		html += `src='${Assets.IMAGES.basePath}${icon}' `;
+		if (tooltip != "") html += `< div class='CRABS_tooltip-wrapper' > `; // skip the tool tip if string wasn't set
+		html += `< img`;
+		if (data) html += `data - ${data[0]}=${data[1]} `;
+		if (alt != "") html += `alt = '${alt}' `;
+		html += `src = '${Assets.IMAGES.basePath}${icon}' `;
 		html += `class='${css_class} || ""'`;
-		if (css_style != "") html += `style="${css_style}"`;
-		html += `>`;
-		if (tooltip != "") html += `<div class='CRABS_tooltip'>${tooltip}</div>`;
+		if (css_style != "") html += `style = "${css_style}"`;
+		html += `> `;
+		if (tooltip != "") html += `< div class='CRABS_tooltip' > ${tooltip} </div>`;
 		if (tooltip != "") html += `</div>`;  // this is for the tooltip wrapper
 		return html;
 	}
