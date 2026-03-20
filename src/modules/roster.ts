@@ -12,7 +12,7 @@
 
 import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
-import { Mod } from "./crossmod";
+import { CrossMod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -284,7 +284,7 @@ export class Roster extends CRABS_Base {
 			// person is a lover
 			player_icons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
-			if (Mod.detectMod("BCTweaks")) {
+			if (CrossMod.detectMod("BCTweaks")) {
 				// BCTweaks mod is found
 				if (
 					Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
