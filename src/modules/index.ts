@@ -4,6 +4,7 @@ export * from "./assets";
 export * from "./banner";
 export * from "./base";
 export * from "./crossmod";
+export * from "./drawer";
 export * from "./help";
 export * from "./roster";
 export * from "./whisperplus";

@@ -1,0 +1,49 @@
+#crabs-drawer {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  height: auto;
+  max-height: 80vh;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth "out-back" feel */
+}
+
+/* State when closed: Moved completely right except for the tab */
+#crabs-drawer.drawer-closed {
+  transform: translateX(calc(100% - 40px));
+}
+
+/* State when open */
+#crabs-drawer.drawer-open {
+  transform: translateX(0);
+}
+
+/* The small tab styling */
+#drawer-tab {
+  width: 40px;
+  height: 40px;
+  background: #222;
+  border: 1px solid #efb0e2;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#drawer-tab img {
+  width: 24px;
+  filter: drop-shadow(0 0 2px #efb0e2);
+}
+
+/* Ensure the roster content fits nicely */
+.drawer-content {
+  background: #1a1a1a;
+  border-left: 1px solid #efb0e2;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}

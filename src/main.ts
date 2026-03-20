@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer } from "./modules";
 
 
 //register the mod
@@ -18,6 +18,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
+const DRAWER = new Drawer(CRABS, ROSTER);
 
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();
@@ -45,6 +46,22 @@ function drawbanner() {
 	};
 	BANNER.drawBanner(extraData);
 }
+
+/**
+ * Hook the native Exit function to ensure the drawer hides 
+ * even if the server message is delayed.
+ */
+const nativeChatRoomExit = window.ChatRoomExit;
+
+window.ChatRoomExit = function () {
+	// Call the original game function
+	if (typeof nativeChatRoomExit === "function") {
+		nativeChatRoomExit();
+	}
+
+	// Trigger our drawer visibility logic
+	DRAWER.updateVisibility();
+};
 
 // TODO: create ui to turn this off!!
 // TODO: This only triggers on rooms I didn't make, why?

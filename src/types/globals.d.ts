@@ -50,6 +50,20 @@ declare global {
 	}
 
 	// BC objects
+
+	interface Window {
+		PlayerFocus: typeof Roster.showPlayerFocus;
+		sendWhisper: typeof WhisperPlus.sentWhisper;
+		fakePlayerCommand: typeof Roster.fakePlayerCommand;
+		crabsCloseItem: typeof Roster.close;
+		ChatRoomMessageWhisperPlus: typeof WhisperPlus.ChatRoomMessageWhisperPlusClick;
+		crabsHelp: typeof HELP.showHelp;
+		CommandSet(payload: string): void;
+
+		// Add this line here
+		ChatRoomExit(): void;
+	}
+
 	interface Lovership {
 		Name: string;
 		MemberNumber?: number;
@@ -138,6 +152,7 @@ declare global {
 	function CommandCombine(command: Array<any>);
 	function CharacterGetEffects(Player: PlayerCharacter): Array<string>;
 	function CharacterNickname(Player: PlayerCharacter): string;
+	function ChatRoomExit(): void;
 	function ChatRoomFocusCharacter(player: PlayerCharacter): void;
 	function ChatRoomGenerateChatRoomChatMessage(
 		type: string,
