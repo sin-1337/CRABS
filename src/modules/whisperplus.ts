@@ -75,6 +75,24 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
+	 * Registers message handlers to stylize Whisper+ messages in the chat log.
+	 */
+	public setupMessageHandlers(): void {
+		ChatRoomRegisterMessageHandler({
+			Description: "Stylize Whisper+ messages",
+			Priority: 450, // Runs late in the pipeline, just before display
+			Callback: (data: any, _sender: any, msg: string, _metadata: any) => {
+				if (data.Type === "Whisper" && msg.includes("+:")) {
+					// Replaces the raw "+:" with a stylized tag and hides the original
+					const stylizedTag = '<span style="color: #ff99bb; font-weight: bold; text-shadow: 1px 1px 2px #000;">[W+]<span style="display:none;">+:</span></span>';
+					return { msg: msg.replace("+:", stylizedTag) };
+				}
+				return false;
+			}
+		});
+	}
+
+	/**
 	 * Parses the command arguments to extract member number and message
 	 *
 	 * @param {string} args - The arguments string passed to the command

@@ -21,6 +21,8 @@ const HELP = new Help(CRABS);
 
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();
+// Message handler styles the whisper+ messages
+WHISPERPLUS.setupMessageHandlers();
 
 // print version and confirm load success in console
 console.log(`CRABS v${VERSION} Loaded`); // do not remove
