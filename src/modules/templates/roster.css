@@ -177,10 +177,13 @@
 
 .CRABS_status-frame {
   white-space: nowrap;
-  width: auto;
-  margin-left: auto;
   overflow: visible;
-  text-overflow: ellipsis;
+  /* This forces the container to the far right of the card */
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
 }
 
 .CRABS_status-icon {
