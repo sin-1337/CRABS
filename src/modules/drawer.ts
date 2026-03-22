@@ -58,14 +58,31 @@ export class Drawer extends CRABS_Base {
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		// Check if Player exists and if they are in a room
 		const inRoom = typeof Player !== 'undefined' && Player?.LastChatRoom !== null;
 
 		if (!inRoom) {
 			this.instance.style.display = "none";
 			this.close();
+
+			// Clean up the observer when leaving a room
+			if (this.resizeObserver) {
+				this.resizeObserver.disconnect();
+				this.resizeObserver = null;
+			}
 		} else {
 			this.instance.style.display = "flex";
+
+			// --- NEW: Attach observer only when entering a room ---
+			if (!this.resizeObserver) {
+				const chatLog = document.getElementById("TextAreaChatLog");
+				if (chatLog) {
+					this.resizeObserver = new ResizeObserver(() => this.syncToChat());
+					this.resizeObserver.observe(chatLog);
+					this.syncToChat(); // Force an immediate sync
+				}
+			}
+			// ------------------------------------------------------
+
 			this.refresh();
 		}
 	}
@@ -86,13 +103,7 @@ export class Drawer extends CRABS_Base {
 	private bindEvents(): void {
 		if (!this.instance) return;
 
-		// --- Start syncing to the chat box ---
-		const chatLog = document.getElementById("TextAreaChatLog");
-		if (chatLog) {
-			this.resizeObserver = new ResizeObserver(() => this.syncToChat());
-			this.resizeObserver.observe(chatLog);
-			this.syncToChat(); // Run it once immediately
-		}
+		// Note: The ResizeObserver logic was removed from here!
 
 		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 		if (tab) {
@@ -109,7 +120,7 @@ export class Drawer extends CRABS_Base {
 				this.close();
 			});
 		}
-	} // <-- This was where the break happened!
+	}
 
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
