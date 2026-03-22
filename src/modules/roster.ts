@@ -451,30 +451,25 @@ export class Roster extends CRABS_Base {
 
 		// are we on a map?
 		if (ChatRoomMapViewIsActive()) {
-			let displaykeys = ""; // determines how to show keys (css) in the roster
+			let displaykeys = "";
 
-			// build a dictionary of the keys
 			const KEYS = {
 				keyBronze: Player.MapData.PrivateState.HasKeyBronze,
 				keySilver: Player.MapData.PrivateState.HasKeySilver,
 				keyGold: Player.MapData.PrivateState.HasKeyGold,
 			};
 
-			// loop the dictionary and extract the key and name
 			for (const [KEY, VALUE] of Object.entries(KEYS)) {
-				// if key is found, set icon and tool tip
 				displaykeys += Assets.printimage({ key: VALUE ? KEY : "keyNull" });
 			}
 
-			// replace the template objects for the values we determined above.
-			templatevars["online_player_border"] = "2px";
-			templatevars["collectedKeys"] =
-				`<td style="border-right: 0px">${displaykeys}</td>`;
-			templatevars["columncount"] = "5";
+			// Inject as a Flex cell. No border inline-styles needed!
+			templatevars["collectedKeys"] = `
+                <div class="CRABS_status_cell">
+                    <div class="CRABS_roster_header_align">${displaykeys}</div>
+                </div>`;
 		} else {
-			templatevars["online_players_border"] = "0px";
 			templatevars["collectedKeys"] = "";
-			templatevars["columncount"] = "4"; // no keys? colspan is 4
 		}
 
 		// start the tabble

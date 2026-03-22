@@ -6,14 +6,26 @@
   color: white;
 }
 
-.CRABS_room-status > tbody > tr > td {
+.CRABS_room-status {
+  display: flex;
+  width: 100% !important;
+  color: white;
+  align-items: stretch; /* Ensures all dividers are the same height */
+  margin-bottom: 4px; /* Tiny gap before the cards start */
+}
+
+.CRABS_status_cell {
+  flex: 1; /* Magic: Automatically divides width equally between 4 or 5 items */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 4px;
-  text-align: center;
-  vertical-align: middle;
-  width: calc(100% / var(--col-count, 4));
-  overflow: visible;
-  height: auto;
-  border-right: 1px solid #ccc; /* Add left border */
+  border-right: 1px solid #ccc; /* Add divider to the right of every cell */
+}
+
+/* Magic: Automatically removes the divider from whatever the very last cell is */
+.CRABS_status_cell:last-child {
+  border-right: none;
 }
 
 .CRABS_roster_table_shrink {
