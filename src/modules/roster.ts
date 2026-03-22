@@ -325,6 +325,11 @@ export class Roster extends CRABS_Base {
 		args: string,
 		wrapper: boolean = true
 	): string {
+
+		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) {
+			return "";
+		}
+
 		const SPLITARGS = args.split(" ");
 
 		let me_output_html: string = "" // holds data about user who ran script

@@ -72,7 +72,12 @@ export class Drawer extends CRABS_Base {
 
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Roster");
-		if (content && typeof Player !== 'undefined' && Player?.LastChatRoom !== null) {
+
+		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
+		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
+		const isPlayerReady = typeof Player !== 'undefined' && Player?.LastChatRoom !== null;
+
+		if (content && isPlayerReady && isRoomReady) {
 			content.innerHTML = this.rosterModule.buildroster("all");
 			this.rosterModule.initScrollingOverflow();
 		}
