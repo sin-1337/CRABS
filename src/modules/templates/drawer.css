@@ -1,16 +1,15 @@
 #crabs-drawer {
   position: fixed;
-  /* 1. POSITION: Moves it down to clear the button bar (approx 8.5vh in BC) */
-  top: 9vh;
-  /* 2. ANCHOR: We use a percentage from the right to keep it in the chat column */
+  /* 1. TOP ANCHOR: Stays relative to the game's top bar percentage */
+  top: 7.5%;
   right: 0;
 
-  /* 3. HEIGHT: Stops just before the chat input area */
-  height: 72vh;
-
-  /* 4. WIDTH: Adjusted to cover the full chat column (approx 45% of screen width) */
-  width: 45vw;
-  min-width: 420px;
+  /* 2. SCALEABLE HEIGHT: Adjusts based on the browser's height */
+  height: 68%;
+  /* 3. SCALEABLE WIDTH: Adjusts based on the browser's width */
+  width: 25%;
+  /* Safety minimum so it doesn't vanish on tiny screens */
+  min-width: 380px;
 
   z-index: 9999;
   display: flex;
@@ -19,7 +18,6 @@
   will-change: transform;
 }
 
-/* State when closed */
 #crabs-drawer.drawer-closed {
   transform: translateX(100%);
 }
@@ -28,7 +26,6 @@
   transform: translateX(0);
 }
 
-/* The small tab styling */
 #drawer-tab {
   width: 44px;
   height: 44px;
@@ -43,19 +40,12 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
   position: absolute;
-  /* Keep tab pinned to the left edge of the drawer */
   left: -43px;
-  /* Offset from the top of the drawer body */
-  margin-top: 15px;
+  /* Vertical positioning relative to the drawer top */
+  top: 20px;
   z-index: 10000;
 }
 
-#drawer-tab img {
-  width: 26px;
-  filter: drop-shadow(0 0 2px #efb0e2);
-}
-
-/* The Roster Window Body */
 .drawer-content {
   width: 100%;
   height: 100%;
@@ -68,18 +58,16 @@
   border-radius: 12px 0 0 12px;
 }
 
-/* FIXING THE INTERNALS: Ensuring the table fills the wide drawer */
+/* 4. CONTENT FIX: Stop the vertical stretching once and for all */
 #CRABS_Roster,
 .CRABS_wrapper,
-.CRABS_roster_center_table,
-.CRABS_card-container {
+.CRABS_roster_center_table {
   width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
+  height: auto !important;
+  display: block !important;
 }
 
-.CRABS_roster_table_shrink table {
-  width: 98% !important;
-  margin: 0 auto;
-  table-layout: fixed; /* Prevents long names from breaking the width */
+.CRABS_card {
+  height: auto !important;
+  margin-bottom: 8px;
 }
