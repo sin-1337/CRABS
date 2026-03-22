@@ -26,18 +26,16 @@
   transform: translateX(0);
 }
 
-#drawer-tab {
-  width: 44px;
-  height: 44px;
-  background: #222;
-  border: 1px solid #efb0e2;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+#drawer-tab img {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px #efb0e2);
+  /* This ensures clicking the image still counts as clicking the tab */
+  pointer-events: none; 
+}
 
   position: absolute;
   left: -43px;
