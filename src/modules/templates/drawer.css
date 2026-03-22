@@ -1,13 +1,17 @@
 #crabs-drawer {
   position: fixed;
-  /* Adjust this to exactly match the bottom of the purple button bar */
-  top: 68px;
+  /* 1. POSITION: Moves it down to clear the button bar (approx 8.5vh in BC) */
+  top: 9vh;
+  /* 2. ANCHOR: We use a percentage from the right to keep it in the chat column */
   right: 0;
-  /* Reaches exactly to the top of the chat input area */
-  height: calc(100% - 145px);
-  /* Width set to cover the chat column (approx 45% of screen) */
-  width: 45%;
-  min-width: 380px;
+
+  /* 3. HEIGHT: Stops just before the chat input area */
+  height: 72vh;
+
+  /* 4. WIDTH: Adjusted to cover the full chat column (approx 45% of screen width) */
+  width: 45vw;
+  min-width: 420px;
+
   z-index: 9999;
   display: flex;
   align-items: flex-start;
@@ -15,7 +19,7 @@
   will-change: transform;
 }
 
-/* Hide the body completely by moving it 100% of its own width to the right */
+/* State when closed */
 #crabs-drawer.drawer-closed {
   transform: translateX(100%);
 }
@@ -38,43 +42,44 @@
   cursor: pointer;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
-  /* POSITIONING */
   position: absolute;
-  /* Pushes tab outside the drawer body so it's always visible */
+  /* Keep tab pinned to the left edge of the drawer */
   left: -43px;
-  /* Vertical offset from the top of the drawer */
-  margin-top: 10px;
+  /* Offset from the top of the drawer body */
+  margin-top: 15px;
   z-index: 10000;
 }
 
 #drawer-tab img {
-  width: 24px;
+  width: 26px;
   filter: drop-shadow(0 0 2px #efb0e2);
 }
 
 /* The Roster Window Body */
 .drawer-content {
-  width: 100%; /* Fills the 45% parent width */
+  width: 100%;
   height: 100%;
   background: #1a1a1a;
-  border-left: 2px solid #efb0e2;
+  border: 2px solid #efb0e2;
+  border-right: none;
   box-shadow: -10px 0 20px rgba(0, 0, 0, 0.7);
   overflow-y: auto;
   overflow-x: hidden;
-  /* Optional: gives it that slight rounded look from your drawing */
-  border-radius: 10px 0 0 10px;
+  border-radius: 12px 0 0 12px;
 }
 
-/* Ensure the roster content expands to fill the new width */
+/* FIXING THE INTERNALS: Ensuring the table fills the wide drawer */
 #CRABS_Roster,
 .CRABS_wrapper,
+.CRABS_roster_center_table,
 .CRABS_card-container {
   width: 100% !important;
+  max-width: 100% !important;
   box-sizing: border-box;
 }
 
-/* Fix for the internal roster table scaling */
 .CRABS_roster_table_shrink table {
-  width: 95% !important;
+  width: 98% !important;
   margin: 0 auto;
+  table-layout: fixed; /* Prevents long names from breaking the width */
 }
