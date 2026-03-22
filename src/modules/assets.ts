@@ -165,22 +165,26 @@ export abstract class Assets {
 			keyGold: {
 				file: "keyGold.png",
 				alt: "gold key",
-				toolTip: "Gold Key"
+				toolTip: "Gold Key",
+				class: "CRABS_key-icons",
 			},
 			keySilver: {
 				file: "keySilver.png",
 				alt: "silver key",
 				toolTip: "Silver Key",
+				class: "CRABS_key-icons",
 			},
 			keyBronze: {
 				file: "keyBronze.png",
 				alt: "bronze key",
 				toolTip: "Bronze Key",
+				class: "CRABS_key-icons",
 			},
 			keyNull: {
 				file: "keyNull.svg",
 				alt: "null key",
 				toolTip: "Empty Key Slot",
+				class: "CRABS_key-icons",
 			},
 
 			//Status Icons:
