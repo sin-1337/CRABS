@@ -1,16 +1,6 @@
 #crabs-drawer {
   position: fixed;
-  /* 1. TOP ANCHOR: Stays relative to the game's top bar percentage */
-  top: 7.5%;
-  right: 0;
-
-  /* 2. SCALEABLE HEIGHT: Adjusts based on the browser's height */
-  height: 68%;
-  /* 3. SCALEABLE WIDTH: Adjusts based on the browser's width */
-  width: 25%;
-  /* Safety minimum so it doesn't vanish on tiny screens */
-  min-width: 380px;
-
+  /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
   z-index: 9999;
   display: flex;
   align-items: flex-start;
@@ -41,20 +31,19 @@
 
   position: absolute;
   left: -43px;
-  /* Vertical positioning relative to the drawer top */
-  top: 20px;
+  top: 10px; /* Locked safely 10px from the top of the drawer */
   z-index: 10000;
 }
 
+/* Includes the fix to prevent the SVG face from exploding */
 #drawer-tab img {
   width: 26px !important;
   height: 26px !important;
   max-width: 26px !important;
   max-height: 26px !important;
   object-fit: contain;
-  filter: drop-shadow(0 0 2px #efb0e2);
-  /* This ensures clicking the image still counts as clicking the tab */
   pointer-events: none;
+  filter: drop-shadow(0 0 2px #efb0e2);
 }
 
 .drawer-content {
@@ -69,7 +58,7 @@
   border-radius: 12px 0 0 12px;
 }
 
-/* 4. CONTENT FIX: Stop the vertical stretching once and for all */
+/* Force the internal tables to behave */
 #CRABS_Roster,
 .CRABS_wrapper,
 .CRABS_roster_center_table {

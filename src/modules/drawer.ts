@@ -9,6 +9,7 @@ export class Drawer extends CRABS_Base {
 	private readonly DRAWER_ID: string = "crabs-drawer";
 	private instance: HTMLElement | null = null;
 	private rosterModule: Roster;
+	private resizeObserver: ResizeObserver | null = null;
 
 	constructor(CRABS: ModSDKModAPI, roster: Roster) {
 		super(CRABS);
@@ -28,10 +29,27 @@ export class Drawer extends CRABS_Base {
 			document.body.appendChild(element);
 			this.instance = element;
 			this.bindEvents();
-
-			// REMOVE the direct call to this.updateVisibility() here
-			// It will be called by main.ts once the player is valid.
 		}
+	}
+
+	/**
+	 * Magnetically locks the drawer to the exact dimensions of the game's chat log
+	 */
+	private syncToChat(): void {
+		const chatLog = document.getElementById("TextAreaChatLog");
+		if (!chatLog || !this.instance) return;
+
+		// Get the precise pixel coordinates of the chat box
+		const rect = chatLog.getBoundingClientRect();
+
+		// Apply them directly to the drawer
+		this.instance.style.top = `${rect.top}px`;
+		this.instance.style.width = `${rect.width}px`;
+		this.instance.style.height = `${rect.height}px`;
+
+		// Calculate the exact right offset to account for letterboxing
+		const rightOffset = document.documentElement.clientWidth - rect.right;
+		this.instance.style.right = `${rightOffset}px`;
 	}
 
 	/**
@@ -54,14 +72,24 @@ export class Drawer extends CRABS_Base {
 
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Roster");
-		if (content && Player.LastChatRoom !== null) {
+		if (content && typeof Player !== 'undefined' && Player?.LastChatRoom !== null) {
 			content.innerHTML = this.rosterModule.buildroster("all");
 			this.rosterModule.initScrollingOverflow();
 		}
 	}
 
 	private bindEvents(): void {
-		const tab = this.instance?.querySelector("#drawer-tab") as HTMLElement;
+		if (!this.instance) return;
+
+		// --- Start syncing to the chat box ---
+		const chatLog = document.getElementById("TextAreaChatLog");
+		if (chatLog) {
+			this.resizeObserver = new ResizeObserver(() => this.syncToChat());
+			this.resizeObserver.observe(chatLog);
+			this.syncToChat(); // Run it once immediately
+		}
+
+		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 		if (tab) {
 			tab.addEventListener("click", () => {
 				if (!this.isOpen) this.refresh();
@@ -69,17 +97,18 @@ export class Drawer extends CRABS_Base {
 			});
 		}
 
-		// Close button listener
-		const closeBtn = this.instance?.querySelector(".CRABS_close") as HTMLElement;
+		const closeBtn = this.instance.querySelector(".CRABS_close") as HTMLElement;
 		if (closeBtn) {
 			closeBtn.addEventListener("click", (e) => {
 				e.stopPropagation();
 				this.close();
 			});
 		}
-	}
+	} // <-- This was where the break happened!
 
-	public toggle(): void { this.isOpen ? this.close() : this.open(); }
+	public toggle(): void {
+		this.isOpen ? this.close() : this.open();
+	}
 
 	public open(): void {
 		if (!this.instance) return;
@@ -92,4 +121,4 @@ export class Drawer extends CRABS_Base {
 		this.isOpen = false;
 		this.instance.classList.replace("drawer-open", "drawer-closed");
 	}
-}
+} 
