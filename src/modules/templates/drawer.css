@@ -1,10 +1,13 @@
 #crabs-drawer {
   position: fixed;
-  /* Adjust this value (e.g., 70px) to match the height of your top button bar */
-  top: 70px;
+  /* Adjust this to exactly match the bottom of the purple button bar */
+  top: 68px;
   right: 0;
-  /* Scales perfectly with the app window height */
-  height: calc(100% - 70px);
+  /* Reaches exactly to the top of the chat input area */
+  height: calc(100% - 145px);
+  /* Width set to cover the chat column (approx 45% of screen) */
+  width: 45%;
+  min-width: 380px;
   z-index: 9999;
   display: flex;
   align-items: flex-start;
@@ -12,10 +15,7 @@
   will-change: transform;
 }
 
-/* State when closed: 
-   We move it 100% off-screen. Since the tab is positioned 
-   negatively (left: -44px), it stays visible while the body is hidden.
-*/
+/* Hide the body completely by moving it 100% of its own width to the right */
 #crabs-drawer.drawer-closed {
   transform: translateX(100%);
 }
@@ -38,14 +38,13 @@
   cursor: pointer;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
-  /* POSITIONING FIXES */
+  /* POSITIONING */
   position: absolute;
-  /* Moves the tab to the left of the drawer edge */
-  left: -44px;
-  /* Moves tab down so it doesn't peak over the top round corner */
-  margin-top: 15px;
-  /* Overlaps the drawer border by 1px to remove the white/purple gap */
-  margin-right: -1px;
+  /* Pushes tab outside the drawer body so it's always visible */
+  left: -43px;
+  /* Vertical offset from the top of the drawer */
+  margin-top: 10px;
+  z-index: 10000;
 }
 
 #drawer-tab img {
@@ -55,17 +54,27 @@
 
 /* The Roster Window Body */
 .drawer-content {
-  width: 380px; /* Set this to your preferred roster width */
+  width: 100%; /* Fills the 45% parent width */
   height: 100%;
   background: #1a1a1a;
-  border-left: 1px solid #efb0e2;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+  border-left: 2px solid #efb0e2;
+  box-shadow: -10px 0 20px rgba(0, 0, 0, 0.7);
   overflow-y: auto;
   overflow-x: hidden;
+  /* Optional: gives it that slight rounded look from your drawing */
+  border-radius: 10px 0 0 10px;
 }
 
-/* Ensure the roster internal table fits the width */
-#CRABS_Roster {
-  width: 100%;
-  padding: 5px;
+/* Ensure the roster content expands to fill the new width */
+#CRABS_Roster,
+.CRABS_wrapper,
+.CRABS_card-container {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* Fix for the internal roster table scaling */
+.CRABS_roster_table_shrink table {
+  width: 95% !important;
+  margin: 0 auto;
 }
