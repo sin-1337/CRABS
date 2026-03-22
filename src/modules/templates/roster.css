@@ -1,11 +1,4 @@
-.CRABS_room-status {
-  width: 100% !important;
-  table-layout: fixed;
-  overflow: visible;
-  border-collapse: collapse;
-  color: white;
-}
-
+/* --- THE HEADER (FLEXBOX) --- */
 .CRABS_room-status {
   display: flex;
   width: 100% !important;
@@ -15,7 +8,7 @@
 }
 
 .CRABS_status_cell {
-  flex: 1; /* Magic: Automatically divides width equally between 4 or 5 items */
+  flex: 1; /* Automatically divides width equally between 4 or 5 items */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -23,7 +16,7 @@
   border-right: 1px solid #ccc; /* Add divider to the right of every cell */
 }
 
-/* Magic: Automatically removes the divider from whatever the very last cell is */
+/* Automatically removes the divider from whatever the very last cell is */
 .CRABS_status_cell:last-child {
   border-right: none;
 }
@@ -42,7 +35,6 @@
 
 .CRABS_roster_header_align img,
 .CRABS_roster_header_align svg {
-  /*height: 1em;*/
   vertical-align: middle;
 }
 
@@ -51,6 +43,7 @@
   justify-content: center;
 }
 
+/* --- THE ROSTER GRID --- */
 .CRABS_card-container {
   display: grid;
   grid-template-columns: 50% 50%;
@@ -62,14 +55,17 @@
   cursor: pointer;
 }
 
+/* --- THE PLAYER CARDS (FLEXBOX) --- */
 .CRABS_card {
+  display: flex;
+  align-items: center; /* Centers the left badge with the right info block */
   border-radius: 8px;
-  padding: 2px 4px;
-  width: 99%;
+  padding: 4px;
+  width: 100%;
+  box-sizing: border-box; /* Critical so padding doesn't break the 50/50 grid */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  word-wrap: break-word;
-  border-collapse: collapse;
   position: relative;
+  background-color: transparent; /* or whatever you use to ensure the gradient shows */
 }
 
 .CRABS_card::after {
@@ -87,6 +83,35 @@
   );
 }
 
+/* The Left Column (Badge) */
+.CRABS_card_badge {
+  width: 37px;
+  flex-shrink: 0; /* Prevents the badge from squishing if the name is long */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 6px; /* Spacing between badge and name */
+}
+
+/* The Right Column (Name + Details) */
+.CRABS_card_info {
+  flex: 1; /* Tells this column to fill the rest of the card */
+  display: flex;
+  flex-direction: column; /* Stacks the name on top of the icons */
+  min-width: 0; /* Allows the text overflow/scroller to work inside a flexbox */
+  justify-content: center;
+}
+
+/* The Bottom Row of the Right Column (Icons & Status) */
+.CRABS_card_details {
+  display: flex;
+  justify-content: space-between; /* Pushes PlayerIcons left and StatusIcons right! */
+  align-items: center;
+  width: 100%;
+  margin-top: 2px;
+}
+
+/* --- SCROLLING TEXT & OVERFLOW --- */
 .CRABS_overflow-wrapper {
   overflow: hidden;
   width: 100%;
@@ -100,7 +125,6 @@
 }
 
 .CRABS_player-badge img:hover {
-  /*--border-color: lightyellow;*/ /* Lighten border color */
   filter: brightness(1.5); /* Brighten the image */
 }
 
@@ -138,6 +162,7 @@
   transform: translateX(var(--scroll-distance, -100%));
 }
 
+/* --- ICONS & STATUSES --- */
 .CRABS_key-icons {
   height: 1em; /* Set the cell height */
   min-height: 1em; /* Enforce the minimum height */
@@ -151,7 +176,6 @@
 }
 
 .CRABS_status-frame {
-  text-align: right;
   white-space: nowrap;
   width: auto;
   overflow: visible;
@@ -161,7 +185,6 @@
 .CRABS_status-icon {
   border-radius: 30px;
   height: 1em;
-  /*padding: 5px;*/
   display: inline-block;
   filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
