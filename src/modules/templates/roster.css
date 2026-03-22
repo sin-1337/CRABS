@@ -178,6 +178,7 @@
 .CRABS_status-frame {
   white-space: nowrap;
   width: auto;
+  margin-left: auto;
   overflow: visible;
   text-overflow: ellipsis;
 }
