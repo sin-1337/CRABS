@@ -1,27 +1,24 @@
 #crabs-drawer {
   position: fixed;
   /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
-  z-index: 2147483647 !important; /* Maximum possible z-index */
+  z-index: 2147483647 !important;
   display: flex;
   align-items: flex-start;
-  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: width;
-  pointer-events: none; /* Let clicks pass through to the game */
-  
-  /* Debug styling - can be removed later */
-  border-right: 1px solid rgba(239, 176, 226, 0.3);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+  pointer-events: none;
 }
 
 #crabs-drawer.drawer-closed {
-  width: 0 !important; /* Hide content but keep the absolute tab */
+  transform: translateX(100%);
 }
 
 #crabs-drawer.drawer-open {
-  /* Width is set dynamically by syncToChat! */
+  transform: translateX(0);
 }
 
 #drawer-tab {
-  pointer-events: auto; /* Re-enable clicks for the tab */
+  pointer-events: auto;
   width: 44px;
   height: 44px;
   background: #222;
@@ -35,9 +32,17 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
   position: absolute;
-  left: -44px; /* Move slightly more to the left */
-  top: 10px; /* Locked safely 10px from the top of the drawer */
+  left: -44px;
+  top: 10px;
   z-index: 2147483647 !important;
+
+  /* Keep tab visible when parent is translated */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#crabs-drawer.drawer-closed #drawer-tab {
+  /* Counter-act the parent's translateX(100%) to stay at the screen edge */
+  transform: translateX(0); 
 }
 
 /* Add a fallback indicator in case the image fails to load */
