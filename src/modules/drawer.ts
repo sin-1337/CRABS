@@ -38,7 +38,10 @@ export class Drawer extends CRABS_Base {
 		if (this.instance) return; // already initialized
 
 		const templateVars = {
-			Help: Assets.printimage({ key: "help" }),
+			Help: Assets.printimage({ 
+				key: "help", 
+				css_class_override: "CRABS_Drawer_Header_Icon" 
+			}),
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({
 				key: "close",
