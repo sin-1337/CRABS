@@ -23,9 +23,10 @@ export class Help extends CRABS_Base {
 	/** 
 	 * Shows help output
 	 * 
+	 * @param {boolean} wrapper - Should we draw the wrapper?
 	 * @returns {string} Completed HTML for help output.
 	 */
-	public showHelp(): string {
+	public showHelp(wrapper: boolean = true): string {
 		let output = `<table style="width: 100%"><tr><td>
             <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
             <hr>
@@ -118,6 +119,6 @@ export class Help extends CRABS_Base {
 			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Help"] })
 		}
 
-		return (this.template(helptemplate, templatevars, true, wrappervars));
+		return (this.template(helptemplate, templatevars, wrapper, wrappervars));
 	}
 }

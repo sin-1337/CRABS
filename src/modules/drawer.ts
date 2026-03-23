@@ -5,16 +5,21 @@ import { Roster } from "./roster";
 import "./templates/drawer.css";
 import drawertemplate from "./templates/drawer.html";
 
+import { Help } from "./help";
+
 export class Drawer extends CRABS_Base {
 	private isOpen: boolean = false;
 	private readonly DRAWER_ID: string = "crabs-drawer";
 	private instance: HTMLElement | null = null;
 	private rosterModule: Roster;
+	private helpModule: Help;
 	private resizeObserver: ResizeObserver | null = null;
+	private showingHelp: boolean = false;
 
-	constructor(CRABS: ModSDKModAPI, roster: Roster) {
+	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help) {
 		super(CRABS);
 		this.rosterModule = roster;
+		this.helpModule = help;
 		this.init();
 	}
 
@@ -128,14 +133,21 @@ export class Drawer extends CRABS_Base {
 
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Roster");
+		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
 
 		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
-			// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
-			content.innerHTML = this.rosterModule.buildroster("all", false);
-			this.rosterModule.initScrollingOverflow();
+			if (this.showingHelp) {
+				if (title) title.textContent = "CRABS: Help";
+				content.innerHTML = this.helpModule.showHelp(false);
+			} else {
+				if (title) title.textContent = "CRABS: Roster";
+				// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
+				content.innerHTML = this.rosterModule.buildroster("all", false);
+				this.rosterModule.initScrollingOverflow();
+			}
 			this.syncToChat(); // Keep aligned
 		}
 	}
@@ -155,7 +167,8 @@ export class Drawer extends CRABS_Base {
 		const helpBtn = this.instance.querySelector(".CRABS_Help_Icon") as HTMLElement;
 		if (helpBtn) {
 			helpBtn.addEventListener("click", () => {
-				this.fakePlayerCommand("help");
+				this.showingHelp = !this.showingHelp;
+				this.refresh();
 			});
 		}
 
@@ -163,7 +176,12 @@ export class Drawer extends CRABS_Base {
 		if (closeBtn) {
 			closeBtn.addEventListener("click", (e) => {
 				e.stopPropagation();
-				this.close();
+				if (this.showingHelp) {
+					this.showingHelp = false;
+					this.refresh();
+				} else {
+					this.close();
+				}
 			});
 		}
 	}
