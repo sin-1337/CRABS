@@ -10,7 +10,8 @@
 }
 
 #crabs-drawer.drawer-closed {
-  transform: translateX(100%);
+  /* Move it slightly more than 100% to ensure shadows and borders are cleared */
+  transform: translateX(calc(100% + 20px));
 }
 
 #crabs-drawer.drawer-open {
@@ -36,13 +37,39 @@
   top: 10px;
   z-index: 2147483647 !important;
 
-  /* Keep tab visible when parent is translated */
+  /* Smoother transition for the tab's handle-like behavior */
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Ensure the tab is always interactive and visible at the edge of the chat */
 #crabs-drawer.drawer-closed #drawer-tab {
-  /* Counter-act the parent's translateX(100%) to stay at the screen edge */
-  transform: translateX(0); 
+  transform: translateX(0);
+}
+
+.drawer-content {
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  background: #1a1a1a;
+  border: 2px solid #efb0e2;
+  border-right: none;
+  box-shadow: -10px 0 20px rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 12px 0 0 12px;
+  
+  /* Kill visibility when closed to prevent any "peeking" or interaction */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#crabs-drawer.drawer-closed .drawer-content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#crabs-drawer.drawer-open .drawer-content {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Add a fallback indicator in case the image fails to load */

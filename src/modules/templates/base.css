@@ -98,23 +98,53 @@
   padding: 6px 10px;
   border-radius: 4px;
   position: absolute;
-  bottom: 120%; 
+  bottom: 125%; /* Default: Above the icon */
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
   z-index: 10000; 
   transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
 }
 
-.CRABS_tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%; 
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 5px;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+/* 
+   Flip tooltips for the first 2 rows of cards (1st column & 2nd column)
+   so they don't get cut off by the top of the drawer.
+*/
+#CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip {
+  bottom: auto;
+  top: 125%;
+}
+
+/* Flip the arrow for the top-row tooltips as well */
+#CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
+}
+
+/* --- Edge Clipping Prevention --- */
+
+/* 1. Left edge: Badges in the left column (odd cards) */
+#CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip {
+  left: 0;
+  transform: translateX(0);
+}
+#CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after {
+  left: 10px;
+  transform: translateX(0);
+}
+
+/* 2. Right edge: Status icons in the right column (even cards) */
+#CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+#CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after {
+  left: auto;
+  right: 10px;
+  transform: translateX(0);
 }
 
 .CRABS_tooltip-wrapper:hover .CRABS_tooltip {
