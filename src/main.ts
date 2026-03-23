@@ -95,17 +95,31 @@ ChatRoomRegisterMessageHandler({
 	},
 });
 
+/**
+ * Periodically checks if the player is in a room and updates drawer visibility.
+ * This handles cases where the mod loads while already in a room or if server messages are missed.
+ */
 function startupVisibilityCheck() {
-	// Wait for the game to be "Ready"
 	if (typeof Player !== 'undefined' && Player && Player.MemberNumber) {
 		DRAWER.updateVisibility();
-	} else {
-		// If player isn't ready yet, check again in a second
-		setTimeout(startupVisibilityCheck, 999);
 	}
+	
+	// Keep checking periodically to ensure UI state remains correct
+	setTimeout(startupVisibilityCheck, 3000);
 }
 
 startupVisibilityCheck();
+
+/**
+ * Hook into the room synchronization process. 
+ * This is the most reliable way to know when we are fully joined into a room.
+ */
+CRABS.hookFunction("ChatRoomSync", 0, (args, next) => {
+	const result = next(args);
+	// Small delay to let the UI elements (like TextAreaChatLog) be created by the game
+	setTimeout(() => DRAWER.updateVisibility(), 100);
+	return result;
+});
 
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
