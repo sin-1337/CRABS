@@ -77,11 +77,16 @@ ChatRoomRegisterMessageHandler({
 			data.Content === "ServerEnter" &&
 			data.Sender === Player.MemberNumber
 		) {
+			// Trigger drawer visibility immediately on entry
+			DRAWER.updateVisibility();
+
 			// work on a delay
 			setTimeout(() => {
 				// configure extra roster input to the banner
 				if (!ChatRoomData) return; // bail if ChatRoomData isn't initialized
 				drawbanner();
+				// Double-check visibility after the UI has had time to settle
+				DRAWER.updateVisibility();
 			}, 3600);
 		}
 

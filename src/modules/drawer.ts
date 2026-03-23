@@ -18,13 +18,23 @@ export class Drawer extends CRABS_Base {
 	}
 
 	private init(): void {
+		if (document.body) {
+			this.setupElement();
+		} else {
+			document.addEventListener("DOMContentLoaded", () => this.setupElement());
+		}
+	}
+
+	private setupElement(): void {
+		if (this.instance) return; // already initialized
+
 		const html = this.template(drawertemplate, {}, false);
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(html, 'text/html');
-		const element = doc.getElementById(this.DRAWER_ID);
+		const container = document.createElement("div");
+		container.innerHTML = html;
+		const element = container.firstElementChild as HTMLElement;
 
 		if (element) {
-			// Hide it by default before appending to body
+			// Ensure it is hidden by default and added to body
 			element.style.display = "none";
 			document.body.appendChild(element);
 			this.instance = element;
@@ -41,6 +51,9 @@ export class Drawer extends CRABS_Base {
 
 		// Get the precise pixel coordinates of the chat box
 		const rect = chatLog.getBoundingClientRect();
+		
+		// If rect has no size, wait for UI to settle
+		if (rect.width === 0 || rect.height === 0) return;
 
 		// Apply them directly to the drawer
 		this.instance.style.top = `${rect.top}px`;
@@ -58,9 +71,12 @@ export class Drawer extends CRABS_Base {
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		const inRoom = typeof Player !== 'undefined' && Player?.LastChatRoom !== null;
+		// The drawer should only be visible when actually in a chat room screen
+		const inChatRoom = typeof ChatRoomData !== 'undefined' && 
+						   ChatRoomData !== null && 
+						   (typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom");
 
-		if (!inRoom) {
+		if (!inChatRoom) {
 			this.instance.style.display = "none";
 			this.close();
 
@@ -80,6 +96,9 @@ export class Drawer extends CRABS_Base {
 					this.resizeObserver.observe(chatLog);
 					this.syncToChat(); // Force an immediate sync
 				}
+			} else {
+				// Observer exists, but maybe UI shifted
+				this.syncToChat();
 			}
 			// ------------------------------------------------------
 
@@ -92,11 +111,11 @@ export class Drawer extends CRABS_Base {
 
 		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
-		const isPlayerReady = typeof Player !== 'undefined' && Player?.LastChatRoom !== null;
 
-		if (content && isPlayerReady && isRoomReady) {
+		if (content && isRoomReady) {
 			content.innerHTML = this.rosterModule.buildroster("all");
 			this.rosterModule.initScrollingOverflow();
+			this.syncToChat(); // Keep aligned
 		}
 	}
 
