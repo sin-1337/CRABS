@@ -132,7 +132,7 @@ export class Drawer extends CRABS_Base {
 	}
 
 	public refresh(): void {
-		const content = this.instance?.querySelector("#CRABS_Roster");
+		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
 
 		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
