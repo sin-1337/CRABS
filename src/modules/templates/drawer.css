@@ -65,7 +65,8 @@
 /* Scale up header icons specifically for the drawer */
 .drawer-content .CRABS_close,
 .drawer-content .CRABS_Help_Icon,
-.drawer-content .CRABS_Drawer_Header_Icon {
+.drawer-content .CRABS_Drawer_Header_Icon,
+.drawer-content .CRABS_Drawer_Close_Icon {
   width: 1.5em; /* Increased from 0.8em */
   padding: 5px;
 }

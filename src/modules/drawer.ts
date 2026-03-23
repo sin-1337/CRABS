@@ -45,7 +45,7 @@ export class Drawer extends CRABS_Base {
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({
 				key: "close",
-				data: ["elementid", this.DRAWER_ID], 
+				css_class_override: "CRABS_Drawer_Close_Icon"
 			}),
 		};
 
