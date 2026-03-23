@@ -160,7 +160,41 @@ export class Drawer extends CRABS_Base {
 					this.whisperPlusModule.buildui(undefined, undefined, this.instance);
 				}
 			}
+			// Re-bind header buttons as they might have been part of the refresh
+			this.bindHeaderButtons();
 			this.syncToChat(); // Keep aligned
+		}
+	}
+
+	private bindHeaderButtons(): void {
+		if (!this.instance) return;
+
+		// Bind Help icon inside the drawer header
+		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Header_Icon") as HTMLElement;
+		if (helpBtn) {
+			// Remove old listener if any and add new one
+			helpBtn.replaceWith(helpBtn.cloneNode(true));
+			const newHelpBtn = this.instance.querySelector(".CRABS_Drawer_Header_Icon") as HTMLElement;
+			newHelpBtn.addEventListener("click", () => {
+				this.showingHelp = !this.showingHelp;
+				this.refresh();
+			});
+		}
+
+		// Bind Close icon inside the drawer header
+		const closeBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
+		if (closeBtn) {
+			closeBtn.replaceWith(closeBtn.cloneNode(true));
+			const newCloseBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
+			newCloseBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				if (this.showingHelp) {
+					this.showingHelp = false;
+					this.refresh();
+				} else {
+					this.close();
+				}
+			});
 		}
 	}
 
@@ -175,27 +209,7 @@ export class Drawer extends CRABS_Base {
 			});
 		}
 
-		// Bind Help icon inside the drawer header
-		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
-		if (helpBtn) {
-			helpBtn.addEventListener("click", () => {
-				this.showingHelp = !this.showingHelp;
-				this.refresh();
-			});
-		}
-
-		const closeBtn = this.instance.querySelector(".CRABS_close") as HTMLElement;
-		if (closeBtn) {
-			closeBtn.addEventListener("click", (e) => {
-				e.stopPropagation();
-				if (this.showingHelp) {
-					this.showingHelp = false;
-					this.refresh();
-				} else {
-					this.close();
-				}
-			});
-		}
+		this.bindHeaderButtons();
 	}
 
 	public toggle(): void {
