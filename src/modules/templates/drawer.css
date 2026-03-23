@@ -1,12 +1,15 @@
 #crabs-drawer {
   position: fixed;
   /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
-  z-index: 9999;
+  z-index: 2147483647 !important; /* Maximum possible z-index */
   display: flex;
   align-items: flex-start;
   transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   will-change: width;
   pointer-events: none; /* Let clicks pass through to the game */
+  
+  /* Debug styling - can be removed later */
+  border-right: 1px solid rgba(239, 176, 226, 0.3);
 }
 
 #crabs-drawer.drawer-closed {
@@ -32,9 +35,26 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
   position: absolute;
-  left: -43px;
+  left: -44px; /* Move slightly more to the left */
   top: 10px; /* Locked safely 10px from the top of the drawer */
-  z-index: 10000;
+  z-index: 2147483647 !important;
+}
+
+/* Add a fallback indicator in case the image fails to load */
+#drawer-tab::after {
+  content: "👥";
+  font-size: 20px;
+  display: none;
+}
+
+#drawer-tab img:not([src]), 
+#drawer-tab img[src=""] {
+  display: none;
+}
+
+#drawer-tab img:not([src]) + ::after,
+#drawer-tab img[src=""] + ::after {
+  display: block;
 }
 
 /* Includes the fix to prevent the SVG face from exploding */
