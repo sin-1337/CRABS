@@ -62,14 +62,12 @@ export class Drawer extends CRABS_Base {
 			return;
 		}
 
-		// Calculate 50% of the chat log's width
-		const targetWidth = rect.width * 0.5;
-		// Clamp between 400px and 800px
-		const clampedWidth = Math.min(Math.max(targetWidth, 400), 800);
+		// Calculate 100% of the chat log's width
+		const targetWidth = rect.width;
 
-		// Apply dimensions directly to the drawer
+		// Apply dimensions directly to the drawer to perfectly cover the chat log
 		this.instance.style.top = `${rect.top}px`;
-		this.instance.style.width = `${clampedWidth}px`;
+		this.instance.style.width = `${targetWidth}px`;
 		this.instance.style.height = `${rect.height}px`;
 
 		// Calculate the exact right offset to account for letterboxing
