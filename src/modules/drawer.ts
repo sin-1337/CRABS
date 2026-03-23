@@ -173,7 +173,7 @@ export class Drawer extends CRABS_Base {
 		}
 
 		// Bind Help icon inside the drawer header
-		const helpBtn = this.instance.querySelector(".CRABS_Help_Icon") as HTMLElement;
+		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
 		if (helpBtn) {
 			helpBtn.addEventListener("click", () => {
 				this.showingHelp = !this.showingHelp;
