@@ -1,4 +1,5 @@
 import { CRABS_Base } from "./base";
+import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Roster } from "./roster";
 import "./templates/drawer.css";
@@ -28,7 +29,16 @@ export class Drawer extends CRABS_Base {
 	private setupElement(): void {
 		if (this.instance) return; // already initialized
 
-		const html = this.template(drawertemplate, {}, false);
+		const templateVars = {
+			Help: Assets.printimage({ key: "help" }),
+			TitleBar: `CRABS: Roster`,
+			Close: Assets.printimage({
+				key: "close",
+				data: ["elementid", this.DRAWER_ID], 
+			}),
+		};
+
+		const html = this.template(drawertemplate, templateVars, false);
 		const container = document.createElement("div");
 		container.innerHTML = html;
 		const element = container.firstElementChild as HTMLElement;
@@ -123,7 +133,8 @@ export class Drawer extends CRABS_Base {
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
-			content.innerHTML = this.rosterModule.buildroster("all");
+			// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
+			content.innerHTML = this.rosterModule.buildroster("all", false);
 			this.rosterModule.initScrollingOverflow();
 			this.syncToChat(); // Keep aligned
 		}
@@ -132,13 +143,19 @@ export class Drawer extends CRABS_Base {
 	private bindEvents(): void {
 		if (!this.instance) return;
 
-		// Note: The ResizeObserver logic was removed from here!
-
 		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 		if (tab) {
 			tab.addEventListener("click", () => {
 				if (!this.isOpen) this.refresh();
 				this.toggle();
+			});
+		}
+
+		// Bind Help icon inside the drawer header
+		const helpBtn = this.instance.querySelector(".CRABS_Help_Icon") as HTMLElement;
+		if (helpBtn) {
+			helpBtn.addEventListener("click", () => {
+				this.fakePlayerCommand("help");
 			});
 		}
 
@@ -166,4 +183,4 @@ export class Drawer extends CRABS_Base {
 		this.isOpen = false;
 		this.instance.classList.replace("drawer-open", "drawer-closed");
 	}
-} 
+}
