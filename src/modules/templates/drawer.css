@@ -45,6 +45,7 @@
 #crabs-drawer.drawer-closed #drawer-tab {
   transform: translateX(0);
 }
+
 .drawer-content {
   pointer-events: auto;
   width: 100%;
@@ -74,7 +75,6 @@
 }
 
 .drawer-content.CRABS_wrapper {
-...
   width: 100% !important;
   margin: 0 !important;
   height: 100% !important;
