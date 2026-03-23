@@ -78,7 +78,8 @@
     cursor: pointer;
 }
 
-.CRABS_Help_Icon {
+.CRABS_Help_Icon,
+.CRABS_Drawer_Header_Icon {
     width: 0.8em;
     height: auto;
     cursor: pointer;
