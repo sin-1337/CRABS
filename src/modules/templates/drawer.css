@@ -4,19 +4,21 @@
   z-index: 9999;
   display: flex;
   align-items: flex-start;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: transform;
+  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: width;
+  pointer-events: none; /* Let clicks pass through to the game */
 }
 
 #crabs-drawer.drawer-closed {
-  transform: translateX(100%);
+  width: 0 !important; /* Hide content but keep the absolute tab */
 }
 
 #crabs-drawer.drawer-open {
-  transform: translateX(0);
+  /* Width is set dynamically by syncToChat! */
 }
 
 #drawer-tab {
+  pointer-events: auto; /* Re-enable clicks for the tab */
   width: 44px;
   height: 44px;
   background: #222;
@@ -47,6 +49,7 @@
 }
 
 .drawer-content {
+  pointer-events: auto; /* Re-enable clicks for content */
   width: 100%;
   height: 100%;
   background: #1a1a1a;

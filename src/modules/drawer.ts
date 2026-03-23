@@ -53,11 +53,18 @@ export class Drawer extends CRABS_Base {
 		const rect = chatLog.getBoundingClientRect();
 		
 		// If rect has no size, wait for UI to settle
-		if (rect.width === 0 || rect.height === 0) return;
+		if (rect.width === 0 || rect.height === 0) {
+			// Fallback: if in room but no chat log yet, try to be at right edge
+			this.instance.style.top = "0px";
+			this.instance.style.height = "100%";
+			this.instance.style.width = "400px";
+			this.instance.style.right = "0px";
+			return;
+		}
 
 		// Apply them directly to the drawer
 		this.instance.style.top = `${rect.top}px`;
-		this.instance.style.width = `${rect.width}px`;
+		this.instance.style.width = `min(400px, ${rect.width}px)`;
 		this.instance.style.height = `${rect.height}px`;
 
 		// Calculate the exact right offset to account for letterboxing
