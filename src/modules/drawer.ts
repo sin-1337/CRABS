@@ -6,6 +6,7 @@ import "./templates/drawer.css";
 import drawertemplate from "./templates/drawer.html";
 
 import { Help } from "./help";
+import { WhisperPlus } from "./whisperplus";
 
 export class Drawer extends CRABS_Base {
 	private isOpen: boolean = false;
@@ -13,13 +14,15 @@ export class Drawer extends CRABS_Base {
 	private instance: HTMLElement | null = null;
 	private rosterModule: Roster;
 	private helpModule: Help;
+	private whisperPlusModule: WhisperPlus;
 	private resizeObserver: ResizeObserver | null = null;
 	private showingHelp: boolean = false;
 
-	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help) {
+	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus) {
 		super(CRABS);
 		this.rosterModule = roster;
 		this.helpModule = help;
+		this.whisperPlusModule = whisperPlus;
 		this.init();
 	}
 
@@ -147,6 +150,12 @@ export class Drawer extends CRABS_Base {
 				// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
 				content.innerHTML = this.rosterModule.buildroster("all", false);
 				this.rosterModule.initScrollingOverflow();
+
+				// Re-attach all events scoped strictly to this drawer instance
+				if (this.instance) {
+					this.rosterModule.buildui(undefined, undefined, this.instance);
+					this.whisperPlusModule.buildui(undefined, undefined, this.instance);
+				}
 			}
 			this.syncToChat(); // Keep aligned
 		}
