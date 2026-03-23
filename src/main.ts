@@ -18,7 +18,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
-const DRAWER = new Drawer(CRABS, ROSTER, HELP);
+const DRAWER = new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();

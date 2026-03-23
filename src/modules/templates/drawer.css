@@ -45,7 +45,6 @@
 #crabs-drawer.drawer-closed #drawer-tab {
   transform: translateX(0);
 }
-
 .drawer-content {
   pointer-events: auto;
   width: 100%;
@@ -54,12 +53,28 @@
   flex-direction: column;
   overflow: hidden !important; 
   border-radius: 12px 0 0 12px;
-  
+
+  /* Scale up the base font size for the drawer */
+  font-size: 1.2rem;
+
   /* Kill visibility when closed to prevent any "peeking" or interaction */
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
+/* Scale up header icons specifically for the drawer */
+.drawer-content .CRABS_close,
+.drawer-content .CRABS_Help_Icon {
+  width: 1.5em; /* Increased from 0.8em */
+  padding: 5px;
+}
+
+.drawer-content #drawer-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
 .drawer-content.CRABS_wrapper {
+...
   width: 100% !important;
   margin: 0 !important;
   height: 100% !important;

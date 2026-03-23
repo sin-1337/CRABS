@@ -295,8 +295,7 @@ export class WhisperPlus extends CRABS_Base {
 		const success = this.sendWhisperMessage(target || memberNumber, message);
 		return success ? 0 : 1;
 	}
-	public override buildui(): void {
-		this.attachEvent("CRABS_player-id", this.sendWhisper, "playerNumber");
-
+	public override buildui(root?: HTMLElement): void {
+		this.attachEvent("CRABS_player-id", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
 	}
 }

@@ -111,6 +111,7 @@ export abstract class CRABS_Base {
 	 * @param {any} [arg] - [optional] Direct argument to pass, mutually exclusive with data.
 	 * @param {string} [event="click"] - Type of event you wish this to trigger on.
 	 * @param {"class" | "id"} [findBy="class"] - Optional: Whether to search by class or id. Defaults to class.
+	 * @param {HTMLElement} [root] - Optional: Root element to search within. Defaults to TextAreaChatLog.
 	 * @returns {void}
 	 */
 	public attachEvent(
@@ -119,18 +120,19 @@ export abstract class CRABS_Base {
 		data?: string,
 		arg?: any,
 		event: string = "click",
-		findBy: "class" | "id" = "class"
+		findBy: "class" | "id" = "class",
+		root?: HTMLElement
 	): void {
-		const chat = document.getElementById("TextAreaChatLog");
-		if (!chat) return;
+		const searchRoot = root || document.getElementById("TextAreaChatLog");
+		if (!searchRoot) return;
 
 		const elements: HTMLElement[] = [];
 
 		if (findBy === "id") {
-			const el = document.getElementById(selectorName);
-			if (el) elements.push(el);
+			const el = root ? root.querySelector(`#${selectorName}`) : document.getElementById(selectorName);
+			if (el) elements.push(el as HTMLElement);
 		} else {
-			const classElements = chat.getElementsByClassName(selectorName);
+			const classElements = searchRoot.getElementsByClassName(selectorName);
 			elements.push(...Array.from(classElements as HTMLCollectionOf<HTMLElement>));
 		}
 
@@ -150,38 +152,35 @@ export abstract class CRABS_Base {
 	/**
 	 * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
 	 *
-	 * @param {HTMLElement} output - Object to print
-	 * @param {string} elementId - Name of the element
+	 * @param {string} [output] - Optional: HTML string to print
+	 * @param {string} [elementId] - Optional: Name of the element
+	 * @param {HTMLElement} [root] - Optional: Root element for event attachment
 	 * @returns {void}
 	 */
-	public buildui(output: string, elementId?: string): void {
-		const template = document.createElement("template");
+	public buildui(output?: string, elementId?: string, root?: HTMLElement): void {
+		if (output) {
+			const template = document.createElement("template");
+			const cleanHtml = DOMPurify.sanitize(output, {
+				USE_PROFILES: { html: true },
+			});
+			template.innerHTML = cleanHtml;
 
-		const cleanHtml = DOMPurify.sanitize(output, {
-			USE_PROFILES: { html: true }, // Allow full HTML (but safe)
-		});
-
-		template.innerHTML = cleanHtml;
-
-		let chat = document.getElementById("TextAreaChatLog");
-		if (chat) {
-			if (elementId) {
-				this.closeElement(elementId);
-
-				let wrapper = document.createElement("div");
-				wrapper.id = elementId;
-				wrapper.appendChild(template.content);
-
-				chat.appendChild(wrapper);
-			} else {
-				chat.appendChild(template);
+			let chat = document.getElementById("TextAreaChatLog");
+			if (chat) {
+				if (elementId) {
+					this.closeElement(elementId);
+					let wrapper = document.createElement("div");
+					wrapper.id = elementId;
+					wrapper.appendChild(template.content);
+					chat.appendChild(wrapper);
+				} else {
+					chat.appendChild(template);
+				}
+				ElementScrollToEnd("TextAreaChatLog");
 			}
-			ElementScrollToEnd("TextAreaChatLog");
-		} else {
-			console.log("CRABS ERROR: Could not find chat element!");
 		}
-		this.attachEvent("CRABS_Help_Icon", this.fakePlayerCommand, undefined, "help");
-		this.attachEvent("CRABS_close", this.closeElement, "elementid");
+		this.attachEvent("CRABS_Help_Icon", this.fakePlayerCommand, undefined, "help", "click", "class", root);
+		this.attachEvent("CRABS_close", this.closeElement, "elementid", undefined, "click", "class", root);
 	}
 
 	/**
