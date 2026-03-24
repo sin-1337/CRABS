@@ -22,8 +22,22 @@
   pointer-events: auto;
   width: 44px;
   height: 44px;
-  background: #0148ab;
-  border: none;
+
+  /* --- NEW: Transparency & Blur --- */
+  background: rgba(
+    34,
+    34,
+    34,
+    0.85
+  ); /* Replace with your drawer's exact rgba color */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+
+  /* Optional: A subtle border helps frosted glass stand out */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  /* -------------------------------- */
+
   border-radius: 8px 0 0 8px;
   display: flex;
   justify-content: center;
@@ -36,7 +50,6 @@
   top: 10px;
   z-index: 99 !important;
 
-  /* Smoother transition for the tab's handle-like behavior */
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
