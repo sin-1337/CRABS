@@ -146,6 +146,13 @@ export class Drawer extends CRABS_Base {
 		} else {
 			this.instance.style.display = "flex";
 
+			// Handle tab visibility based on settings
+			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
+			if (tab) {
+				const shouldHideTab = this.settingsModule.data.hideDrawerTab && this.settingsModule.data.rosterOpensDrawer;
+				tab.style.display = shouldHideTab ? "none" : "flex";
+			}
+
 			// --- NEW: Attach observer only when entering a room ---
 			if (!this.resizeObserver) {
 				const chatLog = document.getElementById("TextAreaChatLog");

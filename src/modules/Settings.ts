@@ -46,6 +46,7 @@ export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNex
 export interface CRABS_Settings {
     showBanner: boolean;
     rosterOpensDrawer: boolean;
+    hideDrawerTab: boolean;
     immersiveBlind: boolean;
     immersiveGag: boolean;
     respectBcxRules: boolean;
@@ -59,6 +60,7 @@ export interface CRABS_Settings {
 const DEFAULT_SETTINGS: CRABS_Settings = {
     showBanner: true,
     rosterOpensDrawer: true,
+    hideDrawerTab: false,
     immersiveBlind: false,
     immersiveGag: false,
     respectBcxRules: true,
@@ -138,6 +140,12 @@ export class Settings extends CRABS_Base {
             "rosterOpensDrawer", 
             "The standard /roster command will toggle the drawer instead of printing to chat.",
             { category: "Drawer", grayedOut: drawerDisabled }
+        );
+        this.addCheckbox(
+            "Hide Drawer Tab", 
+            "hideDrawerTab", 
+            "Hide the physical tab on the side of the screen. You can still open the drawer with /roster.",
+            { category: "Drawer", grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer }
         );
         this.addCheckbox(
             "Compact Height", 
@@ -338,9 +346,14 @@ export class Settings extends CRABS_Base {
                     
                     if (element.setting === "disableDrawer" && this.data.disableDrawer) {
                         this.data.rosterOpensDrawer = false;
+                        this.data.hideDrawerTab = false;
                     }
                     if (element.setting === "rosterOpensDrawer" && this.data.rosterOpensDrawer) {
                         this.data.disableDrawer = false;
+                    }
+
+                    if (element.setting === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
+                        this.data.hideDrawerTab = false;
                     }
 
                     this.save();
