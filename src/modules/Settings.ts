@@ -123,7 +123,7 @@ export class Settings extends CRABS_Base {
 		};
 
 		this.addCheckbox(
-			"Respect Blindfolds",
+			"Respect Blindness",
 			"immersiveBlind",
 			"Roster visibility will be blurred based on your character's blindness level.",
 			{ category: "Immersion", grayedOut: isLocked("immersiveBlind") }

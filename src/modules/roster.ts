@@ -321,9 +321,14 @@ export class Roster extends CRABS_Base {
 	private getBlindnessLevel(): number {
 		const settings = (window as any).SETTINGS;
 
-		// Check BCX full blind rule
+		// If Respect Blindness is OFF, we don't want any blindness blurring
+		if (!settings?.data.immersiveBlind) return 0;
+
+		// Check BCX full blind rule - only applies if both blindness immersion and BCX rules are respected
 		if (settings?.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
-			return 4;
+			if (typeof (Player as any).IsEyesClosed === "function" && (Player as any).IsEyesClosed()) {
+				return 4;
+			}
 		}
 
 		if (Player.HasEffect("BlindTotal")) return 4;
