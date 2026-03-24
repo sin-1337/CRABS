@@ -53,6 +53,7 @@ export interface CRABS_Settings {
     closeDrawerOnWhisper: boolean;
     closeDrawerOnChat: boolean;
     disableDrawer: boolean;
+    lockImmersive: boolean;
 }
 
 const DEFAULT_SETTINGS: CRABS_Settings = {
@@ -65,6 +66,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
     closeDrawerOnWhisper: false,
     closeDrawerOnChat: false,
     disableDrawer: false,
+    lockImmersive: false,
 };
 
 /**
@@ -104,6 +106,11 @@ export class Settings extends CRABS_Base {
 
     public save(): void {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
+    }
+
+    private isRestricted(): boolean {
+        // Character is restricted if hands are bound or they cannot reach their own items
+        return (window as any).Player.IsRestrained() || (window as any).Player.IsBound();
     }
 
     private setupUI(): void {
@@ -151,22 +158,34 @@ export class Settings extends CRABS_Base {
 
         // Category: Immersion
         this.addCheckbox(
+            "Hardcore Lock", 
+            "lockImmersive", 
+            "Locks immersive settings in the ON position while you are bound. You must be free to disable them.",
+            { category: "Immersion" }
+        );
+
+        // Functional helper to check if a specific setting should be grayed out (locked)
+        const isLocked = (setting: keyof CRABS_Settings) => {
+            return () => this.data.lockImmersive && this.isRestricted() && this.data[setting] === true;
+        };
+
+        this.addCheckbox(
             "Respect Blindfolds", 
             "immersiveBlind", 
             "Roster visibility will be blurred based on your character's blindness level.",
-            { category: "Immersion" }
+            { category: "Immersion", grayedOut: isLocked("immersiveBlind") }
         );
         this.addCheckbox(
             "Respect Gags", 
             "immersiveGag", 
             "Prevent sending Whisper+ messages if your character is gagged.",
-            { category: "Immersion" }
+            { category: "Immersion", grayedOut: isLocked("immersiveGag") }
         );
         this.addCheckbox(
             "Respect BCX Rules", 
             "respectBcxRules", 
             "Allow supported BCX rules to impact CRABS functionality.",
-            { category: "Immersion" }
+            { category: "Immersion", grayedOut: isLocked("respectBcxRules") }
         );
     }
 
@@ -260,7 +279,7 @@ export class Settings extends CRABS_Base {
         DrawText("Drawer Options", this.LEFT_COL_X + 305, 365, "White", "Gray");
 
         // Right Column: Immersion
-        DrawRect(this.RIGHT_COL_X - 20, 200, 650, 280, "#ffffff11"); // Immersion card
+        DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#ffffff11"); // Immersion card
         DrawText("Immersion & Rules", this.RIGHT_COL_X + 305, 220, "White", "Gray");
 
         for (const element of this.elements) {
@@ -270,13 +289,15 @@ export class Settings extends CRABS_Base {
             const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
             const textX = cardX + this.LABEL_X_OFFSET;
 
+            const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
+
             if (element.type === 'Checkbox') {
                 // Checkbox on the left
-                DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting]);
+                DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
                 
                 // Text on the right
                 MainCanvas.textAlign = "left";
-                DrawText(element.text, textX, y, "Black", "Gray");
+                DrawText(element.text, textX, y, isGrayedOut ? "Gray" : "Black", "Gray");
                 
                 // Hover hint logic
                 if (isMouseIn(textX, y - 18, 400, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
@@ -304,6 +325,10 @@ export class Settings extends CRABS_Base {
             const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
             const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
+            const textX = cardX + this.LABEL_X_OFFSET;
+
+            const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
+            if (isGrayedOut) continue;
 
             // Only allow click on the checkbox itself
             if (isMouseIn(checkboxX, y - 32, 64, 64)) {
