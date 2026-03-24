@@ -289,7 +289,7 @@ export class Settings extends CRABS_Base {
         DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#ffffff11"); // Banner card
         DrawText("Banner Options", leftCenterX, 220, "White", "Gray");
         
-        DrawRect(this.LEFT_COL_X - 20, 345, 650, 420, "#ffffff11"); // Drawer card
+        DrawRect(this.LEFT_COL_X - 20, 345, 650, 500, "#ffffff11"); // Drawer card
         DrawText("Drawer Options", leftCenterX, 365, "White", "Gray");
 
         DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#ffffff11"); // Immersion card

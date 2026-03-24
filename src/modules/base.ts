@@ -114,11 +114,15 @@ export abstract class CRABS_Base {
 		if (typeof (window as any).PreferenceOpenSubscreen === "function") {
 			await (window as any).PreferenceOpenSubscreen("Extensions");
 			
+			// Small delay to ensure the screen has fully transitioned
+			await new Promise(r => setTimeout(r, 100));
+
 			// If our extension is registered, jump directly into it
 			const crabsExtension = (window as any).PreferenceExtensionsSettings?.["CRABS"];
 			if (crabsExtension) {
 				(window as any).PreferenceSubscreen = crabsExtension;
 				if (typeof crabsExtension.load === "function") await crabsExtension.load();
+				if (typeof (window as any).PreferenceResize === "function") (window as any).PreferenceResize(true);
 			}
 		} else {
 			// Fallback for older versions or if the function is missing
