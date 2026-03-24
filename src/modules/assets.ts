@@ -65,6 +65,7 @@ export abstract class Assets {
 				file: "settings.svg",
 				alt: "Settings",
 				toolTip: "Settings",
+				class: "CRABS_Settings_Icon",
 			},
 
 			// badges
