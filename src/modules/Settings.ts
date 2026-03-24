@@ -7,6 +7,7 @@ export interface CRABS_Settings {
     rosterOpensDrawer: boolean;
     immersiveMode: boolean;
     respectBcxRules: boolean;
+    compactDrawer: boolean;
     closeDrawerOnWhisper: boolean;
     closeDrawerOnChat: boolean;
     disableDrawer: boolean;
@@ -17,6 +18,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
     rosterOpensDrawer: true,
     immersiveMode: false,
     respectBcxRules: true,
+    compactDrawer: false,
     closeDrawerOnWhisper: false,
     closeDrawerOnChat: false,
     disableDrawer: false,
@@ -68,13 +70,19 @@ export class Settings extends CRABS_Base {
         this.ui.addCheckbox(
             "Immersive Mode", 
             "immersiveMode", 
-            "Respect in-game sensory restrictions. Features like the Roster may be limited if you are blindfolded or gagged."
+            "Respect in-game sensory restrictions. Roster blur levels will match your blindness level."
         );
 
         this.ui.addCheckbox(
             "Respect BCX Rules", 
             "respectBcxRules", 
             "Allow supported BCX rules (like room interaction limits or sensory rules) to impact CRABS functionality."
+        );
+
+        this.ui.addCheckbox(
+            "Compact Drawer", 
+            "compactDrawer", 
+            "Reduce the drawer height to 77% of the chat area so some messages remain visible."
         );
 
         this.ui.addCheckbox(

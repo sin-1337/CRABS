@@ -86,13 +86,16 @@ export class Drawer extends CRABS_Base {
 			return;
 		}
 
-		// Calculate 100% of the chat log's width
-		const targetWidth = rect.width;
-
 		// Apply dimensions directly to the drawer to perfectly cover the chat log
 		this.instance.style.top = `${rect.top}px`;
-		this.instance.style.width = `${targetWidth}px`;
-		this.instance.style.height = `${rect.height}px`;
+		this.instance.style.width = `${rect.width}px`;
+		
+		// Handle compact height setting (77% of chat height)
+		if (this.settingsModule.data.compactDrawer) {
+			this.instance.style.height = `${rect.height * 0.77}px`;
+		} else {
+			this.instance.style.height = `${rect.height}px`;
+		}
 
 		// Calculate the exact right offset to account for letterboxing
 		const rightOffset = document.documentElement.clientWidth - rect.right;
