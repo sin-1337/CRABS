@@ -153,6 +153,15 @@ CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
 	return next(args);
 });
 
+/**
+ * Hook into character focus.
+ * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
+ */
+CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
+	DRAWER.close();
+	return next(args);
+});
+
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
