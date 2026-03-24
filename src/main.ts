@@ -144,6 +144,15 @@ CRABS.hookFunction("ChatRoomSync", 0, (args, next) => {
 	return result;
 });
 
+/**
+ * Hook into the screen change function.
+ * This ensures the drawer auto-stows whenever the player navigates to a new screen.
+ */
+CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
+	DRAWER.close();
+	return next(args);
+});
+
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
