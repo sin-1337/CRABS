@@ -315,6 +315,35 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
+	 * Helper to check if the player's eyes are currently closed.
+	 */
+	private isEyesClosed(): boolean {
+		// Try the global function first if it's available
+		const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
+		if (typeof characterIsEyesClosed === "function") {
+			return characterIsEyesClosed(Player);
+		}
+
+		// Try the method on the Player object
+		if (typeof (Player as any).IsEyesClosed === "function") {
+			return (Player as any).IsEyesClosed();
+		}
+
+		// Fallback: Manually check the appearance for the "Eyes" group
+		if (Array.isArray(Player.Appearance)) {
+			const eyesItem = Player.Appearance.find(
+				(item: any) => item.Group === "Eyes" || (item.Asset && item.Asset.Group && item.Asset.Group.Name === "Eyes")
+			);
+			if (eyesItem) {
+				const itemName = eyesItem.Name || (eyesItem.Asset && eyesItem.Asset.Name);
+				return itemName === "Closed";
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns the player's blindness level from 0 to 4.
 	 * Also accounts for BCX "alt_eyes_fullblind" rule if applicable.
 	 */
@@ -326,7 +355,7 @@ export class Roster extends CRABS_Base {
 
 		// Check BCX full blind rule - only applies if both blindness immersion and BCX rules are respected
 		if (settings?.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
-			if (CharacterIsEyesClosed(Player)) {
+			if (this.isEyesClosed()) {
 				return 4;
 			}
 		}

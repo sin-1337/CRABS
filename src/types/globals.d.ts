@@ -209,7 +209,6 @@ declare global {
 	function CommandCombine(command: Array<any>);
 	function CharacterGetEffects(Player: PlayerCharacter): Array<string>;
 	function CharacterNickname(Player: PlayerCharacter): string;
-	function CharacterIsEyesClosed(C: PlayerCharacter): boolean;
 	function ChatRoomExit(): void;
 	function ChatRoomFocusCharacter(player: PlayerCharacter): void;
 	function ChatRoomGenerateChatRoomChatMessage(
