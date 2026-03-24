@@ -11,7 +11,7 @@ import { Settings } from "./Settings";
 
 export class Drawer extends CRABS_Base {
 	private isOpen: boolean = false;
-	private readonly DRAWER_ID: string = "crabs-drawer";
+	// private readonly DRAWER_ID: string = "crabs-drawer";
 	private instance: HTMLElement | null = null;
 	private rosterModule: Roster;
 	private helpModule: Help;
@@ -48,9 +48,9 @@ export class Drawer extends CRABS_Base {
 		if (this.instance) return; // already initialized
 
 		const templateVars = {
-			Help: Assets.printimage({ 
-				key: "help", 
-				css_class_override: "CRABS_Drawer_Help_Icon" 
+			Help: Assets.printimage({
+				key: "help",
+				css_class_override: "CRABS_Drawer_Help_Icon"
 			}),
 			Settings: Assets.printimage({
 				key: "settings",
@@ -89,7 +89,7 @@ export class Drawer extends CRABS_Base {
 
 		// Get the precise pixel coordinates of the chat box
 		const rect = chatLog.getBoundingClientRect();
-		
+
 		// If rect has no size, wait for UI to settle
 		if (rect.width === 0 || rect.height === 0) {
 			// Fallback: if in room but no chat log yet, try to be at right edge
@@ -103,7 +103,7 @@ export class Drawer extends CRABS_Base {
 		// Apply dimensions directly to the drawer to perfectly cover the chat log
 		this.instance.style.top = `${rect.top}px`;
 		this.instance.style.width = `${rect.width}px`;
-		
+
 		// Handle compact height setting (77% of chat height)
 		if (this.settingsModule.data.compactDrawer) {
 			this.instance.style.height = `${rect.height * 0.77}px`;
@@ -130,9 +130,9 @@ export class Drawer extends CRABS_Base {
 		}
 
 		// The drawer should only be visible when actually in a chat room screen
-		const inChatRoom = typeof ChatRoomData !== 'undefined' && 
-						   ChatRoomData !== null && 
-						   (typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom");
+		const inChatRoom = typeof ChatRoomData !== 'undefined' &&
+			ChatRoomData !== null &&
+			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom");
 
 		if (!inChatRoom) {
 			this.instance.style.display = "none";

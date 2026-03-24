@@ -49,6 +49,63 @@ declare global {
 		value: string;
 	}
 
+	export type UIElementType = 'Checkbox' | 'Button' | 'Input' | 'BackNext';
+
+	export interface BaseUIElement {
+		type: UIElementType;
+		text: string;
+		hint: string;
+		yPos: number;
+		width: number;
+		height?: number;
+		category?: string;
+		xModifier?: number;
+		yModifier?: number;
+		grayedOut?: boolean | (() => boolean);
+	}
+
+	export interface CheckboxElement extends BaseUIElement {
+		type: 'Checkbox';
+		setting: string;
+		elementText?: string;
+	}
+
+	export interface ButtonElement extends BaseUIElement {
+		type: 'Button';
+		elementText: string;
+		clickFunction: () => void;
+	}
+
+	export interface InputElement extends BaseUIElement {
+		type: 'Input';
+		setting: string;
+		identifier: string;
+	}
+
+	export interface BackNextElement extends BaseUIElement {
+		type: 'BackNext';
+		setting: string;
+		backNextOptions: string[];
+		index: number;
+	}
+
+	export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNextElement;
+
+	export interface CRABS_Settings {
+		showBanner: boolean;
+		rosterOpensDrawer: boolean;
+		hideDrawerTab: boolean;
+		immersiveBlind: boolean;
+		immersiveGag: boolean;
+		respectBcxRules: boolean;
+		compactDrawer: boolean;
+		closeDrawerOnWhisper: boolean;
+		closeDrawerOnChat: boolean;
+		disableDrawer: boolean;
+		lockImmersive: boolean;
+	}
+
+
 	// BC objects
 
 	interface Window {
