@@ -53,7 +53,7 @@ window.CRABS_Loaded = false;
 			preventAssignment: true,
 			NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
 			NICKNAME: JSON.stringify("CRABS"),
-			VERSION: JSON.stringify("1.3.2.136 Alpha"),
+			VERSION: JSON.stringify("1.3.2.137 Alpha"),
 		}),
 		progress({ clearLine: true }),
 		resolve({ browser: true }),
