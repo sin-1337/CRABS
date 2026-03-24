@@ -252,7 +252,7 @@ export class Settings extends CRABS_Base {
 		const DrawRect = (window as any).DrawRect;
 		const PreferenceMessage = (window as any).PreferenceMessage;
 
-		// Fetch the 2D context safely and explicitly
+		// Fetch the 2D context safely
 		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
 		const ctx = canvasEl ? canvasEl.getContext("2d") : null;
 		if (!ctx) return;
@@ -261,28 +261,37 @@ export class Settings extends CRABS_Base {
 		DrawRect(40, 40, 420, 920, "#222222aa");
 		DrawCharacter((window as any).Player, 50, 50, 0.9);
 
+		// --- FORCE CENTER ALIGNMENT ---
+		// This prevents the left-alignment from the checkboxes from bleeding over
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+
 		// Main Header
 		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
-		// Info message / Hint area
+		// Info message / Hint area (Centered at X = 1000)
 		if (PreferenceMessage && PreferenceMessage !== "") {
-			DrawText(PreferenceMessage, 1100, 150, "Red", "Black");
+			DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
 		} else {
-			DrawText("Hover setting names for detailed descriptions", 1100, 150, "Black", "Gray");
+			DrawText("Hover setting names for detailed descriptions", 1000, 150, "Black", "Gray");
 		}
+
+		// Calculate exact centers for the background cards
+		const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);  // 855
+		const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2); // 1555
 
 		// Draw Section Cards
 		// Left Column: Banner & Drawer
 		DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#ffffff11"); // Banner card
-		DrawText("Banner Options", this.LEFT_COL_X + 305, 220, "White", "Gray");
+		DrawText("Banner Options", leftCenterX, 220, "White", "Gray");
 
 		DrawRect(this.LEFT_COL_X - 20, 345, 650, 420, "#ffffff11"); // Drawer card
-		DrawText("Drawer Options", this.LEFT_COL_X + 305, 365, "White", "Gray");
+		DrawText("Drawer Options", leftCenterX, 365, "White", "Gray");
 
 		// Right Column: Immersion
 		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#ffffff11"); // Immersion card
-		DrawText("Immersion & Rules", this.RIGHT_COL_X + 305, 220, "White", "Gray");
+		DrawText("Immersion & Rules", rightCenterX, 220, "White", "Gray");
 
 		for (const element of this.elements) {
 			const isImmersion = element.category === "Immersion";
@@ -297,19 +306,22 @@ export class Settings extends CRABS_Base {
 				// 1. Draw the box with NO text using BC's function
 				DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
 
-				// 2. Bypass BC's DrawText to force true left-alignment using explicit context
+				// 2. Bypass BC's DrawText to force true left-alignment
 				ctx.font = "36px Arial";
 				ctx.textAlign = "left";
-				ctx.textBaseline = "middle";
 				ctx.fillStyle = isGrayedOut ? "gray" : "white";
 				ctx.fillText(element.text, textX, y);
 
-				// 3. Hover hint
+				// 3. Hover hint (Re-center before drawing tooltip!)
 				if (isMouseIn(checkboxX, y - 32, 450, 64)) {
-					DrawText(element.hint, 1100, 950, "White", "Gray");
+					ctx.textAlign = "center";
+					DrawText(element.hint, 1000, 950, "White", "Gray"); // Centered at X = 1000
 				}
 			}
 		}
+
+		// Reset canvas baseline for safety
+		ctx.textBaseline = "alphabetic";
 	}
 
 	public click(): void {
