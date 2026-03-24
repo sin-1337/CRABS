@@ -43,11 +43,18 @@ export abstract class CrossMod {
 	/**
 	 * Check for BCX's availability and rule state
 	 */
-	static isBCXRuleEnforced<ID extends BCX_Rule>(name: ID): boolean {
+	static getBCXRuleState<ID extends BCX_Rule>(name: ID): BCX_RuleStateAPI<ID> | null {
 		const api = CrossMod.getBcxApi();
-		if (!api) return false; // BCX not available, don't bother.
-		const rule = api.getRuleState(name);
-		return !rule?.isEnforced;
+		if (!api) return null;
+		return api.getRuleState(name);
+	}
+
+	/**
+	 * Check if a BCX rule is currently enforced
+	 */
+	static isBCXRuleEnforced<ID extends BCX_Rule>(name: ID): boolean {
+		const rule = CrossMod.getBCXRuleState(name);
+		return !!rule?.isEnforced;
 	}
 
 }

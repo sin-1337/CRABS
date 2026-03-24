@@ -16,6 +16,8 @@
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
+import { CrossMod } from "./crossmod";
+import { Notification } from "./notifications";
 
 export class WhisperPlus extends CRABS_Base {
 	private drawerModule: any = null;
@@ -294,11 +296,32 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(args: string, command: string): number {
-		// Immersive Gag Check
 		const settings = (window as any).SETTINGS;
+
+		// 1. Immersive Gag Check
 		if (settings?.data.immersiveGag && this.getGagLevel() > 0) {
-			ChatRoomSendLocal("You cannot use Whisper+ while gagged.", 10_000);
+			if (typeof ToastManager !== "undefined") {
+				Notification.send("You cannot use Whisper+ while gagged.", "Whisper+ Blocked");
+			} else {
+				ChatRoomSendLocal("You cannot use Whisper+ while gagged.", 10_000);
+			}
 			return 1;
+		}
+
+		// 2. BCX Rule Check: speech_restrict_whisper_send
+		if (settings?.data.respectBcxRules) {
+			const ruleState = CrossMod.getBCXRuleState("speech_restrict_whisper_send");
+			if (ruleState?.isEnforced) {
+				const { memberNumber } = this.parseArguments(args, command);
+				ruleState.triggerAttempt(memberNumber);
+
+				if (typeof ToastManager !== "undefined") {
+					Notification.send("BCX rules prevent you from sending whispers.", "Whisper+ Blocked");
+				}
+				// BCX usually handles its own local messaging/beeping if configured, 
+				// but we show a notification to explain why CRABS didn't send it.
+				return 1; // Blocked by BCX rule
+			}
 		}
 
 		// Parse arguments
