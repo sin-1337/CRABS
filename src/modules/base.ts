@@ -106,13 +106,25 @@ export abstract class CRABS_Base {
 	/**
 	 * Navigates to the CRABS settings page
 	 */
-	public openSettings(): void {
+	public async openSettings(): Promise<void> {
 		// Initialize the player state to avoid the InformationSheet crash
 		(window as any).InformationSheetLoadCharacter(Player);
-		// Set game screen to preferences
-		(window as any).CommonSetScreen("Character", "Preference");
-		// Directly set the subscreen to CRABS to bypass the menu
-		(window as any).CurrentSubScreen = "CRABS";
+
+		// Use the official way to open the Extensions subscreen
+		if (typeof (window as any).PreferenceOpenSubscreen === "function") {
+			await (window as any).PreferenceOpenSubscreen("Extensions");
+			
+			// If our extension is registered, jump directly into it
+			const crabsExtension = (window as any).PreferenceExtensionsSettings?.["CRABS"];
+			if (crabsExtension) {
+				(window as any).PreferenceSubscreen = crabsExtension;
+				if (typeof crabsExtension.load === "function") await crabsExtension.load();
+			}
+		} else {
+			// Fallback for older versions or if the function is missing
+			(window as any).CommonSetScreen("Character", "Preference");
+			(window as any).CurrentSubScreen = "CRABS";
+		}
 	}
 
 	/**

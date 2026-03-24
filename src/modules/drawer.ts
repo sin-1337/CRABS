@@ -200,11 +200,11 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
-	public override openSettings(): void {
+	public override async openSettings(): Promise<void> {
 		// Close drawer first
 		this.close();
 		// Then call base settings logic
-		super.openSettings();
+		await super.openSettings();
 	}
 
 	private bindHeaderButtons(): void {
