@@ -20,12 +20,12 @@
 
 #drawer-tab {
   pointer-events: auto;
-  width: 44px;
-  height: 64px; /* Taller tab */
-  background: #222;
+  width: 174px; /* Exact GIF width */
+  height: 174px; /* Exact GIF height */
+  background: #0148ab; /* Matching GIF background */
   border: 1px solid #efb0e2;
   border-right: none;
-  border-radius: 8px 0 0 8px;
+  border-radius: 12px 0 0 12px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,7 +33,7 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
   position: absolute;
-  left: -44px;
+  left: -174px; /* Shifted to match new width */
   top: 10px;
   z-index: 2147483647 !important;
 
@@ -133,14 +133,14 @@
 
 /* Includes the fix to prevent the SVG face from exploding */
 #drawer-tab img {
-  width: 40px !important; /* Larger icon */
-  height: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
+  width: 174px !important; /* Fill the tab */
+  height: 174px !important;
+  max-width: 174px !important;
+  max-height: 174px !important;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 0 2px #efb0e2);
-  transform: rotate(270deg) translateZ(0); /* Back to 270deg with acceleration */
+  transform: rotate(270deg) translateZ(0); /* Maintain rotation */
   
   /* Improve quality for small/rotated icons */
   image-rendering: -webkit-optimize-contrast;
