@@ -90,25 +90,20 @@ window.ChatRoomExit = function () {
  * It triggers both when joining someone else's room AND when creating your own.
  */
 CRABS.hookFunction("ChatRoomSync", 0, (args, next) => {
-	const result = next(args);
+	// Run the original function and cast it to a Promise
+	const result = next(args) as unknown as Promise<void>;
 
-	// Trigger drawer visibility logic immediately
-	DRAWER.updateVisibility();
+	// Wait for the original async function to resolve before firing your UI logic
+	result.then(() => {
+		DRAWER.updateVisibility();
 
-	// Short delay to let the UI elements (like TextAreaChatLog) be created by the game
-	// and to ensure ChatRoomData is fully populated before drawing the banner
-	setTimeout(() => {
-		if (ChatRoomData) {
-			// Automatically show banner on entry if the setting is enabled
-			if (SETTINGS.data.showBanner) {
-				drawbanner();
-			}
-			// Final visibility refresh once the room is stable
-			DRAWER.updateVisibility();
+		if (typeof ChatRoomData !== "undefined" && ChatRoomData && SETTINGS.data.showBanner) {
+			drawbanner();
 		}
-	}, 1000);
+	});
 
-	return result;
+	// Cast the return back to 'never' to satisfy the strict PatchHook type
+	return result as never;
 });
 
 /**
