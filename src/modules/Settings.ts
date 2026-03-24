@@ -77,11 +77,11 @@ export class Settings extends CRABS_Base {
     private elements: UIElement[] = [];
     private readonly STORAGE_KEY = "CRABS_Settings";
     
-    // Adjusted Layout Constants to clear character area
-    private readonly LEFT_COL_X = 550; // Card start
-    private readonly RIGHT_COL_X = 1250; // Card start
-    private readonly CHECKBOX_X_OFFSET = 30; // Relative to card start
-    private readonly LABEL_X_OFFSET = 110; // Relative to card start
+    // Layout Constants
+    private readonly LEFT_COL_X = 550; 
+    private readonly RIGHT_COL_X = 1250; 
+    private readonly CHECKBOX_X_OFFSET = 30; 
+    private readonly LABEL_X_OFFSET = 110; 
     private readonly CHECKBOX_WIDTH = 64;
     private readonly SPACING_Y = 75;
 
@@ -109,7 +109,6 @@ export class Settings extends CRABS_Base {
     }
 
     private isRestricted(): boolean {
-        // Character is restricted if hands are bound or they cannot reach their own items
         return (window as any).Player.IsRestrained() || (window as any).Player.IsBound();
     }
 
@@ -131,29 +130,32 @@ export class Settings extends CRABS_Base {
             "Completely disable the drawer interface and hide the side tab.",
             { category: "Drawer" }
         );
+
+        const drawerEnabled = () => this.data.disableDrawer;
+
         this.addCheckbox(
             "/roster toggles drawer", 
             "rosterOpensDrawer", 
             "The standard /roster command will toggle the drawer instead of printing to chat.",
-            { category: "Drawer" }
+            { category: "Drawer", grayedOut: drawerEnabled }
         );
         this.addCheckbox(
             "Compact Height", 
             "compactDrawer", 
             "Limit drawer height to 77% so some of the chat remains visible.",
-            { category: "Drawer" }
+            { category: "Drawer", grayedOut: drawerEnabled }
         );
         this.addCheckbox(
             "Auto-stow on Whisper+", 
             "closeDrawerOnWhisper", 
             "Automatically close the drawer after you successfully send a /whisper+ message.",
-            { category: "Drawer" }
+            { category: "Drawer", grayedOut: drawerEnabled }
         );
         this.addCheckbox(
             "Auto-stow on Chat", 
             "closeDrawerOnChat", 
             "Automatically close the drawer when you send a normal chat message.",
-            { category: "Drawer" }
+            { category: "Drawer", grayedOut: drawerEnabled }
         );
 
         // Category: Immersion
@@ -164,7 +166,6 @@ export class Settings extends CRABS_Base {
             { category: "Immersion" }
         );
 
-        // Functional helper to check if a specific setting should be grayed out (locked)
         const isLocked = (setting: keyof CRABS_Settings) => {
             return () => this.data.lockImmersive && this.isRestricted() && this.data[setting] === true;
         };
@@ -300,7 +301,7 @@ export class Settings extends CRABS_Base {
                 DrawText(element.text, textX, y, isGrayedOut ? "Gray" : "Black", "Gray");
                 
                 // Hover hint logic
-                if (isMouseIn(textX, y - 18, 400, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
+                if (isMouseIn(textX, y - 18, 450, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
                     MainCanvas.textAlign = "center";
                     DrawText(element.hint, 1100, 950, "Black", "Gray");
                     MainCanvas.textAlign = "left";
@@ -325,7 +326,6 @@ export class Settings extends CRABS_Base {
             const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
             const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
-            const textX = cardX + this.LABEL_X_OFFSET;
 
             const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
             if (isGrayedOut) continue;
@@ -334,6 +334,15 @@ export class Settings extends CRABS_Base {
             if (isMouseIn(checkboxX, y - 32, 64, 64)) {
                 if (element.type === 'Checkbox') {
                     (this.data as any)[element.setting] = !(this.data as any)[element.setting];
+                    
+                    // Mutual Exclusivity Logic
+                    if (element.setting === "disableDrawer" && this.data.disableDrawer) {
+                        this.data.rosterOpensDrawer = false;
+                    }
+                    if (element.setting === "rosterOpensDrawer" && this.data.rosterOpensDrawer) {
+                        this.data.disableDrawer = false;
+                    }
+
                     this.save();
                 }
                 return;
