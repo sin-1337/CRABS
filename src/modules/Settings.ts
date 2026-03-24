@@ -75,12 +75,12 @@ export class Settings extends CRABS_Base {
     private elements: UIElement[] = [];
     private readonly STORAGE_KEY = "CRABS_Settings";
     
-    // Layout Constants
-    private readonly LEFT_COL_X = 500;
-    private readonly RIGHT_COL_X = 1220;
+    // Adjusted Layout Constants to clear character area
+    private readonly LEFT_COL_X = 550; // Card start
+    private readonly RIGHT_COL_X = 1250; // Card start
+    private readonly CHECKBOX_X_OFFSET = 30; // Relative to card start
+    private readonly LABEL_X_OFFSET = 110; // Relative to card start
     private readonly CHECKBOX_WIDTH = 64;
-    private readonly LABEL_MARGIN = 20;
-    private readonly START_Y = 240;
     private readonly SPACING_Y = 75;
 
     constructor(CRABS: ModSDKModAPI) {
@@ -176,7 +176,7 @@ export class Settings extends CRABS_Base {
             if (category === "Banner") return 240;
             if (category === "Drawer") return 385;
             if (category === "Immersion") return 240;
-            return this.START_Y;
+            return 240;
         }
         const lastElement = catElements[catElements.length - 1];
         return lastElement.yPos + this.SPACING_Y;
@@ -239,47 +239,50 @@ export class Settings extends CRABS_Base {
         DrawRect(40, 40, 420, 920, "#222222aa");
         DrawCharacter(Player, 50, 50, 0.9);
         
-        // Header
+        // Main Header
         MainCanvas.textAlign = "center";
         DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
         DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
+        // Info message / Hint area
         if (PreferenceMessage && PreferenceMessage !== "") {
-            DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
+            DrawText(PreferenceMessage, 1100, 150, "Red", "Black");
         } else {
-            DrawText("Hover or click setting names for detailed descriptions", 1000, 150, "Black", "Gray");
+            DrawText("Hover setting names for detailed descriptions", 1100, 150, "Black", "Gray");
         }
 
         // Draw Section Cards
         // Left Column: Banner & Drawer
-        DrawRect(480, 200, 700, 125, "#ffffff11"); // Banner card
-        DrawText("Banner Options", 830, 220, "White", "Gray");
+        DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#ffffff11"); // Banner card
+        DrawText("Banner Options", this.LEFT_COL_X + 305, 220, "White", "Gray");
         
-        DrawRect(480, 345, 700, 420, "#ffffff11"); // Drawer card
-        DrawText("Drawer Options", 830, 365, "White", "Gray");
+        DrawRect(this.LEFT_COL_X - 20, 345, 650, 420, "#ffffff11"); // Drawer card
+        DrawText("Drawer Options", this.LEFT_COL_X + 305, 365, "White", "Gray");
 
         // Right Column: Immersion
-        DrawRect(1200, 200, 600, 280, "#ffffff11"); // Immersion card
-        DrawText("Immersion & Rules", 1500, 220, "White", "Gray");
+        DrawRect(this.RIGHT_COL_X - 20, 200, 650, 280, "#ffffff11"); // Immersion card
+        DrawText("Immersion & Rules", this.RIGHT_COL_X + 305, 220, "White", "Gray");
 
         for (const element of this.elements) {
             const isImmersion = element.category === "Immersion";
-            const x = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
+            const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
-            const textX = x + this.CHECKBOX_WIDTH + this.LABEL_MARGIN;
+            const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
+            const textX = cardX + this.LABEL_X_OFFSET;
 
             if (element.type === 'Checkbox') {
                 // Checkbox on the left
-                DrawCheckbox(x, y - 32, 64, 64, "", (this.data as any)[element.setting]);
+                DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting]);
                 
                 // Text on the right
                 MainCanvas.textAlign = "left";
                 DrawText(element.text, textX, y, "Black", "Gray");
                 
-                // Hint logic
-                if (isMouseIn(textX, y - 18, 400, 36) || isMouseIn(x, y - 32, 64, 64)) {
+                // Hover hint logic
+                if (isMouseIn(textX, y - 18, 400, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
                     MainCanvas.textAlign = "center";
-                    DrawText(element.hint, 1000, 950, "Black", "Gray");
+                    DrawText(element.hint, 1100, 950, "Black", "Gray");
+                    MainCanvas.textAlign = "left";
                 }
             }
         }
@@ -298,16 +301,15 @@ export class Settings extends CRABS_Base {
 
         for (const element of this.elements) {
             const isImmersion = element.category === "Immersion";
-            const x = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
+            const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
-            const textX = x + this.CHECKBOX_WIDTH + this.LABEL_MARGIN;
+            const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
 
-            // Check for click on the checkbox or the label
-            if (isMouseIn(x, y - 32, 64, 64) || isMouseIn(textX, y - 18, 400, 36)) {
+            // Only allow click on the checkbox itself
+            if (isMouseIn(checkboxX, y - 32, 64, 64)) {
                 if (element.type === 'Checkbox') {
                     (this.data as any)[element.setting] = !(this.data as any)[element.setting];
                     this.save();
-                    (window as any).PreferenceMessage = element.hint;
                 }
                 return;
             }
