@@ -27,7 +27,7 @@ export class Settings extends CRABS_Base {
 	private readonly LEFT_COL_X = 550;
 	private readonly RIGHT_COL_X = 1250;
 	private readonly CHECKBOX_X_OFFSET = 30;
-	private readonly LABEL_X_OFFSET = 120; // Increased for better gap
+	private readonly LABEL_X_OFFSET = 120;
 	private readonly CHECKBOX_WIDTH = 64;
 	private readonly SPACING_Y = 75;
 
@@ -145,7 +145,6 @@ export class Settings extends CRABS_Base {
 	private getNewYPos(category?: string): number {
 		const catElements = this.elements.filter(e => e.category === category);
 		if (catElements.length === 0) {
-			// Provide more space after the header (Initial Y increased)
 			if (category === "Banner") return 280;
 			if (category === "Drawer") return 425;
 			if (category === "Immersion") return 280;
@@ -209,41 +208,34 @@ export class Settings extends CRABS_Base {
 		const ctx = canvasEl ? canvasEl.getContext("2d") : null;
 		if (!ctx) return;
 
-		// --- NEW: Dynamic Theme Detection ---
-		const isDarkMode = (window as any).Player?.GraphicsSettings?.DarkMode === true;
-		const textColor = isDarkMode ? "White" : "Black";
-		const bgMain = isDarkMode ? "#222222aa" : "#ffffffcc";
-		const bgSection = isDarkMode ? "#ffffff11" : "#00000011";
-		// ------------------------------------
-
-		// Use dynamic background for character
-		DrawRect(40, 40, 420, 920, bgMain);
+		// Draw character background card
+		DrawRect(40, 40, 420, 920, "#222222aa");
 		DrawCharacter((window as any).Player, 50, 50, 0.9);
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 
-		// Use dynamic textColor
-		DrawText("- CRABS Mod Settings -", 1000, 80, textColor, "Gray");
+		// Main Header
+		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
 		if (PreferenceMessage && PreferenceMessage !== "") {
 			DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
 		} else {
-			DrawText("Hover setting names for detailed descriptions", 1000, 150, textColor, "Gray");
+			DrawText("Hover setting names for detailed descriptions", 1000, 150, "Black", "Gray");
 		}
 
 		const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);
 		const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2);
 
-		// Use dynamic section backgrounds and text
-		DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, bgSection);
-		DrawText("Banner Options", leftCenterX, 220, textColor, "Gray");
+		// Draw Section Cards
+		DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#00000011");
+		DrawText("Banner Options", leftCenterX, 220, "Black", "Gray");
 
-		DrawRect(this.LEFT_COL_X - 20, 345, 650, 500, bgSection);
-		DrawText("Drawer Options", leftCenterX, 365, textColor, "Gray");
+		DrawRect(this.LEFT_COL_X - 20, 345, 650, 500, "#00000011");
+		DrawText("Drawer Options", leftCenterX, 365, "Black", "Gray");
 
-		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, bgSection);
-		DrawText("Immersion & Rules", rightCenterX, 220, textColor, "Gray");
+		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#00000011");
+		DrawText("Immersion & Rules", rightCenterX, 220, "Black", "Gray");
 
 		for (const element of this.elements) {
 			const isImmersion = element.category === "Immersion";
@@ -257,20 +249,18 @@ export class Settings extends CRABS_Base {
 			if (element.type === 'Checkbox') {
 				DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
 
-				ctx.font = "36px Arial";
+				// Align left, then use native DrawText so the theme mod can intercept "Black"
 				ctx.textAlign = "left";
-
-				// Use dynamic textColor for checkbox labels
-				ctx.fillStyle = isGrayedOut ? "gray" : textColor;
-				ctx.fillText(element.text, textX, y);
+				DrawText(element.text, textX, y, isGrayedOut ? "gray" : "Black", "");
 
 				if (isMouseIn(textX, y - 18, 450, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
 					ctx.textAlign = "center";
-					DrawText(element.hint, 1100, 950, textColor, "Gray");
-					ctx.textAlign = "left";
+					DrawText(element.hint, 1100, 950, "Black", "Gray");
 				}
 			}
 		}
+
+		ctx.textAlign = "center";
 		ctx.textBaseline = "alphabetic";
 	}
 
