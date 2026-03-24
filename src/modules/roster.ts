@@ -326,7 +326,7 @@ export class Roster extends CRABS_Base {
 
 		// Check BCX full blind rule - only applies if both blindness immersion and BCX rules are respected
 		if (settings?.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
-			if (typeof (Player as any).IsEyesClosed === "function" && (Player as any).IsEyesClosed()) {
+			if (CharacterIsEyesClosed(Player)) {
 				return 4;
 			}
 		}
