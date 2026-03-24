@@ -140,7 +140,10 @@
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 0 2px #efb0e2);
-  transform: rotate(270deg); /* Top faces left */
+  
+  /* Improve quality for small icons */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* Force the internal tables to behave */
