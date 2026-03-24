@@ -145,7 +145,6 @@
   display: block;
 }
 
-/* Update this block */
 #drawer-tab img {
   width: 36px !important;
   height: 36px !important;
@@ -154,13 +153,21 @@
   object-fit: contain;
   pointer-events: none;
 
-  /* --- NEW: Default to upright and add transition --- */
-  transform: rotate(0deg) translateZ(0);
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  /* ------------------------------------------------- */
+  /* Only the transition stays here */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
 
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+}
+
+/* Stowed (Closed) */
+#crabs-drawer.drawer-closed #drawer-tab img {
+  transform: rotate(270deg) translateZ(0) !important;
+}
+
+/* Expanded (Open) */
+#crabs-drawer.drawer-open #drawer-tab img {
+  transform: rotate(0deg) translateZ(0) !important;
 }
 
 /* Force the internal tables to behave */
