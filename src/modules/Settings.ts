@@ -250,17 +250,18 @@ export class Settings extends CRABS_Base {
 		const DrawButton = (window as any).DrawButton;
 		const DrawCharacter = (window as any).DrawCharacter;
 		const DrawRect = (window as any).DrawRect;
-		const MainCanvas = (window as any).MainCanvas;
 		const PreferenceMessage = (window as any).PreferenceMessage;
 
-		if (!MainCanvas) return;
+		// Fetch the 2D context safely and explicitly
+		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
+		const ctx = canvasEl ? canvasEl.getContext("2d") : null;
+		if (!ctx) return;
 
 		// Draw character background card
 		DrawRect(40, 40, 420, 920, "#222222aa");
-		DrawCharacter(Player, 50, 50, 0.9);
+		DrawCharacter((window as any).Player, 50, 50, 0.9);
 
 		// Main Header
-		MainCanvas.textAlign = "center";
 		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
@@ -288,23 +289,23 @@ export class Settings extends CRABS_Base {
 			const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
 			const y = element.yPos;
 			const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
-			const textX = cardX + 110; // LABEL_X_OFFSET
+			const textX = cardX + 110;
 
 			const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
 
 			if (element.type === 'Checkbox') {
-				// 1. Draw the box with NO text
+				// 1. Draw the box with NO text using BC's function
 				DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
 
-				// 2. Bypass BC's DrawText to force true left-alignment
-				MainCanvas.font = "36px Arial";
-				MainCanvas.textAlign = "left";
-				MainCanvas.fillStyle = isGrayedOut ? "gray" : "white";
-				MainCanvas.fillText(element.text, textX, y + 12); // +12 aligns the text baseline with the box center
+				// 2. Bypass BC's DrawText to force true left-alignment using explicit context
+				ctx.font = "36px Arial";
+				ctx.textAlign = "left";
+				ctx.textBaseline = "middle";
+				ctx.fillStyle = isGrayedOut ? "gray" : "white";
+				ctx.fillText(element.text, textX, y);
 
 				// 3. Hover hint
 				if (isMouseIn(checkboxX, y - 32, 450, 64)) {
-					MainCanvas.textAlign = "center";
 					DrawText(element.hint, 1100, 950, "White", "Gray");
 				}
 			}
