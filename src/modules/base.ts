@@ -107,23 +107,30 @@ export abstract class CRABS_Base {
 	 * Navigates to the CRABS settings page
 	 */
 	public openSettings(): void {
-		// Set game screen to preferences
-		(window as any).CommonSetScreen("Character", "Preference");
+		// 1. Manually set the state that the Extensions screen expects
+		(window as any).CurrentSubScreen = "CRABS";
+		(window as any).PreferenceMessage = "";
 		
-		// Ensure we aren't carrying over a profile selection that causes crashes
-		(window as any).InformationSheetSelection = null;
-		
-		// Set subscreen to Extension list
-		(window as any).CurrentSubScreen = "Extension";
-		
-		// Directly trigger the CRABS subscreen by name
-		// This matches how BC expects extension navigation to be state-managed
-		if (typeof (window as any).PreferenceSubscreenExtensionsCreate === "function") {
-			(window as any).PreferenceSubscreenExtensionsCreate("CRABS");
-		} else {
-			// Fallback for older versions or unexpected states
-			(window as any).CurrentSubScreen = "CRABS";
+		// 2. Fetch the settings instance (we'll need main main to have exposed it or fetch from window)
+		const settings = (window as any).SETTINGS;
+		if (settings) {
+			(window as any).PreferenceExtensionsCurrent = {
+				Identifier: "CRABS",
+				click: () => settings.click(),
+				run: () => settings.draw(),
+				exit: () => {
+					(window as any).PreferenceMessage = "";
+					(window as any).PreferenceExtensionsCurrent = null;
+					(window as any).PreferenceSubscreenExtensionsClear();
+				},
+				load: () => {
+					(window as any).PreferenceMessage = "";
+				}
+			};
 		}
+
+		// 3. Switch to the Preference screen
+		(window as any).CommonSetScreen("Character", "Preference");
 	}
 
 	/**
