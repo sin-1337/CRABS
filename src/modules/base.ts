@@ -107,7 +107,9 @@ export abstract class CRABS_Base {
 	 * Navigates to the CRABS settings page
 	 */
 	public openSettings(): void {
-		ChatRoomStatusUpdate("Preference");
+		// Set game screen to preferences
+		(window as any).CommonSetScreen("Character", "Preference");
+		// Directly set the subscreen to CRABS to bypass the menu
 		(window as any).CurrentSubScreen = "CRABS";
 	}
 
