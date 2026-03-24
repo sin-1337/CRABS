@@ -65,12 +65,20 @@
 }
 
 /* Scale up header icons specifically for the drawer */
-.drawer-content .CRABS_close,
-.drawer-content .CRABS_Help_Icon,
-.drawer-content .CRABS_Drawer_Header_Icon,
+.drawer-content .CRABS_Drawer_Help_Icon,
+.drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
-  width: 1.5em; /* Increased from 0.8em */
+  width: 1.5em; 
+  display: inline-block;
+  vertical-align: middle;
   padding: 5px;
+}
+
+.drawer-content .CRABS_Drawer_Help_Icon img,
+.drawer-content .CRABS_Drawer_Settings_Icon img,
+.drawer-content .CRABS_Drawer_Close_Icon img {
+  width: 100% !important;
+  height: auto !important;
 }
 
 .drawer-content #drawer-title {
