@@ -145,17 +145,20 @@
   display: block;
 }
 
-/* Includes the fix to prevent the SVG face from exploding */
+/* Update this block */
 #drawer-tab img {
-  width: 36px !important; /* Scaled to fit nicely in 44px tab */
+  width: 36px !important;
   height: 36px !important;
   max-width: 36px !important;
   max-height: 36px !important;
   object-fit: contain;
   pointer-events: none;
-  transform: rotate(270deg) translateZ(0);
 
-  /* Improve quality */
+  /* --- NEW: Default to upright and add transition --- */
+  transform: rotate(0deg) translateZ(0);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  /* ------------------------------------------------- */
+
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
