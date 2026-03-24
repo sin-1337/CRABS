@@ -288,16 +288,24 @@ export class Settings extends CRABS_Base {
 			const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
 			const y = element.yPos;
 			const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
+			const textX = cardX + 110; // LABEL_X_OFFSET
 
 			const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
 
 			if (element.type === 'Checkbox') {
-				// Pass element.text natively to DrawCheckbox so it aligns properly
-				DrawCheckbox(checkboxX, y - 32, 64, 64, element.text, (this.data as any)[element.setting], isGrayedOut);
+				// 1. Draw the box with NO text
+				DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
 
-				// Hover hint logic - extend width to cover text too
+				// 2. Bypass BC's DrawText to force true left-alignment
+				MainCanvas.font = "36px Arial";
+				MainCanvas.textAlign = "left";
+				MainCanvas.fillStyle = isGrayedOut ? "gray" : "white";
+				MainCanvas.fillText(element.text, textX, y + 12); // +12 aligns the text baseline with the box center
+
+				// 3. Hover hint
 				if (isMouseIn(checkboxX, y - 32, 450, 64)) {
-					DrawText(element.hint, 1100, 950, "Black", "Gray");
+					MainCanvas.textAlign = "center";
+					DrawText(element.hint, 1100, 950, "White", "Gray");
 				}
 			}
 		}
