@@ -21,7 +21,7 @@
 #drawer-tab {
   pointer-events: auto;
   width: 44px;
-  height: 44px;
+  height: 64px; /* Taller tab */
   background: #222;
   border: 1px solid #efb0e2;
   border-right: none;
@@ -133,15 +133,16 @@
 
 /* Includes the fix to prevent the SVG face from exploding */
 #drawer-tab img {
-  width: 32px !important;
-  height: 32px !important;
-  max-width: 32px !important;
-  max-height: 32px !important;
+  width: 40px !important; /* Larger icon */
+  height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 0 2px #efb0e2);
+  transform: rotate(270deg) translateZ(0); /* Back to 270deg with acceleration */
   
-  /* Improve quality for small icons */
+  /* Improve quality for small/rotated icons */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
