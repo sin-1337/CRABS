@@ -315,8 +315,8 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Helper to check if the player's eyes are currently closed.
-	 */
+		 * Helper to check if the player's eyes are currently closed.
+		 */
 	private isEyesClosed(): boolean {
 		// Try the global function first if it's available
 		const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
@@ -329,14 +329,15 @@ export class Roster extends CRABS_Base {
 			return (Player as any).IsEyesClosed();
 		}
 
-		// Fallback: Manually check the appearance for the "Eyes" group
+		// Fallback: Check the actual Expression property in the base game
 		if (Array.isArray(Player.Appearance)) {
 			const eyesItem = Player.Appearance.find(
-				(item: any) => item.Group === "Eyes" || (item.Asset && item.Asset.Group && item.Asset.Group.Name === "Eyes")
+				(item: any) => item.Asset && item.Asset.Group && item.Asset.Group.Name === "Eyes"
 			);
+
 			if (eyesItem) {
-				const itemName = eyesItem.Name || (eyesItem.Asset && eyesItem.Asset.Name);
-				return itemName === "Closed";
+				// FIX: Facial expressions are stored in the Property object
+				return eyesItem.Property?.Expression === "Closed";
 			}
 		}
 
