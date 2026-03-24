@@ -81,7 +81,8 @@
 }
 
 .CRABS_Help_Icon,
-.CRABS_Drawer_Header_Icon {
+.CRABS_Drawer_Header_Icon,
+.CRABS_Settings_Icon {
     width: 0.8em;
     height: auto;
     cursor: pointer;

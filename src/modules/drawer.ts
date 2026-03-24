@@ -50,7 +50,11 @@ export class Drawer extends CRABS_Base {
 		const templateVars = {
 			Help: Assets.printimage({ 
 				key: "help", 
-				css_class_override: "CRABS_Drawer_Header_Icon" 
+				css_class_override: "CRABS_Drawer_Help_Icon" 
+			}),
+			Settings: Assets.printimage({
+				key: "settings",
+				css_class_override: "CRABS_Drawer_Settings_Icon"
 			}),
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({
@@ -186,18 +190,34 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
+	public override openSettings(): void {
+		// Close drawer first
+		this.close();
+		// Then call base settings logic
+		super.openSettings();
+	}
+
 	private bindHeaderButtons(): void {
 		if (!this.instance) return;
 
 		// Bind Help icon inside the drawer header
-		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Header_Icon") as HTMLElement;
+		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
 		if (helpBtn) {
-			// Remove old listener if any and add new one
 			helpBtn.replaceWith(helpBtn.cloneNode(true));
-			const newHelpBtn = this.instance.querySelector(".CRABS_Drawer_Header_Icon") as HTMLElement;
+			const newHelpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
 			newHelpBtn.addEventListener("click", () => {
 				this.showingHelp = !this.showingHelp;
 				this.refresh();
+			});
+		}
+
+		// Bind Settings icon inside the drawer header
+		const settingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
+		if (settingsBtn) {
+			settingsBtn.replaceWith(settingsBtn.cloneNode(true));
+			const newSettingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
+			newSettingsBtn.addEventListener("click", () => {
+				this.openSettings();
 			});
 		}
 

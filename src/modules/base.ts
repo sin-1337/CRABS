@@ -104,6 +104,14 @@ export abstract class CRABS_Base {
 	}
 
 	/**
+	 * Navigates to the CRABS settings page
+	 */
+	public openSettings(): void {
+		ChatRoomStatusUpdate("Preference");
+		(window as any).CurrentSubScreen = "CRABS";
+	}
+
+	/**
 	 * Attaches an event listener to any object matching the supplied class or id.
 	 * @param {string} selectorName - Name of the class or id you are looking for.
 	 * @param {function} callback - The function to execute.
@@ -180,6 +188,7 @@ export abstract class CRABS_Base {
 			}
 		}
 		this.attachEvent("CRABS_Help_Icon", this.fakePlayerCommand, undefined, "help", "click", "class", root);
+		this.attachEvent("CRABS_Settings_Icon", () => this.openSettings(), undefined, undefined, "click", "class", root);
 		this.attachEvent("CRABS_close", this.closeElement, "elementid", undefined, "click", "class", root);
 	}
 
@@ -208,6 +217,7 @@ export abstract class CRABS_Base {
 		if (wrapper) {
 			template = wrappertemplate
 				.replace("{{Help}}", Assets.printimage({ key: "help" }))
+				.replace("{{Settings}}", Assets.printimage({ key: "settings" }))
 				.replace("{{content}}", template);
 			if (wrapperArgs) {
 				for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
