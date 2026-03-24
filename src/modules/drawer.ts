@@ -50,11 +50,11 @@ export class Drawer extends CRABS_Base {
 		const templateVars = {
 			Help: Assets.printimage({ 
 				key: "help", 
-				css_class_override: "CRABS_Drawer_Help_Icon" 
+				css_class_override: "CRABS_Drawer_Header_Icon" 
 			}),
 			Settings: Assets.printimage({
 				key: "settings",
-				css_class_override: "CRABS_Drawer_Settings_Icon"
+				css_class_override: "CRABS_Drawer_Header_Icon"
 			}),
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({
@@ -193,8 +193,11 @@ export class Drawer extends CRABS_Base {
 	public override openSettings(): void {
 		// Close drawer first
 		this.close();
-		// Then call base settings logic
-		super.openSettings();
+		// Set screen to Preference and subscreen to Extension
+		(window as any).CommonSetScreen("Character", "Preference");
+		(window as any).CurrentSubScreen = "Extension";
+		// Force the CRABS subscreen directly
+		(window as any).CurrentSubScreen = "CRABS";
 	}
 
 	private bindHeaderButtons(): void {
@@ -203,8 +206,9 @@ export class Drawer extends CRABS_Base {
 		// Bind Help icon inside the drawer header
 		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
 		if (helpBtn) {
-			helpBtn.replaceWith(helpBtn.cloneNode(true));
-			const newHelpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
+			// Clear old listeners by cloning and replacing, but maintain the wrapper classes
+			const newHelpBtn = helpBtn.cloneNode(true) as HTMLElement;
+			helpBtn.parentNode?.replaceChild(newHelpBtn, helpBtn);
 			newHelpBtn.addEventListener("click", () => {
 				this.showingHelp = !this.showingHelp;
 				this.refresh();
@@ -214,8 +218,8 @@ export class Drawer extends CRABS_Base {
 		// Bind Settings icon inside the drawer header
 		const settingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
 		if (settingsBtn) {
-			settingsBtn.replaceWith(settingsBtn.cloneNode(true));
-			const newSettingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
+			const newSettingsBtn = settingsBtn.cloneNode(true) as HTMLElement;
+			settingsBtn.parentNode?.replaceChild(newSettingsBtn, settingsBtn);
 			newSettingsBtn.addEventListener("click", () => {
 				this.openSettings();
 			});
@@ -224,8 +228,8 @@ export class Drawer extends CRABS_Base {
 		// Bind Close icon inside the drawer header
 		const closeBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
 		if (closeBtn) {
-			closeBtn.replaceWith(closeBtn.cloneNode(true));
-			const newCloseBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
+			const newCloseBtn = closeBtn.cloneNode(true) as HTMLElement;
+			closeBtn.parentNode?.replaceChild(newCloseBtn, closeBtn);
 			newCloseBtn.addEventListener("click", (e) => {
 				e.stopPropagation();
 				if (this.showingHelp) {
