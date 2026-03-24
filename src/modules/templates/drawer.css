@@ -62,27 +62,23 @@
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Scale up header icons specifically for the drawer */
-.drawer-content .CRABS_Drawer_Help_Icon,
-.drawer-content .CRABS_Drawer_Settings_Icon,
-.drawer-content .CRABS_Drawer_Close_Icon {
-  width: 1.5em !important; 
-  height: 1.5em !important;
+/* Scale up header icons specifically for the drawer - Fixed Pixel Sizes */
+.drawer-content .CRABS_Drawer_Icon_Container {
+  width: 40px !important; 
+  height: 40px !important;
   display: inline-flex !important;
   justify-content: center;
   align-items: center;
   vertical-align: middle;
-  padding: 5px;
+  padding: 4px;
   cursor: pointer;
 }
 
-.drawer-content .CRABS_Drawer_Help_Icon img,
-.drawer-content .CRABS_Drawer_Settings_Icon img,
-.drawer-content .CRABS_Drawer_Close_Icon img {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+.drawer-content .CRABS_Drawer_Icon_Container img {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
   object-fit: contain;
 }
 

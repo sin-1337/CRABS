@@ -1,17 +1,19 @@
 <div id="crabs-drawer" class="drawer-closed">
   <div id="drawer-tab">
-    <img src="https://sin-1337.github.io/CRABS/images/CRABS_Logo.png" alt="Open">
+    {{TabIcon}}
   </div>
   <div class="drawer-content CRABS_wrapper">
     <div class="CRABS_wrapper_header">
       <table style="width: 100%; table-layout: auto;">
         <tr>
           <td style="white-space: nowrap;">
-            <div class="CRABS_Drawer_Header_Icon CRABS_Drawer_Help_Icon">{{Help}}</div>
-            <div class="CRABS_Drawer_Header_Icon CRABS_Drawer_Settings_Icon">{{Settings}}</div>
+            <div class="CRABS_Drawer_Help_Icon" style="display:inline-block;">{{Help}}</div>
+            <div class="CRABS_Drawer_Settings_Icon" style="display:inline-block;">{{Settings}}</div>
           </td>
           <td id="drawer-title" style="width: 100%; text-align: center;">{{TitleBar}}</td>
-          <td style="white-space: nowrap;">{{Close}}</td>
+          <td style="white-space: nowrap;">
+            <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
+          </td>
         </tr>
       </table>
     </div>

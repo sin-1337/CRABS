@@ -107,30 +107,12 @@ export abstract class CRABS_Base {
 	 * Navigates to the CRABS settings page
 	 */
 	public openSettings(): void {
-		// 1. Manually set the state that the Extensions screen expects
-		(window as any).CurrentSubScreen = "CRABS";
-		(window as any).PreferenceMessage = "";
-		
-		// 2. Fetch the settings instance (we'll need main main to have exposed it or fetch from window)
-		const settings = (window as any).SETTINGS;
-		if (settings) {
-			(window as any).PreferenceExtensionsCurrent = {
-				Identifier: "CRABS",
-				click: () => settings.click(),
-				run: () => settings.draw(),
-				exit: () => {
-					(window as any).PreferenceMessage = "";
-					(window as any).PreferenceExtensionsCurrent = null;
-					(window as any).PreferenceSubscreenExtensionsClear();
-				},
-				load: () => {
-					(window as any).PreferenceMessage = "";
-				}
-			};
-		}
-
-		// 3. Switch to the Preference screen
+		// Initialize the player state to avoid the InformationSheet crash
+		(window as any).InformationSheetLoadCharacter(Player);
+		// Set game screen to preferences
 		(window as any).CommonSetScreen("Character", "Preference");
+		// Directly set the subscreen to CRABS to bypass the menu
+		(window as any).CurrentSubScreen = "CRABS";
 	}
 
 	/**

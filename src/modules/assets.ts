@@ -36,6 +36,12 @@ export abstract class Assets {
 				class: "CRABS_logo",
 			},
 
+			animated_logo: {
+				file: "CRABS_Logo.webp",
+				alt: "CRABS",
+				class: "CRABS_logo",
+			},
+
 			// error icon
 			error: {
 				file: "error.svg",
