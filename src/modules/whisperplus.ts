@@ -18,8 +18,14 @@ import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
 
 export class WhisperPlus extends CRABS_Base {
+	private drawerModule: any = null;
+
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
+	}
+
+	public setDrawer(drawer: any): void {
+		this.drawerModule = drawer;
 	}
 
 	/**
@@ -200,6 +206,12 @@ export class WhisperPlus extends CRABS_Base {
 		if (!targetMember) {
 			ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${target}.`, 30_000);
 			return false;
+		}
+
+		// Auto-stow drawer if enabled
+		// We use a global settings check or similar if available
+		if (this.drawerModule && (window as any).SETTINGS?.data.closeDrawerOnWhisper) {
+			this.drawerModule.close();
 		}
 
 		// Handle self whispers with gray text and memo emoji

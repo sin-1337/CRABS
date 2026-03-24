@@ -314,6 +314,17 @@ export class Roster extends CRABS_Base {
 		return player_icons;
 	}
 
+	/**
+	 * Returns the player's blindness level from 0 to 4.
+	 */
+	private getBlindnessLevel(): number {
+		if (Player.HasEffect("BlindTotal")) return 4;
+		if (Player.HasEffect("BlindHeavy")) return 3;
+		if (Player.HasEffect("BlindNormal")) return 2;
+		if (Player.HasEffect("BlindLight")) return 1;
+		return 0;
+	}
+
 	/** 
 	 * prints the roster
 	 * 
@@ -328,6 +339,17 @@ export class Roster extends CRABS_Base {
 
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) {
 			return "";
+		}
+
+		// Immersive Mode Check
+		let rosterStyle = "";
+		const settings = (window as any).SETTINGS;
+		if (settings?.data.immersiveMode) {
+			const blindLevel = this.getBlindnessLevel();
+			if (blindLevel > 0) {
+				const blurAmount = blindLevel * 5; // 1=5px, 2=10px, 3=15px, 4=20px
+				rosterStyle = `filter: blur(${blurAmount}px); pointer-events: none; user-select: none; transition: filter 0.5s ease;`;
+			}
 		}
 
 		const SPLITARGS = args.split(" ");
@@ -425,6 +447,7 @@ export class Roster extends CRABS_Base {
 
 		// build table header
 		templatevars = {
+			RosterStyle: rosterStyle,
 			adminIcon: `${Assets.printimage({
 				key: "admin",
 				tooltip_override: "Admins",

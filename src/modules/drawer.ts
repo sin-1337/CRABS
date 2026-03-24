@@ -7,6 +7,7 @@ import drawertemplate from "./templates/drawer.html";
 
 import { Help } from "./help";
 import { WhisperPlus } from "./whisperplus";
+import { Settings } from "./Settings";
 
 export class Drawer extends CRABS_Base {
 	private isOpen: boolean = false;
@@ -15,14 +16,16 @@ export class Drawer extends CRABS_Base {
 	private rosterModule: Roster;
 	private helpModule: Help;
 	private whisperPlusModule: WhisperPlus;
+	private settingsModule: Settings;
 	private resizeObserver: ResizeObserver | null = null;
 	private showingHelp: boolean = false;
 
-	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus) {
+	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus, settings: Settings) {
 		super(CRABS);
 		this.rosterModule = roster;
 		this.helpModule = help;
 		this.whisperPlusModule = whisperPlus;
+		this.settingsModule = settings;
 		this.init();
 	}
 
@@ -101,6 +104,13 @@ export class Drawer extends CRABS_Base {
 	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
+
+		// Respect the disableDrawer setting
+		if (this.settingsModule.data.disableDrawer) {
+			this.instance.style.display = "none";
+			this.close();
+			return;
+		}
 
 		// The drawer should only be visible when actually in a chat room screen
 		const inChatRoom = typeof ChatRoomData !== 'undefined' && 

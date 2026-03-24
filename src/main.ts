@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings } from "./modules";
 
 
 //register the mod
@@ -14,14 +14,64 @@ const CRABS = bcModSDK.registerMod({
 // print version early, so you know what version is running even if it fails.
 console.log(`CRABS v${VERSION} Loading`); // do not remove
 
+const SETTINGS = new Settings(CRABS);
+(window as any).SETTINGS = SETTINGS;
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
-const DRAWER = new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
+const DRAWER = new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS, SETTINGS);
+WHISPERPLUS.setDrawer(DRAWER);
+
+/**
+ * Hook for the preference screen
+ */
+CRABS.hookFunction("PreferenceRun", 10, (args, next) => {
+	const result = next(args);
+	if ((window as any).CurrentSubScreen === "CRABS") {
+		SETTINGS.draw();
+	}
+	return result;
+});
+
+CRABS.hookFunction("PreferenceClick", 10, (args, next) => {
+	if ((window as any).CurrentSubScreen === "CRABS") {
+		SETTINGS.click();
+		return;
+	}
+	const result = next(args);
+	return result;
+});
+
+// Add a button to the preference screen to open CRABS settings
+CRABS.hookFunction("PreferenceRun", 20, (args, next) => {
+	const result = next(args);
+	if (!(window as any).CurrentSubScreen && (window as any).PreferenceMessage === "") {
+		(window as any).DrawButton(1815, 820, 90, 90, "", "White", "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png", "CRABS Settings");
+	}
+	return result;
+});
+
+CRABS.hookFunction("PreferenceClick", 20, (args, next) => {
+	if (!(window as any).CurrentSubScreen && (window as any).PreferenceMessage === "" && (window as any).MouseIn(1815, 820, 90, 90)) {
+		(window as any).CurrentSubScreen = "CRABS";
+		return;
+	}
+	return next(args);
+});
+
 
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();
+
+// Hook into chat sending for auto-stow feature
+CRABS.hookFunction("ChatRoomSendChat", 10, (args, next) => {
+	const result = next(args);
+	if (SETTINGS.data.closeDrawerOnChat) {
+		DRAWER.close();
+	}
+	return result;
+});
 
 // print version and confirm load success in console
 console.log(`CRABS v${VERSION} Loaded`); // do not remove
@@ -32,6 +82,9 @@ console.log(`CRABS v${VERSION} Loaded`); // do not remove
  * @returns void
  */
 function drawbanner() {
+	// Let setting determine if we even draw
+	if (!SETTINGS.data.showBanner) return false;
+
 	//let output: string = "";
 	// if the player left the room, bail!
 	if (Player.LastChatRoom === null) {
@@ -186,6 +239,11 @@ CommandCombine([
 		Tag: "roster",
 		Description: "Show the player count, helpful in maps.",
 		Action: (args: string) => {
+			if (SETTINGS.data.rosterOpensDrawer && !args) {
+				DRAWER.toggle();
+				return;
+			}
+
 			if (argcheck(args)) {
 				ROSTER.buildui(ROSTER.buildroster(args), "CRABS_Roster");
 
