@@ -85,24 +85,29 @@ window.ChatRoomExit = function () {
 };
 
 /**
- * Hook into the room synchronization process. 
- * This is the most reliable way to know when we are fully joined into a room.
- * It triggers both when joining someone else's room AND when creating your own.
+ * Hook into the CreateRoomSync function.  
+ * It triggers when joining a room to execute
+ * code at join time.
  */
-CRABS.hookFunction("ChatRoomSync", 0, (args, next) => {
-	// Run the original function and cast it to a Promise
-	const result = next(args) as unknown as Promise<void>;
+CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
+	// Fire the original game function and the rest of the ModSDK chain (including CIA)
+	const result = next(args);
 
-	// Wait for the original async function to resolve before firing your UI logic
-	result.then(() => {
-		DRAWER.updateVisibility();
+	// Escape the ModSDK thread using setTimeout. 
+	// Even if CIA crashes the promise chain right after this, the browser will still run this code.
+	setTimeout(() => {
+		try {
+			DRAWER.updateVisibility();
 
-		if (typeof ChatRoomData !== "undefined" && ChatRoomData && SETTINGS.data.showBanner) {
-			drawbanner();
+			// Re-verify ChatRoomData exists just in case the sync failed entirely
+			if (typeof ChatRoomData !== "undefined" && ChatRoomData && SETTINGS.data.showBanner) {
+				drawbanner();
+			}
+		} catch (err) {
+			console.error("CRABS: ChatRoomSync failed:", err);
 		}
-	});
+	}, 500);
 
-	// Cast the return back to 'never' to satisfy the strict PatchHook type
 	return result as never;
 });
 
@@ -190,6 +195,7 @@ CommandCombine([
 		Description: "Open the CRABS Roster.",
 		Action: (args: string) => {
 			if (SETTINGS.data.rosterOpensDrawer && !args) {
+				DRAWER.updateVisibility();
 				DRAWER.toggle();
 				return;
 			}
