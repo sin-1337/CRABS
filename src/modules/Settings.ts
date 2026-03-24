@@ -187,7 +187,8 @@ export class Settings extends CRABS_Base {
                     run: () => this.draw(),
                     exit: () => {
                         (window as any).PreferenceMessage = "";
-                        (window as any).CurrentSubScreen = null;
+                        (window as any).PreferenceExtensionsCurrent = null;
+                        (window as any).CurrentSubScreen = "Extension";
                     },
                     load: () => {
                         (window as any).PreferenceMessage = "";
@@ -207,10 +208,16 @@ export class Settings extends CRABS_Base {
         const isMouseIn = (window as any).MouseIn;
         const DrawText = (window as any).DrawText;
         const DrawCheckbox = (window as any).DrawCheckbox;
+        const DrawButton = (window as any).DrawButton;
+        const DrawCharacter = (window as any).DrawCharacter;
         const MainCanvas = (window as any).MainCanvas;
         const PreferenceMessage = (window as any).PreferenceMessage;
 
         if (!MainCanvas) return;
+
+        // Draw the player & controls
+        DrawCharacter(Player, 50, 50, 0.9);
+        DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
 
         if (PreferenceMessage && PreferenceMessage !== "") {
             DrawText(PreferenceMessage, 1400, 125, "Red", "Black");
@@ -265,7 +272,8 @@ export class Settings extends CRABS_Base {
         // Handle the Back button (native BC preference screen behavior)
         if (isMouseIn(1815, 75, 90, 90)) {
             (window as any).PreferenceMessage = "";
-            (window as any).CurrentSubScreen = null;
+            (window as any).PreferenceExtensionsCurrent = null;
+            (window as any).CurrentSubScreen = "Extension";
         }
     }
 

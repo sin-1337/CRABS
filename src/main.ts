@@ -28,9 +28,17 @@ WHISPERPLUS.setupHooks();
 
 // Hook into chat sending for auto-stow feature
 CRABS.hookFunction("ChatRoomSendChat", 10, (args, next) => {
+	// Capture the message before next(args) clears the input box
+	const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
+	const msg = chatInput?.value?.toLowerCase().trim() || "";
+
 	const result = next(args);
+
 	if (SETTINGS.data.closeDrawerOnChat) {
-		DRAWER.close();
+		// Exception: Don't auto-close if the user is running a command that specifically opens/toggles the drawer
+		if (!msg.startsWith("/roster") && !msg.startsWith("/crabs")) {
+			DRAWER.close();
+		}
 	}
 	return result;
 });
@@ -118,7 +126,7 @@ function startupVisibilityCheck() {
 	if (typeof Player !== 'undefined' && Player && Player.MemberNumber) {
 		DRAWER.updateVisibility();
 	}
-	
+
 	// Keep checking periodically to ensure UI state remains correct
 	setTimeout(startupVisibilityCheck, 3000);
 }
@@ -188,7 +196,7 @@ CommandCombine([
 CommandCombine([
 	{
 		Tag: "crabs",
-		Description: "Show the player count, helpful in maps.",
+		Description: "Open the CRABS Roster.",
 		Action: (args: string) => {
 			commandRedirect("roster", args);
 		},
@@ -199,7 +207,7 @@ CommandCombine([
 CommandCombine([
 	{
 		Tag: "roster",
-		Description: "Show the player count, helpful in maps.",
+		Description: "Open the CRABS Roster.",
 		Action: (args: string) => {
 			if (SETTINGS.data.rosterOpensDrawer && !args) {
 				DRAWER.toggle();
