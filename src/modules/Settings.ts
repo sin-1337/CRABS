@@ -109,6 +109,7 @@ export class Settings extends CRABS_Base {
     }
 
     private isRestricted(): boolean {
+        // Character is restricted if hands are bound or they cannot reach their own items
         return (window as any).Player.IsRestrained() || (window as any).Player.IsBound();
     }
 
@@ -231,7 +232,7 @@ export class Settings extends CRABS_Base {
                     run: () => this.draw(),
                     exit: () => {
                         (window as any).PreferenceMessage = "";
-                        (window as any).PreferenceExtensionsCurrent = null;
+                        (window as any).PreferenceSubscreenExtensionsClear();
                     },
                     load: () => {
                         (window as any).PreferenceMessage = "";
@@ -251,65 +252,78 @@ export class Settings extends CRABS_Base {
         const DrawButton = (window as any).DrawButton;
         const DrawCharacter = (window as any).DrawCharacter;
         const DrawRect = (window as any).DrawRect;
-        const MainCanvas = (window as any).MainCanvas;
         const PreferenceMessage = (window as any).PreferenceMessage;
 
-        if (!MainCanvas) return;
+        // Fetch the 2D context safely
+        const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
+        const ctx = canvasEl ? canvasEl.getContext("2d") : null;
+        if (!ctx) return;
 
         // Draw character background card
         DrawRect(40, 40, 420, 920, "#222222aa");
-        DrawCharacter(Player, 50, 50, 0.9);
+        DrawCharacter((window as any).Player, 50, 50, 0.9);
+        
+        // --- FORCE CENTER ALIGNMENT ---
+        // This prevents the left-alignment from the checkboxes from bleeding over
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         
         // Main Header
-        MainCanvas.textAlign = "center";
         DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
         DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
-        // Info message / Hint area
+        // Info message / Hint area (Centered at X = 1000)
         if (PreferenceMessage && PreferenceMessage !== "") {
             DrawText(PreferenceMessage, 1100, 150, "Red", "Black");
         } else {
             DrawText("Hover setting names for detailed descriptions", 1100, 150, "Black", "Gray");
         }
 
+        // Calculate exact centers for the background cards
+        const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);  // 855
+        const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2); // 1555
+
         // Draw Section Cards
         // Left Column: Banner & Drawer
         DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#ffffff11"); // Banner card
-        DrawText("Banner Options", this.LEFT_COL_X + 305, 220, "White", "Gray");
+        DrawText("Banner Options", leftCenterX, 220, "White", "Gray");
         
         DrawRect(this.LEFT_COL_X - 20, 345, 650, 420, "#ffffff11"); // Drawer card
-        DrawText("Drawer Options", this.LEFT_COL_X + 305, 365, "White", "Gray");
+        DrawText("Drawer Options", leftCenterX, 365, "White", "Gray");
 
         // Right Column: Immersion
         DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#ffffff11"); // Immersion card
-        DrawText("Immersion & Rules", this.RIGHT_COL_X + 305, 220, "White", "Gray");
+        DrawText("Immersion & Rules", rightCenterX, 220, "White", "Gray");
 
         for (const element of this.elements) {
             const isImmersion = element.category === "Immersion";
             const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
             const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
-            const textX = cardX + this.LABEL_X_OFFSET;
+            const textX = cardX + 110;
 
             const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
 
             if (element.type === 'Checkbox') {
-                // Checkbox on the left
+                // 1. Draw the box with NO text using BC's function
                 DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
                 
-                // Text on the right
-                MainCanvas.textAlign = "left";
-                DrawText(element.text, textX, y, isGrayedOut ? "Gray" : "Black", "Gray");
+                // 2. Bypass BC's DrawText to force true left-alignment
+                ctx.font = "36px Arial";
+                ctx.textAlign = "left";
+                ctx.fillStyle = isGrayedOut ? "gray" : "white";
+                ctx.fillText(element.text, textX, y);
                 
-                // Hover hint logic
-                if (isMouseIn(textX, y - 18, 450, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
-                    MainCanvas.textAlign = "center";
-                    DrawText(element.hint, 1100, 950, "Black", "Gray");
-                    MainCanvas.textAlign = "left";
+                // 3. Hover hint (Re-center before drawing tooltip!)
+                if (isMouseIn(checkboxX, y - 32, 450, 64)) {
+                    ctx.textAlign = "center"; 
+                    DrawText(element.hint, 1100, 950, "White", "Gray"); // Centered at X = 1100
                 }
             }
         }
-        MainCanvas.textAlign = "center";
+        
+        // Reset canvas baseline for safety
+        ctx.textBaseline = "alphabetic";
     }
 
     public click(): void {
@@ -331,8 +345,8 @@ export class Settings extends CRABS_Base {
             const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
             if (isGrayedOut) continue;
 
-            // Only allow click on the checkbox itself
-            if (isMouseIn(checkboxX, y - 32, 64, 64)) {
+            // Only allow click on the checkbox itself (expanded area for better feel)
+            if (isMouseIn(checkboxX, y - 32, 450, 64)) {
                 if (element.type === 'Checkbox') {
                     (this.data as any)[element.setting] = !(this.data as any)[element.setting];
                     
