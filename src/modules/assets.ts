@@ -37,7 +37,7 @@ export abstract class Assets {
 			},
 
 			animated_logo: {
-				file: "CRABS_Logo.webp",
+				file: "CRABS_logo.webp",
 				alt: "CRABS",
 				class: "CRABS_logo",
 			},
