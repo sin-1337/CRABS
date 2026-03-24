@@ -300,8 +300,10 @@ export class Settings extends CRABS_Base {
 
             // Check for click on the checkbox
             if (isMouseIn(x, y, w, h)) {
-                (this.data as any)[element.setting] = !(this.data as any)[element.setting];
-                this.save();
+                if (element.type === 'Checkbox') {
+                    (this.data as any)[element.setting] = !(this.data as any)[element.setting];
+                    this.save();
+                }
                 return;
             }
 
