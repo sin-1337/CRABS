@@ -75,9 +75,13 @@ export class Settings extends CRABS_Base {
     private elements: UIElement[] = [];
     private readonly STORAGE_KEY = "CRABS_Settings";
     
-    private menuElementXOffset: number = 1000;
-    private startY: number = 240;
-    private spacingY: number = 70;
+    // Layout Constants
+    private readonly LEFT_COL_X = 500;
+    private readonly RIGHT_COL_X = 1220;
+    private readonly CHECKBOX_WIDTH = 64;
+    private readonly LABEL_MARGIN = 20;
+    private readonly START_Y = 240;
+    private readonly SPACING_Y = 75;
 
     constructor(CRABS: ModSDKModAPI) {
         super(CRABS);
@@ -169,14 +173,13 @@ export class Settings extends CRABS_Base {
     private getNewYPos(category?: string): number {
         const catElements = this.elements.filter(e => e.category === category);
         if (catElements.length === 0) {
-            // New category positioning
             if (category === "Banner") return 240;
-            if (category === "Drawer") return 380;
+            if (category === "Drawer") return 385;
             if (category === "Immersion") return 240;
-            return this.startY;
+            return this.START_Y;
         }
         const lastElement = catElements[catElements.length - 1];
-        return lastElement.yPos + this.spacingY;
+        return lastElement.yPos + this.SPACING_Y;
     }
 
     private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: Partial<CheckboxElement>) {
@@ -187,9 +190,9 @@ export class Settings extends CRABS_Base {
             setting,
             hint,
             yPos: this.getNewYPos(category),
-            width: 64,
-            height: 64,
-            xModifier: category === "Immersion" ? 450 : 0, // Split into two columns
+            width: this.CHECKBOX_WIDTH,
+            height: this.CHECKBOX_WIDTH,
+            xModifier: 0,
             yModifier: 0,
             ...options
         };
@@ -244,35 +247,39 @@ export class Settings extends CRABS_Base {
         if (PreferenceMessage && PreferenceMessage !== "") {
             DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
         } else {
-            DrawText("Hover/Click setting names for detailed descriptions", 1000, 150, "Gray", "Black");
+            DrawText("Hover or click setting names for detailed descriptions", 1000, 150, "Black", "Gray");
         }
 
         // Draw Section Cards
         // Left Column: Banner & Drawer
-        DrawRect(480, 200, 700, 120, "#ffffff11"); // Banner card
+        DrawRect(480, 200, 700, 125, "#ffffff11"); // Banner card
         DrawText("Banner Options", 830, 220, "White", "Gray");
         
-        DrawRect(480, 340, 700, 420, "#ffffff11"); // Drawer card
-        DrawText("Drawer Options", 830, 360, "White", "Gray");
+        DrawRect(480, 345, 700, 420, "#ffffff11"); // Drawer card
+        DrawText("Drawer Options", 830, 365, "White", "Gray");
 
         // Right Column: Immersion
         DrawRect(1200, 200, 600, 280, "#ffffff11"); // Immersion card
         DrawText("Immersion & Rules", 1500, 220, "White", "Gray");
 
-        MainCanvas.textAlign = "left";
         for (const element of this.elements) {
-            const x = this.menuElementXOffset + (element.xModifier || 0);
+            const isImmersion = element.category === "Immersion";
+            const x = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
-            const labelX = element.category === "Immersion" ? 1220 : 500;
+            const textX = x + this.CHECKBOX_WIDTH + this.LABEL_MARGIN;
 
             if (element.type === 'Checkbox') {
-                DrawText(element.text, labelX, y, "Black", "Gray");
-                DrawCheckbox(x, y - 32, 64, 64, "", this.data[element.setting as keyof CRABS_Settings]);
+                // Checkbox on the left
+                DrawCheckbox(x, y - 32, 64, 64, "", (this.data as any)[element.setting]);
                 
-                if (isMouseIn(labelX, y - 18, 450, 36)) {
+                // Text on the right
+                MainCanvas.textAlign = "left";
+                DrawText(element.text, textX, y, "Black", "Gray");
+                
+                // Hint logic
+                if (isMouseIn(textX, y - 18, 400, 36) || isMouseIn(x, y - 32, 64, 64)) {
                     MainCanvas.textAlign = "center";
-                    (window as any).DrawText(element.hint, 1000, 950, "Black", "Gray");
-                    MainCanvas.textAlign = "left";
+                    DrawText(element.hint, 1000, 950, "Black", "Gray");
                 }
             }
         }
@@ -281,10 +288,8 @@ export class Settings extends CRABS_Base {
 
     public click(): void {
         const isMouseIn = (window as any).MouseIn;
-        const mouseX = (window as any).MouseX;
-        const mouseY = (window as any).MouseY;
 
-        // Corrected Back button using native clear function
+        // Back button
         if (isMouseIn(1815, 75, 90, 90)) {
             (window as any).PreferenceMessage = "";
             (window as any).PreferenceSubscreenExtensionsClear();
@@ -292,24 +297,18 @@ export class Settings extends CRABS_Base {
         }
 
         for (const element of this.elements) {
-            const x = this.menuElementXOffset + (element.xModifier || 0);
-            const y = element.yPos - (element.height || 0) / 2;
-            const w = element.width;
-            const h = element.height || 36;
-            const labelX = element.category === "Immersion" ? 1220 : 500;
+            const isImmersion = element.category === "Immersion";
+            const x = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
+            const y = element.yPos;
+            const textX = x + this.CHECKBOX_WIDTH + this.LABEL_MARGIN;
 
-            // Check for click on the checkbox
-            if (isMouseIn(x, y, w, h)) {
+            // Check for click on the checkbox or the label
+            if (isMouseIn(x, y - 32, 64, 64) || isMouseIn(textX, y - 18, 400, 36)) {
                 if (element.type === 'Checkbox') {
                     (this.data as any)[element.setting] = !(this.data as any)[element.setting];
                     this.save();
+                    (window as any).PreferenceMessage = element.hint;
                 }
-                return;
-            }
-
-            // Click label to lock hint
-            if (isMouseIn(labelX, element.yPos - 18, 450, 36)) {
-                (window as any).PreferenceMessage = element.hint;
                 return;
             }
         }
