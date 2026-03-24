@@ -222,6 +222,13 @@ export class Drawer extends CRABS_Base {
 			});
 		}
 
+		// Listen for ESC key to stow the drawer
+		window.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && this.isOpen) {
+				this.close();
+			}
+		});
+
 		this.bindHeaderButtons();
 	}
 
