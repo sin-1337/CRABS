@@ -52,8 +52,6 @@ console.log(`CRABS v${VERSION} Loaded`); // do not remove
  * @returns void
  */
 function drawbanner() {
-	// Let setting determine if we even draw
-	if (!SETTINGS.data.showBanner) return false;
 
 	//let output: string = "";
 	// if the player left the room, bail!
@@ -86,61 +84,30 @@ window.ChatRoomExit = function () {
 	DRAWER.updateVisibility();
 };
 
-// TODO: create ui to turn this off!!
-// TODO: This only triggers on rooms I didn't make, why?
-// set up a handler for room entry
-// This sets up the banner!
-ChatRoomRegisterMessageHandler({
-	Description: "Send room stats on entry.",
-	Priority: 0, // trigger immediately
-	Callback: (data: any) => {
-		// check if we are a player and we entered a room
-		if (
-			data.Type === "Action" &&
-			data.Content === "ServerEnter" &&
-			data.Sender === Player.MemberNumber
-		) {
-			// Trigger drawer visibility immediately on entry
-			DRAWER.updateVisibility();
-
-			// work on a delay
-			setTimeout(() => {
-				// configure extra roster input to the banner
-				if (!ChatRoomData) return; // bail if ChatRoomData isn't initialized
-				drawbanner();
-				// Double-check visibility after the UI has had time to settle
-				DRAWER.updateVisibility();
-			}, 3600);
-		}
-
-		// Must return false to allow other handlers to work with the data.
-		return false;
-	},
-});
-
-/**
- * Periodically checks if the player is in a room and updates drawer visibility.
- * This handles cases where the mod loads while already in a room or if server messages are missed.
- */
-function startupVisibilityCheck() {
-	if (typeof Player !== 'undefined' && Player && Player.MemberNumber) {
-		DRAWER.updateVisibility();
-	}
-
-	// Keep checking periodically to ensure UI state remains correct
-	setTimeout(startupVisibilityCheck, 3000);
-}
-
-startupVisibilityCheck();
-
 /**
  * Hook into the room synchronization process. 
  * This is the most reliable way to know when we are fully joined into a room.
+ * It triggers both when joining someone else's room AND when creating your own.
  */
 CRABS.hookFunction("ChatRoomSync", 0, (args, next) => {
 	const result = next(args);
-	// Small delay to let the UI elements (like TextAreaChatLog) be created by the game
-	setTimeout(() => DRAWER.updateVisibility(), 100);
+
+	// Trigger drawer visibility logic immediately
+	DRAWER.updateVisibility();
+
+	// Short delay to let the UI elements (like TextAreaChatLog) be created by the game
+	// and to ensure ChatRoomData is fully populated before drawing the banner
+	setTimeout(() => {
+		if (ChatRoomData) {
+			// Automatically show banner on entry if the setting is enabled
+			if (SETTINGS.data.showBanner) {
+				drawbanner();
+			}
+			// Final visibility refresh once the room is stable
+			DRAWER.updateVisibility();
+		}
+	}, 1000);
+
 	return result;
 });
 
