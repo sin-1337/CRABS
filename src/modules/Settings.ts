@@ -81,7 +81,7 @@ export class Settings extends CRABS_Base {
     private readonly LEFT_COL_X = 550; 
     private readonly RIGHT_COL_X = 1250; 
     private readonly CHECKBOX_X_OFFSET = 30; 
-    private readonly LABEL_X_OFFSET = 110; 
+    private readonly LABEL_X_OFFSET = 120; // Increased for better gap
     private readonly CHECKBOX_WIDTH = 64;
     private readonly SPACING_Y = 75;
 
@@ -109,7 +109,6 @@ export class Settings extends CRABS_Base {
     }
 
     private isRestricted(): boolean {
-        // Character is restricted if hands are bound or they cannot reach their own items
         return (window as any).Player.IsRestrained() || (window as any).Player.IsBound();
     }
 
@@ -167,7 +166,6 @@ export class Settings extends CRABS_Base {
             { category: "Immersion", grayedOut: () => this.data.lockImmersive && this.isRestricted() }
         );
 
-        // Functional helper to check if a specific setting should be grayed out (locked)
         const isLocked = (setting: keyof CRABS_Settings) => {
             return () => this.data.lockImmersive && this.isRestricted() && this.data[setting] === true;
         };
@@ -195,10 +193,11 @@ export class Settings extends CRABS_Base {
     private getNewYPos(category?: string): number {
         const catElements = this.elements.filter(e => e.category === category);
         if (catElements.length === 0) {
-            if (category === "Banner") return 240;
-            if (category === "Drawer") return 385;
-            if (category === "Immersion") return 240;
-            return 240;
+            // Provide more space after the header (Initial Y increased)
+            if (category === "Banner") return 280;
+            if (category === "Drawer") return 425;
+            if (category === "Immersion") return 280;
+            return 280;
         }
         const lastElement = catElements[catElements.length - 1];
         return lastElement.yPos + this.SPACING_Y;
@@ -254,7 +253,6 @@ export class Settings extends CRABS_Base {
         const DrawRect = (window as any).DrawRect;
         const PreferenceMessage = (window as any).PreferenceMessage;
 
-        // Fetch the 2D context safely
         const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
         const ctx = canvasEl ? canvasEl.getContext("2d") : null;
         if (!ctx) return;
@@ -262,36 +260,30 @@ export class Settings extends CRABS_Base {
         // Draw character background card
         DrawRect(40, 40, 420, 920, "#222222aa");
         DrawCharacter((window as any).Player, 50, 50, 0.9);
-        
-        // --- FORCE CENTER ALIGNMENT ---
-        // This prevents the left-alignment from the checkboxes from bleeding over
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        
-        // Main Header
+
+        // Main Header (Centered at 1000)
         DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
         DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
-        // Info message / Hint area (Centered at X = 1000)
+        // Info message / Hint area (Centered at 1000)
         if (PreferenceMessage && PreferenceMessage !== "") {
-            DrawText(PreferenceMessage, 1100, 150, "Red", "Black");
+            DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
         } else {
-            DrawText("Hover setting names for detailed descriptions", 1100, 150, "Black", "Gray");
+            DrawText("Hover setting names for detailed descriptions", 1000, 150, "Black", "Gray");
         }
 
-        // Calculate exact centers for the background cards
-        const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);  // 855
-        const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2); // 1555
+        const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);
+        const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2);
 
         // Draw Section Cards
-        // Left Column: Banner & Drawer
         DrawRect(this.LEFT_COL_X - 20, 200, 650, 125, "#ffffff11"); // Banner card
         DrawText("Banner Options", leftCenterX, 220, "White", "Gray");
         
         DrawRect(this.LEFT_COL_X - 20, 345, 650, 420, "#ffffff11"); // Drawer card
         DrawText("Drawer Options", leftCenterX, 365, "White", "Gray");
 
-        // Right Column: Immersion
         DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#ffffff11"); // Immersion card
         DrawText("Immersion & Rules", rightCenterX, 220, "White", "Gray");
 
@@ -300,36 +292,31 @@ export class Settings extends CRABS_Base {
             const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
             const y = element.yPos;
             const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
-            const textX = cardX + 110;
+            const textX = cardX + this.LABEL_X_OFFSET;
 
             const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
 
             if (element.type === 'Checkbox') {
-                // 1. Draw the box with NO text using BC's function
                 DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
                 
-                // 2. Bypass BC's DrawText to force true left-alignment
                 ctx.font = "36px Arial";
                 ctx.textAlign = "left";
                 ctx.fillStyle = isGrayedOut ? "gray" : "white";
                 ctx.fillText(element.text, textX, y);
                 
-                // 3. Hover hint (Re-center before drawing tooltip!)
-                if (isMouseIn(checkboxX, y - 32, 450, 64)) {
+                if (isMouseIn(textX, y - 18, 450, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
                     ctx.textAlign = "center"; 
-                    DrawText(element.hint, 1100, 950, "White", "Gray"); // Centered at X = 1100
+                    DrawText(element.hint, 1100, 950, "White", "Gray");
+                    ctx.textAlign = "left";
                 }
             }
         }
-        
-        // Reset canvas baseline for safety
         ctx.textBaseline = "alphabetic";
     }
 
     public click(): void {
         const isMouseIn = (window as any).MouseIn;
 
-        // Back button
         if (isMouseIn(1815, 75, 90, 90)) {
             (window as any).PreferenceMessage = "";
             (window as any).PreferenceSubscreenExtensionsClear();
@@ -345,12 +332,10 @@ export class Settings extends CRABS_Base {
             const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
             if (isGrayedOut) continue;
 
-            // Only allow click on the checkbox itself (expanded area for better feel)
             if (isMouseIn(checkboxX, y - 32, 450, 64)) {
                 if (element.type === 'Checkbox') {
                     (this.data as any)[element.setting] = !(this.data as any)[element.setting];
                     
-                    // Mutual Exclusivity Logic
                     if (element.setting === "disableDrawer" && this.data.disableDrawer) {
                         this.data.rosterOpensDrawer = false;
                     }
