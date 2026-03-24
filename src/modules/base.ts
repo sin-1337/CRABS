@@ -109,8 +109,21 @@ export abstract class CRABS_Base {
 	public openSettings(): void {
 		// Set game screen to preferences
 		(window as any).CommonSetScreen("Character", "Preference");
-		// Directly set the subscreen to CRABS to bypass the menu
-		(window as any).CurrentSubScreen = "CRABS";
+		
+		// Ensure we aren't carrying over a profile selection that causes crashes
+		(window as any).InformationSheetSelection = null;
+		
+		// Set subscreen to Extension list
+		(window as any).CurrentSubScreen = "Extension";
+		
+		// Directly trigger the CRABS subscreen by name
+		// This matches how BC expects extension navigation to be state-managed
+		if (typeof (window as any).PreferenceSubscreenExtensionsCreate === "function") {
+			(window as any).PreferenceSubscreenExtensionsCreate("CRABS");
+		} else {
+			// Fallback for older versions or unexpected states
+			(window as any).CurrentSubScreen = "CRABS";
+		}
 	}
 
 	/**
