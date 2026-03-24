@@ -1,6 +1,8 @@
 /* Main Container */
 .toast.CRABS_Notification {
-  background-color: #241f31;
+  background-color: rgba(36, 31, 49, 0.6); /* Transparent dark purple */
+  backdrop-filter: blur(20px); /* High blur effect */
+  -webkit-backdrop-filter: blur(20px); /* Safari support */
   color: white;
   border: 2px solid #fff;
   border-radius: 12px;

@@ -5,7 +5,9 @@
   overflow: visible;
   white-space: normal;
   border-collapse: collapse;
-  background-color: #241F31;
+  background-color: rgba(36, 31, 49, 0.6) !important; /* Transparent dark purple */
+  backdrop-filter: blur(20px); /* High blur effect */
+  -webkit-backdrop-filter: blur(20px); /* Safari support */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
