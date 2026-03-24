@@ -23,44 +23,6 @@ const HELP = new Help(CRABS);
 const DRAWER = new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS, SETTINGS);
 WHISPERPLUS.setDrawer(DRAWER);
 
-/**
- * Hook for the preference screen
- */
-CRABS.hookFunction("PreferenceRun", 10, (args, next) => {
-	const result = next(args);
-	if ((window as any).CurrentSubScreen === "CRABS") {
-		SETTINGS.draw();
-	}
-	return result;
-});
-
-CRABS.hookFunction("PreferenceClick", 10, (args, next) => {
-	if ((window as any).CurrentSubScreen === "CRABS") {
-		SETTINGS.click();
-		return;
-	}
-	const result = next(args);
-	return result;
-});
-
-// Add a button to the preference screen to open CRABS settings
-CRABS.hookFunction("PreferenceRun", 20, (args, next) => {
-	const result = next(args);
-	if (!(window as any).CurrentSubScreen && (window as any).PreferenceMessage === "") {
-		(window as any).DrawButton(1815, 820, 90, 90, "", "White", "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png", "CRABS Settings");
-	}
-	return result;
-});
-
-CRABS.hookFunction("PreferenceClick", 20, (args, next) => {
-	if (!(window as any).CurrentSubScreen && (window as any).PreferenceMessage === "" && (window as any).MouseIn(1815, 820, 90, 90)) {
-		(window as any).CurrentSubScreen = "CRABS";
-		return;
-	}
-	return next(args);
-});
-
-
 // Initialize Whisper+ hooks for continuous conversation
 WHISPERPLUS.setupHooks();
 

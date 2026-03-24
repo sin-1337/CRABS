@@ -8,5 +8,4 @@ export * from "./drawer";
 export * from "./help";
 export * from "./roster";
 export * from "./whisperplus";
-export * from "./UISettings";
 export * from "./Settings";
