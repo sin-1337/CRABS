@@ -23,8 +23,7 @@
   width: 44px;
   height: 44px;
   background: #0148ab;
-  border: 1px solid #efb0e2;
-  border-right: none;
+  border: none;
   border-radius: 8px 0 0 8px;
   display: flex;
   justify-content: center;
@@ -141,7 +140,6 @@
   max-height: 36px !important;
   object-fit: contain;
   pointer-events: none;
-  filter: drop-shadow(0 0 2px #efb0e2);
   transform: rotate(270deg) translateZ(0);
 
   /* Improve quality */

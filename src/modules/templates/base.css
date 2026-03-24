@@ -54,6 +54,7 @@
   display: inline-flex;
   align-items: center;
   z-index: 3;
+  border: none !important;
 }
 
 .CRABS_header_icons {
@@ -86,6 +87,7 @@
     width: 0.8em;
     height: auto;
     cursor: pointer;
+    border: none !important;
 }
 
 .CRABS_icon {
