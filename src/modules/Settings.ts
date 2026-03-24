@@ -237,6 +237,7 @@ export class Settings extends CRABS_Base {
         DrawCharacter(Player, 50, 50, 0.9);
         
         // Header
+        MainCanvas.textAlign = "center";
         DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
         DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
@@ -249,15 +250,16 @@ export class Settings extends CRABS_Base {
         // Draw Section Cards
         // Left Column: Banner & Drawer
         DrawRect(480, 200, 700, 120, "#ffffff11"); // Banner card
-        DrawText("Banner Options", 500, 220, "White", "Gray");
+        DrawText("Banner Options", 830, 220, "White", "Gray");
         
         DrawRect(480, 340, 700, 420, "#ffffff11"); // Drawer card
-        DrawText("Drawer Options", 500, 360, "White", "Gray");
+        DrawText("Drawer Options", 830, 360, "White", "Gray");
 
         // Right Column: Immersion
         DrawRect(1200, 200, 600, 280, "#ffffff11"); // Immersion card
-        DrawText("Immersion & Rules", 1220, 220, "White", "Gray");
+        DrawText("Immersion & Rules", 1500, 220, "White", "Gray");
 
+        MainCanvas.textAlign = "left";
         for (const element of this.elements) {
             const x = this.menuElementXOffset + (element.xModifier || 0);
             const y = element.yPos;
@@ -268,10 +270,13 @@ export class Settings extends CRABS_Base {
                 DrawCheckbox(x, y - 32, 64, 64, "", this.data[element.setting as keyof CRABS_Settings]);
                 
                 if (isMouseIn(labelX, y - 18, 450, 36)) {
+                    MainCanvas.textAlign = "center";
                     (window as any).DrawText(element.hint, 1000, 950, "Black", "Gray");
+                    MainCanvas.textAlign = "left";
                 }
             }
         }
+        MainCanvas.textAlign = "center";
     }
 
     public click(): void {
@@ -279,10 +284,10 @@ export class Settings extends CRABS_Base {
         const mouseX = (window as any).MouseX;
         const mouseY = (window as any).MouseY;
 
-        // Corrected Back button: Reset extension state
+        // Corrected Back button using native clear function
         if (isMouseIn(1815, 75, 90, 90)) {
             (window as any).PreferenceMessage = "";
-            (window as any).PreferenceExtensionsCurrent = null;
+            (window as any).PreferenceSubscreenExtensionsClear();
             return;
         }
 
@@ -295,7 +300,7 @@ export class Settings extends CRABS_Base {
 
             // Check for click on the checkbox
             if (isMouseIn(x, y, w, h)) {
-                this.data[element.setting as keyof CRABS_Settings] = !this.data[element.setting as keyof CRABS_Settings] as any;
+                (this.data as any)[element.setting] = !(this.data as any)[element.setting];
                 this.save();
                 return;
             }

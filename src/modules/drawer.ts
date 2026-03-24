@@ -35,6 +35,13 @@ export class Drawer extends CRABS_Base {
 		} else {
 			document.addEventListener("DOMContentLoaded", () => this.setupElement());
 		}
+
+		// Global ESC key listener using capture phase to intercept before game handlers
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && this.isOpen) {
+				this.close();
+			}
+		}, true);
 	}
 
 	private setupElement(): void {
@@ -221,13 +228,6 @@ export class Drawer extends CRABS_Base {
 				this.toggle();
 			});
 		}
-
-		// Listen for ESC key to stow the drawer
-		window.addEventListener("keydown", (e) => {
-			if (e.key === "Escape" && this.isOpen) {
-				this.close();
-			}
-		});
 
 		this.bindHeaderButtons();
 	}
