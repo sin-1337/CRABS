@@ -314,12 +314,7 @@ export class WhisperPlus extends CRABS_Base {
 			if (ruleState?.isEnforced) {
 				const { memberNumber } = this.parseArguments(args, command);
 				ruleState.triggerAttempt(memberNumber);
-
-				if (typeof ToastManager !== "undefined") {
-					Notification.send("BCX rules prevent you from sending whispers.", "Whisper+ Blocked");
-				}
-				// BCX usually handles its own local messaging/beeping if configured, 
-				// but we show a notification to explain why CRABS didn't send it.
+				// BCX handles its own notifications/logs when triggerAttempt is called.
 				return 1; // Blocked by BCX rule
 			}
 		}

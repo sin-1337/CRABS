@@ -316,8 +316,16 @@ export class Roster extends CRABS_Base {
 
 	/**
 	 * Returns the player's blindness level from 0 to 4.
+	 * Also accounts for BCX "alt_eyes_fullblind" rule if applicable.
 	 */
 	private getBlindnessLevel(): number {
+		const settings = (window as any).SETTINGS;
+
+		// Check BCX full blind rule
+		if (settings?.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
+			return 4;
+		}
+
 		if (Player.HasEffect("BlindTotal")) return 4;
 		if (Player.HasEffect("BlindHeavy")) return 3;
 		if (Player.HasEffect("BlindNormal")) return 2;
