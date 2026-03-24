@@ -109,7 +109,7 @@ export class Settings extends CRABS_Base {
     }
 
     private isRestricted(): boolean {
-        return (window as any).Player.IsRestrained() || (window as any).Player.IsBound();
+        return (window as any).Player.IsRestrained?.() || false;
     }
 
     private setupUI(): void {
