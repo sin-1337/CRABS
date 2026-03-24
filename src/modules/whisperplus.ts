@@ -276,6 +276,17 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
+	 * Returns the player's gag level from 0 to 4.
+	 */
+	private getGagLevel(): number {
+		if (Player.HasEffect("GagTotal") || Player.HasEffect("GagTotal2") || Player.HasEffect("GagTotal3") || Player.HasEffect("GagTotal4")) return 4;
+		if (Player.HasEffect("GagHeavy") || Player.HasEffect("GagVeryHeavy")) return 3;
+		if (Player.HasEffect("GagNormal") || Player.HasEffect("GagMedium")) return 2;
+		if (Player.HasEffect("GagLight") || Player.HasEffect("GagVeryLight") || Player.HasEffect("GagEasy")) return 1;
+		return 0;
+	}
+
+	/**
 	 * This runs when a player enters the /whisper+ command or clicks the roster.
 	 *
 	 * @param {string} args - arguments passed from player (message).
@@ -283,6 +294,13 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(args: string, command: string): number {
+		// Immersive Gag Check
+		const settings = (window as any).SETTINGS;
+		if (settings?.data.immersiveGag && this.getGagLevel() > 0) {
+			ChatRoomSendLocal("You cannot use Whisper+ while gagged.", 10_000);
+			return 1;
+		}
+
 		// Parse arguments
 		const { memberNumber, message } = this.parseArguments(args, command);
 

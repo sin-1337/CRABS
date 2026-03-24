@@ -10,6 +10,7 @@ export interface BaseUIElement {
     yPos: number;
     width: number;
     height?: number;
+    category?: string;
     xModifier?: number;
     yModifier?: number;
     grayedOut?: boolean | (() => boolean);
@@ -45,7 +46,8 @@ export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNex
 export interface CRABS_Settings {
     showBanner: boolean;
     rosterOpensDrawer: boolean;
-    immersiveMode: boolean;
+    immersiveBlind: boolean;
+    immersiveGag: boolean;
     respectBcxRules: boolean;
     compactDrawer: boolean;
     closeDrawerOnWhisper: boolean;
@@ -56,7 +58,8 @@ export interface CRABS_Settings {
 const DEFAULT_SETTINGS: CRABS_Settings = {
     showBanner: true,
     rosterOpensDrawer: true,
-    immersiveMode: false,
+    immersiveBlind: false,
+    immersiveGag: false,
     respectBcxRules: true,
     compactDrawer: false,
     closeDrawerOnWhisper: false,
@@ -73,8 +76,8 @@ export class Settings extends CRABS_Base {
     private readonly STORAGE_KEY = "CRABS_Settings";
     
     private menuElementXOffset: number = 1000;
-    private startY: number = 200;
-    private spacingY: number = 75;
+    private startY: number = 240;
+    private spacingY: number = 70;
 
     constructor(CRABS: ModSDKModAPI) {
         super(CRABS);
@@ -100,82 +103,99 @@ export class Settings extends CRABS_Base {
     }
 
     private setupUI(): void {
-        this.elements = []; // Clear existing elements
+        this.elements = []; 
         
+        // Category: Banner
         this.addCheckbox(
             "Show Banner on Entry", 
             "showBanner", 
-            "Automatically display the room information banner whenever you join a new chat room."
+            "Automatically display the room information banner whenever you join a new chat room.",
+            { category: "Banner" }
         );
 
-        this.addCheckbox(
-            "/roster opens drawer", 
-            "rosterOpensDrawer", 
-            "Redirect the standard /roster command to toggle the drawer instead of printing to chat."
-        );
-
-        this.addCheckbox(
-            "Immersive Mode", 
-            "immersiveMode", 
-            "Respect in-game sensory restrictions. Roster blur levels will match your blindness level."
-        );
-
-        this.addCheckbox(
-            "Respect BCX Rules", 
-            "respectBcxRules", 
-            "Allow supported BCX rules (like room interaction limits or sensory rules) to impact CRABS functionality."
-        );
-
-        this.addCheckbox(
-            "Compact Drawer", 
-            "compactDrawer", 
-            "Reduce the drawer height to 77% of the chat area so some messages remain visible."
-        );
-
-        this.addCheckbox(
-            "Auto-stow on Whisper+", 
-            "closeDrawerOnWhisper", 
-            "Automatically close the drawer after you successfully send a /whisper+ message."
-        );
-
-        this.addCheckbox(
-            "Auto-stow on Chat", 
-            "closeDrawerOnChat", 
-            "Automatically close the drawer when you send a normal chat message."
-        );
-
+        // Category: Drawer
         this.addCheckbox(
             "Disable Drawer UI", 
             "disableDrawer", 
-            "Completely disable the drawer interface and hide the logo tab from the screen edge."
+            "Completely disable the drawer interface and hide the side tab.",
+            { category: "Drawer" }
+        );
+        this.addCheckbox(
+            "/roster toggles drawer", 
+            "rosterOpensDrawer", 
+            "The standard /roster command will toggle the drawer instead of printing to chat.",
+            { category: "Drawer" }
+        );
+        this.addCheckbox(
+            "Compact Height", 
+            "compactDrawer", 
+            "Limit drawer height to 77% so some of the chat remains visible.",
+            { category: "Drawer" }
+        );
+        this.addCheckbox(
+            "Auto-stow on Whisper+", 
+            "closeDrawerOnWhisper", 
+            "Automatically close the drawer after you successfully send a /whisper+ message.",
+            { category: "Drawer" }
+        );
+        this.addCheckbox(
+            "Auto-stow on Chat", 
+            "closeDrawerOnChat", 
+            "Automatically close the drawer when you send a normal chat message.",
+            { category: "Drawer" }
+        );
+
+        // Category: Immersion
+        this.addCheckbox(
+            "Respect Blindfolds", 
+            "immersiveBlind", 
+            "Roster visibility will be blurred based on your character's blindness level.",
+            { category: "Immersion" }
+        );
+        this.addCheckbox(
+            "Respect Gags", 
+            "immersiveGag", 
+            "Prevent sending Whisper+ messages if your character is gagged.",
+            { category: "Immersion" }
+        );
+        this.addCheckbox(
+            "Respect BCX Rules", 
+            "respectBcxRules", 
+            "Allow supported BCX rules to impact CRABS functionality.",
+            { category: "Immersion" }
         );
     }
 
-    private getNewYPos(): number {
-        if (this.elements.length === 0) return this.startY;
-        const lastElement = this.elements[this.elements.length - 1];
-        return lastElement.yPos + (lastElement.yModifier || 0) + this.spacingY;
+    private getNewYPos(category?: string): number {
+        const catElements = this.elements.filter(e => e.category === category);
+        if (catElements.length === 0) {
+            // New category positioning
+            if (category === "Banner") return 240;
+            if (category === "Drawer") return 380;
+            if (category === "Immersion") return 240;
+            return this.startY;
+        }
+        const lastElement = catElements[catElements.length - 1];
+        return lastElement.yPos + this.spacingY;
     }
 
     private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: Partial<CheckboxElement>) {
+        const category = options?.category;
         const element: CheckboxElement = {
             type: 'Checkbox',
             text,
             setting,
             hint,
-            yPos: this.getNewYPos(),
+            yPos: this.getNewYPos(category),
             width: 64,
             height: 64,
-            xModifier: 0,
+            xModifier: category === "Immersion" ? 450 : 0, // Split into two columns
             yModifier: 0,
             ...options
         };
         this.elements.push(element);
     }
 
-    /**
-     * Registers the mod in the game's Extensions menu.
-     */
     private registerExtension(): void {
         const waitForFunc = () => {
             if (typeof (window as any).PreferenceRegisterExtensionSetting === "function") {
@@ -188,7 +208,6 @@ export class Settings extends CRABS_Base {
                     exit: () => {
                         (window as any).PreferenceMessage = "";
                         (window as any).PreferenceExtensionsCurrent = null;
-                        (window as any).CurrentSubScreen = "Extension";
                     },
                     load: () => {
                         (window as any).PreferenceMessage = "";
@@ -201,90 +220,91 @@ export class Settings extends CRABS_Base {
         waitForFunc();
     }
 
-    /**
-     * Renders the settings UI.
-     */
     public draw(): void {
         const isMouseIn = (window as any).MouseIn;
         const DrawText = (window as any).DrawText;
         const DrawCheckbox = (window as any).DrawCheckbox;
         const DrawButton = (window as any).DrawButton;
         const DrawCharacter = (window as any).DrawCharacter;
+        const DrawRect = (window as any).DrawRect;
         const MainCanvas = (window as any).MainCanvas;
         const PreferenceMessage = (window as any).PreferenceMessage;
 
         if (!MainCanvas) return;
 
-        // Draw the player & controls
+        // Draw character background card
+        DrawRect(40, 40, 420, 920, "#222222aa");
         DrawCharacter(Player, 50, 50, 0.9);
-        DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
+        
+        // Header
+        DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
+        DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
         if (PreferenceMessage && PreferenceMessage !== "") {
-            DrawText(PreferenceMessage, 1400, 125, "Red", "Black");
+            DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
+        } else {
+            DrawText("Hover/Click setting names for detailed descriptions", 1000, 150, "Gray", "Black");
         }
+
+        // Draw Section Cards
+        // Left Column: Banner & Drawer
+        DrawRect(480, 200, 700, 120, "#ffffff11"); // Banner card
+        DrawText("Banner Options", 500, 220, "White", "Gray");
         
-        DrawText("CRABS Settings - Click on a setting name for more info", 500, 125, "Black", "Gray");
+        DrawRect(480, 340, 700, 420, "#ffffff11"); // Drawer card
+        DrawText("Drawer Options", 500, 360, "White", "Gray");
+
+        // Right Column: Immersion
+        DrawRect(1200, 200, 600, 280, "#ffffff11"); // Immersion card
+        DrawText("Immersion & Rules", 1220, 220, "White", "Gray");
 
         for (const element of this.elements) {
             const x = this.menuElementXOffset + (element.xModifier || 0);
             const y = element.yPos;
+            const labelX = element.category === "Immersion" ? 1220 : 500;
 
             if (element.type === 'Checkbox') {
-                DrawText(element.text, 500, y, "Black", "Gray");
+                DrawText(element.text, labelX, y, "Black", "Gray");
                 DrawCheckbox(x, y - 32, 64, 64, "", this.data[element.setting as keyof CRABS_Settings]);
                 
-                // Show hint on hover/click of the label
-                if (isMouseIn(500, y - 18, 500, 36)) {
+                if (isMouseIn(labelX, y - 18, 450, 36)) {
                     (window as any).DrawText(element.hint, 1000, 950, "Black", "Gray");
                 }
             }
         }
     }
 
-    /**
-     * Handles clicks for the settings UI.
-     */
     public click(): void {
         const isMouseIn = (window as any).MouseIn;
         const mouseX = (window as any).MouseX;
         const mouseY = (window as any).MouseY;
+
+        // Corrected Back button: Reset extension state
+        if (isMouseIn(1815, 75, 90, 90)) {
+            (window as any).PreferenceMessage = "";
+            (window as any).PreferenceExtensionsCurrent = null;
+            return;
+        }
 
         for (const element of this.elements) {
             const x = this.menuElementXOffset + (element.xModifier || 0);
             const y = element.yPos - (element.height || 0) / 2;
             const w = element.width;
             const h = element.height || 36;
+            const labelX = element.category === "Immersion" ? 1220 : 500;
 
-            // Check for click on the interactive part
+            // Check for click on the checkbox
             if (isMouseIn(x, y, w, h)) {
-                this.handleElementAction(element, mouseX, x);
+                this.data[element.setting as keyof CRABS_Settings] = !this.data[element.setting as keyof CRABS_Settings] as any;
                 this.save();
                 return;
             }
 
-            // Check for click on the label to show hint as message
-            if (isMouseIn(500, element.yPos - 18, 500, 36)) {
+            // Click label to lock hint
+            if (isMouseIn(labelX, element.yPos - 18, 450, 36)) {
                 (window as any).PreferenceMessage = element.hint;
                 return;
             }
-        }
-
-        // Handle the Back button (native BC preference screen behavior)
-        if (isMouseIn(1815, 75, 90, 90)) {
-            (window as any).PreferenceMessage = "";
-            (window as any).PreferenceExtensionsCurrent = null;
-            (window as any).CurrentSubScreen = "Extension";
-        }
-    }
-
-    private handleElementAction(element: UIElement, mouseX: number, elementX: number) {
-        const isGrayedOut = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
-        if (isGrayedOut) return;
-
-        switch (element.type) {
-            case 'Checkbox':
-                this.data[element.setting as keyof CRABS_Settings] = !this.data[element.setting as keyof CRABS_Settings] as any;
-                break;
         }
     }
 }

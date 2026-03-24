@@ -344,7 +344,7 @@ export class Roster extends CRABS_Base {
 		// Immersive Mode Check
 		let rosterStyle = "";
 		const settings = (window as any).SETTINGS;
-		if (settings?.data.immersiveMode) {
+		if (settings?.data.immersiveBlind) {
 			const blindLevel = this.getBlindnessLevel();
 			if (blindLevel > 0) {
 				const blurAmount = blindLevel * 5; // 1=5px, 2=10px, 3=15px, 4=20px
