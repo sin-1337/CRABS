@@ -1,7 +1,7 @@
 #crabs-drawer {
   position: fixed;
   /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
-  z-index: 2147483647 !important;
+  z-index: 99 !important;
   display: flex;
   align-items: flex-start;
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -20,9 +20,9 @@
 
 #drawer-tab {
   pointer-events: auto;
-  width: 44px; /* Back to original size */
-  height: 44px; /* Back to original size */
-  background: #0148ab; /* Matching GIF background */
+  width: 44px;
+  height: 44px;
+  background: #0148ab;
   border: 1px solid #efb0e2;
   border-right: none;
   border-radius: 8px 0 0 8px;
@@ -33,9 +33,9 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 
   position: absolute;
-  left: -44px; /* Corrected offset for 44px width */
+  left: -44px;
   top: 10px;
-  z-index: 2147483647 !important;
+  z-index: 99 !important;
 
   /* Smoother transition for the tab's handle-like behavior */
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -52,21 +52,23 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden !important; 
+  overflow: hidden !important;
   border-radius: 12px 0 0 12px;
 
   /* Scale up the base font size for the drawer */
   font-size: 1.2rem;
 
   /* Kill visibility when closed to prevent any "peeking" or interaction */
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 /* Fix header icons scaling */
 .drawer-content .CRABS_Drawer_Help_Icon,
 .drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
-  width: 40px !important; 
+  width: 40px !important;
   height: 40px !important;
   display: inline-block !important;
   vertical-align: middle;
@@ -121,7 +123,7 @@
   display: none;
 }
 
-#drawer-tab img:not([src]), 
+#drawer-tab img:not([src]),
 #drawer-tab img[src=""] {
   display: none;
 }
@@ -141,7 +143,7 @@
   pointer-events: none;
   filter: drop-shadow(0 0 2px #efb0e2);
   transform: rotate(270deg) translateZ(0);
-  
+
   /* Improve quality */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
