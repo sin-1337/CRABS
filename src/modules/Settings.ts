@@ -172,34 +172,36 @@ export class Settings extends CRABS_Base {
 	}
 
 	private registerExtension(): void {
+		// Assign the definition directly to the shared static base property
+		CRABS_Base.subscreenDef = {
+			Identifier: "CRABS",
+			ButtonText: "CRABS",
+			Image: "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png",
+			click: () => this.click(),
+			run: () => this.draw(),
+			exit: () => {
+				const w = window as any;
+				w.PreferenceMessage = "";
+				if (typeof w.PreferenceSubscreenExtensionsClear === "function") {
+					try { w.PreferenceSubscreenExtensionsClear(); } catch (e) { }
+				}
+
+				// Send the user back to the Extensions menu
+				if (typeof w.PreferenceOpenSubscreen === "function") {
+					w.PreferenceOpenSubscreen("Extensions");
+				}
+				return false; // Blocks the default exit
+			},
+			load: () => {
+				(window as any).PreferenceMessage = "";
+			}
+		};
+
 		const waitForFunc = () => {
 			const w = window as any;
 			if (typeof w.PreferenceRegisterExtensionSetting === "function") {
-				w.PreferenceRegisterExtensionSetting({
-					Identifier: "CRABS",
-					ButtonText: "CRABS",
-					Image: "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png",
-					click: () => this.click(),
-					run: () => this.draw(),
-					exit: () => {
-						const w = window as any;
-						w.PreferenceMessage = "";
-						if (typeof w.PreferenceSubscreenExtensionsClear === "function") {
-							try { w.PreferenceSubscreenExtensionsClear(); } catch (e) { }
-						}
-
-						// Send the user back to the Extensions menu
-						if (typeof w.PreferenceOpenSubscreen === "function") {
-							w.PreferenceOpenSubscreen("Extensions");
-						}
-
-						// MUST return false to stop the game from kicking you to the "Main" menu
-						return false;
-					},
-					load: () => {
-						w.PreferenceMessage = "";
-					}
-				});
+				// Pass the static object to the game
+				w.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
 			} else {
 				setTimeout(waitForFunc, 1000);
 			}
