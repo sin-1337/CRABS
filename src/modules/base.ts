@@ -109,31 +109,31 @@ export abstract class CRABS_Base {
 	 * Navigates to the CRABS settings page directly, bypassing the Extensions list.
 	 */
 	public async openSettings(): Promise<void> {
-		const w = window as any;
+		const screen = window as any;
 
 		// 1. Force the game into the Preferences screen state
-		if (w.CurrentModule !== "Character" || w.CurrentScreen !== "Preference") {
-			w.InformationSheetLoadCharacter(w.Player);
-			await w.CommonSetScreen("Character", "Preference");
+		if (screen.CurrentModule !== "Character" || screen.CurrentScreen !== "Preference") {
+			screen.InformationSheetLoadCharacter(screen.Player);
+			await screen.CommonSetScreen("Character", "Preference");
 		}
 
 		// 2. Unload whatever subscreen is currently active
-		if (typeof w.PreferenceSubscreenUnload === "function") {
-			w.PreferenceSubscreenUnload();
+		if (typeof screen.PreferenceSubscreenUnload === "function") {
+			screen.PreferenceSubscreenUnload();
 		}
 
 		// 3. Inject our stored subscreen using the STATIC reference
 		if (CRABS_Base.subscreenDef) {
-			w.PreferenceSubscreen = CRABS_Base.subscreenDef;
-			w.PreferencePageCurrent = 1;
-			w.PreferenceMessage = "";
+			screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
+			screen.PreferencePageCurrent = 1;
+			screen.PreferenceMessage = "";
 
-			if (typeof w.PreferenceSubscreenCreateSubscreen === "function") {
-				w.PreferenceSubscreenCreateSubscreen("CRABS");
+			if (typeof screen.PreferenceSubscreenCreateSubscreen === "function") {
+				screen.PreferenceSubscreenCreateSubscreen("");
 			}
 
 			if (typeof CRABS_Base.subscreenDef.load === "function") CRABS_Base.subscreenDef.load();
-			if (typeof w.PreferenceResize === "function") w.PreferenceResize(true);
+			if (typeof screen.PreferenceResize === "function") screen.PreferenceResize(true);
 		}
 	}
 
