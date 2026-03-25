@@ -104,30 +104,47 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Navigates to the CRABS settings page
+	 * Navigates to the CRABS settings page directly, bypassing the Extensions list.
 	 */
 	public async openSettings(): Promise<void> {
-		// Initialize the player state to avoid the InformationSheet crash
-		(window as any).InformationSheetLoadCharacter(Player);
+		const w = window as any;
 
-		// Use the official way to open the Extensions subscreen
-		if (typeof (window as any).PreferenceOpenSubscreen === "function") {
-			await (window as any).PreferenceOpenSubscreen("Extensions");
+		// 1. Force the game into the Preferences screen state
+		if (w.CurrentModule !== "Character" || w.CurrentScreen !== "Preference") {
+			w.InformationSheetLoadCharacter(w.Player);
+			await w.CommonSetScreen("Character", "Preference");
+		}
 
-			// Small delay to ensure the screen has fully transitioned
-			await new Promise(r => setTimeout(r, 100));
+		// 2. Unload whatever subscreen is currently active to clear old HTML/DOM elements
+		if (typeof w.PreferenceSubscreenUnload === "function") {
+			w.PreferenceSubscreenUnload();
+		}
 
-			// If our extension is registered, jump directly into it
-			const crabsExtension = (window as any).PreferenceExtensionsSettings?.["CRABS"];
-			if (crabsExtension) {
-				(window as any).PreferenceSubscreen = crabsExtension;
-				if (typeof crabsExtension.load === "function") await crabsExtension.load();
-				if (typeof (window as any).PreferenceResize === "function") (window as any).PreferenceResize(true);
+		// 3. Grab our specific registered extension
+		const crabsExtension = w.PreferenceExtensionsSettings?.["CRABS"];
+
+		if (crabsExtension) {
+			// 4. Set the mod as the active subscreen
+			w.PreferenceSubscreen = crabsExtension;
+			w.PreferencePageCurrent = 1;
+			w.PreferenceMessage = "";
+
+			// 5. Build the standard UI header (Title + Exit Button)
+			if (typeof w.PreferenceSubscreenCreateSubscreen === "function") {
+				w.PreferenceSubscreenCreateSubscreen("CRABS");
 			}
+
+			// 6. Run the load block and force a resize to align everything
+			if (typeof crabsExtension.load === "function") await crabsExtension.load();
+			if (typeof w.PreferenceResize === "function") w.PreferenceResize(true);
+
 		} else {
-			// Fallback for older versions or if the function is missing
-			(window as any).CommonSetScreen("Character", "Preference");
-			(window as any).CurrentSubScreen = "CRABS";
+			// Fallback if the mod somehow isn't registered yet
+			if (typeof w.PreferenceOpenSubscreen === "function") {
+				await w.PreferenceOpenSubscreen("Main");
+			} else {
+				w.CommonSetScreen("Character", "Preference");
+			}
 		}
 	}
 

@@ -173,19 +173,23 @@ export class Settings extends CRABS_Base {
 
 	private registerExtension(): void {
 		const waitForFunc = () => {
-			if (typeof (window as any).PreferenceRegisterExtensionSetting === "function") {
-				(window as any).PreferenceRegisterExtensionSetting({
+			const w = window as any;
+			if (typeof w.PreferenceRegisterExtensionSetting === "function") {
+				w.PreferenceRegisterExtensionSetting({
 					Identifier: "CRABS",
 					ButtonText: "CRABS",
 					Image: "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png",
 					click: () => this.click(),
 					run: () => this.draw(),
 					exit: () => {
-						(window as any).PreferenceMessage = "";
-						(window as any).PreferenceSubscreenExtensionsClear();
+						// Safe exit that won't crash if the Extensions menu was never opened
+						w.PreferenceMessage = "";
+						if (typeof w.PreferenceSubscreenExtensionsClear === "function") {
+							try { w.PreferenceSubscreenExtensionsClear(); } catch (e) { }
+						}
 					},
 					load: () => {
-						(window as any).PreferenceMessage = "";
+						w.PreferenceMessage = "";
 					}
 				});
 			} else {
