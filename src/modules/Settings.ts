@@ -182,11 +182,19 @@ export class Settings extends CRABS_Base {
 					click: () => this.click(),
 					run: () => this.draw(),
 					exit: () => {
-						// Safe exit that won't crash if the Extensions menu was never opened
+						const w = window as any;
 						w.PreferenceMessage = "";
 						if (typeof w.PreferenceSubscreenExtensionsClear === "function") {
 							try { w.PreferenceSubscreenExtensionsClear(); } catch (e) { }
 						}
+
+						// Send the user back to the Extensions menu
+						if (typeof w.PreferenceOpenSubscreen === "function") {
+							w.PreferenceOpenSubscreen("Extensions");
+						}
+
+						// MUST return false to stop the game from kicking you to the "Main" menu
+						return false;
 					},
 					load: () => {
 						w.PreferenceMessage = "";
