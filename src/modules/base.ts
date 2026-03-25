@@ -113,7 +113,7 @@ export abstract class CRABS_Base {
 		// Use the official way to open the Extensions subscreen
 		if (typeof (window as any).PreferenceOpenSubscreen === "function") {
 			await (window as any).PreferenceOpenSubscreen("Extensions");
-			
+
 			// Small delay to ensure the screen has fully transitioned
 			await new Promise(r => setTimeout(r, 100));
 
@@ -272,4 +272,30 @@ export abstract class CRABS_Base {
 		// Return the rgba value with alpha transparency
 		return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 	}
+
+	// Cache the raw brightness value (0-255)
+	protected colorBrightnessCache = new Map<string, number>();
+	protected colorCanvas = document.createElement("canvas");
+	protected colorCtx = this.colorCanvas.getContext("2d", { willReadFrequently: true });
+
+	// Returns a value from 0 (darkest) to 255 (brightest)
+	protected getColorBrightness(color: string): number {
+		if (!color) return 255; // Default fallback
+
+		if (this.colorBrightnessCache.has(color)) return this.colorBrightnessCache.get(color)!;
+		if (!this.colorCtx) return 255;
+
+		this.colorCanvas.width = 1;
+		this.colorCanvas.height = 1;
+		this.colorCtx.clearRect(0, 0, 1, 1);
+		this.colorCtx.fillStyle = color;
+		this.colorCtx.fillRect(0, 0, 1, 1);
+
+		const data = this.colorCtx.getImageData(0, 0, 1, 1).data;
+		const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
+
+		this.colorBrightnessCache.set(color, brightness);
+		return brightness;
+	}
+
 }

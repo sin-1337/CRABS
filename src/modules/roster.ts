@@ -404,16 +404,16 @@ export class Roster extends CRABS_Base {
 		ctx.lineTo(-20, -15);
 
 		// Fill the arrow with the player's color (or cyan default)
-		ctx.fillStyle = target.LabelColor || "cyan";
+		const playerColor = target.LabelColor || "cyan";
+		ctx.fillStyle = playerColor;
 		ctx.fill();
 
-		// Add a thin black border
-		ctx.strokeStyle = "black"; // Define border color
-		ctx.lineWidth = 1;         // Set thickness (increase to 2 if 1 is too faint)
-		ctx.closePath();           // Explicitly close the path for a clean stroke
-		ctx.stroke();              // Draw the border
-
-		ctx.restore();
+		// Anything below 128 is relatively dark
+		const brightness = this.getColorBrightness(playerColor);
+		ctx.strokeStyle = brightness < 128 ? "white" : "black";
+		ctx.lineWidth = 1.5;
+		ctx.closePath();
+		ctx.stroke();
 	}
 
 	/**
