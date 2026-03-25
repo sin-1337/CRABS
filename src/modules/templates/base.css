@@ -57,6 +57,10 @@
   border: none !important;
 }
 
+.CRABS_tooltip-wrapper:hover {
+  z-index: 10001; /* Bring the entire hovered item to the very top of the stack */
+}
+
 .CRABS_header_icons {
   width: 0.9em; 
   height: auto;
@@ -108,24 +112,41 @@
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  z-index: 10000; 
+  z-index: 10002; 
   transition: opacity 0.2s ease-in-out;
   pointer-events: none;
 }
 
 /* 
    Flip tooltips for the first 2 rows of cards (1st column & 2nd column)
-   so they don't get cut off by the top of the drawer.
+   so they don't get cut off by the top of the drawer or roster container.
+   Also flip header icons.
 */
 #CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip {
+#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
+.CRABS_header_icons + .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip {
   bottom: auto;
   top: 125%;
 }
 
-/* Flip the arrow for the top-row tooltips as well */
+/* Flip the arrow for the top-row and header tooltips as well */
 #CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after {
+#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
+.CRABS_header_icons + .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip::after {
   top: auto;
   bottom: 100%;
   border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
@@ -135,25 +156,25 @@
 
 /* 1. Left edge: Badges in the left column (odd cards) */
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip {
   left: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after {
   left: 10px;
   transform: translateX(0);
 }
 
 /* 2. Right edge: Status icons in the right column (even cards) */
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip {
   left: auto;
   right: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after {
   left: auto;
   right: 10px;
   transform: translateX(0);
