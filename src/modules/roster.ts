@@ -22,6 +22,10 @@ export class Roster extends CRABS_Base {
 	private onlineFriends: number | undefined = undefined;
 	private lastSentTime: number = 0; // Timestamp for the last ServerSend call
 
+	private hoveredMapPlayer: number | null = null;
+	private onPlayerHover = (id: string) => { this.hoveredMapPlayer = parseInt(id, 10); };
+	private onPlayerLeave = () => { this.hoveredMapPlayer = null; };
+
 	/** 
 	 * Constructor
 	 * 
@@ -31,6 +35,13 @@ export class Roster extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		this.loadFriendList();
+
+		// Hook the map's draw function to inject our compass
+		this.CRABS.hookFunction("ChatRoomMapViewDraw", 10, (args, next) => {
+			const result = next(args); // Let the base map draw first
+			this.drawCompass();        // Then draw our overlay
+			return result;
+		});
 	}
 
 	/** 
@@ -159,6 +170,7 @@ export class Roster extends CRABS_Base {
 
 		return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
 	}
+
 	/** 
 	 * Builds the cards that get injected into the roster.
 	 * 
@@ -342,6 +354,41 @@ export class Roster extends CRABS_Base {
 		}
 
 		return false;
+	}
+
+	private drawCompass(): void {
+		if (!this.hoveredMapPlayer) return;
+
+		const w = window as any;
+		if (typeof w.ChatRoomMapViewIsActive !== "function" || !w.ChatRoomMapViewIsActive()) return;
+
+		const target = w.ChatRoomCharacter?.find((c: any) => c.MemberNumber === this.hoveredMapPlayer);
+		const player = w.Player;
+
+		if (!target?.MapData?.Pos || !player?.MapData?.Pos) return;
+
+		let dx = target.MapData.Pos.X - player.MapData.Pos.X;
+		let dy = target.MapData.Pos.Y - player.MapData.Pos.Y;
+
+		if (dx === 0 && dy === 0) return;
+
+		let angle = Math.atan2(dy, dx);
+		let arrowX = 500 + Math.cos(angle) * 450;
+		let arrowY = 500 + Math.sin(angle) * 450;
+
+		const MainCanvas = w.MainCanvas as CanvasRenderingContext2D;
+		if (!MainCanvas) return;
+
+		MainCanvas.save();
+		MainCanvas.translate(arrowX, arrowY);
+		MainCanvas.rotate(angle);
+		MainCanvas.beginPath();
+		MainCanvas.moveTo(20, 0);
+		MainCanvas.lineTo(-20, 15);
+		MainCanvas.lineTo(-20, -15);
+		MainCanvas.fillStyle = target.LabelColor || "cyan";
+		MainCanvas.fill();
+		MainCanvas.restore();
 	}
 
 	/**
@@ -577,6 +624,8 @@ export class Roster extends CRABS_Base {
 			"contextmenu",
 			"class",
 			root)
-	}
 
+		this.attachEvent("CRABS_player-id", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
+		this.attachEvent("CRABS_player-id", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
+	}
 }
