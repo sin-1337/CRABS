@@ -158,31 +158,43 @@
 
 /* --- Edge Clipping Prevention --- */
 
-/* 1. Left edge: Badges in the left column or single-column drawer/banner */
+/* 1. Left edge: Badges in the left column or single-column drawer/banner, and header left icons */
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip,
-#CRABS_Banner .CRABS_card_badge .CRABS_tooltip {
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip {
   left: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after,
-#CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after {
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip::after {
   left: 10px;
   transform: translateX(0);
 }
 
-/* 2. Right edge: Status icons in the right column or single-column drawer/banner */
+/* 2. Right edge: Status icons in the right column or single-column drawer/banner, and header close icon */
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip,
-#CRABS_Banner .CRABS_status-frame .CRABS_tooltip {
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip {
   left: auto;
   right: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after,
-#CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after {
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip::after,
+.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip::after {
   left: auto;
   right: 10px;
   transform: translateX(0);
