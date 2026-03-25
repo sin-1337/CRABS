@@ -377,6 +377,7 @@ export class Roster extends CRABS_Base {
 		if (!ctx) return;
 
 		let arrowX, arrowY, angle;
+		let scale = 1; // Default scale for the edge HUD compass
 
 		const range = w.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -387,6 +388,10 @@ export class Roster extends CRABS_Base {
 			arrowX = (dx + range) * tileW + (tileW / 2);
 			arrowY = (dy + range) * tileW - (tileW * 0.85);
 			angle = Math.PI / 2;
+
+			// 111px is roughly the default tile width at range 4. 
+			// This makes the arrow grow and shrink perfectly with the character!
+			scale = tileW / 111;
 		} else {
 			angle = Math.atan2(dy, dx);
 			arrowX = 500 + Math.cos(angle) * 450;
@@ -402,6 +407,8 @@ export class Roster extends CRABS_Base {
 		try {
 			ctx.translate(arrowX, arrowY);
 			ctx.rotate(angle);
+			ctx.scale(scale, scale); // Apply the dynamic scale here!
+
 			ctx.beginPath();
 			ctx.moveTo(20, 0);
 			ctx.lineTo(-20, 15);
@@ -411,11 +418,14 @@ export class Roster extends CRABS_Base {
 			ctx.fill();
 
 			ctx.strokeStyle = isDark ? "white" : "black";
-			ctx.lineWidth = 1.5;
+
+			// We divide by scale here so the 1.5px border stays crisp and 
+			// doesn't turn into a massive thick line when you zoom in!
+			ctx.lineWidth = 1.5 / scale;
+
 			ctx.closePath();
 			ctx.stroke();
 		} finally {
-			// This is guaranteed to run, preventing the spinning map!
 			ctx.restore();
 		}
 	}
