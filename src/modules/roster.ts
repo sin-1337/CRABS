@@ -402,8 +402,17 @@ export class Roster extends CRABS_Base {
 		ctx.moveTo(20, 0);
 		ctx.lineTo(-20, 15);
 		ctx.lineTo(-20, -15);
+
+		// Fill the arrow with the player's color (or cyan default)
 		ctx.fillStyle = target.LabelColor || "cyan";
 		ctx.fill();
+
+		// Add a thin black border
+		ctx.strokeStyle = "black"; // Define border color
+		ctx.lineWidth = 1;         // Set thickness (increase to 2 if 1 is too faint)
+		ctx.closePath();           // Explicitly close the path for a clean stroke
+		ctx.stroke();              // Draw the border
+
 		ctx.restore();
 	}
 
