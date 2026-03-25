@@ -376,19 +376,21 @@ export class Roster extends CRABS_Base {
 		let arrowX = 500 + Math.cos(angle) * 450;
 		let arrowY = 500 + Math.sin(angle) * 450;
 
-		const MainCanvas = w.MainCanvas as CanvasRenderingContext2D;
-		if (!MainCanvas) return;
+		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
+		if (!canvasEl) return;
+		const ctx = canvasEl.getContext("2d");
+		if (!ctx) return;
 
-		MainCanvas.save();
-		MainCanvas.translate(arrowX, arrowY);
-		MainCanvas.rotate(angle);
-		MainCanvas.beginPath();
-		MainCanvas.moveTo(20, 0);
-		MainCanvas.lineTo(-20, 15);
-		MainCanvas.lineTo(-20, -15);
-		MainCanvas.fillStyle = target.LabelColor || "cyan";
-		MainCanvas.fill();
-		MainCanvas.restore();
+		ctx.save();
+		ctx.translate(arrowX, arrowY);
+		ctx.rotate(angle);
+		ctx.beginPath();
+		ctx.moveTo(20, 0);
+		ctx.lineTo(-20, 15);
+		ctx.lineTo(-20, -15);
+		ctx.fillStyle = target.LabelColor || "cyan";
+		ctx.fill();
+		ctx.restore();
 	}
 
 	/**
