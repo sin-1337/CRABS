@@ -383,37 +383,41 @@ export class Roster extends CRABS_Base {
 		const tileIndex = target.MapData.Pos.X + (target.MapData.Pos.Y * w.ChatRoomMapViewWidth);
 		const isVisible = w.ChatRoomMapViewVisibilityMask && w.ChatRoomMapViewVisibilityMask[tileIndex];
 
-		// If they are on screen and not hidden by fog, float it above their head
 		if (Math.abs(dx) <= range && Math.abs(dy) <= range && isVisible) {
 			arrowX = (dx + range) * tileW + (tileW / 2);
-			arrowY = (dy + range) * tileW - (tileW * 0.85); // Adjust this to raise/lower above head
-			angle = Math.PI / 2; // Point straight down
+			arrowY = (dy + range) * tileW - (tileW * 0.85);
+			angle = Math.PI / 2;
 		} else {
-			// Otherwise, keep it as a compass on the edge
 			angle = Math.atan2(dy, dx);
 			arrowX = 500 + Math.cos(angle) * 450;
 			arrowY = 500 + Math.sin(angle) * 450;
 		}
 
-		ctx.save();
-		ctx.translate(arrowX, arrowY);
-		ctx.rotate(angle);
-		ctx.beginPath();
-		ctx.moveTo(20, 0);
-		ctx.lineTo(-20, 15);
-		ctx.lineTo(-20, -15);
-
-		// Fill the arrow with the player's color (or cyan default)
+		// Calculate colors BEFORE transforming the canvas
 		const playerColor = target.LabelColor || "cyan";
-		ctx.fillStyle = playerColor;
-		ctx.fill();
-
-		// Anything below 128 is relatively dark
 		const brightness = this.getColorBrightness(playerColor);
-		ctx.strokeStyle = brightness < 128 ? "white" : "black";
-		ctx.lineWidth = 1.5;
-		ctx.closePath();
-		ctx.stroke();
+		const isDark = brightness < 128;
+
+		ctx.save();
+		try {
+			ctx.translate(arrowX, arrowY);
+			ctx.rotate(angle);
+			ctx.beginPath();
+			ctx.moveTo(20, 0);
+			ctx.lineTo(-20, 15);
+			ctx.lineTo(-20, -15);
+
+			ctx.fillStyle = playerColor;
+			ctx.fill();
+
+			ctx.strokeStyle = isDark ? "white" : "black";
+			ctx.lineWidth = 1.5;
+			ctx.closePath();
+			ctx.stroke();
+		} finally {
+			// This is guaranteed to run, preventing the spinning map!
+			ctx.restore();
+		}
 	}
 
 	/**

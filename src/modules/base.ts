@@ -279,23 +279,30 @@ export abstract class CRABS_Base {
 	protected colorCtx = this.colorCanvas.getContext("2d", { willReadFrequently: true });
 
 	// Returns a value from 0 (darkest) to 255 (brightest)
+	// Returns a value from 0 (darkest) to 255 (brightest)
 	protected getColorBrightness(color: string): number {
 		if (!color) return 255; // Default fallback
 
 		if (this.colorBrightnessCache.has(color)) return this.colorBrightnessCache.get(color)!;
 		if (!this.colorCtx) return 255;
 
-		this.colorCanvas.width = 1;
-		this.colorCanvas.height = 1;
-		this.colorCtx.clearRect(0, 0, 1, 1);
-		this.colorCtx.fillStyle = color;
-		this.colorCtx.fillRect(0, 0, 1, 1);
+		try {
+			this.colorCanvas.width = 1;
+			this.colorCanvas.height = 1;
+			this.colorCtx.clearRect(0, 0, 1, 1);
+			this.colorCtx.fillStyle = color;
+			this.colorCtx.fillRect(0, 0, 1, 1);
 
-		const data = this.colorCtx.getImageData(0, 0, 1, 1).data;
-		const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
+			const data = this.colorCtx.getImageData(0, 0, 1, 1).data;
+			const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
 
-		this.colorBrightnessCache.set(color, brightness);
-		return brightness;
+			this.colorBrightnessCache.set(color, brightness);
+			return brightness;
+		} catch (e) {
+			// Fallback to prevent canvas crashes
+			this.colorBrightnessCache.set(color, 255);
+			return 255;
+		}
 	}
 
 }
