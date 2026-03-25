@@ -25,7 +25,7 @@
   padding: 6px 8px 0 0; /* small top and right padding */
   width: 100%; /* <-- ensure it stretches full width */
   box-sizing: border-box; /* <-- prevent padding from collapsing layout */
-  z-index: 2;
+  z-index: 100; /* High z-index to ensure flipped tooltips stay on top of content */
   overflow: visible;
 }
 
@@ -47,6 +47,8 @@
 .CRABS_wrapper_content {
   padding: 8px;
   overflow: visible;
+  position: relative;
+  z-index: 50; /* Lower than header */
 }
 
 .CRABS_tooltip-wrapper {
@@ -124,6 +126,7 @@
 */
 #CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
+.CRABS_room-status .CRABS_tooltip,
 .CRABS_header_icons + .CRABS_tooltip,
 .CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip,
 .CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip,
@@ -139,6 +142,7 @@
 /* Flip the arrow for the top-row and header tooltips as well */
 #CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
+.CRABS_room-status .CRABS_tooltip::after,
 .CRABS_header_icons + .CRABS_tooltip::after,
 .CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip::after,
 .CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
@@ -154,27 +158,31 @@
 
 /* --- Edge Clipping Prevention --- */
 
-/* 1. Left edge: Badges in the left column (odd cards) */
+/* 1. Left edge: Badges in the left column or single-column drawer/banner */
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip,
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip {
   left: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after,
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after {
   left: 10px;
   transform: translateX(0);
 }
 
-/* 2. Right edge: Status icons in the right column (even cards) */
+/* 2. Right edge: Status icons in the right column or single-column drawer/banner */
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip,
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip {
   left: auto;
   right: 0;
   transform: translateX(0);
 }
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after {
+#CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after,
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after {
   left: auto;
   right: 10px;
   transform: translateX(0);
