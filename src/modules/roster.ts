@@ -372,14 +372,28 @@ export class Roster extends CRABS_Base {
 
 		if (dx === 0 && dy === 0) return;
 
-		let angle = Math.atan2(dy, dx);
-		let arrowX = 500 + Math.cos(angle) * 450;
-		let arrowY = 500 + Math.sin(angle) * 450;
-
 		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		if (!canvasEl) return;
-		const ctx = canvasEl.getContext("2d");
+		const ctx = canvasEl?.getContext("2d");
 		if (!ctx) return;
+
+		let arrowX, arrowY, angle;
+
+		const range = w.ChatRoomMapViewPerceptionRange;
+		const tileW = 1000 / ((range * 2) + 1);
+		const tileIndex = target.MapData.Pos.X + (target.MapData.Pos.Y * w.ChatRoomMapViewWidth);
+		const isVisible = w.ChatRoomMapViewVisibilityMask && w.ChatRoomMapViewVisibilityMask[tileIndex];
+
+		// If they are on screen and not hidden by fog, float it above their head
+		if (Math.abs(dx) <= range && Math.abs(dy) <= range && isVisible) {
+			arrowX = (dx + range) * tileW + (tileW / 2);
+			arrowY = (dy + range) * tileW - (tileW * 0.85); // Adjust this to raise/lower above head
+			angle = Math.PI / 2; // Point straight down
+		} else {
+			// Otherwise, keep it as a compass on the edge
+			angle = Math.atan2(dy, dx);
+			arrowX = 500 + Math.cos(angle) * 450;
+			arrowY = 500 + Math.sin(angle) * 450;
+		}
 
 		ctx.save();
 		ctx.translate(arrowX, arrowY);
