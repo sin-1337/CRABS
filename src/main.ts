@@ -196,6 +196,46 @@ CommandCombine([
 	},
 ]);
 
+// implements the /crabs command
+CommandCombine([
+	{
+		Tag: "crab",
+		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volital, could do just about anything... even make noise!",
+		Action: (args: string) => {
+			const trimmedArgs = args.trim().toLowerCase();
+
+			if (!trimmedArgs) {
+				const noArgMessages = [
+					"The crab is confused. Maybe try telling it what to do?",
+					"The crab clicks its claws at you. Maybe try giving it an argument?",
+					"A tiny crab scuttles by, ignores your command, and disappears into a hole. It seems to want a command.",
+					"You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
+					"The crab is currently on lunch break. Try back later with some instructions.",
+					"ERROR: Crab not found. Please provide an argument to locate the crab.",
+				];
+				ChatRoomSendLocal(noArgMessages[Math.floor(Math.random() * noArgMessages.length)]);
+				return;
+			}
+
+			if (trimmedArgs === "rave") {
+				Assets.PlayAudio("rave");
+				Drawer.RaveTab();
+				ChatRoomSendLocal("🦀 RAVE TIME! 🦀");
+				return;
+			}
+
+			const failMessages = [
+				`Trying it... nope, not that one.`,
+				`The crab looks confused. '${args}'? Is that even a word?`,
+				`You try to make the crab ${args}. It pinches you in response. Ouch!`,
+				`The crab tries its best to ${args}, but it just ends up spinning in circles.`,
+				"The crab remains unimpressed.",
+			];
+			ChatRoomSendLocal(failMessages[Math.floor(Math.random() * failMessages.length)]);
+		},
+	},
+]);
+
 // implements the /roster command
 CommandCombine([
 	{

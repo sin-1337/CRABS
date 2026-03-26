@@ -36,6 +36,21 @@ export class Drawer extends CRABS_Base {
 	public static refresh(): void { Drawer._instance?.refresh(); }
 	public static isShowingHelp(): boolean { return Drawer._instance?.showingHelp ?? false; }
 	public static setShowingHelp(val: boolean): void { if (Drawer._instance) Drawer._instance.showingHelp = val; }
+	public static RaveTab(): void { Drawer._instance?.RaveTab(); }
+
+	public RaveTab(): void {
+		if (!this.instance) return;
+		const tab = this.instance.querySelector("#drawer-tab");
+		if (!tab) return;
+
+		const originalIcon = Assets.printimage({ key: "animated_logo" });
+		const raveIcon = Assets.printimage({ key: "rave" });
+
+		tab.innerHTML = raveIcon;
+		setTimeout(() => {
+			if (tab) tab.innerHTML = originalIcon;
+		}, 10000);
+	}
 
 	private init(): void {
 		if (document.body) {

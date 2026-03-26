@@ -42,6 +42,12 @@ export abstract class Assets {
 				class: "CRABS_logo",
 			},
 
+			rave: {
+				file: "CRABS_Logo_Rave.gif",
+				alt: "RAVE!",
+				class: "CRABS_logo",
+			},
+
 			// error icon
 			error: {
 				file: "error.svg",
@@ -316,6 +322,16 @@ export abstract class Assets {
 		},
 	} as const;
 
+	protected static readonly AUDIO: AudioStore = {
+		basePath: "https://sin-1337.github.io/CRABS/images/",
+		rave: {
+			file: "Rave.mp3",
+		}
+	}
+
+
+
+
 	/**
 	 * simply outputs a string with the image path 
 	 * @param {string} key - Image key from the assets object
@@ -373,5 +389,21 @@ export abstract class Assets {
 		if (tooltip !== "") html += `<div class='CRABS_tooltip'>${tooltip}</div></div>`;
 
 		return html;
+	}
+
+	/**
+	 * Plays an audio asset.
+	 * @param {string} key - Audio key from the assets object
+	 */
+	public static PlayAudio(key: Exclude<keyof typeof Assets.AUDIO, "basePath">): void {
+		const audioObj = Assets.AUDIO[key];
+
+		if (audioObj && typeof audioObj === "object" && "file" in audioObj) {
+			const url = `${Assets.AUDIO.basePath}${audioObj.file}`;
+			const audio = new Audio(url);
+			audio.play().catch(e => console.error(`Failed to play audio: ${key}`, e));
+		} else {
+			console.warn(`Missing or invalid audio key: ${key}`);
+		}
 	}
 }

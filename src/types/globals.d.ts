@@ -45,6 +45,13 @@ declare global {
 		data?: [string, string]
 	};
 
+	type AudioStore = {
+		readonly basePath: string;
+		readonly [key: string]: string | {
+			readonly file: string;
+		};
+	};
+
 	interface HTMLElement {
 		value: string;
 	}
