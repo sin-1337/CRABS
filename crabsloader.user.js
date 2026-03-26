@@ -1,11 +1,7 @@
 // ==UserScript==
 // @name CRABS
 // @namespace https://www.bondageprojects.com/
-<<<<<<< HEAD
 // @version 2.0.0.17
-=======
-// @version 2.0.0.17
->>>>>>> Beta
 // @description Adds /players, shows info about players in the room, also adds /whisper+
 // @author Sin
 // @match https://bondageprojects.elementfx.com/*
