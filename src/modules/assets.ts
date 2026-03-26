@@ -43,7 +43,7 @@ export abstract class Assets {
 			},
 
 			rave: {
-				file: "CRABS_Logo_Rave.gif",
+				file: "CRABS_logo_rave.gif",
 				alt: "RAVE!",
 				class: "CRABS_logo",
 			},

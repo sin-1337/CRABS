@@ -208,7 +208,7 @@ CommandCombine([
 				const noArgMessages = [
 					"The crab is confused. Maybe try telling it what to do?",
 					"The crab clicks its claws at you. Maybe try giving it an argument?",
-					"A tiny crab scuttles by, ignores your command, and disappears into a hole. It seems to want a command.",
+					"A tiny crab scuttles by, ignores you, and disappears into a hole. It seems to want a command.",
 					"You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
 					"The crab is currently on lunch break. Try back later with some instructions.",
 					"ERROR: Crab not found. Please provide an argument to locate the crab.",
