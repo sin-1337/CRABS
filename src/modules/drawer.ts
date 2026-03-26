@@ -128,25 +128,28 @@ export class Drawer extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		// Hook into player join/leave and room data updates
-		this.CRABS.hookFunction("ServerSocketOn", 10, (functionArguments, next) => {
-			const [event] = functionArguments;
+		// Hook into chat room messages to detect joins/leaves
+		this.CRABS.hookFunction("ChatRoomMessage", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
-			// Refresh if players join/leave or if the room data (like admins/whitelist) changes
-			if (this.isOpen && !this.showingHelp) {
-				const eventsToRefresh = [
-					"ChatRoomUpdate",
-					"ChatRoomSync",
-				];
-
-				if (eventsToRefresh.includes(event)) {
+			// Check if character count changed to detect joins/leaves
+			if (this.isOpen && !this.showingHelp && ChatRoomData) {
+				if (ChatRoomData.Character.length !== this.lastCharacterCount) {
 					this.refresh();
-				} else if (event === "ChatRoomMessage") {
-					// Check if character count changed to detect joins/leaves
-					if (ChatRoomData && ChatRoomData.Character.length !== this.lastCharacterCount) {
-						this.refresh();
-					}
+				}
+			}
+
+			return result;
+		});
+
+		// Hook into screen changes and room updates
+		this.CRABS.hookFunction("CommonSetScreen", 10, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			if (this.isOpen && !this.showingHelp && ChatRoomData) {
+				const currentAdminList = (ChatRoomData.Admin || []).join(",");
+				if (currentAdminList !== this.lastAdminList) {
+					this.refresh();
 				}
 			}
 
@@ -159,13 +162,12 @@ export class Drawer extends CRABS_Base {
 
 			if (this.isOpen && !this.showingHelp && (window as any).ChatRoomMapViewIsActive?.()) {
 				const currentKeys = [
-					Player.MapData.PrivateState.HasKeyBronze,
-					Player.MapData.PrivateState.HasKeySilver,
-					Player.MapData.PrivateState.HasKeyGold
+					Player.MapData.PrivateState?.HasKeyBronze,
+					Player.MapData.PrivateState?.HasKeySilver,
+					Player.MapData.PrivateState?.HasKeyGold
 				].join(",");
 
 				if (currentKeys !== this.lastKeys) {
-					this.lastKeys = currentKeys;
 					this.refresh();
 				}
 			}
