@@ -100,20 +100,20 @@ export class Settings extends CRABS_Base {
 	private setupUI(): void {
 		this.elements = [];
 
-		// Category: Banner
+		// Category: Banner (Left Col)
 		this.addCheckbox(
 			"Show Banner on Entry",
 			"showBanner",
 			"Automatically display the room information banner whenever you join a new chat room.",
-			{ category: "Banner" }
+			{ category: "Banner", yPos: 280 }
 		);
 
-		// Category: Drawer
+		// Category: Drawer (Left Col)
 		this.addCheckbox(
 			"Disable Drawer UI",
 			"disableDrawer",
 			"Completely disable the drawer interface and hide the side tab.",
-			{ category: "Drawer" }
+			{ category: "Drawer", yPos: 425 }
 		);
 
 		const drawerDisabled = () => this.data.disableDrawer;
@@ -122,39 +122,39 @@ export class Settings extends CRABS_Base {
 			"/roster toggles drawer",
 			"rosterOpensDrawer",
 			"The standard /roster command will toggle the drawer instead of printing to chat.",
-			{ category: "Drawer", grayedOut: drawerDisabled }
+			{ category: "Drawer", yPos: 500, grayedOut: drawerDisabled }
 		);
 		this.addCheckbox(
 			"Hide Drawer Tab",
 			"hideDrawerTab",
 			"Hide the physical tab on the side of the screen. You can still open the drawer with /roster.",
-			{ category: "Drawer", grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer }
+			{ category: "Drawer", yPos: 575, grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer }
 		);
 		this.addCheckbox(
 			"Compact Height",
 			"compactDrawer",
 			"Limit drawer height to 77% so some of the chat remains visible.",
-			{ category: "Drawer", grayedOut: drawerDisabled }
+			{ category: "Drawer", yPos: 650, grayedOut: drawerDisabled }
 		);
 		this.addCheckbox(
 			"Auto-stow on Whisper+",
 			"closeDrawerOnWhisper",
 			"Automatically close the drawer after you successfully send a /whisper+ message.",
-			{ category: "Drawer", grayedOut: drawerDisabled }
+			{ category: "Drawer", yPos: 725, grayedOut: drawerDisabled }
 		);
 		this.addCheckbox(
 			"Auto-stow on Chat",
 			"closeDrawerOnChat",
 			"Automatically close the drawer when you send a normal chat message.",
-			{ category: "Drawer", grayedOut: drawerDisabled }
+			{ category: "Drawer", yPos: 800, grayedOut: drawerDisabled }
 		);
 
-		// Category: Immersion
+		// Category: Immersion (Right Col)
 		this.addCheckbox(
 			"Hardcore Lock",
 			"lockImmersive",
 			"Locks immersive settings in the ON position while you are bound. You must be free to disable them.",
-			{ category: "Immersion", grayedOut: () => this.data.lockImmersive && this.isRestricted() }
+			{ category: "Immersion", yPos: 280, grayedOut: () => this.data.lockImmersive && this.isRestricted() }
 		);
 
 		const isLocked = (setting: keyof CRABS_Settings) => {
@@ -165,52 +165,34 @@ export class Settings extends CRABS_Base {
 			"Respect Blindness",
 			"immersiveBlind",
 			"Roster visibility will be blurred based on your character's blindness level.",
-			{ category: "Immersion", grayedOut: isLocked("immersiveBlind") }
+			{ category: "Immersion", yPos: 355, grayedOut: isLocked("immersiveBlind") }
 		);
 		this.addCheckbox(
 			"Respect Gags",
 			"immersiveGag",
 			"Prevent sending Whisper+ messages if your character is gagged.",
-			{ category: "Immersion", grayedOut: isLocked("immersiveGag") }
+			{ category: "Immersion", yPos: 430, grayedOut: isLocked("immersiveGag") }
 		);
 		this.addCheckbox(
 			"Respect BCX Rules",
 			"respectBcxRules",
 			"Allow supported BCX rules to impact CRABS functionality.",
-			{ category: "Immersion", grayedOut: isLocked("respectBcxRules") }
+			{ category: "Immersion", yPos: 505, grayedOut: isLocked("respectBcxRules") }
 		);
 
-		// Category: Maps
+		// Category: Maps (Right Col)
 		this.addCheckbox(
 			"Show Map Compass",
 			"showMapCompass",
 			"Display a directional arrow on the map pointing toward the player currently hovered in the roster.",
-			{ category: "Maps" }
+			{ category: "Maps", yPos: 725 }
 		);
 		this.addCheckbox(
 			"Extended Map Zoom",
 			"mapSuperZoom",
 			"Unlock maximum map zoom to view significantly larger portions of the room at once.",
-			{ category: "Maps" }
+			{ category: "Maps", yPos: 800 }
 		);
-	}
-
-	/**
-	 * Calculates the Y position for a new element within a specific category.
-	 * 
-	 * @param {string} [category] - The category of the setting.
-	 * @returns {number} The calculated Y position.
-	 */
-	private getNewYPos(category?: string): number {
-		const catElements = this.elements.filter(element => element.category === category);
-		if (catElements.length === 0) {
-			if (category === "Banner") return 280;
-			if (category === "Drawer") return 425;
-			if (category === "Immersion") return 280;
-			return 280;
-		}
-		const lastElement = catElements[catElements.length - 1];
-		return lastElement.yPos + this.SPACING_Y;
 	}
 
 	/**
@@ -223,18 +205,17 @@ export class Settings extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: Partial<CheckboxElement>) {
-		const category = options?.category;
 		const element: CheckboxElement = {
 			type: 'Checkbox',
 			text,
 			setting,
 			hint,
-			yPos: this.getNewYPos(category),
+			yPos: options?.yPos || 280,
 			width: this.CHECKBOX_WIDTH,
 			height: this.CHECKBOX_WIDTH,
 			xModifier: 0,
 			yModifier: 0,
-			...options
+			category: options?.category
 		};
 		this.elements.push(element);
 	}
@@ -326,11 +307,11 @@ export class Settings extends CRABS_Base {
 		DrawRect(this.LEFT_COL_X - 20, 345, 650, 500, "#00000011");
 		DrawText("Drawer Options", leftCenterX, 365, "Black", "Gray");
 
-		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#00000011");
+		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 375, "#00000011");
 		DrawText("Immersion & Rules", rightCenterX, 220, "Black", "Gray");
 
-		DrawRect(this.RIGHT_COL_X - 20, 545, 650, 200, "#00000011");
-		DrawText("Maps Options", rightCenterX, 565, "Black", "Gray");
+		DrawRect(this.RIGHT_COL_X - 20, 650, 650, 200, "#00000011");
+		DrawText("Maps Options", rightCenterX, 670, "Black", "Gray");
 
 		for (const element of this.elements) {
 			const isRightCol = element.category === "Immersion" || element.category === "Maps";
