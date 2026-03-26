@@ -295,7 +295,7 @@ export class Roster extends CRABS_Base {
 		if (Player.OwnerNumber() == player.MemberNumber) {
 			// person owns you
 			playerIcons += Assets.printimage({ key: "owner" }) + " ";
-		} if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
+		} else if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
 			// YOU own them
 			if (isTrial) {
 				playerIcons += Assets.printimage({ key: "trial" }) + " ";
