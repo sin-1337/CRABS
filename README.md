@@ -30,66 +30,89 @@
   ```
 * Navigate to BondageClub and click the bookmark.
 
-## Usage:
-### /roster
-<p>This command lists the number of admins and players in a room and gives you some information about them.</p>
+### Bookmarklet
+Alternatively, you may add the following as a bookmark URL:
+```javascript
+javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+```
+Click the bookmark while on the Bondage Club page to load the mod.
 
-<p>
-Arguments:<br>
-help - show this menu<br>
-count - show only the player count<br>
-admins - show only a list of admins and the counts<br>
-vips - show only room whitelisted and the counts<br>
-banner - draws the banner again </br>
-version - shows the version of CRABS </br>
-</p>
+## Core Features
 
-### /whisper+ [membernumber] 
-Synonyms: /w+
-<p>Command that lets you whisper at range on maps, 
-activated automatically by clicking the player
-name in the roster. </p>
+### Interactive Side Drawer
+A stowable interface that provides rapid access to mod features without obstructing the main view.
+* Automatically manages visibility during character interaction and chat input.
+* Provides persistent access to the Roster and Help documentation.
+* Configurable auto-stow behavior via settings.
 
-### /dropkeys [gold silver bronze / all]
-<p>Command that lets you drop your keys, you can 
-supply one or more key colors, or all to drop 
-all keys. </p>
+### Enhanced Roster
+A sophisticated player tracking system with detailed relational and status information.
+* **Relational Mapping:** Clearly identifies Owners, Submissives, Lovers, Friends, and ignored users with distinct iconography.
+* **Status Monitoring:** Real-time indicators for character gagging, blindness, and deafness.
+* **Map Integration:** Displays collected keys and provides a directional compass for locating players in map rooms.
 
-<p>
-Badges: <br>
-<img src="https://sin-1337.github.io/CRABS/icons/admin.svg" alt="Admin" width="40" height="40" align="center"> = Person is Admin<br>
-<img src="https://sin-1337.github.io/CRABS/icons/vip.svg" alt="VIP" width="40" height="40" align="center"> = Person is whitelisted in the room<br>
-<img src="https://sin-1337.github.io/CRABS/icons/player.svg" alt="Player" width="40" height="40" align="center"> = Person is a normal user<br>
-</p>
+### Immersive Blindness
+Dynamic interface adjustments that reflect your character's sensory state.
+* The roster interface blurs according to your character's blindness level.
+* Full integration with BCX "Full Blind" rules for a seamless experience.
 
-<p>
-Icons: <br>
-<img src="https://sin-1337.github.io/CRABS/icons/you.svg" alt="You" width="40" height="40" align="center"> = Person is you<br>
-<img src="https://sin-1337.github.io/CRABS/icons/owner.svg" alt="Owner" width="40" height="40" align="center"> = Person is your owner<br>
-<img src="https://sin-1337.github.io/CRABS/icons/sub.svg" alt="Sub" width="40" height="40" align="center"> = Person is your submissive<br>
-<img src="https://sin-1337.github.io/CRABS/icons/trial.svg" alt="Trail" width="40" height="40" align="center"> = Person is on trial with you<br>
-<img src="https://sin-1337.github.io/CRABS/icons/lover.svg" alt="Lover" width="40" height="40" align="center"> = Person is your lover<br>
-<img src="https://sin-1337.github.io/CRABS/icons/friends.svg" alt="Friend" width="40" height="40" align="center"> = Person is a friend<br>
-<img src="https://sin-1337.github.io/CRABS/icons/whitelist.svg" alt="Whitelist" width="40" height="40" align="center"> = You have this person whitelisted<br>
-<img src="https://sin-1337.github.io/CRABS/icons/blacklist.svg" alt="blacklist" width="40" height="40" align="center"> = You have this person blacklisted<br>
-<img src="https://sin-1337.github.io/CRABS/icons/ghost.svg" alt="ghost" width="40" height="40" align="center"> = You have ghosted this person<br>
-</p>
+### Cross-Mod Compatibility
+CRABS is designed to work seamlessly with other popular Bondage Club enhancements:
+* **BCX (Bondage Club Extension)**: Respects "Full Blind" rules and character state enforcement within the immersive roster.
+* **BCTweaks**: Integrates with the "Best Friends" list to display unique iconography and prioritize close relationships in the roster display.
 
-### Status Icons:
-<p>There are 3 icons on the right side of each player card.
-They indicate if the player is gagged, blind, or deaf 
-and will light up to show this stats.</p>
+### Global Communication (Whisper+)
+Bypasses standard range restrictions in map rooms to allow messaging any player currently in the roster.
 
-### Keys:
-<p>When on a map, 3 key icons in the upper right corner of
-the roster will light up as you collect the different keys. </p>
+## Commands
 
-### Actions:
-<p>Click Badge - If you click the badge for a player it will be as if you clicked them to interact.<br>
-Click name - If you click the name/number of a player it will whisper them without range constraints.<br>
-</p>
+### /roster [argument]
+**Synonyms:** `/crabs`
+The primary command for interacting with the roster system.
+* **no argument**: Toggles the side drawer or opens the roster UI.
+* **count**: Displays only the room population statistics.
+* **admins**: Filters the roster to display only room administrators.
+* **vips**: Filters the roster to display only whitelisted room guests.
+* **banner**: Re-renders the room information banner.
+* **help**: Displays the in-game documentation.
+* **version**: Shows current installation details.
 
-## Acknoledgements:
-* Thanks to Sera Eldritch Esper for the wonderful logo design! Both the big and mini versions!
+### /whisper+ [membernumber] [message]
+**Synonyms:** `/w+`
+Initiates a global whisper to the specified member number, ignoring map distance limitations.
+
+### /dropkeys [color/all]
+Instantly drops specific keys (gold, silver, bronze) or all currently held keys in a map room.
+
+## Iconography Legend
+
+### Relational Icons
+| Icon | Description |
+| :--- | :--- |
+| <img src="https://sin-1337.github.io/CRABS/images/you.svg" width="24"> | Represents your character |
+| <img src="https://sin-1337.github.io/CRABS/images/owner.svg" width="24"> | Your Owner |
+| <img src="https://sin-1337.github.io/CRABS/images/sub.svg" width="24"> | Your Submissive |
+| <img src="https://sin-1337.github.io/CRABS/images/lover.svg" width="24"> | Your Lover |
+| <img src="https://sin-1337.github.io/CRABS/images/trial.svg" width="24"> | Trial Partner |
+| <img src="https://sin-1337.github.io/CRABS/images/family.svg" width="24"> | Family Member |
+| <img src="https://sin-1337.github.io/CRABS/images/bestfriend.svg" width="24"> | Best Friend (BCTweaks) |
+| <img src="https://sin-1337.github.io/CRABS/images/friends.svg" width="24"> | Friend List |
+
+### Room Badges
+| Badge | Description |
+| :--- | :--- |
+| <img src="https://sin-1337.github.io/CRABS/images/admin.svg" width="24"> | Room Administrator |
+| <img src="https://sin-1337.github.io/CRABS/images/vip.svg" width="24"> | Whitelisted Guest |
+| <img src="https://sin-1337.github.io/CRABS/images/player.svg" width="24"> | Room Guest |
+
+## User Interactions
+* **Click Badge**: Triggers a character interaction (Focus screen).
+* **Click Name/ID**: Prepares a Whisper+ command for that player.
+* **Right-Click Name/ID**: Copies the member number to the clipboard.
+* **Hover ID**: Activates the Map Compass to show the player's relative direction.
+
+## Acknowledgements
+* **Sera Eldritch Esper**: Exceptional logo design and visual branding.
+* **Gangriel**: For the animated logo and helping me inject some more fun into CRABS.
 * Thanks to many friends for various code advice and assistance!
 * Thanks to all the testers and people who have supported me throughout the development of this project!

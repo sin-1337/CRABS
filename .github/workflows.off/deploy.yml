@@ -1,0 +1,128 @@
+name: Deploy and Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Field to increment (major, minor, patch, build) or specific version (1.2.3.4)"
+        required: true
+        default: "build"
+  push:
+    branches:
+      - "Alpha"
+      - "Beta"
+      - "Stable"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Process Version and Deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          BRANCH=${GITHUB_REF_NAME}
+
+          echo "Building branch: $BRANCH (Current Version: $CURRENT_VERSION)"
+
+          # Setup output directories for Rollup
+          sed -i "s|file:.*|file: \"Live/CRABS/$BRANCH/bundle.js\",|" rollup.config.mjs
+          sed -i "s|\"main\": .*|\"main\": \"Live/CRABS/$BRANCH/bundle.js\",|" package.json
+          sed -i "s|\"outDir\": *\"[^\"]*\"|\"outDir\": \"Live/CRABS/$BRANCH\"|" tsconfig.json
+
+          # Handle Version Bumping
+          ARGUMENT="${{ github.event.inputs.version_type }}"
+
+          if [[ "$ARGUMENT" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            IFS='.' read -r major minor patch build <<< "$ARGUMENT"
+            field="NULL"
+          else
+            IFS='.' read -r major minor patch build <<< "$CURRENT_VERSION"
+            field=""
+          fi
+
+          increment_version() {
+            case $1 in
+              major) ((major++)); minor=0; patch=0; build=0 ;;
+              minor) ((minor++)); patch=0; build=0 ;;
+              patch) ((patch++)); build=0 ;;
+              build) ((build++)) ;;
+              NULL) ;;
+              *) exit 1 ;;
+            esac
+          }
+
+          if [ -z "$field" ]; then increment_version "build"; else increment_version "$field"; fi
+          NEW_VERSION="$major.$minor.$patch.$build"
+          echo "New Version: $NEW_VERSION"
+
+          # --- THE SWITCHEROO (Inject, Build, Restore) ---
+
+          # 1. Temporarily inject the branch name for CDN links
+          sed -i "s/__BRANCH__/$BRANCH/g" src/modules/assets.ts
+
+          # 2. Build the project (Rollup bakes the injected branch into bundle.js)
+          npx rollup -c
+
+          # 3. Undo the branch injection so local files stay as __BRANCH__
+          git restore src/modules/assets.ts
+
+          # --- PERMANENT BUMPS ---
+
+          # 4. Apply permanent version bumps and dynamic branch links
+          sed -i "s/VERSION: JSON.stringify(\"[^\"]*\")/VERSION: JSON.stringify(\"$NEW_VERSION\")/" rollup.config.mjs
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
+          sed -i "s/\/\/ @version .*/\/\/ @version $NEW_VERSION/" crabsloader.user.js
+
+          # Force the correct branch into the loader without needing __BRANCH__ placeholders
+          sed -i "s|// @icon .*|// @icon https://cdn.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/images/CRABS_Logo.png|" crabsloader.user.js
+          sed -i "s|script.src = .*|script.src = \`https://cdn.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/Live/CRABS/$BRANCH/bundle.js?\${Date.now()}\`;|" crabsloader.user.js
+
+          # 5. Commit and push back to Source Repo
+          git add rollup.config.mjs package.json tsconfig.json crabsloader.user.js Live/
+          git commit -m "build #$NEW_VERSION" || true
+          git push origin $BRANCH
+
+          # --- CREATE GITHUB RELEASE ---
+          if [ "$BRANCH" == "Stable" ]; then
+            TAG_NAME="v$NEW_VERSION"
+            RELEASE_TITLE="v$NEW_VERSION"
+          else
+            TAG_NAME="$BRANCH-v$NEW_VERSION"
+            RELEASE_TITLE="$BRANCH $NEW_VERSION"
+          fi
+
+          gh release create "$TAG_NAME" --title "$RELEASE_TITLE" --notes "Automated release ($BRANCH)"
+
+          # --- BUST CACHE ---
+          echo "Purging jsDelivr cache..."
+          curl -X POST https://purge.jsdelivr.net/gh/sin-1337/CRABS@$BRANCH/Live/CRABS/$BRANCH/bundle.js
+
+          echo "Deployment complete!"

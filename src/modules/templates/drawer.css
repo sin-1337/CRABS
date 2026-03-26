@@ -1,0 +1,198 @@
+#crabs-drawer {
+  position: fixed;
+  /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
+  z-index: 99 !important;
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+
+#crabs-drawer.drawer-closed {
+  /* Move it slightly more than 100% to ensure shadows and borders are cleared */
+  transform: translateX(calc(100% + 20px));
+}
+
+#crabs-drawer.drawer-open {
+  transform: translateX(0);
+}
+
+#drawer-tab {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+
+  /* --- NEW: Transparency & Blur --- */
+  background: rgba(
+    34,
+    34,
+    34,
+    0.85
+  ); /* Replace with your drawer's exact rgba color */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+
+  /* Optional: A subtle border helps frosted glass stand out */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  /* -------------------------------- */
+
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+
+  position: absolute;
+  left: -44px;
+  top: 10px;
+  z-index: 99 !important;
+
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Ensure the tab is always interactive and visible at the edge of the chat */
+#crabs-drawer.drawer-closed #drawer-tab {
+  transform: translateX(0);
+}
+
+.drawer-content {
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  border-radius: 12px 0 0 12px;
+
+  /* Scale up the base font size for the drawer */
+  font-size: 1.4rem;
+
+  /* Kill visibility when closed to prevent any "peeking" or interaction */
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+/* Specifically scale the roster content inside the drawer */
+#CRABS_Drawer_Roster .CRABS_room-status {
+  font-size: 1.3rem; /* Extra boost for the header counters */
+}
+
+#CRABS_Drawer_Roster .CRABS_card {
+  font-size: 1.2rem; /* Ensure card text and em-based icons are larger */
+  padding: 6px;
+}
+
+#CRABS_Drawer_Roster .CRABS_card_badge {
+  width: 44px; /* Slightly wider badge area for the larger font */
+}
+
+/* Fix header icons scaling */
+.drawer-content .CRABS_Drawer_Help_Icon,
+.drawer-content .CRABS_Drawer_Settings_Icon,
+.drawer-content .CRABS_Drawer_Close_Icon {
+  width: 40px !important;
+  height: 40px !important;
+  display: inline-block !important;
+  vertical-align: middle;
+  padding: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.drawer-content .CRABS_Drawer_Help_Icon img,
+.drawer-content .CRABS_Drawer_Settings_Icon img,
+.drawer-content .CRABS_Drawer_Close_Icon img {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  object-fit: contain;
+}
+
+.drawer-content #drawer-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.drawer-content.CRABS_wrapper {
+  width: 100% !important;
+  margin: 0 !important;
+  height: 100% !important;
+  box-sizing: border-box;
+}
+
+.drawer-content .CRABS_wrapper_content {
+  flex: 1;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding: 8px;
+}
+
+#crabs-drawer.drawer-closed .drawer-content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#crabs-drawer.drawer-open .drawer-content {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Add a fallback indicator in case the image fails to load */
+#drawer-tab::after {
+  content: "👥";
+  font-size: 20px;
+  display: none;
+}
+
+#drawer-tab img:not([src]),
+#drawer-tab img[src=""] {
+  display: none;
+}
+
+#drawer-tab img:not([src]) + ::after,
+#drawer-tab img[src=""] + ::after {
+  display: block;
+}
+
+#drawer-tab img {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: contain;
+  pointer-events: none;
+
+  /* Only the transition stays here */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Stowed (Closed) */
+#crabs-drawer.drawer-closed #drawer-tab img {
+  transform: rotate(270deg) translateZ(0) !important;
+}
+
+/* Expanded (Open) */
+#crabs-drawer.drawer-open #drawer-tab img {
+  transform: rotate(0deg) translateZ(0) !important;
+}
+
+/* Force the internal tables to behave */
+#CRABS_Drawer_Roster,
+.CRABS_roster_center_table {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+
+.CRABS_card {
+  height: auto !important;
+  margin-bottom: 8px;
+}
