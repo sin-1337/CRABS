@@ -75,21 +75,21 @@ Instantly drops specific keys (gold, silver, bronze) or all currently held keys 
 ### Relational Icons
 | Icon | Description |
 | :--- | :--- |
-| <img src="https://sin-1337.github.io/CRABS/icons/you.svg" width="24"> | Represents your character |
-| <img src="https://sin-1337.github.io/CRABS/icons/owner.svg" width="24"> | Your Owner |
-| <img src="https://sin-1337.github.io/CRABS/icons/sub.svg" width="24"> | Your Submissive |
-| <img src="https://sin-1337.github.io/CRABS/icons/lover.svg" width="24"> | Your Lover |
-| <img src="https://sin-1337.github.io/CRABS/icons/trial.svg" width="24"> | Trial Partner |
-| <img src="https://sin-1337.github.io/CRABS/icons/family.svg" width="24"> | Family Member |
-| <img src="https://sin-1337.github.io/CRABS/icons/bestfriend.svg" width="24"> | Best Friend (BCTweaks) |
-| <img src="https://sin-1337.github.io/CRABS/icons/friends.svg" width="24"> | Friend List |
+| <img src="https://sin-1337.github.io/CRABS/images/you.svg" width="24"> | Represents your character |
+| <img src="https://sin-1337.github.io/CRABS/images/owner.svg" width="24"> | Your Owner |
+| <img src="https://sin-1337.github.io/CRABS/images/sub.svg" width="24"> | Your Submissive |
+| <img src="https://sin-1337.github.io/CRABS/images/lover.svg" width="24"> | Your Lover |
+| <img src="https://sin-1337.github.io/CRABS/images/trial.svg" width="24"> | Trial Partner |
+| <img src="https://sin-1337.github.io/CRABS/images/family.svg" width="24"> | Family Member |
+| <img src="https://sin-1337.github.io/CRABS/images/bestfriend.svg" width="24"> | Best Friend (BCTweaks) |
+| <img src="https://sin-1337.github.io/CRABS/images/friends.svg" width="24"> | Friend List |
 
 ### Room Badges
 | Badge | Description |
 | :--- | :--- |
-| <img src="https://sin-1337.github.io/CRABS/icons/admin.svg" width="24"> | Room Administrator |
-| <img src="https://sin-1337.github.io/CRABS/icons/vip.svg" width="24"> | Whitelisted Guest |
-| <img src="https://sin-1337.github.io/CRABS/icons/player.svg" width="24"> | Room Guest |
+| <img src="https://sin-1337.github.io/CRABS/images/admin.svg" width="24"> | Room Administrator |
+| <img src="https://sin-1337.github.io/CRABS/images/vip.svg" width="24"> | Whitelisted Guest |
+| <img src="https://sin-1337.github.io/CRABS/images/player.svg" width="24"> | Room Guest |
 
 ## User Interactions
 * **Click Badge**: Triggers a character interaction (Focus screen).
