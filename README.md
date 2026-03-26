@@ -2,20 +2,33 @@
   <img src="https://sin-1337.github.io/CRABS/images/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
 </div>
 
-<h1 align="center">Crazy Roster Add-on By Sin (CRABS)</h1>
+<h1 align="center">Crazy Roster Add-on By Sin - Beta</h1>
 
-CRABS is a comprehensive enhancement suite for Bondage Club, providing advanced roster management, navigation utilities, and immersive interface improvements.
+## Warnings: 
+* This is the Beta branch where testing takes place!
+* This branch is mostly stable with more regular updates and changes
+* Not recommened if stability is most important to you.
 
-## Development Status
-This repository contains the Alpha branch. Development is active, and this version may be unstable. It is intended for testing and development purposes.
+## Installation:
+### FUSAM:
+* Install FUSAM if you do not already have it:  https://sidiousious.gitlab.io/bc-addon-loader/
+* Find the ADD-ON button at the top of the main settings page once you log in.
+* Scroll to the botton where you will see the CRABS addon and in the far right column, slelect "Stable".
+* Click Save
+* Reload BC.
 
-## Installation
+### User Script (Violentmonkey / Tampermonkey):
+  To install useing the user script method 
+  * click the userscript: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Beta/crabsloader.user.js)
+  * Click the [install] button
+  * Reload the Bondage Club tab if you have it open already.
 
-### User Script (Violentmonkey / Tampermonkey)
-To install via a user script manager:
-* Access the userscript: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
-* Select the install option in your script manager.
-* Refresh your Bondage Club tab to activate the mod.
+### Bookmark:
+* Copy this URL and add it as a bookmark:
+  ```
+  javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+  ```
+* Navigate to BondageClub and click the bookmark.
 
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:

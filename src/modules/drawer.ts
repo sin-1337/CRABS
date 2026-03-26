@@ -49,8 +49,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Creates an instance of the Drawer module.
-	 * 
-	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 * * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
 	 * @param {Roster} roster - The Roster module instance.
 	 * @param {Help} help - The Help module instance.
 	 * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
@@ -83,8 +82,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Temporarily changes the tab icon to the Rave version.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public RaveTab(): void {
 		if (!this.instance) return;
@@ -102,8 +100,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Initializes the drawer module and sets up global event listeners.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	private init(): void {
 		if (document.body) {
@@ -124,8 +121,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Sets up hooks and observers to dynamically refresh the drawer content.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
 		// Hook into chat room messages to detect joins/leaves
@@ -189,8 +185,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Creates and attaches the drawer element to the DOM.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	private setupElement(): void {
 		if (this.instance) return; // already initialized
@@ -230,8 +225,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Magnetically locks the drawer to the exact dimensions of the game's chat log.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	private syncToChat(): void {
 		const chatLog = document.getElementById("TextAreaChatLog");
@@ -268,8 +262,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Shows or hides the entire drawer container based on room status.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
@@ -326,8 +319,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Re-renders and updates the content within the drawer.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
@@ -338,7 +330,6 @@ export class Drawer extends CRABS_Base {
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
-			// Update state caches
 			this.lastCharacterCount = ChatRoomData.Character.length;
 			this.lastAdminList = (ChatRoomData.Admin || []).join(",");
 			this.lastKeys = [
@@ -348,42 +339,45 @@ export class Drawer extends CRABS_Base {
 			].join(",");
 
 			if (this.showingHelp) {
-				if (title) title.textContent = "CRABS: Help";
-				if (helpIconContainer) {
+				if (title && title.textContent !== "CRABS: Help") title.textContent = "CRABS: Help";
+
+				// Only update the DOM if the icon needs to change
+				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "roster") {
 					helpIconContainer.innerHTML = Assets.printimage({
 						key: "roster",
 						css_class_override: "CRABS_Drawer_Help_Icon"
 					});
+					helpIconContainer.setAttribute("data-icon", "roster");
 				}
+
 				content.innerHTML = this.helpModule.showHelp(false);
 			} else {
-				if (title) title.textContent = "CRABS: Roster";
-				if (helpIconContainer) {
+				if (title && title.textContent !== "CRABS: Roster") title.textContent = "CRABS: Roster";
+
+				// Only update the DOM if the icon needs to change
+				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "help") {
 					helpIconContainer.innerHTML = Assets.printimage({
 						key: "help",
 						css_class_override: "CRABS_Drawer_Help_Icon"
 					});
+					helpIconContainer.setAttribute("data-icon", "help");
 				}
-				// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
+
 				content.innerHTML = this.rosterModule.buildroster("all", false);
 				this.rosterModule.initScrollingOverflow();
 
-				// Re-attach all events scoped strictly to this drawer instance
 				if (this.instance) {
 					this.rosterModule.buildui(undefined, undefined, this.instance);
 					this.whisperPlusModule.buildui(undefined, undefined, this.instance);
 				}
 			}
-			// Re-bind header buttons as they might have been part of the refresh
-			this.bindHeaderButtons();
-			this.syncToChat(); // Keep aligned
+			this.syncToChat();
 		}
 	}
 
 	/**
 	 * Overrides the base openSettings method to close the drawer before navigating.
-	 * 
-	 * @returns {Promise<void>}
+	 * * @returns {Promise<void>}
 	 */
 	public override async openSettings(): Promise<void> {
 		// Close drawer first
@@ -393,55 +387,8 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Binds events to the buttons in the drawer header.
-	 * 
-	 * @returns {void}
-	 */
-	private bindHeaderButtons(): void {
-		if (!this.instance) return;
-
-		// Bind Help icon inside the drawer header
-		const helpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
-		if (helpBtn) {
-			helpBtn.replaceWith(helpBtn.cloneNode(true));
-			const newHelpBtn = this.instance.querySelector(".CRABS_Drawer_Help_Icon") as HTMLElement;
-			newHelpBtn.addEventListener("click", () => {
-				this.showingHelp = !this.showingHelp;
-				this.refresh();
-			});
-		}
-
-		// Bind Settings icon inside the drawer header
-		const settingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
-		if (settingsBtn) {
-			settingsBtn.replaceWith(settingsBtn.cloneNode(true));
-			const newSettingsBtn = this.instance.querySelector(".CRABS_Drawer_Settings_Icon") as HTMLElement;
-			newSettingsBtn.addEventListener("click", () => {
-				this.openSettings();
-			});
-		}
-
-		// Bind Close icon inside the drawer header
-		const closeBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
-		if (closeBtn) {
-			closeBtn.replaceWith(closeBtn.cloneNode(true));
-			const newCloseBtn = this.instance.querySelector(".CRABS_Drawer_Close_Icon") as HTMLElement;
-			newCloseBtn.addEventListener("click", (event) => {
-				event.stopPropagation();
-				if (this.showingHelp) {
-					this.showingHelp = false;
-					this.refresh();
-				} else {
-					this.close();
-				}
-			});
-		}
-	}
-
-	/**
-	 * Binds events to the drawer tab and other interactive elements.
-	 * 
-	 * @returns {void}
+	 * Binds events to the drawer tab and other interactive elements using event delegation.
+	 * * @returns {void}
 	 */
 	private bindEvents(): void {
 		if (!this.instance) return;
@@ -454,13 +401,30 @@ export class Drawer extends CRABS_Base {
 			});
 		}
 
-		this.bindHeaderButtons();
+		// Delegated event listener for dynamically updated header buttons
+		this.instance.addEventListener("click", (event) => {
+			const target = event.target as HTMLElement;
+
+			if (target.closest(".CRABS_Drawer_Help_Icon")) {
+				this.showingHelp = !this.showingHelp;
+				this.refresh();
+			} else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
+				this.openSettings();
+			} else if (target.closest(".CRABS_Drawer_Close_Icon")) {
+				event.stopPropagation();
+				if (this.showingHelp) {
+					this.showingHelp = false;
+					this.refresh();
+				} else {
+					this.close();
+				}
+			}
+		});
 	}
 
 	/**
 	 * Toggles the drawer between open and closed states.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
@@ -468,8 +432,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Opens the drawer with an animation.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public open(): void {
 		if (!this.instance) return;
@@ -480,8 +443,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Closes the drawer with an animation.
-	 * 
-	 * @returns {void}
+	 * * @returns {void}
 	 */
 	public close(): void {
 		if (!this.instance) return;
