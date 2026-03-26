@@ -137,10 +137,11 @@ export class Drawer extends CRABS_Base {
 			return;
 		}
 
-		// The drawer should only be visible when actually in a chat room screen
+		// The drawer should only be visible when actually in a chat room screen AND no character is focused
 		const inChatRoom = typeof ChatRoomData !== 'undefined' &&
 			ChatRoomData !== null &&
-			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom");
+			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom") &&
+			(window as any).CurrentCharacter === null;
 
 		if (!inChatRoom) {
 			this.instance.style.display = "none";
