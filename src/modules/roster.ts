@@ -280,17 +280,30 @@ export class Roster extends CRABS_Base {
 	 */
 	private setIcons(player: PlayerCharacter): string {
 		let player_icons = "";
+
+		// Trial checks
+		const isTrialMe = player.Ownership?.MemberNumber === Player.MemberNumber && player.Ownership?.Stage === 0;
+		const isTrialThem = Player.Ownership?.MemberNumber === player.MemberNumber && Player.Ownership?.Stage === 0;
+
 		if (Player.OwnerNumber() == player.MemberNumber) {
 			// person owns you
-			player_icons += Assets.printimage({ key: "owner" }) + " ";
+			if (isTrialThem) {
+				player_icons += Assets.printimage({ key: "trial" }) + " ";
+			} else {
+				player_icons += Assets.printimage({ key: "owner" }) + " ";
+			}
 		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
 			// if they don't own you but you are in their family, we assume you own them
 			if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
 				// The person is fully owned if this is true
-				player_icons += Assets.printimage({ key: "sub" }) + " ";
+				if (isTrialMe) {
+					player_icons += Assets.printimage({ key: "trial" }) + " ";
+				} else {
+					player_icons += Assets.printimage({ key: "sub" }) + " ";
+				}
 			} else {
-				// person is on trial
-				player_icons += Assets.printimage({ key: "subfamily" }) + " ";
+				// person is a family member
+				player_icons += Assets.printimage({ key: "family" }) + " ";
 			}
 		}
 		if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {

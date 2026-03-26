@@ -113,10 +113,10 @@ export abstract class Assets {
 				toolTip: "Submissive",
 				class: "CRABS_icon",
 			},
-			subfamily: {
-				file: "subfamily.svg", //TODO: UPDATE TO FAMILY ICON, CREATE NEW TRIL
-				alt: "Sub family",
-				toolTip: "Family.",
+			family: {
+				file: "family.svg",
+				alt: "Family",
+				toolTip: "Family",
 				class: "CRABS_icon",
 			},
 			trial: {

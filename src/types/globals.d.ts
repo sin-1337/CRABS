@@ -128,6 +128,13 @@ declare global {
 		Start?: number;
 	}
 
+	interface Ownership {
+		Name: string;
+		MemberNumber?: number;
+		Stage?: 0 | 1;
+		Start?: number;
+	}
+
 	interface CharacterPoseMapping {
 		BodyLower?: string;
 		BodyFull?: string;
@@ -147,6 +154,7 @@ declare global {
 
 		Lover?: string;
 		Owner?: string;
+		Ownership?: Ownership;
 		Effect: string[];
 		Lovership: Lovership[];
 		Attribute: string[];
