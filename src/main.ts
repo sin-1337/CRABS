@@ -127,6 +127,16 @@ CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
 	return result;
 });
 
+/**
+ * Hook into character dialog exit.
+ * This ensures the drawer/tab reappears when leaving a character profile or focus screen.
+ */
+CRABS.hookFunction("DialogLeave", 0, (args, next) => {
+	const result = next(args);
+	Drawer.updateVisibility();
+	return result;
+});
+
 function argcheck(args: string): boolean {
 	const splitArgs = args.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
