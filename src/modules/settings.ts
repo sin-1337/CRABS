@@ -150,6 +150,12 @@ export class Settings extends CRABS_Base {
 		);
 
 		// Category: Immersion (Right Col)
+		// Helper: Logic for the "One Way" Lock
+		// Only gray out if: Hardcore is ON AND Player is bound AND the setting is already ON.
+		const immersiveLock = (setting: keyof CRABS_Settings) => {
+			return () => this.data.lockImmersive && this.isRestricted() && this.data[setting] === true;
+		};
+
 		this.addCheckbox(
 			"Hardcore Lock",
 			"lockImmersive",
@@ -157,27 +163,23 @@ export class Settings extends CRABS_Base {
 			{ category: "Immersion", yPos: 280, grayedOut: () => this.data.lockImmersive && this.isRestricted() }
 		);
 
-		const isLocked = (setting: keyof CRABS_Settings) => {
-			return () => this.data.lockImmersive && this.isRestricted() && this.data[setting] === true;
-		};
-
 		this.addCheckbox(
 			"Respect Blindness",
 			"immersiveBlind",
 			"Roster visibility will be blurred based on your character's blindness level.",
-			{ category: "Immersion", yPos: 355, grayedOut: isLocked("immersiveBlind") }
+			{ category: "Immersion", yPos: 355, grayedOut: immersiveLock("immersiveBlind") }
 		);
 		this.addCheckbox(
 			"Respect Gags",
 			"immersiveGag",
 			"Prevent sending Whisper+ messages if your character is gagged.",
-			{ category: "Immersion", yPos: 430, grayedOut: isLocked("immersiveGag") }
+			{ category: "Immersion", yPos: 430, grayedOut: immersiveLock("immersiveGag") }
 		);
 		this.addCheckbox(
 			"Respect BCX Rules",
 			"respectBcxRules",
 			"Allow supported BCX rules to impact CRABS functionality.",
-			{ category: "Immersion", yPos: 505, grayedOut: isLocked("respectBcxRules") }
+			{ category: "Immersion", yPos: 505, grayedOut: immersiveLock("respectBcxRules") }
 		);
 
 		// Category: Maps (Right Col)
