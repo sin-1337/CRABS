@@ -14,13 +14,15 @@ const CRABS = bcModSDK.registerMod({
 // print version early, so you know what version is running even if it fails.
 console.log(`CRABS v${VERSION} Loading`); // do not remove
 
-new Settings(CRABS);
+const SETTINGS = new Settings(CRABS);
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 WHISPERPLUS.setupHooks();
+
+SETTINGS.syncGameState();
 
 // Hook into chat sending for auto-stow feature
 CRABS.hookFunction("ChatRoomSendChat", 10, (functionArguments, next) => {
@@ -94,6 +96,7 @@ CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
 	setTimeout(() => {
 		try {
 			Drawer.updateVisibility();
+			SETTINGS.syncGameState();
 
 			// Re-verify ChatRoomData exists just in case the sync failed entirely
 			if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {

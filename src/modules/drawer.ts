@@ -462,8 +462,23 @@ export class Drawer extends CRABS_Base {
 	 */
 	public open(): void {
 		if (!this.instance) return;
+		this.refresh();
 		this.isOpen = true;
 		this.instance.classList.replace("drawer-closed", "drawer-open");
+	}
+
+	/**
+	 * Closes the drawer with an animation.
+	 * 
+	 * @returns {void}
+	 */
+	public close(): void {
+		if (!this.instance) return;
+		this.isOpen = false;
+		this.instance.classList.replace("drawer-open", "drawer-closed");
+	}
+}
+tance.classList.replace("drawer-closed", "drawer-open");
 	}
 
 	/**

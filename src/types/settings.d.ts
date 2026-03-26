@@ -52,4 +52,6 @@ interface CRABS_Settings {
 	closeDrawerOnChat: boolean;
 	disableDrawer: boolean;
 	lockImmersive: boolean;
+	showMapCompass: boolean;
+	mapSuperZoom: boolean;
 }
