@@ -156,6 +156,17 @@ export class Drawer extends CRABS_Base {
 			return result;
 		});
 
+		// Hook into the game's native room display update for a catch-all refresh
+		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			if (this.isOpen && !this.showingHelp) {
+				this.refresh();
+			}
+
+			return result;
+		});
+
 		// Hook into map draw to detect key changes
 		this.CRABS.hookFunction("ChatRoomMapViewDraw", 5, (functionArguments, next) => {
 			const result = next(functionArguments);
@@ -462,6 +473,7 @@ export class Drawer extends CRABS_Base {
 	 */
 	public open(): void {
 		if (!this.instance) return;
+		this.refresh();
 		this.isOpen = true;
 		this.instance.classList.replace("drawer-closed", "drawer-open");
 	}
