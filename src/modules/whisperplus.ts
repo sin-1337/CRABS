@@ -18,16 +18,14 @@ import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
 import { CrossMod } from "./crossmod";
 import { Notification } from "./notifications";
+import { Settings } from "./settings";
+
+import { Drawer } from "./drawer";
 
 export class WhisperPlus extends CRABS_Base {
-	private drawerModule: any = null;
 
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
-	}
-
-	public setDrawer(drawer: any): void {
-		this.drawerModule = drawer;
 	}
 
 	/**
@@ -211,9 +209,8 @@ export class WhisperPlus extends CRABS_Base {
 		}
 
 		// Auto-stow drawer if enabled
-		// We use a global settings check or similar if available
-		if (this.drawerModule && (window as any).SETTINGS?.data.closeDrawerOnWhisper) {
-			this.drawerModule.close();
+		if (Settings.instance.data.closeDrawerOnWhisper) {
+			Drawer.close();
 		}
 
 		// Handle self whispers with gray text and memo emoji
@@ -296,10 +293,8 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(args: string, command: string): number {
-		const settings = (window as any).SETTINGS;
-
 		// 1. Immersive Gag Check
-		if (settings?.data.immersiveGag && this.getGagLevel() > 0) {
+		if (Settings.instance.data.immersiveGag && this.getGagLevel() > 0) {
 			if (typeof ToastManager !== "undefined") {
 				Notification.send("You cannot use Whisper+ while gagged.", "Whisper+ Blocked");
 			} else {
@@ -309,7 +304,7 @@ export class WhisperPlus extends CRABS_Base {
 		}
 
 		// 2. BCX Rule Check: speech_restrict_whisper_send
-		if (settings?.data.respectBcxRules) {
+		if (Settings.instance.data.respectBcxRules) {
 			const ruleState = CrossMod.getBCXRuleState("speech_restrict_whisper_send");
 			if (ruleState?.isEnforced) {
 				const { memberNumber } = this.parseArguments(args, command);

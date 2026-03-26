@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
  * Combined Settings and UI Manager for CRABS.
  */
 export class Settings extends CRABS_Base {
+	public static instance: Settings;
 	public data: CRABS_Settings;
 	private elements: UIElement[] = [];
 	private readonly STORAGE_KEY = "CRABS_Settings";
@@ -33,6 +34,7 @@ export class Settings extends CRABS_Base {
 
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
+		Settings.instance = this;
 		this.data = this.load();
 		this.setupUI();
 		this.registerExtension();

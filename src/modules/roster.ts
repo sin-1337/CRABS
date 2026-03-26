@@ -14,6 +14,7 @@ import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
 import { CrossMod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { Settings } from "./settings";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
@@ -435,13 +436,11 @@ export class Roster extends CRABS_Base {
 	 * Also accounts for BCX "alt_eyes_fullblind" rule if applicable.
 	 */
 	private getBlindnessLevel(): number {
-		const settings = (window as any).SETTINGS;
-
 		// If Respect Blindness is OFF, we don't want any blindness blurring
-		if (!settings?.data.immersiveBlind) return 0;
+		if (!Settings.instance.data.immersiveBlind) return 0;
 
 		// Check BCX full blind rule - only applies if both blindness immersion and BCX rules are respected
-		if (settings?.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
+		if (Settings.instance.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
 			if (this.isEyesClosed()) {
 				return 4;
 			}
@@ -472,8 +471,7 @@ export class Roster extends CRABS_Base {
 
 		// Immersive Mode Check
 		let rosterStyle = "";
-		const settings = (window as any).SETTINGS;
-		if (settings?.data.immersiveBlind) {
+		if (Settings.instance.data.immersiveBlind) {
 			const blindLevel = this.getBlindnessLevel();
 			if (blindLevel > 0) {
 				const blurAmount = blindLevel * 5; // 1=5px, 2=10px, 3=15px, 4=20px

@@ -7,27 +7,35 @@ import drawertemplate from "./templates/drawer.html";
 
 import { Help } from "./help";
 import { WhisperPlus } from "./whisperplus";
-import { Settings } from "./Settings";
+import { Settings } from "./settings";
 
 export class Drawer extends CRABS_Base {
+	private static _instance: Drawer | null = null;
 	private isOpen: boolean = false;
 	// private readonly DRAWER_ID: string = "crabs-drawer";
 	private instance: HTMLElement | null = null;
 	private rosterModule: Roster;
 	private helpModule: Help;
 	private whisperPlusModule: WhisperPlus;
-	private settingsModule: Settings;
 	private resizeObserver: ResizeObserver | null = null;
 	private showingHelp: boolean = false;
 
-	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus, settings: Settings) {
+	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus) {
 		super(CRABS);
+		Drawer._instance = this;
 		this.rosterModule = roster;
 		this.helpModule = help;
 		this.whisperPlusModule = whisperPlus;
-		this.settingsModule = settings;
 		this.init();
 	}
+
+	public static toggle(): void { Drawer._instance?.toggle(); }
+	public static open(): void { Drawer._instance?.open(); }
+	public static close(): void { Drawer._instance?.close(); }
+	public static updateVisibility(): void { Drawer._instance?.updateVisibility(); }
+	public static refresh(): void { Drawer._instance?.refresh(); }
+	public static isShowingHelp(): boolean { return Drawer._instance?.showingHelp ?? false; }
+	public static setShowingHelp(val: boolean): void { if (Drawer._instance) Drawer._instance.showingHelp = val; }
 
 	private init(): void {
 		if (document.body) {
@@ -105,7 +113,7 @@ export class Drawer extends CRABS_Base {
 		this.instance.style.width = `${rect.width}px`;
 
 		// Handle compact height setting (77% of chat height)
-		if (this.settingsModule.data.compactDrawer) {
+		if (Settings.instance.data.compactDrawer) {
 			this.instance.style.height = `${rect.height * 0.77}px`;
 		} else {
 			this.instance.style.height = `${rect.height}px`;
@@ -123,7 +131,7 @@ export class Drawer extends CRABS_Base {
 		if (!this.instance) return;
 
 		// Respect the disableDrawer setting
-		if (this.settingsModule.data.disableDrawer) {
+		if (Settings.instance.data.disableDrawer) {
 			this.instance.style.display = "none";
 			this.close();
 			return;
@@ -149,7 +157,7 @@ export class Drawer extends CRABS_Base {
 			// Handle tab visibility based on settings
 			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 			if (tab) {
-				const shouldHideTab = this.settingsModule.data.hideDrawerTab && this.settingsModule.data.rosterOpensDrawer;
+				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
 				tab.style.display = shouldHideTab ? "none" : "flex";
 			}
 

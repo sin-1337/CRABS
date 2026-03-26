@@ -16,6 +16,8 @@ import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
+import { Settings } from "./settings";
+import { Drawer } from "./drawer";
 
 export class Banner extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {
@@ -117,11 +119,23 @@ export class Banner extends CRABS_Base {
 			"CRABS_Banner"
 		);
 	}
+	/**
+	 * Handles the /roster link click, respecting the rosterOpensDrawer setting.
+	 */
+	private handleRosterLink(): void {
+		if (Settings.instance.data.rosterOpensDrawer) {
+			Drawer.updateVisibility();
+			Drawer.toggle();
+		} else {
+			this.fakePlayerCommand("roster");
+		}
+	}
+
 	public override buildui(output: string, elementId?: string): void {
 		super.buildui(output, elementId);
 		this.attachPermissionChangeHandler();
 		this.attachEvent("CRABS_Permission_Select", this.selectPermission, undefined, undefined, "change");
-		this.attachEvent("CRABS_banner_rosterlink", this.fakePlayerCommand, "", "roster");
+		this.attachEvent("CRABS_banner_rosterlink", () => this.handleRosterLink());
 	}
 
 }

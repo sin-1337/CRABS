@@ -14,16 +14,12 @@ const CRABS = bcModSDK.registerMod({
 // print version early, so you know what version is running even if it fails.
 console.log(`CRABS v${VERSION} Loading`); // do not remove
 
-const SETTINGS = new Settings(CRABS);
-(window as any).SETTINGS = SETTINGS;
+new Settings(CRABS);
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
-const DRAWER = new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS, SETTINGS);
-WHISPERPLUS.setDrawer(DRAWER);
-
-// Initialize Whisper+ hooks for continuous conversation
+new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 WHISPERPLUS.setupHooks();
 
 // Hook into chat sending for auto-stow feature
@@ -34,10 +30,10 @@ CRABS.hookFunction("ChatRoomSendChat", 10, (args, next) => {
 
 	const result = next(args);
 
-	if (SETTINGS.data.closeDrawerOnChat) {
+	if (Settings.instance.data.closeDrawerOnChat) {
 		// Exception: Don't auto-close if the user is running a command that specifically opens/toggles the drawer
 		if (!msg.startsWith("/roster") && !msg.startsWith("/crabs")) {
-			DRAWER.close();
+			Drawer.close();
 		}
 	}
 	return result;
@@ -81,7 +77,7 @@ window.ChatRoomExit = function () {
 	}
 
 	// Trigger our drawer visibility logic
-	DRAWER.updateVisibility();
+	Drawer.updateVisibility();
 };
 
 /**
@@ -97,10 +93,10 @@ CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
 	// Even if CIA crashes the promise chain right after this, the browser will still run this code.
 	setTimeout(() => {
 		try {
-			DRAWER.updateVisibility();
+			Drawer.updateVisibility();
 
 			// Re-verify ChatRoomData exists just in case the sync failed entirely
-			if (typeof ChatRoomData !== "undefined" && ChatRoomData && SETTINGS.data.showBanner) {
+			if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {
 				drawbanner();
 			}
 		} catch (err) {
@@ -116,7 +112,7 @@ CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
  * This ensures the drawer auto-stows whenever the player navigates to a new screen.
  */
 CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
-	DRAWER.close();
+	Drawer.close();
 	return next(args);
 });
 
@@ -125,7 +121,7 @@ CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
  * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
  */
 CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
-	DRAWER.close();
+	Drawer.close();
 	return next(args);
 });
 
@@ -194,9 +190,9 @@ CommandCombine([
 		Tag: "roster",
 		Description: "Open the CRABS Roster.",
 		Action: (args: string) => {
-			if (SETTINGS.data.rosterOpensDrawer && !args) {
-				DRAWER.updateVisibility();
-				DRAWER.toggle();
+			if (Settings.instance.data.rosterOpensDrawer && !args) {
+				Drawer.updateVisibility();
+				Drawer.toggle();
 				return;
 			}
 
