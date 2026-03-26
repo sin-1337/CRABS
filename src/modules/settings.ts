@@ -13,6 +13,8 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	closeDrawerOnChat: false,
 	disableDrawer: false,
 	lockImmersive: false,
+	showMapCompass: true,
+	mapSuperZoom: false,
 };
 
 /**
