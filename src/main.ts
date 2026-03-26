@@ -112,8 +112,9 @@ CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
  * This ensures the drawer auto-stows whenever the player navigates to a new screen.
  */
 CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
-	Drawer.close();
-	return next(args);
+	const result = next(args);
+	Drawer.updateVisibility();
+	return result;
 });
 
 /**
@@ -121,8 +122,9 @@ CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
  * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
  */
 CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
-	Drawer.close();
-	return next(args);
+	const result = next(args);
+	Drawer.updateVisibility();
+	return result;
 });
 
 function argcheck(args: string): boolean {
