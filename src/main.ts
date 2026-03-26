@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer, Settings } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets } from "./modules";
 
 
 //register the mod
