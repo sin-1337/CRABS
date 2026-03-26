@@ -13,6 +13,8 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	closeDrawerOnChat: false,
 	disableDrawer: false,
 	lockImmersive: false,
+	showMapCompass: true,
+	mapSuperZoom: false,
 };
 
 /**
@@ -177,6 +179,20 @@ export class Settings extends CRABS_Base {
 			"Allow supported BCX rules to impact CRABS functionality.",
 			{ category: "Immersion", grayedOut: isLocked("respectBcxRules") }
 		);
+
+		// Category: Maps
+		this.addCheckbox(
+			"Show Map Compass",
+			"showMapCompass",
+			"Display a directional arrow on the map pointing toward the player currently hovered in the roster.",
+			{ category: "Maps" }
+		);
+		this.addCheckbox(
+			"Extended Map Zoom",
+			"mapSuperZoom",
+			"Unlock maximum map zoom to view significantly larger portions of the room at once.",
+			{ category: "Maps" }
+		);
 	}
 
 	/**
@@ -313,9 +329,12 @@ export class Settings extends CRABS_Base {
 		DrawRect(this.RIGHT_COL_X - 20, 200, 650, 350, "#00000011");
 		DrawText("Immersion & Rules", rightCenterX, 220, "Black", "Gray");
 
+		DrawRect(this.RIGHT_COL_X - 20, 545, 650, 200, "#00000011");
+		DrawText("Maps Options", rightCenterX, 565, "Black", "Gray");
+
 		for (const element of this.elements) {
-			const isImmersion = element.category === "Immersion";
-			const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
+			const isRightCol = element.category === "Immersion" || element.category === "Maps";
+			const cardX = isRightCol ? this.RIGHT_COL_X : this.LEFT_COL_X;
 			const y = element.yPos;
 			const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
 			const textX = cardX + this.LABEL_X_OFFSET;
@@ -355,8 +374,8 @@ export class Settings extends CRABS_Base {
 		}
 
 		for (const element of this.elements) {
-			const isImmersion = element.category === "Immersion";
-			const cardX = isImmersion ? this.RIGHT_COL_X : this.LEFT_COL_X;
+			const isRightCol = element.category === "Immersion" || element.category === "Maps";
+			const cardX = isRightCol ? this.RIGHT_COL_X : this.LEFT_COL_X;
 			const y = element.yPos;
 			const checkboxX = cardX + this.CHECKBOX_X_OFFSET;
 
@@ -380,9 +399,26 @@ export class Settings extends CRABS_Base {
 					}
 
 					this.save();
+					this.syncGameState();
 				}
 				return;
 			}
+		}
+	}
+
+	/**
+	 * Synchronizes mod settings with the game's internal variables.
+	 * 
+	 * @returns {void}
+	 */
+	public syncGameState(): void {
+		const globalWindow = window as any;
+		// Apply SuperZoom setting
+		if (this.data.mapSuperZoom) {
+			globalWindow.ChatRoomMapViewPerceptionRangeMax = 50;
+		} else {
+			// Restore default (Bondage Club default is typically 4)
+			globalWindow.ChatRoomMapViewPerceptionRangeMax = 4;
 		}
 	}
 }

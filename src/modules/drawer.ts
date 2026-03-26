@@ -173,9 +173,9 @@ export class Drawer extends CRABS_Base {
 
 			if (this.isOpen && !this.showingHelp && (window as any).ChatRoomMapViewIsActive?.()) {
 				const currentKeys = [
-					Player.MapData.PrivateState?.HasKeyBronze,
-					Player.MapData.PrivateState?.HasKeySilver,
-					Player.MapData.PrivateState?.HasKeyGold
+					Player.MapData?.PrivateState?.HasKeyBronze,
+					Player.MapData?.PrivateState?.HasKeySilver,
+					Player.MapData?.PrivateState?.HasKeyGold
 				].join(",");
 
 				if (currentKeys !== this.lastKeys) {
