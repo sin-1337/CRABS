@@ -9,7 +9,6 @@ This version introduces significant architectural improvements and new interface
 - **Interactive Side Drawer**: A new stowable UI element providing quick access to Roster and Help features.
 - **Map Compass**: Directional tracking arrow that appears on the map when hovering over player IDs in the roster.
 - **Immersive Blindness**: Roster interface now dynamically blurs based on character blindness levels, with full BCX rule support.
-- **RAVE Mode**: Added a debug command `/crab rave` with animated branding and audio feedback.
 - **Enhanced Iconography**: Added specialized detection for Family members and Trial partners.
 - **BCTweaks Integration**: Added "Best Friend" icon support and list prioritization.
 - **Global Variable Strategy**: Migrated to a more robust internal state management system for better stability.
