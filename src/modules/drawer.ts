@@ -373,6 +373,7 @@ export class Drawer extends CRABS_Base {
 			}
 			this.syncToChat();
 		}
+	}
 
 	/**
 	 * Overrides the base openSettings method to close the drawer before navigating.
