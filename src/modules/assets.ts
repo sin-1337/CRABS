@@ -323,7 +323,7 @@ export abstract class Assets {
 	} as const;
 
 	protected static readonly AUDIO: AudioStore = {
-		basePath: "https://sin-1337.github.io/CRABS/images/",
+		basePath: "https://sin-1337.github.io/CRABS/audio/",
 		rave: {
 			file: "Rave.mp3",
 		}
