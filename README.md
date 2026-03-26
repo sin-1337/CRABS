@@ -2,7 +2,7 @@
   <img src="https://sin-1337.github.io/CRABS/images/Crab_logo_big.png" alt="CRABS" width="50%" height="50%" align="center">
 </div>
 
-<h1 align="center">Club Roster & Advanced Benefit System (CRABS)</h1>
+<h1 align="center">Crazy Roster Add-on By Sin (CRABS)</h1>
 
 CRABS is a comprehensive enhancement suite for Bondage Club, providing advanced roster management, navigation utilities, and immersive interface improvements.
 
