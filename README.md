@@ -54,6 +54,7 @@ Bypasses standard range restrictions in map rooms to allow messaging any player 
 ## Commands
 
 ### /roster [argument]
+**Synonyms:** `/crabs`
 The primary command for interacting with the roster system.
 * **no argument**: Toggles the side drawer or opens the roster UI.
 * **count**: Displays only the room population statistics.
@@ -100,5 +101,5 @@ Instantly drops specific keys (gold, silver, bronze) or all currently held keys 
 ## Acknowledgements
 * **Sera Eldritch Esper**: Exceptional logo design and visual branding.
 * **Gangriel**: For the animated logo and helping me inject some more fun into CRABS.
-* **Community Contributors**: Various colleagues and friends for technical guidance and code review.
-* **Testing Team**: Dedicated individuals who assist in stabilizing the Alpha builds.
+* Thanks to many friends for various code advice and assistance!
+* Thanks to all the testers and people who have supported me throughout the development of this project!
