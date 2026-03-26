@@ -292,19 +292,16 @@ export class Roster extends CRABS_Base {
 			} else {
 				player_icons += Assets.printimage({ key: "owner" }) + " ";
 			}
-		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
-			// if they don't own you but you are in their family, we assume you own them
-			if (Player.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
-				// The person is fully owned if this is true
-				if (isTrialMe) {
-					player_icons += Assets.printimage({ key: "trial" }) + " ";
-				} else {
-					player_icons += Assets.printimage({ key: "sub" }) + " ";
-				}
+		} else if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
+			// YOU own them
+			if (isTrialMe) {
+				player_icons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
-				// person is a family member
-				player_icons += Assets.printimage({ key: "family" }) + " ";
+				player_icons += Assets.printimage({ key: "sub" }) + " ";
 			}
+		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
+			// they are in your family tree, but not owner or sub
+			player_icons += Assets.printimage({ key: "family" }) + " ";
 		}
 		if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
 			// person is a lover

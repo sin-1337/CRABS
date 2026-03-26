@@ -261,15 +261,25 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
-	 * This starts /whisper+ if you click on the roster.
-	 *
-	 * @param {number} memberNumber - Member number of the target.
-	 * @returns {void}
-	 */
+		 * This starts /whisper+ if you click on the roster.
+		 *
+		 * @param {number} memberNumber - Member number of the target.
+		 * @returns {void}
+		 */
 	public sendWhisper(memberNumber: number): void {
 		for (const command of Commands) {
 			if (command.Tag == "whisper+") {
 				window.CommandSet(command.Tag + " " + memberNumber)
+			}
+		}
+
+		// New code: Update the input placeholder if targeting self
+		const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
+		if (chatInput) {
+			if (memberNumber === Player.MemberNumber) {
+				chatInput.placeholder = "Note to self:";
+			} else {
+				chatInput.placeholder = ""; // Clears it for normal whispers
 			}
 		}
 	}
