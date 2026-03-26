@@ -131,7 +131,7 @@ export abstract class Assets {
 			trial: {
 				file: "trial.svg",
 				alt: "Trial",
-				toolTip: "Trail",
+				toolTip: "Trial",
 				class: "CRABS_icon",
 			},
 			lover: {
