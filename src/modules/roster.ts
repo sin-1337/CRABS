@@ -290,19 +290,14 @@ export class Roster extends CRABS_Base {
 		let playerIcons = "";
 
 		// Trial checks
-		const isTrialMe = player.Ownership?.MemberNumber === Player.MemberNumber && player.Ownership?.Stage === 0;
-		const isTrialThem = Player.Ownership?.MemberNumber === player.MemberNumber && Player.Ownership?.Stage === 0;
+		const isTrial = player.Ownership?.MemberNumber === Player.MemberNumber && player.Ownership?.Stage === 0;
 
 		if (Player.OwnerNumber() == player.MemberNumber) {
 			// person owns you
-			if (isTrialThem) {
-				playerIcons += Assets.printimage({ key: "trial" }) + " ";
-			} else {
-				playerIcons += Assets.printimage({ key: "owner" }) + " ";
-			}
-		} else if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
+			playerIcons += Assets.printimage({ key: "owner" }) + " ";
+		} if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
 			// YOU own them
-			if (isTrialMe) {
+			if (isTrial) {
 				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
 				playerIcons += Assets.printimage({ key: "sub" }) + " ";
