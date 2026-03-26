@@ -165,7 +165,7 @@ export class WhisperPlus extends CRABS_Base {
 		}
 
 		// If parsing failed, try alternative approach using command string
-		if (isNaN(memberNumber)) {
+		if (isNaN(memberNumber) && command) {
 			const commandParts = command.trim().split(/\s+/);
 			if (commandParts.length >= 2) {
 				memberNumber = parseInt(commandParts[1]);
