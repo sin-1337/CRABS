@@ -331,9 +331,9 @@ export class Drawer extends CRABS_Base {
 			this.lastCharacterCount = ChatRoomData.Character.length;
 			this.lastAdminList = (ChatRoomData.Admin || []).join(",");
 			this.lastKeys = [
-				Player.MapData.PrivateState?.HasKeyBronze,
-				Player.MapData.PrivateState?.HasKeySilver,
-				Player.MapData.PrivateState?.HasKeyGold
+				Player.MapData?.PrivateState?.HasKeyBronze,
+				Player.MapData?.PrivateState?.HasKeySilver,
+				Player.MapData?.PrivateState?.HasKeyGold
 			].join(",");
 
 			if (this.showingHelp) {
