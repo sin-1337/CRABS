@@ -8,17 +8,19 @@ export abstract class Notification {
 
 	/**
 	 * Triggers a custom toast notification on screen.
-	 * @param message - The main body text to display.
-	 * @param title - The header text (Default: "CRABS").
-	 * @param image - The asset name for the icon (Default: "CRABS_logo").
-	 * @param duration - Visibility duration in milliseconds (Default: 4000).
+	 * 
+	 * @param {string} message - The main body text to display.
+	 * @param {string} [title="CRABS"] - The header text.
+	 * @param {string} [image="logo"] - The asset name for the icon.
+	 * @param {number} [duration=3000] - Visibility duration in milliseconds.
+	 * @returns {void}
 	 */
 	public static send(
 		message: string,
 		title: string = "CRABS",
 		image: string = "logo",
 		duration: number = 3000,
-	) {
+	): void {
 		ToastManager.custom(message, "CRABS_Notification", {
 			title: title,
 			icon: Assets.getimage(image),
@@ -29,8 +31,10 @@ export abstract class Notification {
 
 	/**
 	 * Instantly removes all active CRABS notifications from the screen.
+	 * 
+	 * @returns {void}
 	 */
-	public static dismissAll() {
+	public static dismissAll(): void {
 		ToastManager.dismissByCategory("CRABS_Notification");
 	}
 }

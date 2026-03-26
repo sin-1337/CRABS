@@ -22,30 +22,37 @@ import { Settings } from "./settings";
 
 import { Drawer } from "./drawer";
 
+/**
+ * Class representing the Whisper+ enhanced messaging system.
+ */
 export class WhisperPlus extends CRABS_Base {
 
+	/**
+	 * Creates an instance of the WhisperPlus module.
+	 * 
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 	}
 
 	/**
-	 * Initializes the hooks for constant WhisperPlus conversation flow
+	 * Initializes the hooks for constant WhisperPlus conversation flow.
+	 * 
+	 * @returns {void}
 	 */
 	public setupHooks(): void {
 		/**
 		 * Hook: ChatRoomMessageNameClick
 		 * Intercepts clicks on a character's name or the quick-reply arrow in the chat log.
-		 * @param {HTMLElement} this
-		 * @param {any[]} args
-		 * @param {Function} next
 		 */
-		this.CRABS.hookFunction("ChatRoomMessageNameClick" as any, 10, function (this: HTMLElement, args: any[], next: (args: any[]) => void) {
+		this.CRABS.hookFunction("ChatRoomMessageNameClick" as any, 10, function (this: HTMLElement, functionArguments: any[], next: (functionArguments: any[]) => void) {
 			// Get ALL message contents in this bubble and check the LAST one (the actual message, not the quote)
 			const contents = this.parentElement?.querySelectorAll('.chat-room-message-content');
 			const contentNode = contents ? contents[contents.length - 1] : null;
 			const isWhisperPlus = contentNode?.textContent?.includes("+:");
 
-			next(args); // Let the base game populate "/whisper 1234 "
+			next(functionArguments); // Let the base game populate "/whisper 1234 "
 
 			if (isWhisperPlus) {
 				const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
@@ -59,16 +66,14 @@ export class WhisperPlus extends CRABS_Base {
 		/**
 		 * Hook: ChatRoomMessageSetReply
 		 * Intercepts the action of selecting "Reply" from a message's three-dot context menu.
-		 * @param {any[]} args
-		 * @param {Function} next
 		 */
-		this.CRABS.hookFunction("ChatRoomMessageSetReply" as any, 10, (args: any[], next: (args: any[]) => void) => {
-			const msgId = args[0];
-			// The msgId directly targets the exact span containing the text
-			const contentNode = document.querySelector(`[msgid="${msgId}"]`);
+		this.CRABS.hookFunction("ChatRoomMessageSetReply" as any, 10, (functionArguments: any[], next: (functionArguments: any[]) => void) => {
+			const messageId = functionArguments[0];
+			// The messageId directly targets the exact span containing the text
+			const contentNode = document.querySelector(`[msgid="${messageId}"]`);
 			const isWhisperPlus = contentNode?.textContent?.includes("+:");
 
-			next(args); // Let the base game populate "/whisper 1234 "
+			next(functionArguments); // Let the base game populate "/whisper 1234 "
 
 			if (isWhisperPlus) {
 				const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
@@ -80,20 +85,18 @@ export class WhisperPlus extends CRABS_Base {
 		});
 
 		/**
-				 * Hook: ChatRoomMessageDisplay
-				 * Intercepts the final rendering of chat messages. If a Whisper+ message is detected,
-				 * we safely update the "Whisper" text node to "Whisper+" and hide the prefix.
-				 * @param {any[]} args 
-				 * @param {Function} next 
-				 */
-		this.CRABS.hookFunction("ChatRoomMessageDisplay" as any, 10, (args: any[], next: (args: any[]) => HTMLDivElement) => {
-			const data = args[0];
-			const msg = args[1] as string;
+		 * Hook: ChatRoomMessageDisplay
+		 * Intercepts the final rendering of chat messages. If a Whisper+ message is detected,
+		 * we safely update the "Whisper" text node to "Whisper+" and hide the prefix.
+		 */
+		this.CRABS.hookFunction("ChatRoomMessageDisplay" as any, 10, (functionArguments: any[], next: (functionArguments: any[]) => HTMLDivElement) => {
+			const data = functionArguments[0];
+			const message = functionArguments[1] as string;
 
 			// Let the base game generate and append the HTML element
-			const div = next(args);
+			const div = next(functionArguments);
 
-			if (div && data?.Type === "Whisper" && msg?.includes("+:")) {
+			if (div && data?.Type === "Whisper" && message?.includes("+:")) {
 				// 1. Hide the "+:" (and the space after it) in the message body
 				const contents = div.querySelectorAll('.chat-room-message-content');
 				const contentNode = contents[contents.length - 1];
@@ -119,16 +122,18 @@ export class WhisperPlus extends CRABS_Base {
 
 	/**
 	 * Registers message handlers to stylize Whisper+ messages in the chat log.
+	 * 
+	 * @returns {void}
 	 */
 	public setupMessageHandlers(): void {
 		ChatRoomRegisterMessageHandler({
 			Description: "Stylize Whisper+ messages",
 			Priority: 450, // Runs late in the pipeline, just before display
-			Callback: (data: any, _sender: any, msg: string, _metadata: any) => {
-				if (data.Type === "Whisper" && msg.includes("+:")) {
+			Callback: (data: any, unusedSender: any, message: string, unusedMetadata: any) => {
+				if (data.Type === "Whisper" && message.includes("+:")) {
 					// Replaces the raw "+:" with a stylized tag and hides the original
 					const stylizedTag = '<span style="color: #ff99bb; font-weight: bold; text-shadow: 1px 1px 2px #000;">[W+]<span style="display:none;">+:</span></span>';
-					return { msg: msg.replace("+:", stylizedTag) };
+					return { msg: message.replace("+:", stylizedTag) };
 				}
 				return false;
 			}
@@ -136,26 +141,26 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
-	 * Parses the command arguments to extract member number and message
+	 * Parses the command arguments to extract member number and message.
 	 *
-	 * @param {string} args - The arguments string passed to the command
-	 * @param {string} command - The full command string
-	 * @returns {Object} Parsed member number and message
+	 * @param {string} commandArguments - The arguments string passed to the command.
+	 * @param {string} command - The full command string.
+	 * @returns {{ memberNumber: number, message: string }} Parsed member number and message.
 	 */
-	private parseArguments(args: string, command: string): { memberNumber: number, message: string } {
-		// Extract member number (first part of the args)
-		const firstSpaceIndex = args.indexOf(" ");
+	private parseArguments(commandArguments: string, command: string): { memberNumber: number, message: string } {
+		// Extract member number (first part of the commandArguments)
+		const firstSpaceIndex = commandArguments.indexOf(" ");
 		let memberNumber: number;
 		let message: string;
 
 		if (firstSpaceIndex !== -1) {
 			// If there's a space, parse the member number from the beginning
-			const memberNumberStr = args.slice(0, firstSpaceIndex);
+			const memberNumberStr = commandArguments.slice(0, firstSpaceIndex);
 			memberNumber = parseInt(memberNumberStr);
-			message = args.slice(firstSpaceIndex + 1);
+			message = commandArguments.slice(firstSpaceIndex + 1);
 		} else {
-			// If no space, try to parse the entire args string
-			memberNumber = parseInt(args);
+			// If no space, try to parse the entire commandArguments string
+			memberNumber = parseInt(commandArguments);
 			message = "";
 		}
 
@@ -172,10 +177,10 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
-	 * Validates that the target member exists
+	 * Validates that the target member exists.
 	 *
-	 * @param {any} target - The target (either member number or character object)
-	 * @returns {Object|null} Validated target character or null if invalid
+	 * @param {any} target - The target (either member number or character object).
+	 * @returns {any | null} Validated target character or null if invalid.
 	 */
 	private validateTarget(target: any): any {
 		if (typeof target === 'object' && target !== null) {
@@ -187,18 +192,18 @@ export class WhisperPlus extends CRABS_Base {
 			return null;
 		}
 
-		return ChatRoomCharacter.find(C => C.MemberNumber === memberNumber);
+		return ChatRoomCharacter.find(character => character.MemberNumber === memberNumber);
 	}
 
 	/**
-	 * Sends a whisper message to a target character
+	 * Sends a whisper message to a target character.
 	 *
-	 * @param {any} target - The target character or member number
-	 * @param {string} msg - The message to send
-	 * @returns {boolean} Whether the message was sent successfully
+	 * @param {any} target - The target character or member number.
+	 * @param {string} message - The message to send.
+	 * @returns {boolean} Whether the message was sent successfully.
 	 */
-	private sendWhisperMessage(target: any, msg: string): boolean {
-		if (!msg) {
+	private sendWhisperMessage(target: any, message: string): boolean {
+		if (!message) {
 			return false;
 		}
 
@@ -215,13 +220,13 @@ export class WhisperPlus extends CRABS_Base {
 
 		// Handle self whispers with gray text and memo emoji
 		if (targetMember.MemberNumber === Player.MemberNumber) {
-			const SELFMESSAGE = `<span style="color:#989898">${Assets.printimage({ key: "thought" })} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${msg}</span>`;
+			const SELFMESSAGE = `<span style="color:#989898">${Assets.printimage({ key: "thought" })} Note to </span><span style="color:${Player.LabelColor}">self</span><span style="color:#989898">: ${message}</span>`;
 			ChatRoomSendLocal(SELFMESSAGE);
 			return false;
 		}
 
 		// Replace normal brackets with fake ones in the message
-		let formattedMsg = msg.replace(/\(/g, "❪").replace(/\)/g, "❫");
+		let formattedMsg = message.replace(/\(/g, "❪").replace(/\)/g, "❫");
 
 		// Check if target and player are the same
 		if (target.MemberNumber === Player.MemberNumber) {
@@ -261,7 +266,7 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
-	 * This starts /whisper+ if you click on the roster.
+	 * Sets up the /whisper+ command for a given member number.
 	 *
 	 * @param {number} memberNumber - Member number of the target.
 	 * @returns {void}
@@ -276,6 +281,8 @@ export class WhisperPlus extends CRABS_Base {
 
 	/**
 	 * Returns the player's gag level from 0 to 4.
+	 * 
+	 * @returns {number} The current gag level.
 	 */
 	private getGagLevel(): number {
 		if (Player.HasEffect("GagTotal") || Player.HasEffect("GagTotal2") || Player.HasEffect("GagTotal3") || Player.HasEffect("GagTotal4")) return 4;
@@ -286,13 +293,13 @@ export class WhisperPlus extends CRABS_Base {
 	}
 
 	/**
-	 * This runs when a player enters the /whisper+ command or clicks the roster.
+	 * Processes the Whisper+ command.
 	 *
-	 * @param {string} args - arguments passed from player (message).
-	 * @param {string} command - arguments passed as command (BC quirk).
+	 * @param {string} commandArguments - Arguments passed from player (message).
+	 * @param {string} command - Arguments passed as command (BC quirk).
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
-	public whisperplus(args: string, command: string): number {
+	public whisperplus(commandArguments: string, command: string): number {
 		// 1. Immersive Gag Check
 		if (Settings.instance.data.immersiveGag && this.getGagLevel() > 0) {
 			if (typeof ToastManager !== "undefined") {
@@ -307,7 +314,7 @@ export class WhisperPlus extends CRABS_Base {
 		if (Settings.instance.data.respectBcxRules) {
 			const ruleState = CrossMod.getBCXRuleState("speech_restrict_whisper_send");
 			if (ruleState?.isEnforced) {
-				const { memberNumber } = this.parseArguments(args, command);
+				const { memberNumber } = this.parseArguments(commandArguments, command);
 				ruleState.triggerAttempt(memberNumber);
 				// BCX handles its own notifications/logs when triggerAttempt is called.
 				return 1; // Blocked by BCX rule
@@ -315,7 +322,7 @@ export class WhisperPlus extends CRABS_Base {
 		}
 
 		// Parse arguments
-		const { memberNumber, message } = this.parseArguments(args, command);
+		const { memberNumber, message } = this.parseArguments(commandArguments, command);
 
 		// Validate member number
 		if (isNaN(memberNumber)) {
@@ -331,13 +338,22 @@ export class WhisperPlus extends CRABS_Base {
 
 		// Find player based on member number
 		const target = ChatRoomCharacter.find(
-			(C: any) => C.MemberNumber == memberNumber
+			(character: any) => character.MemberNumber == memberNumber
 		);
 
 		// Send the whisper message
 		const success = this.sendWhisperMessage(target || memberNumber, message);
 		return success ? 0 : 1;
 	}
+
+	/**
+	 * Builds the user interface for Whisper+ and attaches necessary events.
+	 * 
+	 * @param {string} [output] - The HTML string to be displayed.
+	 * @param {string} [elementId] - Optional ID for the element.
+	 * @param {HTMLElement} [root] - Optional root element for event attachment.
+	 * @returns {void}
+	 */
 	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
 		this.attachEvent("CRABS_player-id", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
 	}

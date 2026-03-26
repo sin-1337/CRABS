@@ -19,15 +19,23 @@ import bannertemplate from "./templates/banner.html";
 import { Settings } from "./settings";
 import { Drawer } from "./drawer";
 
+/**
+ * Class representing the room information banner.
+ */
 export class Banner extends CRABS_Base {
+	/**
+	 * Creates an instance of the Banner module.
+	 * 
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 	}
 
 	/**
-	 * Attach change handler
-	 *
-	 * @returns void
+	 * Attaches a change handler to the permission selection element.
+	 * 
+	 * @returns {void}
 	 */
 	public attachPermissionChangeHandler(): void {
 		const select = document.getElementById(
@@ -36,11 +44,11 @@ export class Banner extends CRABS_Base {
 
 		if (select) {
 			select.addEventListener("change", (event: Event) => {
-				const TARGET = event.target as HTMLSelectElement;
-				const NEW_PERM_LEVEL = parseInt(TARGET.value, 10);
+				const target = event.target as HTMLSelectElement;
+				const newPermissionLevel = parseInt(target.value, 10);
 
 				// Update player permissions based on selection
-				Player.AllowedInteractions = NEW_PERM_LEVEL;
+				Player.AllowedInteractions = newPermissionLevel;
 				ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
 			});
 		} else {
@@ -48,44 +56,50 @@ export class Banner extends CRABS_Base {
 		}
 	}
 
-	private selectPermission(object: any): void {
-		const target = object.target as HTMLSelectElement;
-		const newPermLevel = parseInt(target.value, 10);
+	/**
+	 * Processes the permission selection event and updates player permissions.
+	 * 
+	 * @param {any} event - The selection event object.
+	 * @returns {void}
+	 */
+	private selectPermission(event: any): void {
+		const target = event.target as HTMLSelectElement;
+		const newPermissionLevel = parseInt(target.value, 10);
 
 		// Update player permissions based on selection
-		Player.AllowedInteractions = newPermLevel;
+		Player.AllowedInteractions = newPermissionLevel;
 		ServerAccountUpdate.QueueData({ AllowedInteractions: Player.AllowedInteractions });
 	}
 
 	/**
-	 * Outputs the HTML permission levels
-	 *
-	 * @returns {string}
+	 * Generates HTML string for the permission selection options.
+	 * 
+	 * @returns {string} The HTML options string.
 	 */
 	private drawPermission(): string {
-		let output: string = "";
+		let htmlOutput: string = "";
 		let selected: number = Player.AllowedInteractions;
 
-		// TODO: update this to support an arbitrary number of permission levels.
-		for (let number of [0, 1, 2, 3, 4, 5]) {
+		// Support permission levels 0 through 5.
+		for (let index of [0, 1, 2, 3, 4, 5]) {
 			const permission_text = TextGetInScope(
 				"Screens/Character/InformationSheet/Text_InformationSheet.csv",
-				"AllowedInteraction" + number.toString()
+				"AllowedInteraction" + index.toString()
 			);
-			output += `<option${number === selected ? " selected" : ""
-				} value="${number}">${permission_text}</option>`;
+			htmlOutput += `<option${index === selected ? " selected" : ""
+				} value="${index}">${permission_text}</option>`;
 		}
-		return output;
+		return htmlOutput;
 	}
 
 	/**
-	 * Draws the banner
-	 *
-	 * @param {Record<sring, string>} [extradata] - [optional] Additional data record.
-	 * @returns void
+	 * Renders and displays the room information banner.
+	 * 
+	 * @param {Record<string, string>} [extraData] - Optional additional data to populate the template.
+	 * @returns {void}
 	 */
 	public drawBanner(
-		extradata?: Record<string, string>
+		extraData?: Record<string, string>
 	): void {
 		// bail if ChatRoomData is null or blank
 		if (!ChatRoomData || Object.keys(ChatRoomData).length === 0) {
@@ -112,15 +126,18 @@ export class Banner extends CRABS_Base {
 			}),
 		};
 
-		if (extradata) Object.assign(templatevars, extradata);
+		if (extraData) Object.assign(templatevars, extraData);
 
 		this.buildui(
 			this.template(bannertemplate, templatevars, true, wrappervars),
 			"CRABS_Banner"
 		);
 	}
+	
 	/**
 	 * Handles the /roster link click, respecting the rosterOpensDrawer setting.
+	 * 
+	 * @returns {void}
 	 */
 	private handleRosterLink(): void {
 		if (Settings.instance.data.rosterOpensDrawer) {
@@ -131,6 +148,13 @@ export class Banner extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Builds the user interface for the banner and attaches necessary events.
+	 * 
+	 * @param {string} output - The HTML string to be displayed.
+	 * @param {string} [elementId] - Optional ID for the banner element.
+	 * @returns {void}
+	 */
 	public override buildui(output: string, elementId?: string): void {
 		super.buildui(output, elementId);
 		this.attachPermissionChangeHandler();

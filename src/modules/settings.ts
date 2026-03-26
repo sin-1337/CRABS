@@ -19,19 +19,34 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
  * Combined Settings and UI Manager for CRABS.
  */
 export class Settings extends CRABS_Base {
+	/** Singleton instance of the Settings module. */
 	public static instance: Settings;
+	/** The current settings data. */
 	public data: CRABS_Settings;
+	/** List of UI elements to be rendered in the settings screen. */
 	private elements: UIElement[] = [];
+	/** Key used for storing settings in local storage. */
 	private readonly STORAGE_KEY = "CRABS_Settings";
 
 	// Layout Constants
+	/** X coordinate for the left column of settings. */
 	private readonly LEFT_COL_X = 550;
+	/** X coordinate for the right column of settings. */
 	private readonly RIGHT_COL_X = 1250;
+	/** X offset for checkboxes within a column. */
 	private readonly CHECKBOX_X_OFFSET = 30;
+	/** X offset for labels within a column. */
 	private readonly LABEL_X_OFFSET = 120;
+	/** Width and height of checkboxes. */
 	private readonly CHECKBOX_WIDTH = 64;
+	/** Vertical spacing between settings elements. */
 	private readonly SPACING_Y = 75;
 
+	/**
+	 * Creates an instance of the Settings module.
+	 * 
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		Settings.instance = this;
@@ -40,26 +55,46 @@ export class Settings extends CRABS_Base {
 		this.registerExtension();
 	}
 
+	/**
+	 * Loads settings from local storage, falling back to defaults if necessary.
+	 * 
+	 * @returns {CRABS_Settings} The loaded settings.
+	 */
 	private load(): CRABS_Settings {
 		const saved = localStorage.getItem(this.STORAGE_KEY);
 		if (saved) {
 			try {
 				return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
-			} catch (e) {
-				console.error("CRABS: Failed to parse settings", e);
+			} catch (error) {
+				console.error("CRABS: Failed to parse settings", error);
 			}
 		}
 		return { ...DEFAULT_SETTINGS };
 	}
 
+	/**
+	 * Saves the current settings to local storage.
+	 * 
+	 * @returns {void}
+	 */
 	public save(): void {
 		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
 	}
 
+	/**
+	 * Checks if the player is currently restricted (restrained).
+	 * 
+	 * @returns {boolean} True if restrained, false otherwise.
+	 */
 	private isRestricted(): boolean {
 		return (window as any).Player.IsRestrained?.() || false;
 	}
 
+	/**
+	 * Initializes the list of UI elements for the settings screen.
+	 * 
+	 * @returns {void}
+	 */
 	private setupUI(): void {
 		this.elements = [];
 
@@ -144,8 +179,14 @@ export class Settings extends CRABS_Base {
 		);
 	}
 
+	/**
+	 * Calculates the Y position for a new element within a specific category.
+	 * 
+	 * @param {string} [category] - The category of the setting.
+	 * @returns {number} The calculated Y position.
+	 */
 	private getNewYPos(category?: string): number {
-		const catElements = this.elements.filter(e => e.category === category);
+		const catElements = this.elements.filter(element => element.category === category);
 		if (catElements.length === 0) {
 			if (category === "Banner") return 280;
 			if (category === "Drawer") return 425;
@@ -156,6 +197,15 @@ export class Settings extends CRABS_Base {
 		return lastElement.yPos + this.SPACING_Y;
 	}
 
+	/**
+	 * Adds a checkbox element to the settings UI list.
+	 * 
+	 * @param {string} text - The label text for the checkbox.
+	 * @param {keyof CRABS_Settings & string} setting - The setting key associated with this checkbox.
+	 * @param {string} hint - The tooltip/hint text for the setting.
+	 * @param {Partial<CheckboxElement>} [options] - Additional configuration options for the checkbox.
+	 * @returns {void}
+	 */
 	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: Partial<CheckboxElement>) {
 		const category = options?.category;
 		const element: CheckboxElement = {
@@ -173,6 +223,11 @@ export class Settings extends CRABS_Base {
 		this.elements.push(element);
 	}
 
+	/**
+	 * Registers the CRABS settings screen as an extension in the game.
+	 * 
+	 * @returns {void}
+	 */
 	private registerExtension(): void {
 		// Assign the definition directly to the shared static base property
 		CRABS_Base.subscreenDef = {
@@ -182,15 +237,15 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(),
 			run: () => this.draw(),
 			exit: () => {
-				const w = window as any;
-				w.PreferenceMessage = "";
-				if (typeof w.PreferenceSubscreenExtensionsClear === "function") {
-					try { w.PreferenceSubscreenExtensionsClear(); } catch (e) { }
+				const globalWindow = window as any;
+				globalWindow.PreferenceMessage = "";
+				if (typeof globalWindow.PreferenceSubscreenExtensionsClear === "function") {
+					try { globalWindow.PreferenceSubscreenExtensionsClear(); } catch (error) { }
 				}
 
 				// Send the user back to the Extensions menu
-				if (typeof w.PreferenceOpenSubscreen === "function") {
-					w.PreferenceOpenSubscreen("Extensions");
+				if (typeof globalWindow.PreferenceOpenSubscreen === "function") {
+					globalWindow.PreferenceOpenSubscreen("Extensions");
 				}
 				return false; // Blocks the default exit
 			},
@@ -200,10 +255,10 @@ export class Settings extends CRABS_Base {
 		};
 
 		const waitForFunc = () => {
-			const w = window as any;
-			if (typeof w.PreferenceRegisterExtensionSetting === "function") {
+			const globalWindow = window as any;
+			if (typeof globalWindow.PreferenceRegisterExtensionSetting === "function") {
 				// Pass the static object to the game
-				w.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
+				globalWindow.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
 			} else {
 				setTimeout(waitForFunc, 1000);
 			}
@@ -211,6 +266,11 @@ export class Settings extends CRABS_Base {
 		waitForFunc();
 	}
 
+	/**
+	 * Renders the settings screen UI.
+	 * 
+	 * @returns {void}
+	 */
 	public draw(): void {
 		const isMouseIn = (window as any).MouseIn;
 		const DrawText = (window as any).DrawText;
@@ -220,15 +280,15 @@ export class Settings extends CRABS_Base {
 		const PreferenceMessage = (window as any).PreferenceMessage;
 		const DrawButton = (window as any).DrawButton;
 
-		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		const ctx = canvasEl ? canvasEl.getContext("2d") : null;
-		if (!ctx) return;
+		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
+		const canvasContext = canvasElement ? canvasElement.getContext("2d") : null;
+		if (!canvasContext) return;
 
 		// Draw character background card
 		DrawRect(40, 40, 420, 920, "#222222aa");
 		DrawCharacter((window as any).Player, 50, 50, 0.9);
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
+		canvasContext.textAlign = "center";
+		canvasContext.textBaseline = "middle";
 
 		// Main Header
 		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
@@ -266,20 +326,25 @@ export class Settings extends CRABS_Base {
 				DrawCheckbox(checkboxX, y - 32, 64, 64, "", (this.data as any)[element.setting], isGrayedOut);
 
 				// Align left, then use native DrawText so the theme mod can intercept "Black"
-				ctx.textAlign = "left";
+				canvasContext.textAlign = "left";
 				DrawText(element.text, textX, y, isGrayedOut ? "gray" : "Black", "");
 
 				if (isMouseIn(textX, y - 18, 450, 36) || isMouseIn(checkboxX, y - 32, 64, 64)) {
-					ctx.textAlign = "center";
+					canvasContext.textAlign = "center";
 					DrawText(element.hint, 1100, 950, "Black", "Gray");
 				}
 			}
 		}
 
-		ctx.textAlign = "center";
-		ctx.textBaseline = "alphabetic";
+		canvasContext.textAlign = "center";
+		canvasContext.textBaseline = "alphabetic";
 	}
 
+	/**
+	 * Handles click events on the settings screen.
+	 * 
+	 * @returns {void}
+	 */
 	public click(): void {
 		const isMouseIn = (window as any).MouseIn;
 

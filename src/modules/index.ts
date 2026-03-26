@@ -1,5 +1,10 @@
-// Allows import from this directory
-// EX: import {Roster} from ".";
+/**
+ * CRABS Modules Index
+ * 
+ * This file serves as the central entry point for all CRABS modules,
+ * exporting them for easy access throughout the mod.
+ */
+
 export * from "./assets";
 export * from "./banner";
 export * from "./base";

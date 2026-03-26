@@ -23,6 +23,9 @@ type ImageStore = {
 	}
 }
 
+/**
+ * Static class for managing and retrieving mod assets.
+ */
 export abstract class Assets {
 
 	protected static readonly IMAGES: ImageStore = {
@@ -333,9 +336,10 @@ export abstract class Assets {
 
 
 	/**
-	 * simply outputs a string with the image path 
-	 * @param {string} key - Image key from the assets object
-	 * @returns {string} Full path URL to image.
+	 * Returns the full URL for a given image asset key.
+	 * 
+	 * @param {Extract<keyof typeof Assets.IMAGES.image, string>} key - Image key from the assets object.
+	 * @returns {string} Full path URL to the image asset.
 	 */
 	public static getimage(key: Extract<keyof typeof Assets.IMAGES.image, string>): string {
 		const imgObj = Assets.IMAGES.image[key];
@@ -350,14 +354,17 @@ export abstract class Assets {
 	}
 
 	/**
-		 * printimage
-		 * Prints various image assets into the DOM 
-		 *
-		 * Has a single object parameter allowing you to use non-positional
-		 * parameters. IE: {key: "logo", css_class_override: "some_class"}
-		 * @param {PrintImage} params - Object containing image configuration
-		 * @returns {string} HTML representing the icon
-		 */
+	 * Generates an HTML string for displaying an image asset.
+	 * 
+	 * @param {PrintImage} params - Object containing image configuration.
+	 * @param {string} params.key - Image key from the assets object.
+	 * @param {string} [params.css_class_override] - Optional CSS class to apply to the image.
+	 * @param {string} [params.css_style] - Optional inline CSS style to apply to the image.
+	 * @param {string} [params.tooltip_override] - Optional tooltip text to display.
+	 * @param {string} [params.alt_override] - Optional alt text for the image.
+	 * @param {[string, string]} [params.data] - Optional data attribute as a [key, value] pair.
+	 * @returns {string} HTML string representing the icon and optional tooltip wrapper.
+	 */
 	public static printimage({
 		key,
 		css_class_override,
@@ -392,8 +399,10 @@ export abstract class Assets {
 	}
 
 	/**
-	 * Plays an audio asset.
-	 * @param {string} key - Audio key from the assets object
+	 * Plays an audio asset based on the provided key.
+	 * 
+	 * @param {Exclude<keyof typeof Assets.AUDIO, "basePath">} key - Audio key from the assets object.
+	 * @returns {void}
 	 */
 	public static PlayAudio(key: Exclude<keyof typeof Assets.AUDIO, "basePath">): void {
 		const audioObj = Assets.AUDIO[key];
@@ -401,7 +410,7 @@ export abstract class Assets {
 		if (audioObj && typeof audioObj === "object" && "file" in audioObj) {
 			const url = `${Assets.AUDIO.basePath}${audioObj.file}`;
 			const audio = new Audio(url);
-			audio.play().catch(e => console.error(`Failed to play audio: ${key}`, e));
+			audio.play().catch(error => console.error(`Failed to play audio: ${key}`, error));
 		} else {
 			console.warn(`Missing or invalid audio key: ${key}`);
 		}

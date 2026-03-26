@@ -23,16 +23,16 @@ new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 WHISPERPLUS.setupHooks();
 
 // Hook into chat sending for auto-stow feature
-CRABS.hookFunction("ChatRoomSendChat", 10, (args, next) => {
-	// Capture the message before next(args) clears the input box
+CRABS.hookFunction("ChatRoomSendChat", 10, (functionArguments, next) => {
+	// Capture the message before next(functionArguments) clears the input box
 	const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
-	const msg = chatInput?.value?.toLowerCase().trim() || "";
+	const message = chatInput?.value?.toLowerCase().trim() || "";
 
-	const result = next(args);
+	const result = next(functionArguments);
 
 	if (Settings.instance.data.closeDrawerOnChat) {
 		// Exception: Don't auto-close if the user is running a command that specifically opens/toggles the drawer
-		if (!msg.startsWith("/roster") && !msg.startsWith("/crabs")) {
+		if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
 			Drawer.close();
 		}
 	}
@@ -43,11 +43,11 @@ CRABS.hookFunction("ChatRoomSendChat", 10, (args, next) => {
 console.log(`CRABS v${VERSION} Loaded`); // do not remove
 
 /**
- * Draws the banner
+ * Draws the room information banner.
  *
- * @returns void
+ * @returns {void | boolean} Returns false if the player has left the room.
  */
-function drawbanner() {
+function drawbanner(): void | boolean {
 
 	//let output: string = "";
 	// if the player left the room, bail!
@@ -85,9 +85,9 @@ window.ChatRoomExit = function () {
  * It triggers when joining a room to execute
  * code at join time.
  */
-CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
+CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
 	// Fire the original game function and the rest of the ModSDK chain (including CIA)
-	const result = next(args);
+	const result = next(functionArguments);
 
 	// Escape the ModSDK thread using setTimeout. 
 	// Even if CIA crashes the promise chain right after this, the browser will still run this code.
@@ -99,8 +99,8 @@ CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
 			if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {
 				drawbanner();
 			}
-		} catch (err) {
-			console.error("CRABS: ChatRoomSync failed:", err);
+		} catch (error) {
+			console.error("CRABS: ChatRoomSync failed:", error);
 		}
 	}, 500);
 
@@ -111,8 +111,8 @@ CRABS.hookFunction("ChatRoomSync", 10000, (args, next) => {
  * Hook into the screen change function.
  * This ensures the drawer auto-stows whenever the player navigates to a new screen.
  */
-CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
-	const result = next(args);
+CRABS.hookFunction("CommonSetScreen", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
 	Drawer.updateVisibility();
 	return result;
 });
@@ -121,8 +121,8 @@ CRABS.hookFunction("CommonSetScreen", 0, (args, next) => {
  * Hook into character focus.
  * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
  */
-CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
-	const result = next(args);
+CRABS.hookFunction("ChatRoomFocusCharacter", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
 	Drawer.updateVisibility();
 	return result;
 });
@@ -131,14 +131,20 @@ CRABS.hookFunction("ChatRoomFocusCharacter", 0, (args, next) => {
  * Hook into character dialog exit.
  * This ensures the drawer/tab reappears when leaving a character profile or focus screen.
  */
-CRABS.hookFunction("DialogLeave", 0, (args, next) => {
-	const result = next(args);
+CRABS.hookFunction("DialogLeave", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
 	Drawer.updateVisibility();
 	return result;
 });
 
-function argcheck(args: string): boolean {
-	const splitArgs = args.split(" ");
+/**
+ * Validates and processes basic mod commands.
+ *
+ * @param {string} commandArguments - The string of arguments passed to the command.
+ * @returns {boolean} Returns true if the command should proceed to the next handler, false otherwise.
+ */
+function argcheck(commandArguments: string): boolean {
+	const splitArgs = commandArguments.split(" ");
 	if (splitArgs[0].toLowerCase() == "help") {
 		HELP.buildui(HELP.showHelp(), "CRABS_Help");
 		const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
@@ -154,10 +160,17 @@ function argcheck(args: string): boolean {
 	return true;
 }
 
-function commandRedirect(command: string, args: string): void {
-	for (let [_, COMMAND] of Commands.entries()) {
+/**
+ * Redirects a command to its corresponding action.
+ *
+ * @param {string} command - The tag of the command to redirect.
+ * @param {string} commandArguments - The arguments to pass to the command action.
+ * @returns {void}
+ */
+function commandRedirect(command: string, commandArguments: string): void {
+	for (let [_unused, COMMAND] of Commands.entries()) {
 		if (COMMAND.Tag === command) {
-			COMMAND.Action(args);
+			COMMAND.Action(commandArguments);
 			break;
 		}
 	}
@@ -168,41 +181,42 @@ CommandCombine([
 	{
 		Tag: "whisper+",
 		Description: "Enables the /whisper+ command that does global whisper in a map room",
-		Action: (args: string, command: string) => {
-			WHISPERPLUS.whisperplus(args, command);
+		Action: (commandArguments: string, command: string) => {
+			WHISPERPLUS.whisperplus(commandArguments, command);
 		},
 	},
 ]);
 
+// implements the /w+ command as a synonym for the whisper+ command
 CommandCombine([
 	{
 		Tag: "w+",
 		Description:
 			"Enables the /w+ command that does global whisper in a map room",
-		Action: (args: string) => {
-			commandRedirect("whisper+", args);
+		Action: (commandArguments: string) => {
+			commandRedirect("whisper+", commandArguments);
 		},
 	},
 ]);
 
-// implements the /crabs command
+// implements the /crabs command as a synonym for /roster
 CommandCombine([
 	{
 		Tag: "crabs",
 		Description: "Open the CRABS Roster.",
-		Action: (args: string) => {
-			commandRedirect("roster", args);
+		Action: (commandArguments: string) => {
+			commandRedirect("roster", commandArguments);
 		},
 	},
 ]);
 
-// implements the /crabs command
+// who the heck knows what this does... clearly Sin was sleep deprived.
 CommandCombine([
 	{
 		Tag: "crab",
 		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volital, could do just about anything... even make noise!",
-		Action: (args: string) => {
-			const trimmedArgs = args.trim().toLowerCase();
+		Action: (commandArguments: string) => {
+			const trimmedArgs = commandArguments.trim().toLowerCase();
 
 			if (!trimmedArgs) {
 				const noArgMessages = [
@@ -226,9 +240,9 @@ CommandCombine([
 
 			const failMessages = [
 				`Trying it... nope, not that one.`,
-				`The crab looks confused. '${args}'? Is that even a word?`,
-				`You try to make the crab ${args}. It pinches you in response. Ouch!`,
-				`The crab tries its best to ${args}, but it just ends up spinning in circles.`,
+				`The crab looks confused. '${commandArguments}'? Is that even a word?`,
+				`You try to make the crab ${commandArguments}. It pinches you in response. Ouch!`,
+				`The crab tries its best to ${commandArguments}, but it just ends up spinning in circles.`,
 				"The crab remains unimpressed.",
 			];
 			ChatRoomSendLocal(failMessages[Math.floor(Math.random() * failMessages.length)]);
@@ -241,15 +255,15 @@ CommandCombine([
 	{
 		Tag: "roster",
 		Description: "Open the CRABS Roster.",
-		Action: (args: string) => {
-			if (Settings.instance.data.rosterOpensDrawer && !args) {
+		Action: (commandArguments: string) => {
+			if (Settings.instance.data.rosterOpensDrawer && !commandArguments) {
 				Drawer.updateVisibility();
 				Drawer.toggle();
 				return;
 			}
 
-			if (argcheck(args)) {
-				ROSTER.buildui(ROSTER.buildroster(args), "CRABS_Roster");
+			if (argcheck(commandArguments)) {
+				ROSTER.buildui(ROSTER.buildroster(commandArguments), "CRABS_Roster");
 
 				// call this to set the whisper plus event in the roster ui
 				WHISPERPLUS.buildui();
@@ -272,8 +286,8 @@ CommandCombine([
 		Tag: "dropkeys",
 		Description:
 			"Drops the specified keys: gold, silver, or bronze. You can also use all.",
-		Action: (args: string) => {
-			const splitArgs = args.toLowerCase().split(" ");
+		Action: (commandArguments: string) => {
+			const splitArgs = commandArguments.toLowerCase().split(" ");
 			if (splitArgs.length < 1) {
 				ChatRoomSendLocal(
 					`You must supply which key to drop, or 'all' to drop them all.`,
@@ -284,32 +298,32 @@ CommandCombine([
 				ChatRoomSendLocal(`Key only work on a map...`);
 				return;
 			}
-			for (let i = 0; i < splitArgs.length; i++) {
-				if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
+			for (let index = 0; index < splitArgs.length; index++) {
+				if (splitArgs[index] == "bronze" || splitArgs[index] == "all") {
 					if (Player.MapData.PrivateState.HasKeyBronze) {
 						Player.MapData.PrivateState.HasKeyBronze = false;
 						ChatRoomSendLocal(`Bronze key dropped.`);
 					}
 				}
-				if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
+				if (splitArgs[index] == "silver" || splitArgs[index] == "all") {
 					if (Player.MapData.PrivateState.HasKeySilver) {
 						Player.MapData.PrivateState.HasKeySilver = false;
 						ChatRoomSendLocal(`Silver key dropped.`);
 					}
 				}
-				if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
+				if (splitArgs[index] == "gold" || splitArgs[index] == "all") {
 					if (Player.MapData.PrivateState.HasKeyGold) {
 						Player.MapData.PrivateState.HasKeyGold = false;
 						ChatRoomSendLocal(`Gold key dropped.`);
 					}
 				}
 				if (
-					splitArgs[i] != "bronze" &&
-					splitArgs[i] != "silver" &&
-					splitArgs[i] != "gold" &&
-					splitArgs[i] != "all"
+					splitArgs[index] != "bronze" &&
+					splitArgs[index] != "silver" &&
+					splitArgs[index] != "gold" &&
+					splitArgs[index] != "all"
 				) {
-					ChatRoomSendLocal(`Argument '${splitArgs[i]}', was not understood.`);
+					ChatRoomSendLocal(`Argument '${splitArgs[index]}', was not understood.`);
 				}
 			}
 		},

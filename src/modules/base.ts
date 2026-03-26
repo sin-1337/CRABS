@@ -18,11 +18,21 @@ import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 
+/**
+ * Abstract base class for all CRABS modules, providing shared utilities and core functionality.
+ */
 export abstract class CRABS_Base {
+	/** The ModSDK API instance for the CRABS mod. */
 	declare CRABS: ModSDKModAPI;
 
+	/** Static reference to the subscreen definition for the game's preference menu. */
 	protected static subscreenDef: any = null;
 
+	/**
+	 * Creates an instance of a CRABS module.
+	 * 
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 */
 	constructor(CRABS: ModSDKModAPI) {
 		this.CRABS = CRABS;
 	}
@@ -31,10 +41,10 @@ export abstract class CRABS_Base {
 	 * Fakes a roster command as if the user ran the command themselves.
 	 *
 	 * @param {string} action - String that determines what the roster should print.
-	 * @returns void
+	 * @returns {void}
 	 */
 	public fakePlayerCommand(action: string = "all"): void {
-		for (let [_, command] of Commands.entries()) {
+		for (let [unusedParameter, command] of Commands.entries()) {
 			if (command.Tag === `crabs`) {
 				command.Action(action);
 				break;
@@ -43,40 +53,42 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Takes a member number and opens that player's  "focus" screen.
-	 * This function is setup up to be exposed to the global DOM.
+	 * Takes a member number and opens that player's "focus" screen.
+	 * This function is setup to be exposed to the global DOM.
 	 *
 	 * @param {number} MemberNumber - The member number for the player in question.
 	 * @returns {void}
 	 */
 	public showPlayerFocus(MemberNumber: number): void {
 		// Check if the person is still in the room
-		const PLAYER = ChatRoomCharacter.find(
-			(C) => C.MemberNumber == MemberNumber,
+		const character = ChatRoomCharacter.find(
+			(characterItem) => characterItem.MemberNumber == MemberNumber,
 		);
-		if (PLAYER) {
+		if (character) {
 			ChatRoomStatusUpdate("Preference");
-			ChatRoomFocusCharacter(PLAYER);
+			ChatRoomFocusCharacter(character);
 		} else {
 			ChatRoomSendLocal("This person is no longer in the room.");
 		}
 	}
 
 
-	/** Takes a string target mod name and returns a true if found.
-	 *  @param {string} targetmod - String name of the mod.
-	 *  @returns {boolean} True if found, false if not.
+	/** 
+	 * Takes a string target mod name and returns true if found.
+	 * 
+	 * @param {string} targetmod - String name of the mod.
+	 * @returns {boolean} True if found, false if not.
 	 */
 	protected detectMod(targetmod: string): boolean {
 		let modlist = bcModSdk.getModsInfo();
-		return modlist.filter((x) => x.name == targetmod).length > 0;
+		return modlist.filter((modInfo) => modInfo.name == targetmod).length > 0;
 	}
 
 	/**
-	 * Takes some data as input and copies it to the user's clipboard
-	 * @param {string} data - string representing whatever data to copy to clipbard.
-	 *
-	 * @returns {void} Don't return anything
+	 * Takes some data as input and copies it to the user's clipboard.
+	 * 
+	 * @param {string} data - String representing the data to copy to clipboard.
+	 * @returns {Promise<void>}
 	 */
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
@@ -91,9 +103,9 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Removes an element from the DOM by id
+	 * Removes an element from the DOM by its ID.
 	 *
-	 * @param {string} elementId - ID of HTML element to remove
+	 * @param {string} elementId - ID of the HTML element to remove.
 	 * @returns {void}
 	 */
 	public closeElement(elementId: string): void {
@@ -107,6 +119,8 @@ export abstract class CRABS_Base {
 
 	/**
 	 * Navigates to the CRABS settings page directly, bypassing the Extensions list.
+	 * 
+	 * @returns {Promise<void>}
 	 */
 	public async openSettings(): Promise<void> {
 		const screen = window as any;
@@ -138,13 +152,14 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Attaches an event listener to any object matching the supplied class or id.
+	 * Attaches an event listener to any object matching the supplied class or ID.
+	 * 
 	 * @param {string} selectorName - Name of the class or id you are looking for.
 	 * @param {function} callback - The function to execute.
 	 * @param {string} [data] - camelcase dataset key (e.g., "userid" for data-user-id).
-	 * @param {any} [arg] - [optional] Direct argument to pass, mutually exclusive with data.
-	 * @param {string} [event="click"] - Type of event you wish this to trigger on.
-	 * @param {"class" | "id"} [findBy="class"] - Optional: Whether to search by class or id. Defaults to class.
+	 * @param {any} [callbackArgument] - Optional direct argument to pass to the callback.
+	 * @param {string} [event="click"] - Type of event to trigger on.
+	 * @param {"class" | "id"} [findBy="class"] - Optional: Whether to search by class or ID. Defaults to class.
 	 * @param {HTMLElement} [root] - Optional: Root element to search within. Defaults to TextAreaChatLog.
 	 * @returns {void}
 	 */
@@ -152,7 +167,7 @@ export abstract class CRABS_Base {
 		selectorName: string,
 		callback: (val?: any) => void,
 		data?: string,
-		arg?: any,
+		callbackArgument?: any,
 		event: string = "click",
 		findBy: "class" | "id" = "class",
 		root?: HTMLElement
@@ -163,32 +178,32 @@ export abstract class CRABS_Base {
 		const elements: HTMLElement[] = [];
 
 		if (findBy === "id") {
-			const el = root ? root.querySelector(`#${selectorName}`) : document.getElementById(selectorName);
-			if (el) elements.push(el as HTMLElement);
+			const element = root ? root.querySelector(`#${selectorName}`) : document.getElementById(selectorName);
+			if (element) elements.push(element as HTMLElement);
 		} else {
 			const classElements = searchRoot.getElementsByClassName(selectorName);
 			elements.push(...Array.from(classElements as HTMLCollectionOf<HTMLElement>));
 		}
 
 		for (let element of elements) {
-			element.addEventListener(event, (e: Event) => {
-				if (event === "contextmenu") e.preventDefault();
+			element.addEventListener(event, (eventObject: Event) => {
+				if (event === "contextmenu") eventObject.preventDefault();
 
-				const target = e.currentTarget as HTMLElement;
+				const target = eventObject.currentTarget as HTMLElement;
 
-				if (arg !== undefined) callback(arg);
+				if (callbackArgument !== undefined) callback(callbackArgument);
 				else if (data) callback(target.dataset[data]);
-				else callback(e);
+				else callback(eventObject);
 			});
 		}
 	}
 
 	/**
-	 * Prints HTMLElement objects into the DOM (Chat Window) and scroll to bottom of chat window.
+	 * Renders HTMLElement objects into the DOM (Chat Window) and scrolls to the bottom.
 	 *
-	 * @param {string} [output] - Optional: HTML string to print
-	 * @param {string} [elementId] - Optional: Name of the element
-	 * @param {HTMLElement} [root] - Optional: Root element for event attachment
+	 * @param {string} [output] - Optional: HTML string to print.
+	 * @param {string} [elementId] - Optional: ID for the element.
+	 * @param {HTMLElement} [root] - Optional: Root element for event attachment.
 	 * @returns {void}
 	 */
 	public buildui(output?: string, elementId?: string, root?: HTMLElement): void {
@@ -219,25 +234,25 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Takes a template name and outputs the filled out template string
+	 * Processes a template by replacing variables with provided arguments.
 	 *
-	 * @param {string} template - Name of the HTML file, no extension or path
-	 * @param {Record<string, string>} args - A dictionary where the key is a variable name to replace the template
-	 * @param {boolean} wrapper -  A boolean that determines if we draw the wrapper or not
-	 * @param {Record<string, string>} [wrapperArgs] - [optional] A dictionary of key/values that populate the wrapper
-	 * @returns {string } HTML string
+	 * @param {string} template - Name of the HTML file, or the template string itself.
+	 * @param {Record<string, string>} templateArguments - A dictionary of variable names and their replacement values.
+	 * @param {boolean} wrapper - A boolean that determines if the content should be wrapped.
+	 * @param {Record<string, string>} [wrapperArgs] - Optional dictionary for populating the wrapper template.
+	 * @returns {string} The processed HTML string.
 	 */
 	protected template(
 		template: string,
-		args: Record<string, string>,
+		templateArguments: Record<string, string>,
 		wrapper: boolean = true,
 		wrapperArgs?: Record<string, string>, // ignored when wrapper == false
 	): string {
-		let regex: RegExp;
+		let regularExpression: RegExp;
 
-		for (const [KEY, VALUE] of Object.entries(args)) {
-			regex = new RegExp(`{{${KEY}}}`, "g");
-			template = template.replace(regex, VALUE);
+		for (const [key, value] of Object.entries(templateArguments)) {
+			regularExpression = new RegExp(`{{${key}}}`, "g");
+			template = template.replace(regularExpression, value);
 		}
 
 		if (wrapper) {
@@ -246,9 +261,9 @@ export abstract class CRABS_Base {
 				.replace("{{Settings}}", Assets.printimage({ key: "settings" }))
 				.replace("{{content}}", template);
 			if (wrapperArgs) {
-				for (const [KEY, VALUE] of Object.entries(wrapperArgs)) {
-					regex = new RegExp(`{{${KEY}}}`, "g");
-					template = template.replace(regex, VALUE);
+				for (const [key, value] of Object.entries(wrapperArgs)) {
+					regularExpression = new RegExp(`{{${key}}}`, "g");
+					template = template.replace(regularExpression, value);
 				}
 			}
 		}
@@ -257,14 +272,11 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Function to convert hex color to rgba and add transparency
+	 * Converts a hex color string to an RGBA string with the specified transparency.
 	 *
-	 * @param {string} hex - value of the color
-	 * @param {number} [alpha] - for transparencey, bigger is more opaque. Optional, default 0
-	 *  Alpha range: The alpha value ranges from -1 to 1:
-	 *  alpha = 0: means fully opaque (no transparency).
-	 *  alpha = -1: means fully transparent (completely invisible).
-	 * @returns {string} RGBA value with alpha
+	 * @param {string} hex - The hex color code (e.g., "#FFFFFF").
+	 * @param {number} [alpha=0] - The transparency value from -1 to 1 (0 is fully opaque, -1 is invisible).
+	 * @returns {string} The resulting RGBA color string.
 	 */
 	protected convertColor(hex: string, alpha: number = 0): string {
 		// Remove the hash if it's there
@@ -279,32 +291,38 @@ export abstract class CRABS_Base {
 		return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 	}
 
-	// Cache the raw brightness value (0-255)
+	/** Cache for storing raw brightness values (0-255). */
 	protected colorBrightnessCache = new Map<string, number>();
+	/** Canvas element used for color calculations. */
 	protected colorCanvas = document.createElement("canvas");
-	protected colorCtx = this.colorCanvas.getContext("2d", { willReadFrequently: true });
+	/** Canvas 2D context for color calculations. */
+	protected canvasContext = this.colorCanvas.getContext("2d", { willReadFrequently: true });
 
-	// Returns a value from 0 (darkest) to 255 (brightest)
-	// Returns a value from 0 (darkest) to 255 (brightest)
+	/**
+	 * Calculates the perceived brightness of a color.
+	 * 
+	 * @param {string} color - The color string to analyze.
+	 * @returns {number} A value from 0 (darkest) to 255 (brightest).
+	 */
 	protected getColorBrightness(color: string): number {
 		if (!color) return 255; // Default fallback
 
 		if (this.colorBrightnessCache.has(color)) return this.colorBrightnessCache.get(color)!;
-		if (!this.colorCtx) return 255;
+		if (!this.canvasContext) return 255;
 
 		try {
 			this.colorCanvas.width = 1;
 			this.colorCanvas.height = 1;
-			this.colorCtx.clearRect(0, 0, 1, 1);
-			this.colorCtx.fillStyle = color;
-			this.colorCtx.fillRect(0, 0, 1, 1);
+			this.canvasContext.clearRect(0, 0, 1, 1);
+			this.canvasContext.fillStyle = color;
+			this.canvasContext.fillRect(0, 0, 1, 1);
 
-			const data = this.colorCtx.getImageData(0, 0, 1, 1).data;
+			const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
 			const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
 
 			this.colorBrightnessCache.set(color, brightness);
 			return brightness;
-		} catch (e) {
+		} catch (error) {
 			// Fallback to prevent canvas crashes
 			this.colorBrightnessCache.set(color, 255);
 			return 255;

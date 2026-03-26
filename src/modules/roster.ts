@@ -19,37 +19,44 @@ import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
 
+/**
+ * Class representing the enhanced player roster and related map features.
+ */
 export class Roster extends CRABS_Base {
+	/** Current count of online friends. */
 	private onlineFriends: number | undefined = undefined;
-	private lastSentTime: number = 0; // Timestamp for the last ServerSend call
+	/** Timestamp for the last server request to prevent spamming. */
+	private lastSentTime: number = 0;
 
+	/** The member number of the player currently hovered on the map. */
 	private hoveredMapPlayer: number | null = null;
-	private onPlayerHover = (id: string) => { this.hoveredMapPlayer = parseInt(id, 10); };
+	/** Handler for when a player's entry is hovered in the roster UI. */
+	private onPlayerHover = (playerId: string) => { this.hoveredMapPlayer = parseInt(playerId, 10); };
+	/** Handler for when a player's entry is no longer hovered. */
 	private onPlayerLeave = () => { this.hoveredMapPlayer = null; };
 
 	/** 
-	 * Constructor
+	 * Creates an instance of the Roster module and initializes map hooks.
 	 * 
-	 * @param {ModSDKModAPI} CRABS - Object containing the modsdkapi
-	 * @returns void
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
 	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		this.loadFriendList();
 
 		// Hook the map's draw function to inject our compass
-		this.CRABS.hookFunction("ChatRoomMapViewDraw", 10, (args, next) => {
-			const result = next(args); // Let the base map draw first
+		this.CRABS.hookFunction("ChatRoomMapViewDraw", 10, (functionArguments, next) => {
+			const result = next(functionArguments); // Let the base map draw first
 			this.drawCompass();        // Then draw our overlay
 			return result;
 		});
 	}
 
 	/** 
-	 * detect overflow in cards and scroll the text.
+	 * Detects overflow in card wrappers and applies scrolling animation if necessary.
 	 * 
-	 * @param {string} containerSelector - String containing the css container we want to target.
-	 * @returns void
+	 * @param {string} [containerSelector=".CRABS_overflow-wrapper"] - CSS selector for the containers to check.
+	 * @returns {void}
 	 */
 	public initScrollingOverflow(
 		containerSelector: string = ".CRABS_overflow-wrapper"
@@ -81,10 +88,10 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** 
-	 * Determines if a player is Deaf, Blind, or Gagged and sets icons accordingly.
+	 * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
 	 * 
-	 * @param {PlayerCharacter} player - Player Charater, the player object.
-	 * @returns {string} List of icons.
+	 * @param {PlayerCharacter} player - The player character object to check.
+	 * @returns {string} HTML string containing the status icons.
 	 */
 	private setStatusIcons(player: PlayerCharacter): string {
 		const prefixes = ["Blind", "Gag", "Deaf"];
@@ -173,17 +180,17 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** 
-	 * Builds the cards that get injected into the roster.
+	 * Builds the HTML card for a single player in the roster.
 	 * 
-	 * @param {PlayerCharacter} player - Player character that we are working with.
-	 * @param {string} badge - String for the badge showing if the player is admin.
-	 * @param {string} player_icons - String for the different icons relevant to the player.
-	 * @returns {string} The output html from the template.
+	 * @param {PlayerCharacter} player - The player character object.
+	 * @param {string} badge - HTML string for the player's room badge (Admin/VIP/Guest).
+	 * @param {string} playerIcons - HTML string for the player's relational icons (Owner/Friend/etc).
+	 * @returns {string} The rendered HTML card.
 	 */
 	private buildCard(
 		player: PlayerCharacter,
 		badge: string,
-		player_icons: string
+		playerIcons: string
 	): string {
 		let templatevars: Record<string, string> = {
 			PlayerNumber: `${player.MemberNumber}`,
@@ -194,7 +201,7 @@ export class Roster extends CRABS_Base {
 			)}`,
 			LabelColor: `${player.LabelColor || "#FFFFFF"}`,
 			PlayerName: CharacterNickname(player).normalize("NFKC"),
-			PlayerIcons: player_icons,
+			PlayerIcons: playerIcons,
 			StatusIcons: `${this.setStatusIcons(player)}`,
 		};
 
@@ -202,23 +209,23 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** 
-	 * Query the server for friendslist.
+	 * Hooks into the friend list loading to capture the online friend count.
 	 * 
-	 * @returns void
+	 * @returns {void}
 	 */
 	private loadFriendList(): void {
-		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-			const [data]: Array<Record<string, any>> = args;
-			this.onlineFriends = data.length;
+		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (functionArguments, next) => {
+			const [friendData]: Array<Record<string, any>> = functionArguments;
+			this.onlineFriends = friendData.length;
 			this.lastSentTime = Date.now();
-			return next(args);
+			return next(functionArguments);
 		});
 	}
 
 	/** 
-	 * Debounce function to control the timing of ServerSend.
+	 * Checks if enough time has passed to send another server request for friend status.
 	 * 
-	 * @returns void
+	 * @returns {boolean} True if a request can be sent, false otherwise.
 	 */
 	private canSendServerRequest(): boolean {
 		const now = Date.now();
@@ -231,9 +238,9 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** 
-	 * Function to get the online friend count.
+	 * Retrieves the current online friend count, requesting an update if necessary.
 	 *
-	 * @returns void
+	 * @returns {Promise<number>} The number of online friends.
 	 */
 	public async getOnlineFriendCount(): Promise<number> {
 		// Check if it's okay to send the server request
@@ -244,22 +251,23 @@ export class Roster extends CRABS_Base {
 
 		// Wait for the hook function to finish (assuming `next` ensures it completes)
 		return new Promise<number>((resolve) => {
-			const checkOnlineFrineds = () => {
+			const checkOnlineFriends = () => {
 				if (this.onlineFriends !== undefined) {
 					resolve(this.onlineFriends); // Return the online friends count
 				} else {
-					setTimeout(checkOnlineFrineds, 100); // Check again after 100ms
+					setTimeout(checkOnlineFriends, 100); // Check again after 100ms
 				}
 			};
 
-			checkOnlineFrineds(); // Start the checking process
+			checkOnlineFriends(); // Start the checking process
 		});
 	}
 
 	/** 
-	 * Determine if player is admin or whitelisted in the room and set their badge icon.
+	 * Determines the room badge for a player (Admin, VIP, or Guest).
 	 * 
-	 * @returns void
+	 * @param {PlayerCharacter} player - The player character to check.
+	 * @returns {string} HTML string representing the badge icon.
 	 */
 	private setbadge(player: PlayerCharacter): string {
 		let badge = Assets.printimage({ key: "player" });
@@ -273,13 +281,13 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Sets the icons relevant to the player
+	 * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
 	 * 
-	 * @param {PlayerCharacter} player - Player character object.
-	 * @return {string} HTML string containing the icons.
+	 * @param {PlayerCharacter} player - The player character object.
+	 * @returns {string} HTML string containing the relevant relational icons.
 	 */
 	private setIcons(player: PlayerCharacter): string {
-		let player_icons = "";
+		let playerIcons = "";
 
 		// Trial checks
 		const isTrialMe = player.Ownership?.MemberNumber === Player.MemberNumber && player.Ownership?.Stage === 0;
@@ -288,24 +296,24 @@ export class Roster extends CRABS_Base {
 		if (Player.OwnerNumber() == player.MemberNumber) {
 			// person owns you
 			if (isTrialThem) {
-				player_icons += Assets.printimage({ key: "trial" }) + " ";
+				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
-				player_icons += Assets.printimage({ key: "owner" }) + " ";
+				playerIcons += Assets.printimage({ key: "owner" }) + " ";
 			}
 		} else if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
 			// YOU own them
 			if (isTrialMe) {
-				player_icons += Assets.printimage({ key: "trial" }) + " ";
+				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
-				player_icons += Assets.printimage({ key: "sub" }) + " ";
+				playerIcons += Assets.printimage({ key: "sub" }) + " ";
 			}
 		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
 			// they are in your family tree, but not owner or sub
-			player_icons += Assets.printimage({ key: "family" }) + " ";
+			playerIcons += Assets.printimage({ key: "family" }) + " ";
 		}
 		if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
 			// person is a lover
-			player_icons += Assets.printimage({ key: "lover" }) + " ";
+			playerIcons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
 			if (CrossMod.detectMod("BCTweaks")) {
 				// BCTweaks mod is found
@@ -313,33 +321,35 @@ export class Roster extends CRABS_Base {
 					Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
 				) {
 					//Player is a best friend, skip checking if they are a friend.
-					player_icons += Assets.printimage({ key: "bestfriend" }) + " ";
+					playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
 				} else if (Player.FriendList.includes(player.MemberNumber)) {
 					// Player is not a best friend, but they are a friend
-					player_icons += Assets.printimage({ key: "friend" }) + " ";
+					playerIcons += Assets.printimage({ key: "friend" }) + " ";
 				}
 			} else if (Player.FriendList.includes(player.MemberNumber)) {
 				// person is a friend, and the BCTweaks mod is not found
-				player_icons += Assets.printimage({ key: "friend" }) + " ";
+				playerIcons += Assets.printimage({ key: "friend" }) + " ";
 			}
 		}
 		if (Player.WhiteList.includes(player.MemberNumber)) {
 			// Player is whitelisted
-			player_icons += Assets.printimage({ key: "whitelist" }) + " ";
+			playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
 		} else if (Player.BlackList.includes(player.MemberNumber)) {
 			// Player is blacklisted
-			player_icons += Assets.printimage({ key: "blacklist" }) + " ";
+			playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
 		}
 		if (Player.GhostList.includes(player.MemberNumber)) {
 			// Player is ghosted
-			player_icons += Assets.printimage({ key: "ghost" }) + " ";
+			playerIcons += Assets.printimage({ key: "ghost" }) + " ";
 		}
-		return player_icons;
+		return playerIcons;
 	}
 
 	/**
-		 * Helper to check if the player's eyes are currently closed.
-		 */
+	 * Checks if the player's eyes are currently closed.
+	 * 
+	 * @returns {boolean} True if eyes are closed, false otherwise.
+	 */
 	private isEyesClosed(): boolean {
 		// Try the global function first if it's available
 		const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
@@ -367,44 +377,49 @@ export class Roster extends CRABS_Base {
 		return false;
 	}
 
+	/**
+	 * Draws a directional arrow pointing toward the hovered player on the map.
+	 * 
+	 * @returns {void}
+	 */
 	private drawCompass(): void {
 		if (!this.hoveredMapPlayer) return;
 
-		const w = window as any;
-		if (typeof w.ChatRoomMapViewIsActive !== "function" || !w.ChatRoomMapViewIsActive()) return;
+		const globalWindow = window as any;
+		if (typeof globalWindow.ChatRoomMapViewIsActive !== "function" || !globalWindow.ChatRoomMapViewIsActive()) return;
 
-		const target = w.ChatRoomCharacter?.find((c: any) => c.MemberNumber === this.hoveredMapPlayer);
-		const player = w.Player;
+		const target = globalWindow.ChatRoomCharacter?.find((character: any) => character.MemberNumber === this.hoveredMapPlayer);
+		const player = globalWindow.Player;
 
 		if (!target?.MapData?.Pos || !player?.MapData?.Pos) return;
 
-		let dx = target.MapData.Pos.X - player.MapData.Pos.X;
-		let dy = target.MapData.Pos.Y - player.MapData.Pos.Y;
+		let deltaX = target.MapData.Pos.X - player.MapData.Pos.X;
+		let deltaY = target.MapData.Pos.Y - player.MapData.Pos.Y;
 
-		if (dx === 0 && dy === 0) return;
+		if (deltaX === 0 && deltaY === 0) return;
 
-		const canvasEl = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		const ctx = canvasEl?.getContext("2d");
-		if (!ctx) return;
+		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
+		const canvasContext = canvasElement?.getContext("2d");
+		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
 		let scale = 1; // Default scale for the edge HUD compass
 
-		const range = w.ChatRoomMapViewPerceptionRange;
+		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
-		const tileIndex = target.MapData.Pos.X + (target.MapData.Pos.Y * w.ChatRoomMapViewWidth);
-		const isVisible = w.ChatRoomMapViewVisibilityMask && w.ChatRoomMapViewVisibilityMask[tileIndex];
+		const tileIndex = target.MapData.Pos.X + (target.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth);
+		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
-		if (Math.abs(dx) <= range && Math.abs(dy) <= range && isVisible) {
-			arrowX = (dx + range) * tileW + (tileW / 2);
-			arrowY = (dy + range) * tileW - (tileW * 0.85);
+		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
+			arrowX = (deltaX + range) * tileW + (tileW / 2);
+			arrowY = (deltaY + range) * tileW - (tileW * 0.85);
 			angle = Math.PI / 2;
 
 			// 111px is roughly the default tile width at range 4. 
 			// This makes the arrow grow and shrink perfectly with the character!
 			scale = tileW / 111;
 		} else {
-			angle = Math.atan2(dy, dx);
+			angle = Math.atan2(deltaY, deltaX);
 			arrowX = 500 + Math.cos(angle) * 450;
 			arrowY = 500 + Math.sin(angle) * 450;
 		}
@@ -414,36 +429,38 @@ export class Roster extends CRABS_Base {
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
-		ctx.save();
+		canvasContext.save();
 		try {
-			ctx.translate(arrowX, arrowY);
-			ctx.rotate(angle);
-			ctx.scale(scale, scale); // Apply the dynamic scale here!
+			canvasContext.translate(arrowX, arrowY);
+			canvasContext.rotate(angle);
+			canvasContext.scale(scale, scale); // Apply the dynamic scale here!
 
-			ctx.beginPath();
-			ctx.moveTo(20, 0);
-			ctx.lineTo(-20, 15);
-			ctx.lineTo(-20, -15);
+			canvasContext.beginPath();
+			canvasContext.moveTo(20, 0);
+			canvasContext.lineTo(-20, 15);
+			canvasContext.lineTo(-20, -15);
 
-			ctx.fillStyle = playerColor;
-			ctx.fill();
+			canvasContext.fillStyle = playerColor;
+			canvasContext.fill();
 
-			ctx.strokeStyle = isDark ? "white" : "black";
+			canvasContext.strokeStyle = isDark ? "white" : "black";
 
 			// We divide by scale here so the 1.5px border stays crisp and 
 			// doesn't turn into a massive thick line when you zoom in!
-			ctx.lineWidth = 1.5 / scale;
+			canvasContext.lineWidth = 1.5 / scale;
 
-			ctx.closePath();
-			ctx.stroke();
+			canvasContext.closePath();
+			canvasContext.stroke();
 		} finally {
-			ctx.restore();
+			canvasContext.restore();
 		}
 	}
 
 	/**
-	 * Returns the player's blindness level from 0 to 4.
-	 * Also accounts for BCX "alt_eyes_fullblind" rule if applicable.
+	 * Determines the current blindness level of the player (0 to 4).
+	 * Accounts for immersive settings and BCX rules.
+	 * 
+	 * @returns {number} The blindness level.
 	 */
 	private getBlindnessLevel(): number {
 		// If Respect Blindness is OFF, we don't want any blindness blurring
@@ -464,14 +481,14 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** 
-	 * prints the roster
+	 * Generates the HTML for the player roster based on provided arguments.
 	 * 
-	 * @param {string} args - Arguments passed from user.
-	 * @param {boolean} wrapper - Should we draw the wrapper?
-	 * @returns {string} HTML output.
+	 * @param {string} commandArguments - Command arguments determining which players to display.
+	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
+	 * @returns {string} The completed HTML roster.
 	 */
 	public buildroster(
-		args: string,
+		commandArguments: string,
 		wrapper: boolean = true
 	): string {
 
@@ -489,17 +506,17 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		const SPLITARGS = args.split(" ");
+		const splitArguments = commandArguments.split(" ");
 
 		let me_output_html: string = "" // holds data about user who ran script
 		let admin_output_html: string = "" // holds admins
 		let vip_output_html: string = "" // holds whitelisted users
 		let player_output_html: string = "" // holds normal players
-		let player: PlayerCharacter; // the person we found in the room
+		let character: PlayerCharacter; // the person we found in the room
 		let admin_count = 0; // number of admins in the room
 		let badge = ""; // holds the admin icon if the player is an admin
-		let player_icons = ""; // holds the list of player/status icons (string)
-		let MemberNumber: number;
+		let playerIcons = ""; // holds the list of player/status icons (string)
+		let memberNumber: number;
 
 		// filter variables, show or not show certain output
 		let showme = true; // person who ran the script (you)
@@ -510,58 +527,58 @@ export class Roster extends CRABS_Base {
 		let output_html: string = ""
 
 		//get a list of players
-		for (let person in ChatRoomData.Character) {
+		for (let characterIndex in ChatRoomData.Character) {
 			// find member number for current player in list
-			MemberNumber = ChatRoomData.Character[person].MemberNumber;
+			memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
 
 			// Find player
-			player = ChatRoomCharacter.find(
-				(C: any) => C.MemberNumber == MemberNumber
+			character = ChatRoomCharacter.find(
+				(characterItem: any) => characterItem.MemberNumber == memberNumber
 			);
 
 			//bail out and return placeholder if player is not available.
-			if (!player) {
+			if (!character) {
 				player_output_html +=
 					"❓ <span style='color:#FF0000'>[Unknown Person]</span>\n";
 				continue;
 			}
 
 			// check if the player is also an admin or vip and add icon with admin given priority
-			badge = this.setbadge(player);
-			player_icons = this.setIcons(player);
+			badge = this.setbadge(character);
+			playerIcons = this.setIcons(character);
 
 			// if the player is me (person who ran the script)
-			if (player.IsPlayer()) {
+			if (character.IsPlayer()) {
 				// mark me with a star icon
-				player_icons = Assets.printimage({ key: "you" }) + " " + player_icons;
+				playerIcons = Assets.printimage({ key: "you" }) + " " + playerIcons;
 
 				// format my output and store
-				me_output_html = this.buildCard(player, badge, player_icons);
+				me_output_html = this.buildCard(character, badge, playerIcons);
 			}
 
 			// check if the player is an admin and update the count, also flag the player as admin in the output list.
-			if (ChatRoomData.Admin.includes(player.MemberNumber)) {
+			if (ChatRoomData.Admin.includes(character.MemberNumber)) {
 				admin_count++;
-				if (!player.IsPlayer()) {
+				if (!character.IsPlayer()) {
 					// if the player is not me, output admin and skip rest of loop
-					admin_output_html += this.buildCard(player, badge, player_icons);
+					admin_output_html += this.buildCard(character, badge, playerIcons);
 					continue;
 				}
 			} else if (
-				ChatRoomData.Whitelist.includes(player.MemberNumber) &&
-				!player.IsPlayer()
+				ChatRoomData.Whitelist.includes(character.MemberNumber) &&
+				!character.IsPlayer()
 			) {
 				// if the player isn't an admin, is the player is white listed?
-				vip_output_html += this.buildCard(player, badge, player_icons);
+				vip_output_html += this.buildCard(character, badge, playerIcons);
 				continue;
-			} else if (!player.IsPlayer()) {
+			} else if (!character.IsPlayer()) {
 				// player is normal, nonadmin, not whitelist, and not me.
-				player_output_html += this.buildCard(player, badge, player_icons);
+				player_output_html += this.buildCard(character, badge, playerIcons);
 			}
 		}
 
 		// if argument is "count", set filter vars and skip loop
-		if (SPLITARGS.some((item: any) => item.toLowerCase() === "count")) {
+		if (splitArguments.some((item: any) => item.toLowerCase() === "count")) {
 			showme = false;
 			showadmins = false;
 			showvip = false;
@@ -569,14 +586,14 @@ export class Roster extends CRABS_Base {
 		}
 
 		// if argument is admins, set filter vars to only show admins and continue
-		if (SPLITARGS.some((item: any) => item.toLowerCase() === "admins")) {
+		if (splitArguments.some((item: any) => item.toLowerCase() === "admins")) {
 			showme = false;
 			showvip = false;
 			showplayers = false;
 		}
 
 		// if argument is vips, set filter vars to only show vips (white listed) and continue
-		if (SPLITARGS.some((item: any) => item.toLowerCase() === "vips")) {
+		if (splitArguments.some((item: any) => item.toLowerCase() === "vips")) {
 			showme = false;
 			showadmins = false;
 			showplayers = false;
@@ -624,8 +641,8 @@ export class Roster extends CRABS_Base {
 				keyGold: Player.MapData.PrivateState.HasKeyGold,
 			};
 
-			for (const [KEY, VALUE] of Object.entries(KEYS)) {
-				displaykeys += Assets.printimage({ key: VALUE ? KEY : "keyNull" });
+			for (const [key, value] of Object.entries(KEYS)) {
+				displaykeys += Assets.printimage({ key: value ? key : "keyNull" });
 			}
 
 			// Inject as a Flex cell. No border inline-styles needed!
@@ -660,6 +677,14 @@ export class Roster extends CRABS_Base {
 		return output_html;
 	}
 
+	/**
+	 * Builds the user interface for the roster and attaches necessary events.
+	 * 
+	 * @param {string} [output] - The HTML string to be displayed.
+	 * @param {string} [elementId] - Optional ID for the roster element.
+	 * @param {HTMLElement} [root] - Optional root element for event attachment.
+	 * @returns {void}
+	 */
 	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
 		super.buildui(output, elementId, root);
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
