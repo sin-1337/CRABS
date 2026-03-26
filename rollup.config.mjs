@@ -19,7 +19,7 @@ export default {
 	input: "src/main.ts",
 	output: {
 		name: "CRABS",
-		file: "../Live/CRABS/Beta/bundle.js",
+		file: "../Live/CRABS/Alpha/bundle.js",
 		format: "iife",
 		sourcemap: true,
 		banner: `// Crazy Roster Add-on By Sin
@@ -54,9 +54,9 @@ window.CRABS_Loaded = false;
 			NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
 			NICKNAME: JSON.stringify("CRABS"),
 <<<<<<< HEAD
-			VERSION: JSON.stringify("2.0.0.13 Alpha"),
+			VERSION: JSON.stringify("2.0.0.17 Alpha"),
 =======
-			VERSION: JSON.stringify("2.0.0.17 Beta"),
+			VERSION: JSON.stringify("2.0.0.17 Alpha"),
 >>>>>>> Beta
 		}),
 		progress({ clearLine: true }),
