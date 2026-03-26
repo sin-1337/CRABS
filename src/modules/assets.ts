@@ -55,6 +55,12 @@ export abstract class Assets {
 				toolTip: "Close",
 				class: "CRABS_close",
 			},
+			roster: {
+				file: "roster.svg",
+				alt: "Roster",
+				toolTip: "Roster",
+				class: "CRABS_Roster_Icon",
+			},
 			help: {
 				file: "help.svg",
 				alt: "Help",

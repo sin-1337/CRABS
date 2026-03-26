@@ -183,6 +183,7 @@ export class Drawer extends CRABS_Base {
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
+		const helpIconContainer = this.instance?.querySelector(".CRABS_Drawer_Help_Icon");
 
 		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
@@ -190,9 +191,21 @@ export class Drawer extends CRABS_Base {
 		if (content && isRoomReady) {
 			if (this.showingHelp) {
 				if (title) title.textContent = "CRABS: Help";
+				if (helpIconContainer) {
+					helpIconContainer.innerHTML = Assets.printimage({
+						key: "roster",
+						css_class_override: "CRABS_Drawer_Help_Icon"
+					});
+				}
 				content.innerHTML = this.helpModule.showHelp(false);
 			} else {
 				if (title) title.textContent = "CRABS: Roster";
+				if (helpIconContainer) {
+					helpIconContainer.innerHTML = Assets.printimage({
+						key: "help",
+						css_class_override: "CRABS_Drawer_Help_Icon"
+					});
+				}
 				// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
 				content.innerHTML = this.rosterModule.buildroster("all", false);
 				this.rosterModule.initScrollingOverflow();
