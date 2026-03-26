@@ -156,15 +156,26 @@ export class Drawer extends CRABS_Base {
 			return result;
 		});
 
+		// Hook into the game's native room display update for a catch-all refresh
+		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			if (this.isOpen && !this.showingHelp) {
+				this.refresh();
+			}
+
+			return result;
+		});
+
 		// Hook into map draw to detect key changes
 		this.CRABS.hookFunction("ChatRoomMapViewDraw", 5, (functionArguments, next) => {
 			const result = next(functionArguments);
 
 			if (this.isOpen && !this.showingHelp && (window as any).ChatRoomMapViewIsActive?.()) {
 				const currentKeys = [
-					Player.MapData.PrivateState?.HasKeyBronze,
-					Player.MapData.PrivateState?.HasKeySilver,
-					Player.MapData.PrivateState?.HasKeyGold
+					Player.MapData?.PrivateState?.HasKeyBronze,
+					Player.MapData?.PrivateState?.HasKeySilver,
+					Player.MapData?.PrivateState?.HasKeyGold
 				].join(",");
 
 				if (currentKeys !== this.lastKeys) {
@@ -465,20 +476,6 @@ export class Drawer extends CRABS_Base {
 		this.refresh();
 		this.isOpen = true;
 		this.instance.classList.replace("drawer-closed", "drawer-open");
-	}
-
-	/**
-	 * Closes the drawer with an animation.
-	 * 
-	 * @returns {void}
-	 */
-	public close(): void {
-		if (!this.instance) return;
-		this.isOpen = false;
-		this.instance.classList.replace("drawer-open", "drawer-closed");
-	}
-}
-tance.classList.replace("drawer-closed", "drawer-open");
 	}
 
 	/**
