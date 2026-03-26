@@ -291,12 +291,6 @@ export class Settings extends CRABS_Base {
 		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back to Extensions");
 
-		if (PreferenceMessage && PreferenceMessage !== "") {
-			DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
-		} else {
-			DrawText("Hover setting names for detailed descriptions", 1000, 150, "Black", "Gray");
-		}
-
 		const leftCenterX = (this.LEFT_COL_X - 20) + (650 / 2);
 		const rightCenterX = (this.RIGHT_COL_X - 20) + (650 / 2);
 
