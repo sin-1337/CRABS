@@ -43,6 +43,11 @@ Dynamic interface adjustments that reflect your character's sensory state.
 * The roster interface blurs according to your character's blindness level.
 * Full integration with BCX "Full Blind" rules for a seamless experience.
 
+### Cross-Mod Compatibility
+CRABS is designed to work seamlessly with other popular Bondage Club enhancements:
+* **BCX (Bondage Club Extension)**: Respects "Full Blind" rules and character state enforcement within the immersive roster.
+* **BCTweaks**: Integrates with the "Best Friends" list to display unique iconography and prioritize close relationships in the roster display.
+
 ### Global Communication (Whisper+)
 Bypasses standard range restrictions in map rooms to allow messaging any player currently in the roster.
 
@@ -75,6 +80,8 @@ Instantly drops specific keys (gold, silver, bronze) or all currently held keys 
 | <img src="https://sin-1337.github.io/CRABS/icons/sub.svg" width="24"> | Your Submissive |
 | <img src="https://sin-1337.github.io/CRABS/icons/lover.svg" width="24"> | Your Lover |
 | <img src="https://sin-1337.github.io/CRABS/icons/trial.svg" width="24"> | Trial Partner |
+| <img src="https://sin-1337.github.io/CRABS/icons/family.svg" width="24"> | Family Member |
+| <img src="https://sin-1337.github.io/CRABS/icons/bestfriend.svg" width="24"> | Best Friend (BCTweaks) |
 | <img src="https://sin-1337.github.io/CRABS/icons/friends.svg" width="24"> | Friend List |
 
 ### Room Badges
