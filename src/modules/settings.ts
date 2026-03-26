@@ -42,7 +42,7 @@ export class Settings extends CRABS_Base {
 	/** Width and height of checkboxes. */
 	private readonly CHECKBOX_WIDTH = 64;
 	/** Vertical spacing between settings elements. */
-	private readonly SPACING_Y = 75;
+	//private readonly SPACING_Y = 75;
 
 	/**
 	 * Creates an instance of the Settings module.
@@ -188,7 +188,7 @@ export class Settings extends CRABS_Base {
 			{ category: "Maps" }
 		);
 		this.addCheckbox(
-			"Extended Map Zoom",
+			"SuperZoom",
 			"mapSuperZoom",
 			"Unlock maximum map zoom to view significantly larger portions of the room at once.",
 			{ category: "Maps" }
@@ -215,12 +215,10 @@ export class Settings extends CRABS_Base {
 
 	/**
 	 * Adds a checkbox element to the settings UI list.
-	 * 
-	 * @param {string} text - The label text for the checkbox.
-	 * @param {keyof CRABS_Settings & string} setting - The setting key associated with this checkbox.
-	 * @param {string} hint - The tooltip/hint text for the setting.
-	 * @param {Partial<CheckboxElement>} [options] - Additional configuration options for the checkbox.
-	 * @returns {void}
+	 * * @param text - The label text for the checkbox.
+	 * @param setting - The setting key associated with this checkbox.
+	 * @param hint - The tooltip/hint text for the setting.
+	 * @param options - Additional configuration options for the checkbox.
 	 */
 	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: Partial<CheckboxElement>) {
 		const category = options?.category;
