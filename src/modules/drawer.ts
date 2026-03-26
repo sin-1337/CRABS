@@ -330,7 +330,6 @@ export class Drawer extends CRABS_Base {
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
-			// Update state caches
 			this.lastCharacterCount = ChatRoomData.Character.length;
 			this.lastAdminList = (ChatRoomData.Admin || []).join(",");
 			this.lastKeys = [
@@ -340,36 +339,40 @@ export class Drawer extends CRABS_Base {
 			].join(",");
 
 			if (this.showingHelp) {
-				if (title) title.textContent = "CRABS: Help";
-				if (helpIconContainer) {
-					helpIconContainer.outerHTML = Assets.printimage({
+				if (title && title.textContent !== "CRABS: Help") title.textContent = "CRABS: Help";
+
+				// Only update the DOM if the icon needs to change
+				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "roster") {
+					helpIconContainer.innerHTML = Assets.printimage({
 						key: "roster",
 						css_class_override: "CRABS_Drawer_Help_Icon"
 					});
+					helpIconContainer.setAttribute("data-icon", "roster");
 				}
+
 				content.innerHTML = this.helpModule.showHelp(false);
 			} else {
-				if (title) title.textContent = "CRABS: Roster";
-				if (helpIconContainer) {
-					helpIconContainer.outerHTML = Assets.printimage({
+				if (title && title.textContent !== "CRABS: Roster") title.textContent = "CRABS: Roster";
+
+				// Only update the DOM if the icon needs to change
+				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "help") {
+					helpIconContainer.innerHTML = Assets.printimage({
 						key: "help",
 						css_class_override: "CRABS_Drawer_Help_Icon"
 					});
+					helpIconContainer.setAttribute("data-icon", "help");
 				}
-				// Build roster WITHOUT its own wrapper since the drawer IS the wrapper
+
 				content.innerHTML = this.rosterModule.buildroster("all", false);
 				this.rosterModule.initScrollingOverflow();
 
-				// Re-attach all events scoped strictly to this drawer instance
 				if (this.instance) {
 					this.rosterModule.buildui(undefined, undefined, this.instance);
 					this.whisperPlusModule.buildui(undefined, undefined, this.instance);
 				}
 			}
-
-			this.syncToChat(); // Keep aligned
+			this.syncToChat();
 		}
-	}
 
 	/**
 	 * Overrides the base openSettings method to close the drawer before navigating.
