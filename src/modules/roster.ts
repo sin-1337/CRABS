@@ -378,7 +378,7 @@ export class Roster extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private drawCompass(): void {
-		if (!this.hoveredMapPlayer) return;
+		if (!this.hoveredMapPlayer || !Settings.instance.data.showMapCompass) return;
 
 		const globalWindow = window as any;
 		if (typeof globalWindow.ChatRoomMapViewIsActive !== "function" || !globalWindow.ChatRoomMapViewIsActive()) return;
