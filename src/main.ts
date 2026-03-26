@@ -170,7 +170,7 @@ function argcheck(commandArguments: string): boolean {
 function commandRedirect(command: string, commandArguments: string): void {
 	for (let [_unused, COMMAND] of Commands.entries()) {
 		if (COMMAND.Tag === command) {
-			COMMAND.Action(commandArguments);
+			COMMAND.Action(commandArguments, command);
 			break;
 		}
 	}

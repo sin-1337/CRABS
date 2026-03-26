@@ -40,6 +40,12 @@ export class Drawer extends CRABS_Base {
 	private resizeObserver: ResizeObserver | null = null;
 	/** Whether the help screen is currently being displayed within the drawer. */
 	private showingHelp: boolean = false;
+	/** Cached state of the player's keys to prevent redundant refreshes on map draw. */
+	private lastKeys: string = "";
+	/** Cached count of characters in the room to optimize refreshing. */
+	private lastCharacterCount: number = 0;
+	/** Cached list of room administrators to optimize refreshing. */
+	private lastAdminList: string = "";
 
 	/**
 	 * Creates an instance of the Drawer module.
@@ -112,6 +118,62 @@ export class Drawer extends CRABS_Base {
 				this.close();
 			}
 		}, true);
+
+		this.setupDynamicUpdates();
+	}
+
+	/**
+	 * Sets up hooks and observers to dynamically refresh the drawer content.
+	 * 
+	 * @returns {void}
+	 */
+	private setupDynamicUpdates(): void {
+		// Hook into chat room messages to detect joins/leaves
+		this.CRABS.hookFunction("ChatRoomMessage", 10, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			// Check if character count changed to detect joins/leaves
+			if (this.isOpen && !this.showingHelp && ChatRoomData) {
+				if (ChatRoomData.Character.length !== this.lastCharacterCount) {
+					this.refresh();
+				}
+			}
+
+			return result;
+		});
+
+		// Hook into screen changes and room updates
+		this.CRABS.hookFunction("CommonSetScreen", 10, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			if (this.isOpen && !this.showingHelp && ChatRoomData) {
+				const currentAdminList = (ChatRoomData.Admin || []).join(",");
+				if (currentAdminList !== this.lastAdminList) {
+					this.refresh();
+				}
+			}
+
+			return result;
+		});
+
+		// Hook into map draw to detect key changes
+		this.CRABS.hookFunction("ChatRoomMapViewDraw", 5, (functionArguments, next) => {
+			const result = next(functionArguments);
+
+			if (this.isOpen && !this.showingHelp && (window as any).ChatRoomMapViewIsActive?.()) {
+				const currentKeys = [
+					Player.MapData.PrivateState?.HasKeyBronze,
+					Player.MapData.PrivateState?.HasKeySilver,
+					Player.MapData.PrivateState?.HasKeyGold
+				].join(",");
+
+				if (currentKeys !== this.lastKeys) {
+					this.refresh();
+				}
+			}
+
+			return result;
+		});
 	}
 
 	/**
@@ -265,6 +327,15 @@ export class Drawer extends CRABS_Base {
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
+			// Update state caches
+			this.lastCharacterCount = ChatRoomData.Character.length;
+			this.lastAdminList = (ChatRoomData.Admin || []).join(",");
+			this.lastKeys = [
+				Player.MapData?.PrivateState?.HasKeyBronze,
+				Player.MapData?.PrivateState?.HasKeySilver,
+				Player.MapData?.PrivateState?.HasKeyGold
+			].join(",");
+
 			if (this.showingHelp) {
 				if (title) title.textContent = "CRABS: Help";
 				if (helpIconContainer) {
