@@ -79,20 +79,8 @@ export class Drawer extends CRABS_Base {
 		}
 
 		document.addEventListener("keydown", (event) => {
-			// Check if it's the Escape key and the drawer is actually open
 			if (event.key === "Escape" && this.isOpen) {
-
-				// Check if the game has a character focus/dialog open
-				// showPlayerFocus sets CurrentCharacter. If it's not null, 
-				// the game should handle the Escape key, not the drawer.
-				const isGameDialogActive = (window as any).CurrentCharacter !== null ||
-					(window as any).DialogText !== "";
-
-				if (!isGameDialogActive) {
-					this.close();
-					// Optional: event.preventDefault(); 
-					// Only if you want to stop the game from doing anything else
-				}
+				this.close();
 			}
 		}, true);
 
@@ -206,8 +194,7 @@ export class Drawer extends CRABS_Base {
 
 		const inChatRoom = typeof ChatRoomData !== 'undefined' &&
 			ChatRoomData !== null &&
-			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom") &&
-			(window as any).CurrentCharacter === null;
+			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom");
 
 		if (!inChatRoom) {
 			this.instance.style.display = "none";
@@ -218,12 +205,13 @@ export class Drawer extends CRABS_Base {
 				this.resizeObserver = null;
 			}
 		} else {
-			this.instance.style.display = "flex";
+			const isFocused = (window as any).CurrentCharacter !== null;
+			this.instance.style.display = isFocused ? "none" : "flex";
 
 			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 			if (tab) {
 				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
-				tab.style.display = shouldHideTab ? "none" : "flex";
+				tab.style.display = (shouldHideTab || isFocused) ? "none" : "flex";
 			}
 
 			if (!this.resizeObserver) {
