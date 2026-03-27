@@ -24,36 +24,21 @@ import { Settings } from "./settings";
  * Class representing the side drawer UI.
  */
 export class Drawer extends CRABS_Base {
-	/** Singleton instance of the Drawer. */
 	private static _instance: Drawer | null = null;
-	/** Whether the drawer is currently open. */
 	private isOpen: boolean = false;
-	/** The HTML element for the drawer instance. */
 	private instance: HTMLElement | null = null;
-	/** Reference to the Roster module. */
 	private rosterModule: Roster;
-	/** Reference to the Help module. */
 	private helpModule: Help;
-	/** Reference to the WhisperPlus module. */
 	private whisperPlusModule: WhisperPlus;
-	/** Observer for tracking changes to the chat log size. */
 	private resizeObserver: ResizeObserver | null = null;
-	/** Whether the help screen is currently being displayed within the drawer. */
 	private showingHelp: boolean = false;
-	/** Cached state of the player's keys to prevent redundant refreshes on map draw. */
-	private lastKeys: string = "";
-	/** Cached count of characters in the room to optimize refreshing. */
-	private lastCharacterCount: number = 0;
-	/** Cached list of room administrators to optimize refreshing. */
-	private lastAdminList: string = "";
 
-	/**
-	 * Creates an instance of the Drawer module.
-	 * * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-	 * @param {Roster} roster - The Roster module instance.
-	 * @param {Help} help - The Help module instance.
-	 * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
-	 */
+	// State Tracking for Optimized UI Refreshes
+	private lastRoster: string = "";
+	private lastAdminList: string = "";
+	private lastKeys: string = "";
+	private lastFriends: string = "";
+
 	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus) {
 		super(CRABS);
 		Drawer._instance = this;
@@ -63,27 +48,15 @@ export class Drawer extends CRABS_Base {
 		this.init();
 	}
 
-	/** Static method to toggle the drawer's open state. */
 	public static toggle(): void { Drawer._instance?.toggle(); }
-	/** Static method to open the drawer. */
 	public static open(): void { Drawer._instance?.open(); }
-	/** Static method to close the drawer. */
 	public static close(): void { Drawer._instance?.close(); }
-	/** Static method to update the drawer's visibility based on game state. */
 	public static updateVisibility(): void { Drawer._instance?.updateVisibility(); }
-	/** Static method to refresh the content within the drawer. */
 	public static refresh(): void { Drawer._instance?.refresh(); }
-	/** Static method to check if the help screen is currently showing. */
 	public static isShowingHelp(): boolean { return Drawer._instance?.showingHelp ?? false; }
-	/** Static method to set whether the help screen should be shown. */
 	public static setShowingHelp(value: boolean): void { if (Drawer._instance) Drawer._instance.showingHelp = value; }
-	/** Static method to trigger the Rave Tab effect. */
 	public static RaveTab(): void { Drawer._instance?.RaveTab(); }
 
-	/**
-	 * Temporarily changes the tab icon to the Rave version.
-	 * * @returns {void}
-	 */
 	public RaveTab(): void {
 		if (!this.instance) return;
 		const tab = this.instance.querySelector("#drawer-tab");
@@ -98,10 +71,6 @@ export class Drawer extends CRABS_Base {
 		}, 10000);
 	}
 
-	/**
-	 * Initializes the drawer module and sets up global event listeners.
-	 * * @returns {void}
-	 */
 	private init(): void {
 		if (document.body) {
 			this.setupElement();
@@ -109,7 +78,6 @@ export class Drawer extends CRABS_Base {
 			document.addEventListener("DOMContentLoaded", () => this.setupElement());
 		}
 
-		// Global ESC key listener using capture phase to intercept before game handlers
 		document.addEventListener("keydown", (event) => {
 			if (event.key === "Escape" && this.isOpen) {
 				this.close();
@@ -120,93 +88,59 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Sets up hooks and observers to dynamically refresh the drawer content.
-	 * * @returns {void}
+	 * Dirty-check to see if the game state has actually changed.
 	 */
+	private hasStateChanged(): boolean {
+		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null || typeof (window as any).Player === 'undefined') {
+			return false;
+		}
+
+		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
+		const currentAdmins = (ChatRoomData.Admin || []).join(",");
+		const player = (window as any).Player;
+		const currentKeys = [
+			player.MapData?.PrivateState?.HasKeyBronze,
+			player.MapData?.PrivateState?.HasKeySilver,
+			player.MapData?.PrivateState?.HasKeyGold
+		].join(",");
+		const currentFriends = (player.FriendList || []).join(",");
+
+		if (currentRoster !== this.lastRoster ||
+			currentAdmins !== this.lastAdminList ||
+			currentKeys !== this.lastKeys ||
+			currentFriends !== this.lastFriends) {
+
+			this.lastRoster = currentRoster;
+			this.lastAdminList = currentAdmins;
+			this.lastKeys = currentKeys;
+			this.lastFriends = currentFriends;
+			return true;
+		}
+		return false;
+	}
+
 	private setupDynamicUpdates(): void {
-		// Hook into chat room messages to detect joins/leaves
-		this.CRABS.hookFunction("ChatRoomMessage", 10, (functionArguments, next) => {
-			const result = next(functionArguments);
-
-			// Check if character count changed to detect joins/leaves
-			if (this.isOpen && !this.showingHelp && ChatRoomData) {
-				if (ChatRoomData.Character.length !== this.lastCharacterCount) {
-					this.refresh();
-				}
-			}
-
-			return result;
-		});
-
-		// Hook into screen changes and room updates
-		this.CRABS.hookFunction("CommonSetScreen", 10, (functionArguments, next) => {
-			const result = next(functionArguments);
-
-			if (this.isOpen && !this.showingHelp && ChatRoomData) {
-				const currentAdminList = (ChatRoomData.Admin || []).join(",");
-				if (currentAdminList !== this.lastAdminList) {
-					this.refresh();
-				}
-			}
-
-			return result;
-		});
-
-		// Hook into the game's native room display update for a catch-all refresh
+		// Single optimized hook driven by state changes
 		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
-			if (this.isOpen && !this.showingHelp) {
+			if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
 				this.refresh();
-			}
-
-			return result;
-		});
-
-		// Hook into map draw to detect key changes
-		this.CRABS.hookFunction("ChatRoomMapViewDraw", 5, (functionArguments, next) => {
-			const result = next(functionArguments);
-
-			if (this.isOpen && !this.showingHelp && (window as any).ChatRoomMapViewIsActive?.()) {
-				const currentKeys = [
-					Player.MapData?.PrivateState?.HasKeyBronze,
-					Player.MapData?.PrivateState?.HasKeySilver,
-					Player.MapData?.PrivateState?.HasKeyGold
-				].join(",");
-
-				if (currentKeys !== this.lastKeys) {
-					this.refresh();
-				}
 			}
 
 			return result;
 		});
 	}
 
-	/**
-	 * Creates and attaches the drawer element to the DOM.
-	 * * @returns {void}
-	 */
 	private setupElement(): void {
-		if (this.instance) return; // already initialized
+		if (this.instance) return;
 
 		const templateVars = {
-			Help: Assets.printimage({
-				key: "help",
-				css_class_override: "CRABS_Drawer_Help_Icon"
-			}),
-			Settings: Assets.printimage({
-				key: "settings",
-				css_class_override: "CRABS_Drawer_Settings_Icon"
-			}),
-			TabIcon: Assets.printimage({
-				key: "animated_logo"
-			}),
+			Help: Assets.printimage({ key: "help", css_class_override: "CRABS_Drawer_Help_Icon" }),
+			Settings: Assets.printimage({ key: "settings", css_class_override: "CRABS_Drawer_Settings_Icon" }),
+			TabIcon: Assets.printimage({ key: "animated_logo" }),
 			TitleBar: `CRABS: Roster`,
-			Close: Assets.printimage({
-				key: "close",
-				css_class_override: "CRABS_Drawer_Close_Icon"
-			}),
+			Close: Assets.printimage({ key: "close", css_class_override: "CRABS_Drawer_Close_Icon" }),
 		};
 
 		const html = this.template(drawertemplate, templateVars, false);
@@ -215,7 +149,6 @@ export class Drawer extends CRABS_Base {
 		const element = container.firstElementChild as HTMLElement;
 
 		if (element) {
-			// Ensure it is hidden by default and added to body
 			element.style.display = "none";
 			document.body.appendChild(element);
 			this.instance = element;
@@ -223,20 +156,13 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
-	/**
-	 * Magnetically locks the drawer to the exact dimensions of the game's chat log.
-	 * * @returns {void}
-	 */
 	private syncToChat(): void {
 		const chatLog = document.getElementById("TextAreaChatLog");
 		if (!chatLog || !this.instance) return;
 
-		// Get the precise pixel coordinates of the chat box
 		const rect = chatLog.getBoundingClientRect();
 
-		// If rect has no size, wait for UI to settle
 		if (rect.width === 0 || rect.height === 0) {
-			// Fallback: if in room but no chat log yet, try to be at right edge
 			this.instance.style.top = "0px";
 			this.instance.style.height = "100%";
 			this.instance.style.width = "400px";
@@ -244,37 +170,28 @@ export class Drawer extends CRABS_Base {
 			return;
 		}
 
-		// Apply dimensions directly to the drawer to perfectly cover the chat log
 		this.instance.style.top = `${rect.top}px`;
 		this.instance.style.width = `${rect.width}px`;
 
-		// Handle compact height setting (77% of chat height)
 		if (Settings.instance.data.compactDrawer) {
 			this.instance.style.height = `${rect.height * 0.77}px`;
 		} else {
 			this.instance.style.height = `${rect.height}px`;
 		}
 
-		// Calculate the exact right offset to account for letterboxing
 		const rightOffset = document.documentElement.clientWidth - rect.right;
 		this.instance.style.right = `${rightOffset}px`;
 	}
 
-	/**
-	 * Shows or hides the entire drawer container based on room status.
-	 * * @returns {void}
-	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		// Respect the disableDrawer setting
 		if (Settings.instance.data.disableDrawer) {
 			this.instance.style.display = "none";
 			this.close();
 			return;
 		}
 
-		// The drawer should only be visible when actually in a chat room screen AND no character is focused
 		const inChatRoom = typeof ChatRoomData !== 'undefined' &&
 			ChatRoomData !== null &&
 			(typeof CurrentScreen === 'undefined' || CurrentScreen === "ChatRoom") &&
@@ -284,7 +201,6 @@ export class Drawer extends CRABS_Base {
 			this.instance.style.display = "none";
 			this.close();
 
-			// Clean up the observer when leaving a room
 			if (this.resizeObserver) {
 				this.resizeObserver.disconnect();
 				this.resizeObserver = null;
@@ -292,56 +208,38 @@ export class Drawer extends CRABS_Base {
 		} else {
 			this.instance.style.display = "flex";
 
-			// Handle tab visibility based on settings
 			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 			if (tab) {
 				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
 				tab.style.display = shouldHideTab ? "none" : "flex";
 			}
 
-			// --- NEW: Attach observer only when entering a room ---
 			if (!this.resizeObserver) {
 				const chatLog = document.getElementById("TextAreaChatLog");
 				if (chatLog) {
 					this.resizeObserver = new ResizeObserver(() => this.syncToChat());
 					this.resizeObserver.observe(chatLog);
-					this.syncToChat(); // Force an immediate sync
+					this.syncToChat();
 				}
 			} else {
-				// Observer exists, but maybe UI shifted
 				this.syncToChat();
 			}
-			// ------------------------------------------------------
 
 			this.refresh();
 		}
 	}
 
-	/**
-	 * Re-renders and updates the content within the drawer.
-	 * * @returns {void}
-	 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
 		const helpIconContainer = this.instance?.querySelector(".CRABS_Drawer_Help_Icon");
 
-		// ADDED CHECK: Ensure ChatRoomData exists and isn't null before trying to refresh
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
-			this.lastCharacterCount = ChatRoomData.Character.length;
-			this.lastAdminList = (ChatRoomData.Admin || []).join(",");
-			this.lastKeys = [
-				Player.MapData?.PrivateState?.HasKeyBronze,
-				Player.MapData?.PrivateState?.HasKeySilver,
-				Player.MapData?.PrivateState?.HasKeyGold
-			].join(",");
-
 			if (this.showingHelp) {
 				if (title && title.textContent !== "CRABS: Help") title.textContent = "CRABS: Help";
 
-				// Only update the DOM if the icon needs to change
 				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "roster") {
 					helpIconContainer.innerHTML = Assets.printimage({
 						key: "roster",
@@ -354,7 +252,6 @@ export class Drawer extends CRABS_Base {
 			} else {
 				if (title && title.textContent !== "CRABS: Roster") title.textContent = "CRABS: Roster";
 
-				// Only update the DOM if the icon needs to change
 				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "help") {
 					helpIconContainer.innerHTML = Assets.printimage({
 						key: "help",
@@ -375,21 +272,11 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
-	/**
-	 * Overrides the base openSettings method to close the drawer before navigating.
-	 * * @returns {Promise<void>}
-	 */
 	public override async openSettings(): Promise<void> {
-		// Close drawer first
 		this.close();
-		// Then call base settings logic
 		await super.openSettings();
 	}
 
-	/**
-	 * Binds events to the drawer tab and other interactive elements using event delegation.
-	 * * @returns {void}
-	 */
 	private bindEvents(): void {
 		if (!this.instance) return;
 
@@ -401,7 +288,6 @@ export class Drawer extends CRABS_Base {
 			});
 		}
 
-		// Delegated event listener for dynamically updated header buttons
 		this.instance.addEventListener("click", (event) => {
 			const target = event.target as HTMLElement;
 
@@ -422,18 +308,10 @@ export class Drawer extends CRABS_Base {
 		});
 	}
 
-	/**
-	 * Toggles the drawer between open and closed states.
-	 * * @returns {void}
-	 */
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
 	}
 
-	/**
-	 * Opens the drawer with an animation.
-	 * * @returns {void}
-	 */
 	public open(): void {
 		if (!this.instance) return;
 		this.refresh();
@@ -441,10 +319,6 @@ export class Drawer extends CRABS_Base {
 		this.instance.classList.replace("drawer-closed", "drawer-open");
 	}
 
-	/**
-	 * Closes the drawer with an animation.
-	 * * @returns {void}
-	 */
 	public close(): void {
 		if (!this.instance) return;
 		this.isOpen = false;
