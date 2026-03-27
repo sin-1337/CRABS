@@ -210,6 +210,6 @@ export class Settings extends CRABS_Base {
 	}
 
 	public syncGameState(): void {
-		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 4;
+		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}
 }

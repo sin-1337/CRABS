@@ -36,6 +36,7 @@
 .CRABS_roster_header_align img,
 .CRABS_roster_header_align svg {
   vertical-align: middle;
+  cursor: default !important;
 }
 
 .CRABS_roster_center_table {
