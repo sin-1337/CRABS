@@ -82,7 +82,7 @@ export class Drawer extends CRABS_Base {
 			if (event.key === "Escape" && this.isOpen) {
 				this.close();
 			}
-		}, true);
+		});
 
 		this.setupDynamicUpdates();
 	}
