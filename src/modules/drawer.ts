@@ -79,8 +79,20 @@ export class Drawer extends CRABS_Base {
 		}
 
 		document.addEventListener("keydown", (event) => {
-			if (event.key === "Escape" && this.isOpen) {
-				this.close();
+			if (event.key === "Escape") {
+				// If the player focus screen is up, we force it to close
+				if ((window as any).CurrentCharacter !== null) {
+					(window as any).DialogLeave();
+
+					// If the drawer was open behind it, we make sure it stays closed
+					if (this.isOpen) {
+						this.close();
+					}
+				}
+				// If no player is focused, but the drawer is open, close the drawer
+				else if (this.isOpen) {
+					this.close();
+				}
 			}
 		}, true);
 
