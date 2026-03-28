@@ -192,14 +192,21 @@ export class Roster extends CRABS_Base {
 		badge: string,
 		playerIcons: string
 	): string {
+		const labelColor = player.LabelColor || "#FFFFFF";
+		const brightness = this.getColorBrightness(labelColor);
+
+		// Threshold: 130 is roughly the middle of the 0-255 range.
+		// Instead of a blur (which causes fuzziness), we use 4 offsets to create a crisp 1px outline.
+		const labelShadow = brightness < 130
+			? "text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;"
+			: "text-shadow: none;";
+
 		let templatevars: Record<string, string> = {
 			PlayerNumber: `${player.MemberNumber}`,
 			Badge: badge,
-			LabelColorBorder: `${this.convertColor(
-				player.LabelColor ?? "#FFFFFF",
-				0.5
-			)}`,
-			LabelColor: `${player.LabelColor || "#FFFFFF"}`,
+			LabelColorBorder: `${this.convertColor(labelColor, 0.5)}`,
+			LabelColor: labelColor,
+			LabelShadow: labelShadow,
 			PlayerName: CharacterNickname(player).normalize("NFKC"),
 			PlayerIcons: playerIcons,
 			StatusIcons: `${this.setStatusIcons(player)}`,

@@ -58,6 +58,37 @@
   transform: translateX(0);
 }
 
+.CRABS_wrapper_header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 50px; /* Ensure there is enough height for the title */
+}
+
+.drawer-content #drawer-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  white-space: nowrap;
+  z-index: 0; /* Keeps it behind icons if they overlap */
+
+  /* Your existing styles */
+  font-size: 1.4rem;
+  font-weight: bold;
+  pointer-events: none; /* Allows clicking "through" the title to icons if they overlap */
+}
+
+/* Ensure icons stay on top and are clickable */
+.CRABS_Drawer_Help_Icon,
+.CRABS_Drawer_Settings_Icon,
+.CRABS_Drawer_Close_Icon {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
 .drawer-content {
   pointer-events: auto;
   width: 100%;

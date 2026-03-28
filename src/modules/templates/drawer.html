@@ -3,19 +3,17 @@
     {{TabIcon}}
   </div>
   <div class="drawer-content CRABS_wrapper">
-    <div class="CRABS_wrapper_header">
-      <table style="width: 100%; table-layout: auto;">
-        <tr>
-          <td style="white-space: nowrap;">
-            <div class="CRABS_Drawer_Help_Icon" style="display:inline-block;">{{Help}}</div>
-            <div class="CRABS_Drawer_Settings_Icon" style="display:inline-block;">{{Settings}}</div>
-          </td>
-          <td id="drawer-title" style="width: 100%; text-align: center;">{{TitleBar}}</td>
-          <td style="white-space: nowrap;">
-            <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
-          </td>
-        </tr>
-      </table>
+    <div class="CRABS_wrapper_header" style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; min-height: 50px;">
+      <div class="header-left-icons" style="display: flex; gap: 4px; z-index: 2;">
+        <div class="CRABS_Drawer_Help_Icon">{{Help}}</div>
+        <div class="CRABS_Drawer_Settings_Icon">{{Settings}}</div>
+      </div>
+      <div id="drawer-title" style="position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; font-weight: bold; font-size: 1.4rem; z-index: 1; pointer-events: none;">
+        {{TitleBar}}
+      </div>
+      <div class="header-right-icons" style="z-index: 2;">
+        <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
+      </div>
     </div>
     <div class="CRABS_wrapper_content">
       <div id="CRABS_Drawer_Roster">

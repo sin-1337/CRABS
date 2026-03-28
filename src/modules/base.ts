@@ -44,7 +44,7 @@ export abstract class CRABS_Base {
 	 * @returns {void}
 	 */
 	public fakePlayerCommand(action: string = "all"): void {
-		for (let [unusedParameter, command] of Commands.entries()) {
+		for (let [_, command] of Commands.entries()) {
 			if (command.Tag === `crabs`) {
 				command.Action(action);
 				break;
