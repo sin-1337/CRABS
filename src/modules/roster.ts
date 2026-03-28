@@ -198,8 +198,8 @@ export class Roster extends CRABS_Base {
 		// Threshold: 130 is roughly the middle of the 0-255 range.
 		// Instead of a blur (which causes fuzziness), we use 4 offsets to create a crisp 1px outline.
 		const labelShadow = brightness < 130
-			? "text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;"
-			: "text-shadow: none;";
+			? "-webkit-text-stroke: 0.4px rgba(255, 255, 255, 0.9); text-shadow: none !important;"
+			: "-webkit-text-stroke: 0px; text-shadow: none !important;";
 
 		let templatevars: Record<string, string> = {
 			PlayerNumber: `${player.MemberNumber}`,
