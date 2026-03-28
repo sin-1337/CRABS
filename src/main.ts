@@ -88,24 +88,49 @@ window.ChatRoomExit = function () {
  * code at join time.
  */
 CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
-	// Fire the original game function and the rest of the ModSDK chain (including CIA)
+	// Fire the original game function and the rest of the ModSDK chain
 	const result = next(functionArguments);
 
-	// Escape the ModSDK thread using setTimeout. 
-	// Even if CIA crashes the promise chain right after this, the browser will still run this code.
+	// Escape the ModSDK thread.
 	setTimeout(() => {
-		try {
-			Drawer.updateVisibility();
-			SETTINGS.syncGameState();
 
-			// Re-verify ChatRoomData exists just in case the sync failed entirely
-			if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {
-				drawbanner();
+		// Create a recursive check function
+		const attemptSync = (attempts = 0) => {
+			const maxAttempts = 20; // 20 attempts * 250ms = 5 seconds max wait time
+
+			if (attempts > maxAttempts) {
+				console.warn("CRABS: ChatRoomSync timed out waiting for room data to populate.");
+				return;
 			}
-		} catch (error) {
-			console.error("CRABS: ChatRoomSync failed:", error);
-		}
-	}, 500);
+
+			// The readiness check: Ensure the global objects we need actually exist and have data
+			const isRoomReady = typeof ChatRoomData !== "undefined"
+				&& ChatRoomData !== null
+				&& typeof ChatRoomCharacter !== "undefined"
+				&& ChatRoomCharacter.length > 0;
+
+			if (isRoomReady) {
+				// The room is fully synced! Fire the UI updates.
+				try {
+					Drawer.updateVisibility();
+					SETTINGS.syncGameState();
+
+					if (Settings.instance.data.showBanner) {
+						drawbanner();
+					}
+				} catch (error) {
+					console.error("CRABS: ChatRoomSync execution failed:", error);
+				}
+			} else {
+				// Not ready yet. Wait 250ms and try again.
+				setTimeout(() => attemptSync(attempts + 1), 250);
+			}
+		};
+
+		// Kick off the first attempt immediately (the outer setTimeout already escaped the thread)
+		attemptSync(0);
+
+	}, 10); // Minimal delay just to break out of the current synchronous execution block
 
 	return result as never;
 });
