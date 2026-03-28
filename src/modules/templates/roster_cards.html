@@ -1,18 +1,18 @@
-<div class="CRABS_card" style="--border-color: {{LabelColorBorder}}">
-  <div class="CRABS_card_badge">
-    <a class="CRABS_player-badge" data-player-number="{{PlayerNumber}}">
-      {{Badge}}
-    </a>
-  </div>
-  <div class="CRABS_card_info">
-    <div class="CRABS_overflow-wrapper">
-      <div class="CRABS_player-id" style="color:{{LabelColor}};" data-player-number="{{PlayerNumber}}">
-        <span class="CRABS_overflow-scroll">{{PlayerName}}({{PlayerNumber}})</span>
+<div class="CRABS_card" style="border-left: 4px solid {{LabelColorBorder}};">
+  <div class="CRABS_card_badge">{{Badge}}</div>
+  <div class="CRABS_card_main">
+    <div class="CRABS_player-name-wrapper">
+      <span class="CRABS_player-name" 
+                  style="color: {{LabelColor}}; {{LabelShadow}}">
+        {{PlayerName}}
+      </span>
+      <div class="CRABS_player-id" 
+                 style="color: {{LabelColor}}; {{LabelShadow}}" 
+                 data-player-number="{{PlayerNumber}}">
+        <span class="CRABS_overflow-scroll">({{PlayerNumber}})</span>
       </div>
     </div>
-    <div class="CRABS_card_details">
-      <div class="CRABS_player-icons">{{PlayerIcons}}</div>
-      <div class="CRABS_status-frame">{{StatusIcons}}</div>
-    </div>
+    <div class="CRABS_player-icons">{{PlayerIcons}}</div>
   </div>
+  <div class="CRABS_status-icons">{{StatusIcons}}</div>
 </div>
