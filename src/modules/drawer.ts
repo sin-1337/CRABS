@@ -22,23 +22,41 @@ import { Settings } from "./settings";
 
 /**
  * Class representing the side drawer UI.
+ * Manages the sliding panel that contains the Roster, Help, and Settings access.
+ * Implements a Singleton pattern for global access via static methods.
+ * * @extends CRABS_Base
  */
 export class Drawer extends CRABS_Base {
+	/** Singleton instance of the Drawer. */
 	private static _instance: Drawer | null = null;
+	/** Current visual state of the drawer. */
 	private isOpen: boolean = false;
+	/** The primary DOM element containing the drawer. */
 	private instance: HTMLElement | null = null;
+	/** Reference to the Roster module for rendering player lists. */
 	private rosterModule: Roster;
+	/** Reference to the Help module for rendering documentation. */
 	private helpModule: Help;
+	/** Reference to the WhisperPlus module for UI injection. */
 	private whisperPlusModule: WhisperPlus;
+	/** Observer to keep the drawer aligned with the chat log resizing. */
 	private resizeObserver: ResizeObserver | null = null;
+	/** Tracks if the drawer is currently displaying the Help view instead of the Roster. */
 	private showingHelp: boolean = false;
 
-	// State Tracking for Optimized UI Refreshes
+	// --- State Tracking for Optimized UI Refreshes ---
 	private lastRoster: string = "";
 	private lastAdminList: string = "";
 	private lastKeys: string = "";
 	private lastFriends: string = "";
 
+	/**
+	 * Initializes the Drawer module and sets up the Singleton instance.
+	 * * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 * @param {Roster} roster - The Roster module instance.
+	 * @param {Help} help - The Help module instance.
+	 * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
+	 */
 	constructor(CRABS: ModSDKModAPI, roster: Roster, help: Help, whisperPlus: WhisperPlus) {
 		super(CRABS);
 		Drawer._instance = this;
@@ -48,15 +66,31 @@ export class Drawer extends CRABS_Base {
 		this.init();
 	}
 
+	/** Toggles the drawer open/closed globally. */
 	public static toggle(): void { Drawer._instance?.toggle(); }
+	/** Opens the drawer globally. */
 	public static open(): void { Drawer._instance?.open(); }
+	/** Closes the drawer globally. */
 	public static close(): void { Drawer._instance?.close(); }
+	/** Evaluates game state to determine if the drawer should be visible or hidden. */
 	public static updateVisibility(): void { Drawer._instance?.updateVisibility(); }
+	/** Forces a re-render of the drawer's current content. */
 	public static refresh(): void { Drawer._instance?.refresh(); }
+	/** * Checks if the help menu is currently being displayed.
+	 * @returns {boolean} True if the help screen is active.
+	 */
 	public static isShowingHelp(): boolean { return Drawer._instance?.showingHelp ?? false; }
+	/** * Overrides the current view state of the drawer.
+	 * @param {boolean} value - True to show Help, false to show Roster.
+	 */
 	public static setShowingHelp(value: boolean): void { if (Drawer._instance) Drawer._instance.showingHelp = value; }
+	/** Triggers the easter egg visual effect on the drawer tab. */
 	public static RaveTab(): void { Drawer._instance?.RaveTab(); }
 
+	/**
+	 * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
+	 * * @returns {void}
+	 */
 	public RaveTab(): void {
 		if (!this.instance) return;
 		const tab = this.instance.querySelector("#drawer-tab");
@@ -71,6 +105,11 @@ export class Drawer extends CRABS_Base {
 		}, 10000);
 	}
 
+	/**
+	 * Bootstraps the drawer layout, injecting it into the DOM and establishing global hotkeys.
+	 * * @private
+	 * @returns {void}
+	 */
 	private init(): void {
 		if (document.body) {
 			this.setupElement();
@@ -100,7 +139,10 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Dirty-check to see if the game state has actually changed.
+	 * Dirty-check to see if the relevant game state has actually changed.
+	 * Prevents expensive DOM re-renders every frame.
+	 * * @private
+	 * @returns {boolean} True if the room composition, admin list, keys, or friends list changed.
 	 */
 	private hasStateChanged(): boolean {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null || typeof (window as any).Player === 'undefined') {
@@ -131,6 +173,12 @@ export class Drawer extends CRABS_Base {
 		return false;
 	}
 
+	/**
+	 * Hooks into the game's render loop to process updates.
+	 * Only triggers a refresh if the drawer is open, not on the help screen, and state has changed.
+	 * * @private
+	 * @returns {void}
+	 */
 	private setupDynamicUpdates(): void {
 		// Single optimized hook driven by state changes
 		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
@@ -144,6 +192,12 @@ export class Drawer extends CRABS_Base {
 		});
 	}
 
+	/**
+	 * Compiles the drawer HTML template and injects it into the document body.
+	 * Binds internal events once the element is created.
+	 * * @private
+	 * @returns {void}
+	 */
 	private setupElement(): void {
 		if (this.instance) return;
 
@@ -168,6 +222,12 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Aligns the drawer UI to the dimensions and position of the native game chat log.
+	 * Adapts dynamically to window resizing and user settings.
+	 * * @private
+	 * @returns {void}
+	 */
 	private syncToChat(): void {
 		const chatLog = document.getElementById("TextAreaChatLog");
 		if (!chatLog || !this.instance) return;
@@ -195,6 +255,11 @@ export class Drawer extends CRABS_Base {
 		this.instance.style.right = `${rightOffset}px`;
 	}
 
+	/**
+	 * Determines whether the drawer should be injected into the DOM workflow based on:
+	 * User settings, current screen (ChatRoom), and modal overlays (CurrentCharacter).
+	 * * @returns {void}
+	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
@@ -241,6 +306,11 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Completely rebuilds the inner HTML of the drawer based on the current context 
+	 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
+	 * * @returns {void}
+	 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
@@ -284,11 +354,23 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Overrides the base class openSettings to ensure the drawer 
+	 * slides closed before the settings modal appears.
+	 * * @override
+	 * @returns {Promise<void>}
+	 */
 	public override async openSettings(): Promise<void> {
 		this.close();
 		await super.openSettings();
 	}
 
+	/**
+	 * Attaches click event listeners to the interactive elements within the drawer header.
+	 * Delegates handling for the Tab, Help, Settings, and Close buttons.
+	 * * @private
+	 * @returns {void}
+	 */
 	private bindEvents(): void {
 		if (!this.instance) return;
 
@@ -320,10 +402,18 @@ export class Drawer extends CRABS_Base {
 		});
 	}
 
+	/**
+	 * Alternates the drawer's state between open and closed.
+	 * * @returns {void}
+	 */
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
 	}
 
+	/**
+	 * Opens the drawer by updating the CSS classes and triggering a content refresh.
+	 * * @returns {void}
+	 */
 	public open(): void {
 		if (!this.instance) return;
 		this.refresh();
@@ -331,6 +421,10 @@ export class Drawer extends CRABS_Base {
 		this.instance.classList.replace("drawer-closed", "drawer-open");
 	}
 
+	/**
+	 * Closes the drawer by updating the CSS classes.
+	 * * @returns {void}
+	 */
 	public close(): void {
 		if (!this.instance) return;
 		this.isOpen = false;

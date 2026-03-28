@@ -16,6 +16,7 @@ import { CRABS_Base } from "./base";
 import { Assets } from "./assets";
 import { CrossMod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import "./templates/help.css";
 import helptemplate from "./templates/help.html";
 
 /**
@@ -48,8 +49,8 @@ export class Help extends CRABS_Base {
 			"Icon_Trial": Assets.printimage({ key: "trial", css_class_override: "CRABS_help_icon_small" }),
 			"Icon_Lover": Assets.printimage({ key: "lover", css_class_override: "CRABS_help_icon_small" }),
 			"Icon_Family": Assets.printimage({ key: "family", css_class_override: "CRABS_help_icon_small" }),
-			"Icon_BestFriend": CrossMod.detectMod("BCTweaks") 
-				? Assets.printimage({ key: "bestfriend", css_class_override: "CRABS_help_icon_small" }) 
+			"Icon_BestFriend": CrossMod.detectMod("BCTweaks")
+				? Assets.printimage({ key: "bestfriend", css_class_override: "CRABS_help_icon_small" })
 				: "<i>(N/A)</i>",
 			"Icon_Friend": Assets.printimage({ key: "friend", css_class_override: "CRABS_help_icon_small" }),
 			"Icon_Whitelist": Assets.printimage({ key: "whitelist", css_class_override: "CRABS_help_icon_small" }),

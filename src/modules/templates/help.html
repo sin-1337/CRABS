@@ -1,159 +1,96 @@
-<style>
-    .CRABS_help_container {
-        font-family: Arial, sans-serif;
-        color: #eee;
-        line-height: 1.4;
-    }
-    .CRABS_help_section {
-        margin-bottom: 20px;
-        border-bottom: 1px solid #444;
-        padding-bottom: 10px;
-    }
-    .CRABS_help_header {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #ffaa00;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .CRABS_help_command {
-        font-family: monospace;
-        color: #00ffcc;
-        background: #222;
-        padding: 2px 5px;
-        border-radius: 3px;
-    }
-    .CRABS_help_grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-    .CRABS_help_item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #333;
-        padding: 5px 10px;
-        border-radius: 5px;
-    }
-    .CRABS_help_description {
-        margin-top: 5px;
-        font-size: 0.9em;
-        color: #ccc;
-    }
-    .CRABS_help_icon_small {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-
 <div class="CRABS_help_container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        {{Logo}}
-        <div style="font-size: 1.4em; font-weight: bold;">CRABS {{Version}} Documentation</div>
+  <div style="text-align: center; margin-bottom: 20px;">
+    {{Logo}}
+    <div style="font-size: 1.4em; font-weight: bold;">CRABS {{Version}} Documentation</div>
+  </div>
+  <!-- Commands Section -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Core Commands</div>
+    <div>
+      <span class="CRABS_help_command">/roster [argument]</span>
+      <div class="CRABS_help_description">
+        Opens the enhanced roster. Shows detailed information about everyone in the room.
+      </div>
+      <div style="margin-left: 15px; margin-top: 5px; font-size: 0.85em;">
+        <b>Arguments:</b><br>
+        • <span class="CRABS_help_command">count</span> - Only shows current room population counters.<br>
+        • <span class="CRABS_help_command">admins</span> - Only lists room administrators.<br>
+        • <span class="CRABS_help_command">vips</span> - Only lists room whitelisted users.<br>
+        • <span class="CRABS_help_command">banner</span> - Force redraws the room information banner.<br>
+        • <span class="CRABS_help_command">help</span> - Shows this documentation.
+      </div>
     </div>
-
-    <!-- Commands Section -->
-    <div class="CRABS_help_section">
-        <div class="CRABS_help_header">Core Commands</div>
-        
-        <div>
-            <span class="CRABS_help_command">/roster [argument]</span>
-            <div class="CRABS_help_description">
-                Opens the enhanced roster. Shows detailed information about everyone in the room.
-            </div>
-            <div style="margin-left: 15px; margin-top: 5px; font-size: 0.85em;">
-                <b>Arguments:</b><br>
-                • <span class="CRABS_help_command">count</span> - Only shows current room population counters.<br>
-                • <span class="CRABS_help_command">admins</span> - Only lists room administrators.<br>
-                • <span class="CRABS_help_command">vips</span> - Only lists room whitelisted users.<br>
-                • <span class="CRABS_help_command">banner</span> - Force redraws the room information banner.<br>
-                • <span class="CRABS_help_command">help</span> - Shows this documentation.
-            </div>
-        </div>
-
-        <div style="margin-top: 15px;">
-            <span class="CRABS_help_command">/whisper+ [number] [message]</span> or <span class="CRABS_help_command">/w+</span>
-            <div class="CRABS_help_description">
-                Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.
-            </div>
-        </div>
-
-        <div style="margin-top: 15px;">
-            <span class="CRABS_help_command">/dropkeys [color/all]</span>
-            <div class="CRABS_help_description">
-                Instantly drop specific keys (<span style="color:#cd7f32">bronze</span>, <span style="color:#c0c0c0">silver</span>, <span style="color:#ffd700">gold</span>) or all keys at once.
-            </div>
-        </div>
+    <div style="margin-top: 15px;">
+      <span class="CRABS_help_command">/whisper+ [number] [message]</span> or <span class="CRABS_help_command">/w+</span>
+      <div class="CRABS_help_description">
+        Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.
+      </div>
     </div>
-
-    <!-- Features Section -->
-    <div class="CRABS_help_section">
-        <div class="CRABS_help_header">Key Features</div>
-        
-        <div>
-            <b>Interactive Side Drawer</b>
-            <div class="CRABS_help_description">
-                A sleek, stowable interface providing quick access to the Roster and Help. It auto-hides when focusing on characters or typing chat (configurable in settings).
-            </div>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <b>Map Compass</b>
-            <div class="CRABS_help_description">
-                When hovering over a player's ID in the roster, a directional arrow appears on the map pointing toward their location.
-            </div>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <b>Immersive Blindness & BCX Integration</b>
-            <div class="CRABS_help_description">
-                Optional blurring of the roster based on your character's blindness level. Fully respects BCX "Full Blind" rules when enabled.
-            </div>
-        </div>
+    <div style="margin-top: 15px;">
+      <span class="CRABS_help_command">/dropkeys [color/all]</span>
+      <div class="CRABS_help_description">
+        Instantly drop specific keys (<span style="color:#cd7f32">bronze</span>, <span style="color:#c0c0c0">silver</span>, <span style="color:#ffd700">gold</span>) or all keys at once.
+      </div>
     </div>
-
-    <!-- Icon Legends -->
-    <div class="CRABS_help_section">
-        <div class="CRABS_help_header">Relational Icons</div>
-        <div class="CRABS_help_grid">
-            <div class="CRABS_help_item">{{Icon_You}} You</div>
-            <div class="CRABS_help_item">{{Icon_Owner}} Owner</div>
-            <div class="CRABS_help_item">{{Icon_Sub}} Submissive</div>
-            <div class="CRABS_help_item">{{Icon_Trial}} On Trial</div>
-            <div class="CRABS_help_item">{{Icon_Lover}} Lover</div>
-            <div class="CRABS_help_item">{{Icon_Family}} Family</div>
-            <div class="CRABS_help_item">{{Icon_BestFriend}} Best Friend</div>
-            <div class="CRABS_help_item">{{Icon_Friend}} Friend</div>
-            <div class="CRABS_help_item">{{Icon_Whitelist}} Whitelisted</div>
-            <div class="CRABS_help_item">{{Icon_Blacklist}} Blacklisted</div>
-            <div class="CRABS_help_item">{{Icon_Ghost}} Ghosted</div>
-        </div>
+  </div>
+  <!-- Features Section -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Key Features</div>
+    <div>
+      <b>Interactive Side Drawer</b>
+      <div class="CRABS_help_description">
+        A sleek, stowable interface providing quick access to the Roster and Help. It auto-hides when focusing on characters or typing chat (configurable in settings).
+      </div>
     </div>
-
-    <div class="CRABS_help_section">
-        <div class="CRABS_help_header">Status & Badges</div>
-        <div class="CRABS_help_grid">
-            <div class="CRABS_help_item">{{Badge_Admin}} Room Admin</div>
-            <div class="CRABS_help_item">{{Badge_VIP}} Room Whitelist</div>
-            <div class="CRABS_help_item">{{Badge_Player}} Room Guest</div>
-        </div>
-        <div class="CRABS_help_description" style="margin-top: 10px;">
-            <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and show levels when hovered.
-        </div>
+    <div style="margin-top: 10px;">
+      <b>Map Compass</b>
+      <div class="CRABS_help_description">
+        When hovering over a player's ID in the roster, a directional arrow appears on the map pointing toward their location.
+      </div>
     </div>
-
-    <!-- Interactions -->
-    <div class="CRABS_help_section">
-        <div class="CRABS_help_header">Interactions</div>
-        <ul style="margin-top: 5px; padding-left: 20px;">
-            <li><b>Click Badge:</b> Opens the character's focus/interaction screen.</li>
-            <li><b>Click Name/ID:</b> Prepares a Whisper+ command for that player.</li>
-            <li><b>Right-Click Name/ID:</b> Copies the player's member number to your clipboard.</li>
-            <li><b>Hover ID:</b> Activates the Map Compass to track their position.</li>
-        </ul>
+    <div style="margin-top: 10px;">
+      <b>Immersive Blindness & BCX Integration</b>
+      <div class="CRABS_help_description">
+        Optional blurring of the roster based on your character's blindness level. Fully respects BCX "Full Blind" rules when enabled.
+      </div>
     </div>
+  </div>
+  <!-- Icon Legends -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Relational Icons</div>
+    <div class="CRABS_help_grid">
+      <div class="CRABS_help_item">{{Icon_You}} You</div>
+      <div class="CRABS_help_item">{{Icon_Owner}} Owner</div>
+      <div class="CRABS_help_item">{{Icon_Sub}} Submissive</div>
+      <div class="CRABS_help_item">{{Icon_Trial}} On Trial</div>
+      <div class="CRABS_help_item">{{Icon_Lover}} Lover</div>
+      <div class="CRABS_help_item">{{Icon_Family}} Family</div>
+      <div class="CRABS_help_item">{{Icon_BestFriend}} Best Friend</div>
+      <div class="CRABS_help_item">{{Icon_Friend}} Friend</div>
+      <div class="CRABS_help_item">{{Icon_Whitelist}} Whitelisted</div>
+      <div class="CRABS_help_item">{{Icon_Blacklist}} Blacklisted</div>
+      <div class="CRABS_help_item">{{Icon_Ghost}} Ghosted</div>
+    </div>
+  </div>
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Status & Badges</div>
+    <div class="CRABS_help_grid">
+      <div class="CRABS_help_item">{{Badge_Admin}} Room Admin</div>
+      <div class="CRABS_help_item">{{Badge_VIP}} Room Whitelist</div>
+      <div class="CRABS_help_item">{{Badge_Player}} Room Guest</div>
+    </div>
+    <div class="CRABS_help_description" style="margin-top: 10px;">
+      <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and show levels when hovered.
+    </div>
+  </div>
+  <!-- Interactions -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Interactions</div>
+    <ul style="margin-top: 5px; padding-left: 20px;">
+      <li><b>Click Badge:</b> Opens the character's focus/interaction screen.</li>
+      <li><b>Click Name/ID:</b> Prepares a Whisper+ command for that player.</li>
+      <li><b>Right-Click Name/ID:</b> Copies the player's member number to your clipboard.</li>
+      <li><b>Hover ID:</b> Activates the Map Compass to track their position.</li>
+    </ul>
+  </div>
 </div>
