@@ -1,12 +1,14 @@
 <div class="CRABS_card" style="border-left: 4px solid {{LabelColorBorder}};">
   <div class="CRABS_card_badge">{{Badge}}</div>
   <div class="CRABS_card_main" style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
-    <div class="CRABS_player-header" style="display: flex; align-items: baseline; gap: 4px; overflow: hidden; white-space: nowrap;">
-      <span class="CRABS_player-name" style="color: {{LabelColor}}; {{LabelShadow}} font-weight: bold;">
-        {{PlayerName}}
-      </span>
-      <div class="CRABS_player-id" style="color: {{LabelColor}}; {{LabelShadow}} font-size: 0.9em; opacity: 0.8;" data-player-number="{{PlayerNumber}}">
-        <span class="CRABS_overflow-scroll">({{PlayerNumber}})</span>
+    <div class="CRABS_player-header CRABS_overflow-wrapper" style="display: flex; align-items: baseline; width: 100%;">
+      <div class="CRABS_overflow-scroll" style="display: flex; gap: 4px; align-items: baseline; padding-left: 1px;">
+        <span class="CRABS_player-name" style="color: {{LabelColor}}; {{LabelShadow}} font-weight: bold;">
+          {{PlayerName}}
+        </span>
+        <div class="CRABS_player-id" style="color: {{LabelColor}}; {{LabelShadow}} font-size: 0.9em; opacity: 0.8; padding: 0 2px; cursor: pointer;" data-player-number="{{PlayerNumber}}">
+          ({{PlayerNumber}})
+        </div>
       </div>
     </div>
     <div class="CRABS_player-icons" style="margin-top: 2px;">

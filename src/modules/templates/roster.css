@@ -175,6 +175,14 @@
   line-height: 1em;
 }
 
+/* Ensure the wrapper doesn't let things wrap to a second line */
+.CRABS_player-header {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  width: 100%;
+}
+
 .CRABS_status-frame {
   white-space: nowrap;
   overflow: visible;
