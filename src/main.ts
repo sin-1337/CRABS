@@ -83,7 +83,7 @@ window.ChatRoomExit = function () {
 };
 
 /**
- * Hook into the CreateRoomLoad function.  
+ * Hook into the CreateRoomSync function.  
  * It triggers when joining a room to execute
  * code at join time.
  */
@@ -93,7 +93,7 @@ CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
 
 	// 2. ChatRoomSync is an async function in the base game, so `result` is a Promise.
 	// Instead of using 'await' and making our hook async, we just attach a .then()
-	if (result && of(result as any).then === 'function') {
+	if (result && typeof (result as any).then === 'function') {
 		(result as any).then(() => {
 			// This ONLY runs after the game has 100% finished loading the room and DOM
 			try {
