@@ -139,31 +139,34 @@
 }
 
 .CRABS_player-name {
-  font-family:
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Clean Sans-Serif stack */
+  color: var(
+    --player-color,
+    white
+  ); /* Inherits from the card wrapper, falls back to white */
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
-  letter-spacing: 0.3px; /* Extra space so the outline doesn't blur letters together */
+  letter-spacing: 0.3px;
   line-height: 1.3;
   white-space: nowrap;
-  /* This helps the browser render the custom stroke more clearly */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .CRABS_player-id {
+  color: var(--player-color, white); /* Inherits from the card wrapper */
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.5rem; /* Adjusted for better proportion with 1.5rem name */
+  font-size: 1.5rem;
   white-space: nowrap;
   cursor: pointer;
   opacity: 0.8;
   padding: 0 2px;
   -webkit-font-smoothing: antialiased;
-  /* Removed height, overflow, and display: block to fix clipping and baseline alignment */
 }
 
 .CRABS_player-id:hover span {
   filter: brightness(1.5);
   text-decoration: underline;
+  text-decoration-color: currentColor; /* Matches the text color */
   cursor: pointer;
 }
 

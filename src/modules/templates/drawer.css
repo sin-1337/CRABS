@@ -118,12 +118,12 @@
   width: 44px; /* Slightly wider badge area for the larger font */
 }
 
-/* Fix header icons scaling */
+/* Increase the clickable container size to 44px */
 .drawer-content .CRABS_Drawer_Help_Icon,
 .drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
-  width: 36px !important;
-  height: 36px !important;
+  width: 44px !important;
+  height: 44px !important;
   display: flex !important;
   justify-content: center;
   align-items: center;
@@ -137,13 +137,14 @@
   margin-left: auto;
 }
 
+/* Increase the actual images to 32px */
 .drawer-content .CRABS_Drawer_Help_Icon img,
 .drawer-content .CRABS_Drawer_Settings_Icon img,
 .drawer-content .CRABS_Drawer_Close_Icon img {
-  width: 26px !important;
-  height: 26px !important;
-  max-width: 26px !important;
-  max-height: 26px !important;
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
   object-fit: contain;
   display: block;
 }
