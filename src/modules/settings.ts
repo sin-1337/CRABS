@@ -117,11 +117,11 @@ export class Settings extends CRABS_Base {
 
 		canvas.textAlign = "center";
 		canvas.textBaseline = "middle";
-		DrawText("- CRABS Mod Settings -", 1000, 80, "Black", "Gray");
+		DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
 
 		if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
-		else DrawText("Hover settings for details", 1000, 150, "Black", "Gray");
+		else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
 
 		const leftX = this.LEFT_COL_X - 20;
 		const rightX = this.RIGHT_COL_X - 20;
@@ -146,7 +146,7 @@ export class Settings extends CRABS_Base {
 
 			if (MouseIn(txX, el.yPos - 18, 450, 36) || MouseIn(cbX, el.yPos - 32, 64, 64)) {
 				canvas.textAlign = "center";
-				DrawText(el.hint, 1100, 950, "Black", "Gray");
+				DrawText(el.hint, 1100, 920, "Black", "Gray");
 			}
 		}
 		canvas.textBaseline = "alphabetic";

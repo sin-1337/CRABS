@@ -62,7 +62,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 50px; /* Ensure there is enough height for the title */
+  min-height: 50px;
+  padding: 0 8px; /* Give the icons a little breathing room from the edges */
+  gap: 4px; /* Adds clean spacing between the Help and Settings icons */
 }
 
 .drawer-content #drawer-title {
@@ -98,9 +100,6 @@
   overflow: hidden !important;
   border-radius: 12px 0 0 12px;
 
-  /* Scale up the base font size for the drawer */
-  font-size: 1.4rem;
-
   /* Kill visibility when closed to prevent any "peeking" or interaction */
   transition:
     opacity 0.3s ease,
@@ -109,11 +108,9 @@
 
 /* Specifically scale the roster content inside the drawer */
 #CRABS_Drawer_Roster .CRABS_room-status {
-  font-size: 1.3rem; /* Extra boost for the header counters */
 }
 
 #CRABS_Drawer_Roster .CRABS_card {
-  font-size: 1.2rem; /* Ensure card text and em-based icons are larger */
   padding: 6px;
 }
 
@@ -121,19 +118,26 @@
   width: 44px; /* Slightly wider badge area for the larger font */
 }
 
-/* Fix header icons scaling */
+/* Increase the clickable container size to 44px */
 .drawer-content .CRABS_Drawer_Help_Icon,
 .drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
-  width: 40px !important;
-  height: 40px !important;
-  display: inline-block !important;
-  vertical-align: middle;
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
   padding: 4px;
   cursor: pointer;
   box-sizing: border-box;
 }
 
+/* Push the Close icon strictly to the right edge */
+.drawer-content .CRABS_Drawer_Close_Icon {
+  margin-left: auto;
+}
+
+/* Increase the actual images to 32px */
 .drawer-content .CRABS_Drawer_Help_Icon img,
 .drawer-content .CRABS_Drawer_Settings_Icon img,
 .drawer-content .CRABS_Drawer_Close_Icon img {
@@ -142,6 +146,7 @@
   max-width: 32px !important;
   max-height: 32px !important;
   object-fit: contain;
+  display: block;
 }
 
 .drawer-content #drawer-title {

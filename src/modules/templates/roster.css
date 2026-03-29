@@ -5,6 +5,7 @@
   color: white;
   align-items: stretch; /* Ensures all dividers are the same height */
   margin-bottom: 4px; /* Tiny gap before the cards start */
+  font-size: 1.2rem;
 }
 
 .CRABS_status_cell {
@@ -59,14 +60,15 @@
 /* --- THE PLAYER CARDS (FLEXBOX) --- */
 .CRABS_card {
   display: flex;
-  align-items: center; /* Centers the left badge with the right info block */
+  align-items: center;
   border-radius: 8px;
-  padding: 4px;
+  padding: 6px 4px; /* Added slight top/bottom padding */
   width: 100%;
-  box-sizing: border-box; /* Critical so padding doesn't break the 50/50 grid */
+  min-height: 52px; /* <-- This prevents the drawer from squishing the card */
+  box-sizing: border-box;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: relative;
-  background-color: transparent; /* or whatever you use to ensure the gradient shows */
+  background-color: transparent;
 }
 
 .CRABS_card::after {
@@ -87,12 +89,18 @@
 
 /* The Left Column (Badge) */
 .CRABS_card_badge {
-  width: 37px;
-  flex-shrink: 0; /* Prevents the badge from squishing if the name is long */
+  width: 42px; /* Give it a bit more room */
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 6px; /* Spacing between badge and name */
+  margin-right: 6px;
+}
+
+.CRABS_card_badge img {
+  width: 38px; /* Lock the image size */
+  height: 38px;
+  object-fit: contain;
 }
 
 /* The Right Column (Name + Details) */
@@ -117,7 +125,7 @@
 .CRABS_overflow-wrapper {
   overflow: hidden;
   width: 100%;
-  height: 1.1em;
+  min-height: 1.7rem; /* Changed from height: 1.1em */
   position: relative;
   display: flex;
 }
@@ -131,33 +139,29 @@
 }
 
 .CRABS_player-name {
-  font-family:
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Clean Sans-Serif stack */
-  font-size: 1.1em;
-  letter-spacing: 0.3px; /* Extra space so the outline doesn't blur letters together */
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.3px;
   line-height: 1.3;
   white-space: nowrap;
-  /* This helps the browser render the custom stroke more clearly */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .CRABS_player-id {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.1em;
+  font-size: 1.5rem;
   white-space: nowrap;
   cursor: pointer;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
-  display: block;
-  line-height: 1.2; /* Adjusted for better alignment */
-  height: 1.2em;
-  -webkit-font-smoothing: antialiased; /* hardware acceleration for text rendering */
+  opacity: 0.8;
+  padding: 0 2px;
+  -webkit-font-smoothing: antialiased;
 }
 
 .CRABS_player-id:hover span {
   filter: brightness(1.5);
   text-decoration: underline;
+  text-decoration-color: currentColor; /* Matches the text color */
   cursor: pointer;
 }
 
@@ -180,15 +184,15 @@
 
 /* --- ICONS & STATUSES --- */
 .CRABS_key-icons {
-  height: 1em; /* Set the cell height */
-  min-height: 1em; /* Enforce the minimum height */
-  line-height: 1em;
+  height: 1.5rem; /* Set the cell height */
+  min-height: 1.5rem; /* Enforce the minimum height */
+  line-height: 1.5rem;
 }
 
 .CRABS_player-icons {
-  height: 1em; /* Set the cell height */
-  min-height: 1em; /* Enforce the minimum height */
-  line-height: 1em;
+  height: 1.5rem; /* Set the cell height */
+  min-height: 1.5rem; /* Enforce the minimum height */
+  line-height: 1.5rem;
 }
 
 /* Ensure the wrapper doesn't let things wrap to a second line */
@@ -212,7 +216,7 @@
 
 .CRABS_status-icon {
   border-radius: 30px;
-  height: 1em;
+  height: 1.7rem;
   display: inline-block;
   filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
