@@ -98,9 +98,6 @@
   overflow: hidden !important;
   border-radius: 12px 0 0 12px;
 
-  /* Scale up the base font size for the drawer */
-  font-size: 1.4rem;
-
   /* Kill visibility when closed to prevent any "peeking" or interaction */
   transition:
     opacity 0.3s ease,
@@ -109,11 +106,9 @@
 
 /* Specifically scale the roster content inside the drawer */
 #CRABS_Drawer_Roster .CRABS_room-status {
-  font-size: 1.3rem; /* Extra boost for the header counters */
 }
 
 #CRABS_Drawer_Roster .CRABS_card {
-  font-size: 1.2rem; /* Ensure card text and em-based icons are larger */
   padding: 6px;
 }
 
