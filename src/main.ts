@@ -83,56 +83,39 @@ window.ChatRoomExit = function () {
 };
 
 /**
- * Hook into the CreateRoomSync function.  
+ * Hook into the CreateRoomLoad function.  
  * It triggers when joining a room to execute
  * code at join time.
  */
-CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
-	// Fire the original game function and the rest of the ModSDK chain
+CRABS.hookFunction("ChatRoomLoad", 10000, (functionArguments, next) => {
+	// Snapshot this before the game's native load function runs!
+	const isFirstTimeEntering = (window as any).ChatRoomJustEntered;
+
+	// Run the native screen load synchronously
 	const result = next(functionArguments);
 
-	// Escape the ModSDK thread.
+	// Escape the thread and wait for the DOM to settle
 	setTimeout(() => {
+		try {
+			if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
+				// ALWAYS do this when the screen loads so the drawer never disappears
+				Drawer.updateVisibility();
 
-		// Create a recursive check function
-		const attemptSync = (attempts = 0) => {
-			const maxAttempts = 20; // 20 attempts * 250ms = 5 seconds max wait time
-
-			if (attempts > maxAttempts) {
-				console.warn("CRABS: ChatRoomSync timed out waiting for room data to populate.");
-				return;
-			}
-
-			// The readiness check: Ensure the global objects we need actually exist and have data
-			const isRoomReady = typeof ChatRoomData !== "undefined"
-				&& ChatRoomData !== null
-				&& typeof ChatRoomCharacter !== "undefined"
-				&& ChatRoomCharacter.length > 0;
-
-			if (isRoomReady) {
-				// The room is fully synced! Fire the UI updates.
-				try {
-					Drawer.updateVisibility();
+				// ONLY do this if we just walked into the room from the lobby
+				if (isFirstTimeEntering) {
 					SETTINGS.syncGameState();
 
 					if (Settings.instance.data.showBanner) {
 						drawbanner();
 					}
-				} catch (error) {
-					console.error("CRABS: ChatRoomSync execution failed:", error);
 				}
-			} else {
-				// Not ready yet. Wait 250ms and try again.
-				setTimeout(() => attemptSync(attempts + 1), 250);
 			}
-		};
+		} catch (error) {
+			console.error("CRABS: ChatRoomLoad execution failed:", error);
+		}
+	}, 10); // wait 10ms for DOM
 
-		// Kick off the first attempt immediately (the outer setTimeout already escaped the thread)
-		attemptSync(0);
-
-	}, 10); // Minimal delay just to break out of the current synchronous execution block
-
-	return result as never;
+	return result;
 });
 
 /**
