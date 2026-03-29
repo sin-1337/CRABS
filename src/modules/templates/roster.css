@@ -139,10 +139,6 @@
 }
 
 .CRABS_player-name {
-  color: var(
-    --player-color,
-    white
-  ); /* Inherits from the card wrapper, falls back to white */
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
   letter-spacing: 0.3px;
@@ -153,7 +149,6 @@
 }
 
 .CRABS_player-id {
-  color: var(--player-color, white); /* Inherits from the card wrapper */
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
   white-space: nowrap;
