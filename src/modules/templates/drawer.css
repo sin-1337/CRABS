@@ -62,7 +62,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 50px; /* Ensure there is enough height for the title */
+  min-height: 50px;
+  padding: 0 8px; /* Give the icons a little breathing room from the edges */
+  gap: 4px; /* Adds clean spacing between the Help and Settings icons */
 }
 
 .drawer-content #drawer-title {
@@ -120,23 +122,30 @@
 .drawer-content .CRABS_Drawer_Help_Icon,
 .drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
-  width: 40px !important;
-  height: 40px !important;
-  display: inline-block !important;
-  vertical-align: middle;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
   padding: 4px;
   cursor: pointer;
   box-sizing: border-box;
 }
 
+/* Push the Close icon strictly to the right edge */
+.drawer-content .CRABS_Drawer_Close_Icon {
+  margin-left: auto;
+}
+
 .drawer-content .CRABS_Drawer_Help_Icon img,
 .drawer-content .CRABS_Drawer_Settings_Icon img,
 .drawer-content .CRABS_Drawer_Close_Icon img {
-  width: 32px !important;
-  height: 32px !important;
-  max-width: 32px !important;
-  max-height: 32px !important;
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
   object-fit: contain;
+  display: block;
 }
 
 .drawer-content #drawer-title {

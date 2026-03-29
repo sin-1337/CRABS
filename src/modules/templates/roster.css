@@ -152,7 +152,7 @@
 
 .CRABS_player-id {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1rem; /* Adjusted for better proportion with 1.5rem name */
+  font-size: 1.5rem; /* Adjusted for better proportion with 1.5rem name */
   white-space: nowrap;
   cursor: pointer;
   opacity: 0.8;
