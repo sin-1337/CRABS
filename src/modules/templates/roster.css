@@ -79,9 +79,10 @@
   background: linear-gradient(
     to right,
     transparent 10%,
-    var(--border-color, white) 80%,
+    var(--player-color, white) 50%,
     transparent 100%
   );
+  opacity: 0.6; /* Optional: makes it look a bit more "glowy" and less harsh */
 }
 
 /* The Left Column (Badge) */
@@ -135,8 +136,9 @@
   font-family: Arial, sans-serif;
   overflow: hidden;
   display: block;
-  line-height: 1em;
-  height: 1.1em;
+  line-height: 1.1; /* Adjusted for better alignment */
+  height: 1.3em;
+  -webkit-font-smoothing: antialiased; /* hardware acceleration for text rendering */
 }
 
 .CRABS_player-id:hover span {
