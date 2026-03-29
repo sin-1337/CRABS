@@ -23,17 +23,10 @@
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
 
-### Bookmark:
-* Copy this URL and add it as a bookmark:
-  ```
-  javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
-  ```
-* Navigate to BondageClub and click the bookmark.
-
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:
 ```javascript
-javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
 ```
 Click the bookmark while on the Bondage Club page to load the mod.
 
