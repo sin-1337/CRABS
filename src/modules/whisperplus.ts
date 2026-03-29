@@ -129,7 +129,7 @@ export class WhisperPlus extends CRABS_Base {
 		ChatRoomRegisterMessageHandler({
 			Description: "Stylize Whisper+ messages",
 			Priority: 450, // Runs late in the pipeline, just before display
-			Callback: (data: any, unusedSender: any, message: string, unusedMetadata: any) => {
+			Callback: (data: any, _sender: any, message: string, _metadata: any) => {
 				if (data.Type === "Whisper" && message.includes("+:")) {
 					// Replaces the raw "+:" with a stylized tag and hides the original
 					const stylizedTag = '<span style="color: #ff99bb; font-weight: bold; text-shadow: 1px 1px 2px #000;">[W+]<span style="display:none;">+:</span></span>';
@@ -355,6 +355,6 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {void}
 	 */
 	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
-		this.attachEvent("CRABS_player-id", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
+		this.attachEvent("CRABS_player-name", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
 	}
 }
