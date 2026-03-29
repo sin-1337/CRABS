@@ -148,7 +148,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.CRABS_player-name:hover span {
+.CRABS_player-name:hover {
   filter: brightness(1.5);
   text-decoration: underline;
   text-decoration-color: currentColor; /* Matches the text color */
@@ -165,7 +165,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.CRABS_player-id:hover span {
+.CRABS_player-id:hover {
   filter: brightness(1.5);
   text-decoration: underline;
   text-decoration-color: currentColor; /* Matches the text color */
