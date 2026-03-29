@@ -133,7 +133,7 @@
 .CRABS_player-name {
   font-family:
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Clean Sans-Serif stack */
-  font-size: 1.2em;
+  font-size: 1.1em;
   letter-spacing: 0.3px; /* Extra space so the outline doesn't blur letters together */
   line-height: 1.3;
   white-space: nowrap;
@@ -144,13 +144,13 @@
 
 .CRABS_player-id {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.2em;
+  font-size: 1.1em;
   white-space: nowrap;
   cursor: pointer;
   font-family: Arial, sans-serif;
   overflow: hidden;
   display: block;
-  line-height: 1.3; /* Adjusted for better alignment */
+  line-height: 1.2; /* Adjusted for better alignment */
   height: 1.2em;
   -webkit-font-smoothing: antialiased; /* hardware acceleration for text rendering */
 }
