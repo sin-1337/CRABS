@@ -89,6 +89,7 @@ window.ChatRoomExit = function () {
  */
 CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
 	// 1. Fire the original game function
+	console.log("CRABS: Entry Hook fires!");
 	const result = next(functionArguments);
 
 	// 2. ChatRoomSync is an async function in the base game, so `result` is a Promise.
