@@ -20,6 +20,7 @@ const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
+let crabsLastRoomName = "";
 WHISPERPLUS.setupHooks();
 
 SETTINGS.syncGameState();
@@ -87,30 +88,50 @@ window.ChatRoomExit = function () {
  * It triggers when joining a room to execute
  * code at join time.
  */
-CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
-	// 1. Fire the original game function
-	console.log("CRABS: Entry Hook fires!");
-	const result = next(functionArguments);
+// Add this at the top level of your main.ts file to track the current room
 
-	// 2. ChatRoomSync is an async function in the base game, so `result` is a Promise.
-	// Instead of using 'await' and making our hook async, we just attach a .then()
-	if (result && typeof (result as any).then === 'function') {
-		(result as any).then(() => {
-			// This ONLY runs after the game has 100% finished loading the room and DOM
+CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
+	// 1. Run the base game function
+	const result = next(args);
+
+	const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null && (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+
+	if (inChatRoom) {
+		// --- SCENARIO A: We just joined a new room! ---
+		if (ChatRoomData.Name !== crabsLastRoomName) {
+			crabsLastRoomName = ChatRoomData.Name;
+
 			try {
 				Drawer.updateVisibility();
 				SETTINGS.syncGameState();
 
-				if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {
+				if (Settings.instance.data.showBanner) {
 					drawbanner();
 				}
 			} catch (error) {
-				console.error("CRABS: ChatRoomSync execution failed:", error);
+				console.error("CRABS: Room Join execution failed:", error);
 			}
-		});
+		}
+
+		// --- SCENARIO B: We returned from Wardrobe, Profile, or Admin menu ---
+		// If no character dialog is open, but the drawer is mysteriously hidden, wake it up!
+		const isFocused = (window as any).CurrentCharacter !== null;
+		const drawerElement = document.getElementById("crabs-drawer");
+
+		if (!isFocused && drawerElement && drawerElement.style.display === "none" && !Settings.instance.data.disableDrawer) {
+			try {
+				Drawer.updateVisibility();
+			} catch (error) {
+				console.error("CRABS: Drawer recovery failed:", error);
+			}
+		}
+
+	} else {
+		// We left the room, reset the tracker so it fires again next time
+		crabsLastRoomName = "";
 	}
 
-	return result as never;
+	return result;
 });
 
 /**
