@@ -195,11 +195,16 @@ export class Roster extends CRABS_Base {
 		const labelColor = player.LabelColor || "#FFFFFF";
 		const brightness = this.getColorBrightness(labelColor);
 
-		// Threshold: 130 is roughly the middle of the 0-255 range.
-		// Instead of a blur (which causes fuzziness), we use 4 offsets to create a crisp 1px outline.
-		const labelShadow = brightness < 130
-			? "-webkit-text-stroke: 0.8px rgba(255, 255, 255, 0.9); paint-order: stroke fill; text-shadow: none !important;"
-			: "-webkit-text-stroke: 0px; text-shadow: none !important;";
+		let labelShadow = "text-shadow: none !important; -webkit-text-stroke: 0px;";
+
+		// Logic: If too dark, add a light outline. If too light, add a subtle dark outline.
+		if (brightness < 100) {
+			// Dark names: White outline for legibility
+			labelShadow = "-webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.8); paint-order: stroke fill;";
+		} else if (brightness > 220) {
+			// Very light names: Subtle dark outline to prevent "glowing" into the background
+			labelShadow = "-webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.5); paint-order: stroke fill;";
+		}
 
 		let templatevars: Record<string, string> = {
 			PlayerNumber: `${player.MemberNumber}`,
