@@ -688,16 +688,17 @@ export class Roster extends CRABS_Base {
 	 */
 	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
 		super.buildui(output, elementId, root);
+		// Left Click Badge -> Whisper Focus
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
-		this.attachEvent(
-			"CRABS_player-id",
-			this.copyToClipboard,
-			"playerNumber",
-			undefined,
-			"contextmenu",
-			"class",
-			root)
 
+		// Left Click Number -> Copy to Clipboard
+		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
+
+		// Hover Name -> Show Compass
+		this.attachEvent("CRABS_player-name", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
+		this.attachEvent("CRABS_player-name", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
+
+		// Hover Number -> Show Compass
 		this.attachEvent("CRABS_player-id", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
 		this.attachEvent("CRABS_player-id", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
 	}

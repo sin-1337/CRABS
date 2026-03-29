@@ -148,6 +148,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.CRABS_player-name:hover {
+  filter: brightness(1.5);
+  text-decoration: underline;
+  text-decoration-color: currentColor; /* Matches the text color */
+  cursor: pointer;
+}
+
 .CRABS_player-id {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
@@ -158,7 +165,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.CRABS_player-id:hover span {
+.CRABS_player-id:hover {
   filter: brightness(1.5);
   text-decoration: underline;
   text-decoration-color: currentColor; /* Matches the text color */
