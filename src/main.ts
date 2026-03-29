@@ -87,35 +87,29 @@ window.ChatRoomExit = function () {
  * It triggers when joining a room to execute
  * code at join time.
  */
-CRABS.hookFunction("ChatRoomLoad", 10000, (functionArguments, next) => {
-	// Snapshot this before the game's native load function runs!
-	const isFirstTimeEntering = (window as any).ChatRoomJustEntered;
-
-	// Run the native screen load synchronously
+CRABS.hookFunction("ChatRoomSync", 10000, (functionArguments, next) => {
+	// 1. Fire the original game function
 	const result = next(functionArguments);
 
-	// Escape the thread and wait for the DOM to settle
-	setTimeout(() => {
-		try {
-			if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
-				// ALWAYS do this when the screen loads so the drawer never disappears
+	// 2. ChatRoomSync is an async function in the base game, so `result` is a Promise.
+	// Instead of using 'await' and making our hook async, we just attach a .then()
+	if (result && of(result as any).then === 'function') {
+		(result as any).then(() => {
+			// This ONLY runs after the game has 100% finished loading the room and DOM
+			try {
 				Drawer.updateVisibility();
+				SETTINGS.syncGameState();
 
-				// ONLY do this if we just walked into the room from the lobby
-				if (isFirstTimeEntering) {
-					SETTINGS.syncGameState();
-
-					if (Settings.instance.data.showBanner) {
-						drawbanner();
-					}
+				if (typeof ChatRoomData !== "undefined" && ChatRoomData && Settings.instance.data.showBanner) {
+					drawbanner();
 				}
+			} catch (error) {
+				console.error("CRABS: ChatRoomSync execution failed:", error);
 			}
-		} catch (error) {
-			console.error("CRABS: ChatRoomLoad execution failed:", error);
-		}
-	}, 10); // wait 10ms for DOM
+		});
+	}
 
-	return result;
+	return result as never;
 });
 
 /**
