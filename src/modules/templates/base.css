@@ -1,11 +1,16 @@
-.CRABS_wrapper{
+.CRABS_wrapper {
   width: 99.5% !important;
   table-layout: auto;
   color: white;
   overflow: visible;
   white-space: normal;
   border-collapse: collapse;
-  background-color: rgba(36, 31, 49, 0.6) !important; /* Transparent dark purple */
+  background-color: rgba(
+    36,
+    31,
+    49,
+    0.6
+  ) !important; /* Transparent dark purple */
   backdrop-filter: blur(20px); /* High blur effect */
   -webkit-backdrop-filter: blur(20px); /* Safari support */
   background-size: cover;
@@ -64,40 +69,40 @@
 }
 
 .CRABS_header_icons {
-  width: 0.9em; 
+  width: 0.9em;
   height: auto;
   cursor: pointer;
   vertical-align: middle;
 }
 
 .CRABS_logo {
-  width: 2.5em; 
-  height: 2.5em; 
+  width: 2.5em;
+  height: 2.5em;
 }
 
 .CRABS_badge {
-  width: 1.5em; 
+  width: 1.5em;
   height: auto;
   cursor: pointer;
 }
 
 .CRABS_close {
-    width: 0.8em;
-    height: auto;
-    cursor: pointer;
+  width: 0.8em;
+  height: auto;
+  cursor: pointer;
 }
 
 .CRABS_Help_Icon,
 .CRABS_Drawer_Header_Icon,
 .CRABS_Settings_Icon {
-    width: 0.8em;
-    height: auto;
-    cursor: pointer;
-    border: none !important;
+  width: 0.8em;
+  height: auto;
+  cursor: pointer;
+  border: none !important;
 }
 
 .CRABS_icon {
-  width: 1em; 
+  width: 1.5rem;
   height: auto;
 }
 
@@ -114,7 +119,7 @@
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  z-index: 10002; 
+  z-index: 10002;
   transition: opacity 0.2s ease-in-out;
   pointer-events: none;
 }
@@ -124,8 +129,8 @@
    so they don't get cut off by the top of the drawer or roster container.
    Also flip header icons.
 */
-#CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip,
+#CRABS_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip,
+#CRABS_Drawer_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip,
 .CRABS_room-status .CRABS_tooltip,
 .CRABS_header_icons + .CRABS_tooltip,
 .CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip,
@@ -140,8 +145,8 @@
 }
 
 /* Flip the arrow for the top-row and header tooltips as well */
-#CRABS_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
-#CRABS_Drawer_Roster .CRABS_card:nth-child(-n+4) .CRABS_tooltip::after,
+#CRABS_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip::after,
+#CRABS_Drawer_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip::after,
 .CRABS_room-status .CRABS_tooltip::after,
 .CRABS_header_icons + .CRABS_tooltip::after,
 .CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip::after,
@@ -169,7 +174,10 @@
   left: 0;
   transform: translateX(0);
 }
-#CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip::after,
+#CRABS_Roster
+  .CRABS_card:nth-child(odd)
+  .CRABS_card_badge
+  .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after,
 #CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after,
 .CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
@@ -190,7 +198,10 @@
   right: 0;
   transform: translateX(0);
 }
-#CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip::after,
+#CRABS_Roster
+  .CRABS_card:nth-child(even)
+  .CRABS_status-frame
+  .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after,
 #CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after,
 .CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip::after,
