@@ -23,13 +23,6 @@
   * Click the [install] button
   * Reload the Bondage Club tab if you have it open already.
 
-### Bookmark:
-* Copy this URL and add it as a bookmark:
-  ```
-  javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
-  ```
-* Navigate to BondageClub and click the bookmark.
-
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:
 ```javascript
