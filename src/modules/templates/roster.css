@@ -135,7 +135,7 @@
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Clean Sans-Serif stack */
   font-size: 1.3em;
   letter-spacing: 0.3px; /* Extra space so the outline doesn't blur letters together */
-  line-height: 1.2;
+  line-height: 1.3;
   white-space: nowrap;
   /* This helps the browser render the custom stroke more clearly */
   -webkit-font-smoothing: antialiased;
@@ -150,7 +150,7 @@
   font-family: Arial, sans-serif;
   overflow: hidden;
   display: block;
-  line-height: 1.1; /* Adjusted for better alignment */
+  line-height: 1.3; /* Adjusted for better alignment */
   height: 1.2em;
   -webkit-font-smoothing: antialiased; /* hardware acceleration for text rendering */
 }
