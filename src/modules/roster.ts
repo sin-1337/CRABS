@@ -193,7 +193,7 @@ export class Roster extends CRABS_Base {
 		const outlineColor = this.getBrightOutlineColor(labelColor); // Inherited from CRABS_Base
 
 		// Replace the -webkit-text-stroke with a crisp 4-way text-shadow outline
-		const labelShadow = brightness < 80
+		const labelShadow = brightness < 70
 			? `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
