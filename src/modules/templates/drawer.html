@@ -3,7 +3,7 @@
     {{TabIcon}}
   </div>
   <div class="drawer-content CRABS_wrapper">
-    <div class="CRABS_wrapper_header" style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; min-height: 50px;">
+    <div class="CRABS_wrapper_header" style="position: relative; display: flex; align-items: center; padding: 8px 12px; min-height: 50px;">
       <div class="header-left-icons" style="display: flex; gap: 4px; z-index: 2;">
         <div class="CRABS_Drawer_Help_Icon">{{Help}}</div>
         <div class="CRABS_Drawer_Settings_Icon">{{Settings}}</div>
@@ -11,21 +11,19 @@
       <div id="drawer-title" style="position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; font-weight: bold; font-size: 1.4rem; z-index: 1; pointer-events: none;">
         {{TitleBar}}
       </div>
-      <div class="header-right-icons" style="z-index: 2;">
+      <div class="header-right-icons" style="display: flex; align-items: center; gap: 8px; z-index: 2; margin-left: auto;">
+        <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
+          <option value="role">Role</option>
+          <option value="ds">D/s</option>
+          <option value="lovers">Lovers</option>
+          <option value="friends">Friends</option>
+          <option value="whitelist">Whitelist</option>
+          <option value="blacklist">Blacklist</option>
+        </select>
         <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
       </div>
     </div>
     <div class="CRABS_wrapper_content" style="display: flex; flex-direction: column;">
-      <div class="CRABS_roster_controls">
-        <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
-          <option value="role">Sort: Room Role</option>
-          <option value="ds">Sort: D/s First</option>
-          <option value="lovers">Sort: Lovers First</option>
-          <option value="friends">Sort: Friends First</option>
-          <option value="whitelist">Sort: Whitelist First</option>
-          <option value="blacklist">Sort: Blacklist First</option>
-        </select>
-      </div>
       <div id="CRABS_Drawer_Roster">
       </div>
     </div>
