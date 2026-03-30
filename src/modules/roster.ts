@@ -31,8 +31,6 @@ export class Roster extends CRABS_Base {
 
 	/** Tracks the user's selected sort order in the drawer */
 	private currentSortMode: string = "role";
-	/** Remembers the last command used so we can silently re-render on sort change */
-	private lastCommandArgs: string = "";
 
 	/** The member number of the player currently hovered on the map. */
 	private hoveredMapPlayer: number | null = null;
@@ -195,7 +193,7 @@ export class Roster extends CRABS_Base {
 		const outlineColor = this.getBrightOutlineColor(labelColor); // Inherited from CRABS_Base
 
 		// Replace the -webkit-text-stroke with a crisp 4-way text-shadow outline
-		const labelShadow = brightness < 70
+		const labelShadow = brightness < 80
 			? `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
@@ -526,8 +524,6 @@ export class Roster extends CRABS_Base {
 			return "";
 		}
 
-		this.lastCommandArgs = commandArguments; // Save for live re-rendering
-
 		// Immersive Mode Check
 		let rosterStyle = "";
 		if (Settings.instance.data.immersiveBlind) {
@@ -554,8 +550,10 @@ export class Roster extends CRABS_Base {
 		let admin_count = 0;
 		let rosterCards: { html: string, score: number, memberNumber: number, isMe: boolean, isAdmin: boolean, isVIP: boolean, isStandard: boolean }[] = [];
 
-		// If we are NOT in the drawer (wrapper = false), force 'role' sort to keep chat window isolated.
-		const effectiveSortMode = wrapper ? this.currentSortMode : "role";
+		// wrapper = true means it's floating in the chat log (needs the wrapper UI).
+		// wrapper = false means it's inside the Drawer (drawer provides its own UI).
+		// If true (in chat log), force "role". If false (in drawer), respect user choice.
+		const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
 		// 1. Build the Data Array
 		for (let characterIndex in ChatRoomData.Character) {
@@ -666,15 +664,17 @@ export class Roster extends CRABS_Base {
 		// Handle Dropdown changes for live-sorting (Drawer Only)
 		const dropdown = (root || document).querySelector("#CRABS_sort_dropdown") as HTMLSelectElement;
 		if (dropdown) {
-			dropdown.value = this.currentSortMode; // Ensure the UI matches the current state
+			// Re-select the option if the UI was just redrawn
+			dropdown.value = this.currentSortMode;
 
 			dropdown.onchange = (e) => {
 				this.currentSortMode = (e.target as HTMLSelectElement).value;
-				const updatedHtml = this.buildroster(this.lastCommandArgs, true); // Generate new HTML
 
 				// Directly target the drawer container to prevent spamming the chat log
 				const drawerRosterContainer = document.getElementById("CRABS_Drawer_Roster");
 				if (drawerRosterContainer) {
+					// Force wrapper = false because we are updating inside the Drawer!
+					const updatedHtml = this.buildroster("all", false);
 					drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, { USE_PROFILES: { html: true } });
 					// Re-attach all listeners to the fresh DOM elements inside the drawer
 					this.buildui(undefined, undefined, drawerRosterContainer);
