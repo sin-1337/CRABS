@@ -329,4 +329,46 @@ export abstract class CRABS_Base {
 		}
 	}
 
+	/**
+	 * Generates a brightly saturated version of a color for the text outline.
+	 * * @param {string} color - The base color to brighten.
+	 * @returns {string} RGBA string of the brightened color.
+	 */
+	protected getBrightOutlineColor(color: string): string {
+		if (!this.canvasContext) return "rgba(255,255,255,0.8)"; // fallback
+
+		try {
+			this.colorCanvas.width = 1;
+			this.colorCanvas.height = 1;
+			this.canvasContext.clearRect(0, 0, 1, 1);
+			this.canvasContext.fillStyle = color;
+			this.canvasContext.fillRect(0, 0, 1, 1);
+
+			const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
+			let r = data[0], g = data[1], b = data[2];
+
+			// If the color is basically pitch black, return a visible white/gray outline
+			if (r < 30 && g < 30 && b < 30) {
+				return "rgba(200, 200, 200, 0.9)";
+			}
+
+			// Find the strongest color channel and scale it mathematically
+			const max = Math.max(r, g, b);
+			const multiplier = 255 / max;
+
+			const brightR = Math.min(255, r * multiplier);
+			const brightG = Math.min(255, g * multiplier);
+			const brightB = Math.min(255, b * multiplier);
+
+			// Mix the bright neon color 50/50 with pure white to create a soft, high-contrast pastel halo
+			r = Math.round((brightR + 255) / 2);
+			g = Math.round((brightG + 255) / 2);
+			b = Math.round((brightB + 255) / 2);
+
+			return `rgba(${r}, ${g}, ${b}, 0.9)`;
+		} catch (error) {
+			return "rgba(255,255,255,0.8)";
+		}
+	}
+
 }
