@@ -347,18 +347,23 @@ export abstract class CRABS_Base {
 			const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
 			let r = data[0], g = data[1], b = data[2];
 
-			// If the color is basically pitch black, return a visible gray outline
+			// If the color is basically pitch black, return a visible white/gray outline
 			if (r < 30 && g < 30 && b < 30) {
-				return "rgba(150, 150, 150, 0.9)";
+				return "rgba(200, 200, 200, 0.9)";
 			}
 
-			// Find the strongest color channel and scale it mathematically to 255
+			// Find the strongest color channel and scale it mathematically
 			const max = Math.max(r, g, b);
 			const multiplier = 255 / max;
 
-			r = Math.min(255, Math.round(r * multiplier));
-			g = Math.min(255, Math.round(g * multiplier));
-			b = Math.min(255, Math.round(b * multiplier));
+			const brightR = Math.min(255, r * multiplier);
+			const brightG = Math.min(255, g * multiplier);
+			const brightB = Math.min(255, b * multiplier);
+
+			// Mix the bright neon color 50/50 with pure white to create a soft, high-contrast pastel halo
+			r = Math.round((brightR + 255) / 2);
+			g = Math.round((brightG + 255) / 2);
+			b = Math.round((brightB + 255) / 2);
 
 			return `rgba(${r}, ${g}, ${b}, 0.9)`;
 		} catch (error) {
