@@ -329,4 +329,41 @@ export abstract class CRABS_Base {
 		}
 	}
 
+	/**
+	 * Generates a brightly saturated version of a color for the text outline.
+	 * * @param {string} color - The base color to brighten.
+	 * @returns {string} RGBA string of the brightened color.
+	 */
+	protected getBrightOutlineColor(color: string): string {
+		if (!this.canvasContext) return "rgba(255,255,255,0.8)"; // fallback
+
+		try {
+			this.colorCanvas.width = 1;
+			this.colorCanvas.height = 1;
+			this.canvasContext.clearRect(0, 0, 1, 1);
+			this.canvasContext.fillStyle = color;
+			this.canvasContext.fillRect(0, 0, 1, 1);
+
+			const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
+			let r = data[0], g = data[1], b = data[2];
+
+			// If the color is basically pitch black, return a visible gray outline
+			if (r < 30 && g < 30 && b < 30) {
+				return "rgba(150, 150, 150, 0.9)";
+			}
+
+			// Find the strongest color channel and scale it mathematically to 255
+			const max = Math.max(r, g, b);
+			const multiplier = 255 / max;
+
+			r = Math.min(255, Math.round(r * multiplier));
+			g = Math.min(255, Math.round(g * multiplier));
+			b = Math.min(255, Math.round(b * multiplier));
+
+			return `rgba(${r}, ${g}, ${b}, 0.9)`;
+		} catch (error) {
+			return "rgba(255,255,255,0.8)";
+		}
+	}
+
 }

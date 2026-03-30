@@ -194,10 +194,11 @@ export class Roster extends CRABS_Base {
 	): string {
 		const labelColor = player.LabelColor || "#FFFFFF";
 		const brightness = this.getColorBrightness(labelColor);
+		const outlineColor = this.getBrightOutlineColor(labelColor);
 
 		// Replace the -webkit-text-stroke with a crisp 4-way text-shadow outline
 		const labelShadow = brightness < 70
-			? "text-shadow: -1px -1px 0 rgba(255,255,255,0.8), 1px -1px 0 rgba(255,255,255,0.8), -1px 1px 0 rgba(255,255,255,0.8), 1px 1px 0 rgba(255,255,255,0.8) !important; -webkit-text-stroke: 0px;"
+			? `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
 		let templatevars: Record<string, string> = {
