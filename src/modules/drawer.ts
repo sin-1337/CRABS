@@ -307,14 +307,17 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Completely rebuilds the inner HTML of the drawer based on the current context 
-	 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
-	 * * @returns {void}
-	 */
+		 * Completely rebuilds the inner HTML of the drawer based on the current context 
+		 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
+		 * @returns {void}
+		 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
 		const helpIconContainer = this.instance?.querySelector(".CRABS_Drawer_Help_Icon");
+
+		// Grab the whole container so we hide the text AND the dropdown
+		const sortContainer = this.instance?.querySelector("#CRABS_sort_container") as HTMLElement;
 
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
@@ -330,6 +333,9 @@ export class Drawer extends CRABS_Base {
 					helpIconContainer.setAttribute("data-icon", "roster");
 				}
 
+				// Hide the entire sort container
+				if (sortContainer) sortContainer.style.display = "none";
+
 				content.innerHTML = this.helpModule.showHelp(false);
 			} else {
 				if (title && title.textContent !== "CRABS: Roster") title.textContent = "CRABS: Roster";
@@ -341,6 +347,9 @@ export class Drawer extends CRABS_Base {
 					});
 					helpIconContainer.setAttribute("data-icon", "help");
 				}
+
+				// Show the entire sort container (use flex to keep them aligned)
+				if (sortContainer) sortContainer.style.display = "flex";
 
 				content.innerHTML = this.rosterModule.buildroster("all", false);
 				this.rosterModule.initScrollingOverflow();

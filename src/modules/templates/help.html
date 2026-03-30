@@ -1,17 +1,43 @@
 <div class="CRABS_help_container">
-  <div style="text-align: center; margin-bottom: 20px;">
+  <div class="CRABS_help_title_container">
     {{Logo}}
-    <div style="font-size: 1.4em; font-weight: bold;">CRABS {{Version}} Documentation</div>
+    <div class="CRABS_help_title">CRABS {{Version}} Documentation</div>
   </div>
-  <!-- Commands Section -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">Key Features</div>
+    <div class="CRABS_help_feature">
+      <b>Interactive Side Drawer</b>
+      <div class="CRABS_help_description">
+        A sleek, stowable interface providing quick access to the Roster and Help. It auto-hides when focusing on characters or typing chat (configurable in settings).
+      </div>
+    </div>
+    <div class="CRABS_help_feature">
+      <b>Live Roster Sorting</b>
+      <div class="CRABS_help_description">
+        Use the dropdown in the top right of the drawer to instantly sort players by Room Role, D/s Family Tree, Lovers, Friends, or Whitelists.
+      </div>
+    </div>
+    <div class="CRABS_help_feature">
+      <b>Map Compass</b>
+      <div class="CRABS_help_description">
+        Hover over a player's Name or ID in the roster to display a directional arrow on the map pointing toward their location.
+      </div>
+    </div>
+    <div class="CRABS_help_feature">
+      <b>Immersive Blindness & BCX Integration</b>
+      <div class="CRABS_help_description">
+        Optional blurring of the roster based on your character's blindness level. Fully respects BCX "Full Blind" rules when enabled.
+      </div>
+    </div>
+  </div>
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">Core Commands</div>
-    <div>
+    <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/roster [argument]</span>
       <div class="CRABS_help_description">
-        Opens the enhanced roster. Shows detailed information about everyone in the room.
+        Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.
       </div>
-      <div style="margin-left: 15px; margin-top: 5px; font-size: 0.85em;">
+      <div class="CRABS_help_arguments">
         <b>Arguments:</b><br>
         • <span class="CRABS_help_command">count</span> - Only shows current room population counters.<br>
         • <span class="CRABS_help_command">admins</span> - Only lists room administrators.<br>
@@ -20,42 +46,27 @@
         • <span class="CRABS_help_command">help</span> - Shows this documentation.
       </div>
     </div>
-    <div style="margin-top: 15px;">
-      <span class="CRABS_help_command">/whisper+ [number] [message]</span> or <span class="CRABS_help_command">/w+</span>
+    <div class="CRABS_help_feature">
+      <span class="CRABS_help_command">/whisper+ [number] [msg]</span> or <span class="CRABS_help_command">/w+</span>
       <div class="CRABS_help_description">
         Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.
       </div>
     </div>
-    <div style="margin-top: 15px;">
+    <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/dropkeys [color/all]</span>
       <div class="CRABS_help_description">
         Instantly drop specific keys (<span style="color:#cd7f32">bronze</span>, <span style="color:#c0c0c0">silver</span>, <span style="color:#ffd700">gold</span>) or all keys at once.
       </div>
     </div>
   </div>
-  <!-- Features Section -->
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Key Features</div>
-    <div>
-      <b>Interactive Side Drawer</b>
-      <div class="CRABS_help_description">
-        A sleek, stowable interface providing quick access to the Roster and Help. It auto-hides when focusing on characters or typing chat (configurable in settings).
-      </div>
-    </div>
-    <div style="margin-top: 10px;">
-      <b>Map Compass</b>
-      <div class="CRABS_help_description">
-        When hovering over a player's ID in the roster, a directional arrow appears on the map pointing toward their location.
-      </div>
-    </div>
-    <div style="margin-top: 10px;">
-      <b>Immersive Blindness & BCX Integration</b>
-      <div class="CRABS_help_description">
-        Optional blurring of the roster based on your character's blindness level. Fully respects BCX "Full Blind" rules when enabled.
-      </div>
-    </div>
+    <div class="CRABS_help_header">Interactions</div>
+    <ul class="CRABS_help_list">
+      <li><b>Click Badge or Name:</b> Opens the character's focus screen / Whisper+.</li>
+      <li><b>Click Number (ID):</b> Copies the player's member number to your clipboard.</li>
+      <li><b>Hover Name or ID:</b> Activates the Map Compass to track their position.</li>
+    </ul>
   </div>
-  <!-- Icon Legends -->
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">Relational Icons</div>
     <div class="CRABS_help_grid">
@@ -72,25 +83,15 @@
       <div class="CRABS_help_item">{{Icon_Ghost}} Ghosted</div>
     </div>
   </div>
-  <div class="CRABS_help_section">
+  <div class="CRABS_help_section" style="border-bottom: none;">
     <div class="CRABS_help_header">Status & Badges</div>
     <div class="CRABS_help_grid">
       <div class="CRABS_help_item">{{Badge_Admin}} Room Admin</div>
       <div class="CRABS_help_item">{{Badge_VIP}} Room Whitelist</div>
       <div class="CRABS_help_item">{{Badge_Player}} Room Guest</div>
     </div>
-    <div class="CRABS_help_description" style="margin-top: 10px;">
-      <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and show levels when hovered.
+    <div class="CRABS_help_description" style="margin-top: 1.2rem;">
+      <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered.
     </div>
-  </div>
-  <!-- Interactions -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Interactions</div>
-    <ul style="margin-top: 5px; padding-left: 20px;">
-      <li><b>Click Badge:</b> Opens the character's focus/interaction screen.</li>
-      <li><b>Click Name/ID:</b> Prepares a Whisper+ command for that player.</li>
-      <li><b>Right-Click Name/ID:</b> Copies the player's member number to your clipboard.</li>
-      <li><b>Hover ID:</b> Activates the Map Compass to track their position.</li>
-    </ul>
   </div>
 </div>

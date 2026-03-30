@@ -189,11 +189,25 @@ export class Roster extends CRABS_Base {
 		playerIcons: string
 	): string {
 		const labelColor = player.LabelColor || "#FFFFFF";
-		const brightness = this.getColorBrightness(labelColor);
-		const outlineColor = this.getBrightOutlineColor(labelColor); // Inherited from CRABS_Base
 
-		// Replace the -webkit-text-stroke with a crisp 4-way text-shadow outline
-		const labelShadow = brightness < 70
+		// Extract exact RGB values to check for muddy/gray colors
+		let r = 255, g = 255, b = 255;
+		if (this.canvasContext) {
+			this.canvasContext.clearRect(0, 0, 1, 1);
+			this.canvasContext.fillStyle = labelColor;
+			this.canvasContext.fillRect(0, 0, 1, 1);
+			const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
+			r = data[0]; g = data[1]; b = data[2];
+		}
+
+		const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+		const maxChannel = Math.max(r, g, b);
+
+		// Outline if truly dark (< 70) OR if it's a muddy/muted mid-tone (< 140 max channel)
+		const needsOutline = brightness < 70 || maxChannel < 140;
+		const outlineColor = this.getBrightOutlineColor(labelColor);
+
+		const labelShadow = needsOutline
 			? `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
@@ -555,7 +569,7 @@ export class Roster extends CRABS_Base {
 		// If true (in chat log), force "role". If false (in drawer), respect user choice.
 		const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-		// 1. Build the Data Array
+		// Build the Data Array
 		for (let characterIndex in ChatRoomData.Character) {
 			const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
 			const character = ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber);
@@ -582,10 +596,10 @@ export class Roster extends CRABS_Base {
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
 		}
 
-		// 2. Mathematically Sort the Cards (If scores tie, fallback to MemberNumber to prevent jumping)
+		// Mathematically Sort the Cards (If scores tie, fallback to MemberNumber to prevent jumping)
 		rosterCards.sort((a, b) => a.score - b.score || a.memberNumber - b.memberNumber);
 
-		// 3. Apply Command Filters & Output
+		// Apply Command Filters & Output
 		let output_rows = "";
 		for (const card of rosterCards) {
 			if (!showme && card.isMe) continue;
@@ -646,6 +660,9 @@ export class Roster extends CRABS_Base {
 
 		// Left Click Badge -> Whisper Focus
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
+
+		// Left Click Name -> Whisper Focus
+		this.attachEvent("CRABS_player-name", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
 
 		// Left Click Number -> Copy to Clipboard
 		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
