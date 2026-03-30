@@ -15,7 +15,17 @@
         <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
       </div>
     </div>
-    <div class="CRABS_wrapper_content">
+    <div class="CRABS_wrapper_content" style="display: flex; flex-direction: column;">
+      <div class="CRABS_roster_controls">
+        <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
+          <option value="role">Sort: Room Role</option>
+          <option value="ds">Sort: D/s First</option>
+          <option value="lovers">Sort: Lovers First</option>
+          <option value="friends">Sort: Friends First</option>
+          <option value="whitelist">Sort: Whitelist First</option>
+          <option value="blacklist">Sort: Blacklist First</option>
+        </select>
+      </div>
       <div id="CRABS_Drawer_Roster">
       </div>
     </div>
