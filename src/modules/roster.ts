@@ -647,9 +647,6 @@ export class Roster extends CRABS_Base {
 		// Left Click Badge -> Whisper Focus
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
 
-		// Left Click Name -> Whisper Focus
-		this.attachEvent("CRABS_player-name", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
-
 		// Left Click Number -> Copy to Clipboard
 		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
 
