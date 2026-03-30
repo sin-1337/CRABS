@@ -232,3 +232,33 @@
   height: auto !important;
   margin-bottom: 8px;
 }
+
+/* --- ROSTER CONTROLS (DROPDOWN) --- */
+.CRABS_roster_controls {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  padding-right: 4px;
+}
+
+.CRABS_dropdown {
+  background: rgba(34, 34, 34, 0.9);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.CRABS_dropdown:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.CRABS_dropdown option {
+  background: #222;
+  color: white;
+}
