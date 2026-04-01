@@ -93,7 +93,12 @@ export class Settings extends CRABS_Base {
 
 		// Category: Maps
 		this.addCheckbox("Show Map Compass", "showMapCompass", "Directional arrow on map.", { category: "Maps", yPos: 725 });
-		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800 });
+
+		const isSuperZoomBlocked = () => {
+			const val = (window as any).ChatRoomMapViewPerceptionRangeMax;
+			return val !== undefined && val !== 7 && val !== 50;
+		};
+		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
 	}
 
 	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: any) {
@@ -146,7 +151,13 @@ export class Settings extends CRABS_Base {
 
 			if (MouseIn(txX, el.yPos - 18, 450, 36) || MouseIn(cbX, el.yPos - 32, 64, 64)) {
 				canvas.textAlign = "center";
-				DrawText(el.hint, 1100, 920, "Black", "Gray");
+				let displayHint = el.hint;
+
+				if (el.setting === "mapSuperZoom" && manualGray) {
+					displayHint = "Disabled: Another mod or script is controlling this setting.";
+				}
+
+				DrawText(displayHint, 1100, 920, "Black", "Gray");
 			}
 		}
 		canvas.textBaseline = "alphabetic";
@@ -210,6 +221,9 @@ export class Settings extends CRABS_Base {
 	}
 
 	public syncGameState(): void {
+		const val = (window as any).ChatRoomMapViewPerceptionRangeMax;
+		if (val !== undefined && val !== 7 && val !== 50) return; // Yields to other mod
+
 		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}
 }

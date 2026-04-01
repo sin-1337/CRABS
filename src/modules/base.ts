@@ -58,19 +58,19 @@ export abstract class CRABS_Base {
 	 * @returns {boolean} True if the device is a phone or the window is very small.
 	 */
 	protected isMobileView(): boolean {
-		// 1. Check physical window width (Catch shrinking desktop windows & most phones)
+		// Check physical window width (Catch shrinking desktop windows & most phones)
 		if (window.innerWidth <= 768) {
 			return true;
 		}
 
-		// 2. Check the modern User-Agent Data API (Catch phones reporting accurately)
+		// Check the modern User-Agent Data API (Catch phones reporting accurately)
 		const nav = navigator as any;
 		if (nav.userAgentData && nav.userAgentData.mobile) {
 			return true;
 		}
 
-		// 3. Fallback to classic User-Agent string parsing (Catch Safari/iOS and older browsers)
-		const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+		// Fallback to classic User-Agent string parsing (Catch Safari/iOS and older browsers)
+		const ua = navigator.userAgent || (window as any).opera;
 		return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua.toLowerCase());
 	}
 
