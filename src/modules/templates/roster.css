@@ -228,6 +228,23 @@
   filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
 
+/* --- COMPASS TOGGLE --- */
+
+/* Parent container */
+.CRABS_track-compass {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Force the injected image to a strict size */
+.CRABS_track-compass img,
+.CRABS_track-compass svg {
+  height: 1.5rem;
+  width: 1.5rem;
+  object-fit: contain;
+}
+
 /* Dim the compass when it is NOT active */
 .CRABS_track-compass:not(.CRABS_compass-active) {
   filter: brightness(0.4) grayscale(80%);
