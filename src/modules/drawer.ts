@@ -9,7 +9,7 @@
  * - Event handling for navigation and interaction
  */
 
-import { CRABS_Base } from "./base";
+import { CRABS_Base, PerformanceLevel } from "./base";
 import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Roster } from "./roster";
@@ -43,6 +43,7 @@ export class Drawer extends CRABS_Base {
 	private resizeObserver: ResizeObserver | null = null;
 	/** Tracks if the drawer is currently displaying the Help view instead of the Roster. */
 	private showingHelp: boolean = false;
+	private updateTick: number = 0;
 
 	// --- State Tracking for Optimized UI Refreshes ---
 	private lastRoster: string = "";
@@ -97,12 +98,15 @@ export class Drawer extends CRABS_Base {
 		const tab = this.instance.querySelector("#drawer-tab");
 		if (!tab) return;
 
-		const originalIcon = Assets.printimage({ key: "animated_logo" });
 		const raveIcon = Assets.printimage({ key: "rave" });
-
 		tab.innerHTML = raveIcon;
+		tab.setAttribute("data-mode", "rave"); // Mark as rave to pause optimizer
+
 		setTimeout(() => {
-			if (tab) tab.innerHTML = originalIcon;
+			if (tab) {
+				tab.removeAttribute("data-mode"); // Clear mark so optimizer takes over
+				this.optimizeVisuals(this.currentPerformanceLevel !== PerformanceLevel.NORMAL);
+			}
 		}, 10000);
 	}
 
@@ -178,18 +182,63 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
+	 * Swaps visual assets and CSS variables based on performance needs.
+	 */
+	private optimizeVisuals(lowPerf: boolean): void {
+		if (!this.instance) return;
+
+		// Toggle Static vs Animated Logo
+		const tab = this.instance.querySelector("#drawer-tab");
+		if (tab) {
+			const isStatic = tab.getAttribute("data-mode") === "static";
+			if (lowPerf && !isStatic) {
+				tab.innerHTML = Assets.printimage({ key: "logo_static" }); // Ensure this exists in Assets
+				tab.setAttribute("data-mode", "static");
+			} else if (!lowPerf && isStatic) {
+				tab.innerHTML = Assets.printimage({ key: "animated_logo" });
+				tab.setAttribute("data-mode", "animated");
+			}
+		}
+
+		// Toggle Blur Radius via CSS Variable
+		const blurVal = lowPerf ? "3px" : "10px";
+		document.documentElement.style.setProperty("--crabs-blur", blurVal);
+	}
+
+	/**
 	 * Hooks into the game's render loop to process updates.
 	 * Only triggers a refresh if the drawer is open, not on the help screen, and state has changed.
 	 * * @private
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		// Single optimized hook driven by state changes
 		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
-			if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
-				this.refresh();
+			// Update the performance state (defined in CRABS_Base)
+			this.updatePerformanceState();
+
+			// Determine how many frames to skip based on performance tier
+			let threshold = 5; // Normal: ~12 polls/sec
+			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
+				threshold = 30; // Low: ~2 polls/sec
+				this.optimizeVisuals(true); // Helper to swap logo/blur
+			} else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
+				threshold = 120; // Critical: ~once every 2 secs
+				this.optimizeVisuals(true);
+			} else {
+				this.optimizeVisuals(false);
+			}
+
+			// Process the poll
+			this.updateTick++;
+			if (this.updateTick >= threshold) {
+				this.updateTick = 0;
+
+				// Only refresh if Drawer is open, not showing help, AND state actually changed
+				if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
+					this.refresh();
+				}
 			}
 
 			return result;

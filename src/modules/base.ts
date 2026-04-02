@@ -18,6 +18,12 @@ import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 
+export enum PerformanceLevel {
+	NORMAL = 0,   // > 30 FPS
+	LOW = 1,      // 15 - 30 FPS
+	CRITICAL = 2, // < 15 FPS
+}
+
 /**
  * Abstract base class for all CRABS modules, providing shared utilities and core functionality.
  */
@@ -27,6 +33,9 @@ export abstract class CRABS_Base {
 
 	/** Static reference to the subscreen definition for the game's preference menu. */
 	protected static subscreenDef: any = null;
+
+	protected currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
+
 
 	/**
 	 * Creates an instance of a CRABS module.
@@ -390,6 +399,56 @@ export abstract class CRABS_Base {
 			return `rgba(${r}, ${g}, ${b}, 0.9)`;
 		} catch (error) {
 			return "rgba(255,255,255,0.8)";
+		}
+	}
+
+	private applyTieredOptimizations(): void {
+		const root = document.documentElement;
+		const tabLogo = document.getElementById("CRABS_Drawer_Logo");
+
+		switch (this.currentPerformanceLevel) {
+			case PerformanceLevel.NORMAL:
+				// Full Quality
+				root.style.setProperty("--crabs-blur", "10px");
+				if (tabLogo) tabLogo.setAttribute("src", "logo_animated.gif");
+				console.log("CRABS Perf: Normal Mode");
+				break;
+
+			case PerformanceLevel.LOW:
+				// Tier 1: Reduce Blur Radius (< 35 FPS)
+				root.style.setProperty("--crabs-blur", "3px");
+				// Keep the animated icon for now, as it's less critical than blur
+				if (tabLogo) tabLogo.setAttribute("src", "logo_animated.gif");
+				console.log("CRABS Perf: Low Mode (Reduced Blur)");
+				break;
+
+			case PerformanceLevel.CRITICAL:
+				// Tier 2: Heavy Savings (< 15 FPS)
+				root.style.setProperty("--crabs-blur", "1px");
+				if (tabLogo) tabLogo.setAttribute("src", "logo.png");
+				console.log("CRABS Perf: Critical Mode (Static Icons & Throttling)");
+				break;
+		}
+	}
+
+	/**
+	 * Checks game performance and toggles a low-quality mode if FPS stays low.
+	 * Call this inside your main draw/run loop.
+	 */
+	protected updatePerformanceState(): void {
+		const fps = Math.round(10000 / (window as any).TimerRunInterval / 10);
+		let targetLevel = PerformanceLevel.NORMAL;
+
+		if (fps < 15) {
+			targetLevel = PerformanceLevel.CRITICAL;
+		} else if (fps < 30) {
+			targetLevel = PerformanceLevel.LOW;
+		}
+
+		// Only update if the level actually changed
+		if (targetLevel !== this.currentPerformanceLevel) {
+			this.currentPerformanceLevel = targetLevel;
+			this.applyTieredOptimizations();
 		}
 	}
 
