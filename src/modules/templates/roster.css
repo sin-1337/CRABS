@@ -249,15 +249,15 @@
   object-fit: contain;
 }
 
-/* Dim the compass when it is NOT active */
-.CRABS_track-compass:not(.CRABS_compass-active) {
-  filter: brightness(0.4) grayscale(80%);
-  opacity: 0.6;
+/* When hovering an INACTIVE compass, bring the brightness back up */
+.CRABS_track-compass:not(.CRABS_compass-active):hover {
+  filter: brightness(1) grayscale(30%); /* Reduced grayscale, full brightness */
+  opacity: 1;
+  cursor: pointer;
 }
 
-/* Brighten it and maybe add a little glow when it IS active */
-.CRABS_track-compass.CRABS_compass-active {
-  filter: brightness(1.2);
-  opacity: 1;
-  drop-shadow: 0 0 2px var(--player-color, white);
+/* When hovering an ACTIVE compass, give it a little extra pop */
+.CRABS_track-compass.CRABS_compass-active:hover {
+  filter: brightness(1.5);
+  cursor: pointer;
 }
