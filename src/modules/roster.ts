@@ -192,12 +192,14 @@ export class Roster extends CRABS_Base {
 	 * @param {PlayerCharacter} character - The player character object.
 	 * @param {string} badge - HTML string for the player's room badge (Admin/VIP/Guest).
 	 * @param {string} playerIcons - HTML string for the player's relational icons (Owner/Friend/etc).
+	 * @param {boolean} isDrawer - true if we are in a drawer, false if in chat
 	 * @returns {string} The rendered HTML card.
 	 */
 	private buildCard(
 		character: Character,
 		badge: string,
-		playerIcons: string
+		playerIcons: string,
+		isDrawer: boolean = false,
 	): string {
 		const labelColor = character.LabelColor || "#FFFFFF";
 
@@ -223,7 +225,7 @@ export class Roster extends CRABS_Base {
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
 		let compassBlock = "";
-		if (!character.IsPlayer() && Settings.instance.data.showMapCompass && ChatRoomMapViewIsActive()) {
+		if (!character.IsPlayer() && Settings.instance.data.showMapCompass && ChatRoomMapViewIsActive() && isDrawer) {
 			const trackedClass = this.trackedMapPlayer === character.MemberNumber ? "CRABS_compass-active" : "";
 			const compassIcon = Assets.printimage({ key: "compass", css_class_override: "CRABS_icon" });
 
@@ -657,7 +659,7 @@ export class Roster extends CRABS_Base {
 			let playerIcons = this.setIcons(character);
 			if (isMe) playerIcons = Assets.printimage({ key: "you" }) + " " + playerIcons;
 
-			const html = this.buildCard(character, badge, playerIcons);
+			const html = this.buildCard(character, badge, playerIcons, !wrapper); // if we are not a wrapper, we are the drawer
 			const score = this.calculateSortScore(character, effectiveSortMode);
 
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
