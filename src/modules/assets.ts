@@ -175,6 +175,12 @@ export abstract class Assets {
 				alt: "thought bubble",
 				class: "CRABS_icon",
 			},
+			compass: {
+				file: "compass.svg",
+				alt: "Compass",
+				toolTip: "Compass",
+				class: "CRABS_icon",
+			},
 
 			// globe icon for all BC players
 			connected: {
