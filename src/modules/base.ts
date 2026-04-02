@@ -160,18 +160,18 @@ export abstract class CRABS_Base {
 	public async openSettings(): Promise<void> {
 		const screen = window as any;
 
-		// 1. Force the game into the Preferences screen state
+		// Force the game into the Preferences screen state
 		if (screen.CurrentModule !== "Character" || screen.CurrentScreen !== "Preference") {
 			screen.InformationSheetLoadCharacter(screen.Player);
 			await screen.CommonSetScreen("Character", "Preference");
 		}
 
-		// 2. Unload whatever subscreen is currently active
+		// Unload whatever subscreen is currently active
 		if (typeof screen.PreferenceSubscreenUnload === "function") {
 			screen.PreferenceSubscreenUnload();
 		}
 
-		// 3. Inject our stored subscreen using the STATIC reference
+		// Inject our stored subscreen using the STATIC reference
 		if (CRABS_Base.subscreenDef) {
 			screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
 			screen.PreferencePageCurrent = 1;
