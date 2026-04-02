@@ -34,10 +34,20 @@ export class Roster extends CRABS_Base {
 
 	/** The member number of the player currently hovered on the map. */
 	private hoveredMapPlayer: number | null = null;
+	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
+	private trackedMapPlayer: number | null = null;
+
 	/** Handler for when a player's entry is hovered in the roster UI. */
-	private onPlayerHover = (playerId: string) => { this.hoveredMapPlayer = parseInt(playerId, 10); };
+	private onPlayerHover = (playerId: string) => {
+		// Mutual Exclusivity: If a player is locked, ignore all hovers.
+		if (this.trackedMapPlayer !== null) return;
+
+		this.hoveredMapPlayer = parseInt(playerId, 10);
+	};
 	/** Handler for when a player's entry is no longer hovered. */
 	private onPlayerLeave = () => { this.hoveredMapPlayer = null; };
+
+
 
 	/** * Creates an instance of the Roster module and initializes map hooks.
 	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
@@ -220,6 +230,9 @@ export class Roster extends CRABS_Base {
 			PlayerName: CharacterNickname(player).normalize("NFKC"),
 			PlayerIcons: playerIcons,
 			StatusIcons: `${this.setStatusIcons(player)}`,
+
+			CompassIcon: Assets.printimage({ key: "compass" }), // Adjust key to match your compass asset
+			TrackedClass: this.trackedMapPlayer === player.MemberNumber ? "CRABS_compass-active" : "",
 		};
 
 		return this.template(rostercardstemplate, templatevars, false);
@@ -380,12 +393,49 @@ export class Roster extends CRABS_Base {
 		return false;
 	}
 
+	/** 
+	 * Handler for tapping/clicking the compass icon. 
+	 *
+	 * @param {string} playerId - the id of the player to be tracked.
+	 */
+	private onPlayerToggleTrack = (playerId: string) => {
+		const id = parseInt(playerId, 10);
+
+		// Toggle logic: If clicking the already tracked player, untrack. Otherwise, track new.
+		this.trackedMapPlayer = (this.trackedMapPlayer === id) ? null : id;
+
+		// Fast UI Update: Remove active class from ALL compasses
+		document.querySelectorAll(".CRABS_track-compass").forEach(el => {
+			el.classList.remove("CRABS_compass-active");
+		});
+
+		// Add active class to the newly tracked player's compass (if we didn't just clear it)
+		if (this.trackedMapPlayer !== null) {
+			document.querySelectorAll(`.CRABS_track-compass[data-player-number="${id}"]`).forEach(el => {
+				el.classList.add("CRABS_compass-active");
+			});
+		}
+	};
+
+	/** 
+	 * Clears the tracked player and resets compass UI. Call this when the drawer closes. 
+	 */
+	public clearTracking(): void {
+		this.trackedMapPlayer = null;
+
+		document.querySelectorAll(".CRABS_track-compass").forEach(el => {
+			el.classList.remove("CRABS_compass-active");
+		});
+	}
+
 	/**
 	 * Draws a directional arrow pointing toward the hovered player on the map.
 	 * @returns {void}
 	 */
 	private drawCompass(): void {
-		if (!this.hoveredMapPlayer || !Settings.instance.data.showMapCompass) return;
+		const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
+
+		if (!targetId || !Settings.instance.data.showMapCompass) return;
 
 		const globalWindow = window as any;
 		if (typeof globalWindow.ChatRoomMapViewIsActive !== "function" || !globalWindow.ChatRoomMapViewIsActive()) return;
@@ -671,6 +721,9 @@ export class Roster extends CRABS_Base {
 		// Hover Number -> Show Compass
 		this.attachEvent("CRABS_player-id", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
 		this.attachEvent("CRABS_player-id", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
+
+		// Click Compass -> Toggle Sticky Compass Tracking
+		this.attachEvent("CRABS_track-compass", this.onPlayerToggleTrack, "playerNumber", undefined, "click", "class", root);
 
 		// Handle Dropdown changes for live-sorting (Drawer Only)
 		const dropdown = (root || document).querySelector("#CRABS_sort_dropdown") as HTMLSelectElement;

@@ -227,3 +227,16 @@
   display: inline-block;
   filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
+
+/* Dim the compass when it is NOT active */
+.CRABS_track-compass:not(.CRABS_compass-active) {
+  filter: brightness(0.4) grayscale(80%);
+  opacity: 0.6;
+}
+
+/* Brighten it and maybe add a little glow when it IS active */
+.CRABS_track-compass.CRABS_compass-active {
+  filter: brightness(1.2);
+  opacity: 1;
+  drop-shadow: 0 0 2px var(--player-color, white);
+}

@@ -438,5 +438,10 @@ export class Drawer extends CRABS_Base {
 		if (!this.instance) return;
 		this.isOpen = false;
 		this.instance.classList.replace("drawer-open", "drawer-closed");
+
+		// Clear the tracked compass player when stowed
+		if (this.rosterModule) {
+			this.rosterModule.clearTracking();
+		}
 	}
 }
