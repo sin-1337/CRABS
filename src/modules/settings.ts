@@ -124,6 +124,7 @@ export class Settings extends CRABS_Base {
 		canvas.textBaseline = "middle";
 		DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
 		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
+		DrawButton(1710, 75, 90, 90, "", "White", "Icons/Chat.png", "To Chat");
 
 		if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
 		else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
@@ -167,6 +168,12 @@ export class Settings extends CRABS_Base {
 		const { MouseIn, PreferenceSubscreenExtensionsClear } = window as any;
 		if (MouseIn(1815, 75, 90, 90)) {
 			PreferenceSubscreenExtensionsClear?.();
+			return;
+		}
+
+		if (MouseIn(1710, 75, 90, 90)) {
+			PreferenceSubscreenExtensionsClear?.(); // Clean up the extension state
+			ChatRoomExit?.(); // Direct game call to return to chat
 			return;
 		}
 
