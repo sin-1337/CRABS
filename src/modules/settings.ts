@@ -165,15 +165,23 @@ export class Settings extends CRABS_Base {
 	}
 
 	public click(): void {
-		const { MouseIn, PreferenceSubscreenExtensionsClear } = window as any;
+		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 		if (MouseIn(1815, 75, 90, 90)) {
 			PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
 		if (MouseIn(1710, 75, 90, 90)) {
-			PreferenceSubscreenExtensionsClear?.(); // Clean up the extension state
-			ChatRoomExit?.(); // Direct game call to return to chat
+			// Tell the game to switch screens FIRST
+			if (typeof CommonSetScreen === "function") {
+				CommonSetScreen("Online", "ChatRoom");
+			}
+
+			// Clear the SDK preference state SECOND
+			PreferenceSubscreenExtensionsClear?.();
+
+			// Clear any lingering messages
+			(window as any).PreferenceMessage = "";
 			return;
 		}
 
