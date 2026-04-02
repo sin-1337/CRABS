@@ -381,7 +381,7 @@ export abstract class Assets {
 	}: PrintImage): string {
 		const images = Assets.IMAGES.image;
 
-		const imgData = (key in images) ? images[key as keyof typeof images] : images["error"];
+		const imgData = (key in images) ? images[key] : images["error"];
 
 		const css_class = css_class_override || imgData.class || "";
 		const tooltip = tooltip_override || imgData.toolTip || "";
