@@ -387,6 +387,10 @@ export abstract class Assets {
 	}: PrintImage): string {
 		const images = Assets.IMAGES.image;
 
+		if (!(key in images)) {
+			console.warn(`CRABS Assets: Key "${key}" not found in store! Falling back to error icon.`);
+		}
+
 		const imgData = (key in images) ? images[key] : images["error"];
 
 		const css_class = css_class_override || imgData.class || "";
