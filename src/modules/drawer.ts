@@ -94,17 +94,6 @@ export class Drawer extends CRABS_Base {
 	 * * @returns {void}
 	 */
 
-
-
-	const originalIcon = Assets.printimage({ key: "animated_logo" });
-	const raveIcon = Assets.printimage({ key: "rave" });
-             
-                     tab.innerHTML = raveIcon;
-
-	if(tab) tab.innerHTML = originalIcon;
-
-
-
 	public RaveTab(): void {
 		if (!this.instance) return;
 		const tab = this.instance.querySelector("#drawer-tab");
