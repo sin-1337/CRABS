@@ -74,16 +74,16 @@ export class Settings extends CRABS_Base {
 	private setupUI(): void {
 		this.elements = [];
 
-		this.addCheckbox("Show Banner on Entry", "showBanner", "Display room info banner on join.", { category: "Banner", yPos: 280 });
+		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "Banner", yPos: 280 });
 
-		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Hide the drawer entirely.", { category: "Drawer", yPos: 425 });
+		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 425 });
 		const drawerDisabled = () => this.data.disableDrawer;
 
-		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via command.", { category: "Drawer", yPos: 500, grayedOut: drawerDisabled });
-		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the side tab.", { category: "Drawer", yPos: 575, grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer });
-		this.addCheckbox("Compact Height", "compactDrawer", "77% height limit.", { category: "Drawer", yPos: 650, grayedOut: drawerDisabled });
-		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after whisper.", { category: "Drawer", yPos: 725, grayedOut: drawerDisabled });
-		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after chat.", { category: "Drawer", yPos: 800, grayedOut: drawerDisabled });
+		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 500, grayedOut: drawerDisabled });
+		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 575, grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer });
+		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 650, grayedOut: drawerDisabled });
+		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 725, grayedOut: drawerDisabled });
+		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 800, grayedOut: drawerDisabled });
 
 		// Category: Immersion
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
@@ -92,7 +92,7 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Respect BCX Rules", "respectBcxRules", "BCX integration.", { category: "Immersion", yPos: 505 });
 
 		// Category: Maps
-		this.addCheckbox("Show Map Compass", "showMapCompass", "Directional arrow on map.", { category: "Maps", yPos: 725 });
+		this.addCheckbox("Show Map Compass", "showMapCompass", "Show a directional arrow on map.", { category: "Maps", yPos: 725 });
 
 		const isSuperZoomBlocked = () => {
 			const val = (window as any).ChatRoomMapViewPerceptionRangeMax;
@@ -158,7 +158,7 @@ export class Settings extends CRABS_Base {
 					displayHint = "Disabled: Another mod or script is controlling this setting.";
 				}
 
-				DrawText(displayHint, 1100, 920, "Black", "Gray");
+				DrawText(displayHint, 1200, 920, "Black", "Gray");
 			}
 		}
 		canvas.textBaseline = "alphabetic";
