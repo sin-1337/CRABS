@@ -96,20 +96,24 @@ export class Drawer extends CRABS_Base {
 
 	public RaveTab(): void {
 		if (!this.instance) return;
-		const tab = this.instance.querySelector("#drawer-tab");
+		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
 		if (!tab) return;
 
-		const originalIcon = Assets.printimage({ key: "animated_logo" });
-		const raveIcon = Assets.printimage({ key: "rave" });
-		tab.innerHTML = raveIcon;
-		tab.setAttribute("data-mode", "rave"); // Mark as rave to pause optimizer
+		// Set the icon and the 'rave' lock
+		tab.innerHTML = Assets.printimage({ key: "rave" });
+		tab.setAttribute("data-mode", "rave");
 
+		// Set the 10-second timer to release the lock
 		setTimeout(() => {
-			if (tab) {
-				tab.removeAttribute("data-mode"); // Clear mark so optimizer takes over
-				this.optimizeVisuals(this.currentPerformanceLevel !== PerformanceLevel.NORMAL);
-				tab.innerHTML = originalIcon;
-			}
+			if (!tab) return;
+
+			// Release the bypass
+			tab.removeAttribute("data-mode");
+
+			// Immediately re-evaluate performance so the icon swaps 
+			// back to whatever is appropriate for the current FPS.
+			const isLow = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+			this.optimizeVisuals(isLow);
 		}, 10000);
 	}
 
@@ -192,15 +196,18 @@ export class Drawer extends CRABS_Base {
 
 		// Toggle Static vs Animated Logo
 		const tab = this.instance.querySelector("#drawer-tab");
-		if (tab) {
-			const isStatic = tab.getAttribute("data-mode") === "static";
-			if (lowPerf && !isStatic) {
-				tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
-				tab.setAttribute("data-mode", "static");
-			} else if (!lowPerf && isStatic) {
-				tab.innerHTML = Assets.printimage({ key: "animated_logo" });
-				tab.setAttribute("data-mode", "animated");
-			}
+		if (!tab) return;
+
+		// Bypass optimizations for easteregg
+		if (tab.getAttribute("data-mode") === "rave") return;
+
+		const isStatic = tab.getAttribute("data-mode") === "static";
+		if (lowPerf && !isStatic) {
+			tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
+			tab.setAttribute("data-mode", "static");
+		} else if (!lowPerf && isStatic) {
+			tab.innerHTML = Assets.printimage({ key: "animated_logo" });
+			tab.setAttribute("data-mode", "animated");
 		}
 
 		// Toggle Blur Radius via CSS Variable

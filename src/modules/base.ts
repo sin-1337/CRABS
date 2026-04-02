@@ -411,35 +411,51 @@ export abstract class CRABS_Base {
 	 * Call this inside your main draw/run loop.
 	 */
 	protected updatePerformanceState(): void {
+		// Get the current game timing interval (ms per frame)
 		const interval = (window as any).TimerRunInterval;
 		if (!interval || interval <= 0) return;
 
-		const fps = Math.round(10000 / interval / 10);
+		// Calculate current FPS and the target (capped) FPS
+		// Using 1000ms / interval gives us the frames per second
+		const actualFps = 1000 / interval;
+
+		// We assume the game is 'Healthy' if it's hitting its own target.
+		// If the game is capped at 10fps, hitting 10fps is 100% performance.
 		let targetLevel = PerformanceLevel.NORMAL;
 
-		// Determine the raw target based on FPS
-		if (fps < 15) {
+		// Performance Ratio Logic
+		// This allows us to be 'Normal' at 10fps if that's what the user chose.
+		// We only degrade if the game is struggling to keep up with its own limit.
+		if (actualFps < 10) {
+			// Hard floor: Below 10 FPS is always critical for UI usability
 			targetLevel = PerformanceLevel.CRITICAL;
-		} else if (fps < 30) {
-			targetLevel = PerformanceLevel.LOW;
+		} else if (actualFps < 25) {
+			// If the game is naturally low (30 or 15 clamp), 
+			// we check if we are significantly missing the target.
+			// A 10% drop from the cap usually indicates the CPU is choking.
+			const targetFps = (window as any).TimerLimit || 60; // Assuming 60 is default if undefined
+			const perfRatio = actualFps / targetFps;
+
+			if (perfRatio < 0.6) {
+				targetLevel = PerformanceLevel.CRITICAL;
+			} else if (perfRatio < 0.9) {
+				targetLevel = PerformanceLevel.LOW;
+			}
 		}
 
-		// If the FPS suggests a different level than our current one...
+		// Stability Logic (Your existing counter system)
 		if (targetLevel !== this.currentPerformanceLevel) {
 			this.perfStabilityCounter++;
 
-			// Only switch if the FPS has been consistently in the new zone 
-			// for X number of frames.
 			if (this.perfStabilityCounter >= this.STABILITY_THRESHOLD) {
 				this.currentPerformanceLevel = targetLevel;
-				this.perfStabilityCounter = 0; // Reset
+				this.perfStabilityCounter = 0;
 
-				if (CRABS_Base.debugMode) {
-					console.log(`CRABS Performance Level Shifted to: ${this.currentPerformanceLevel} (FPS: ${fps})`);
+				if ((this.constructor as any).debugMode) {
+					console.log(`CRABS Performance Shift: ${this.currentPerformanceLevel} (Actual: ${Math.round(actualFps)} FPS)`);
 				}
 			}
 		} else {
-			// FPS matches our current tier? Reset the counter to keep us stable.
 			this.perfStabilityCounter = 0;
 		}
 	}
