@@ -431,7 +431,7 @@ export abstract class CRABS_Base {
 				root.style.setProperty("--crabs-blur", "1px");
 				// Swap to static in CRITICAL mode
 				if (tabContainer && tabContainer.getAttribute("data-mode") !== "static") {
-					tabContainer.innerHTML = Assets.printimage({ key: "logo" });
+					tabContainer.innerHTML = Assets.printimage({ key: "static_logo" });
 					tabContainer.setAttribute("data-mode", "static");
 				}
 				break;

@@ -39,6 +39,12 @@ export abstract class Assets {
 				class: "CRABS_logo",
 			},
 
+			static_logo: {
+				file: "CRABS_Logo.png",
+				alt: "CRABS",
+				class: "CRABS_logo",
+			},
+
 			animated_logo: {
 				file: "CRABS_Logo.gif",
 				alt: "CRABS",
