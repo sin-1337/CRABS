@@ -119,6 +119,8 @@
   align-items: center;
   width: 100%;
   margin-top: 2px;
+  position: relative;
+  z-index: 1;
 }
 
 /* --- SCROLLING TEXT & OVERFLOW --- */
@@ -208,6 +210,8 @@
   flex-direction: row;
   align-items: baseline;
   width: 100%;
+  position: relative;
+  z-index: 10;
 }
 
 .CRABS_status-frame {
@@ -225,7 +229,7 @@
   border-radius: 30px;
   height: 1.7rem;
   display: inline-block;
-  filter: var(--brightness, brightness(0.2)); /* Brighten the image */
+  filter: var(--brightness, brightness(0.6)); /* Brighten the image */
 }
 
 /* --- COMPASS TOGGLE --- */
