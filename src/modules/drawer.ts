@@ -49,6 +49,7 @@ export class Drawer extends CRABS_Base {
 	private lastAdminList: string = "";
 	private lastKeys: string = "";
 	private lastFriends: string = "";
+	private lastMapState: boolean = false;
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -158,16 +159,19 @@ export class Drawer extends CRABS_Base {
 			player.MapData?.PrivateState?.HasKeyGold
 		].join(",");
 		const currentFriends = (player.FriendList || []).join(",");
+		const isMapActive = ChatRoomMapViewIsActive();
 
 		if (currentRoster !== this.lastRoster ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
-			currentFriends !== this.lastFriends) {
+			currentFriends !== this.lastFriends ||
+			isMapActive !== this.lastMapState) {
 
 			this.lastRoster = currentRoster;
 			this.lastAdminList = currentAdmins;
 			this.lastKeys = currentKeys;
 			this.lastFriends = currentFriends;
+			this.lastMapState = isMapActive;
 			return true;
 		}
 		return false;

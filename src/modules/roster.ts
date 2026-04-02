@@ -223,7 +223,7 @@ export class Roster extends CRABS_Base {
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
 		let compassBlock = "";
-		if (!character.IsPlayer() && Settings.instance.data.showMapCompass) {
+		if (!character.IsPlayer() && Settings.instance.data.showMapCompass && ChatRoomMapViewIsActive()) {
 			const trackedClass = this.trackedMapPlayer === character.MemberNumber ? "CRABS_compass-active" : "";
 			const compassIcon = Assets.printimage({ key: "compass", css_class_override: "CRABS_icon" });
 

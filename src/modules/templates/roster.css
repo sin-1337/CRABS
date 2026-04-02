@@ -229,7 +229,7 @@
   border-radius: 30px;
   height: 1.7rem;
   display: inline-block;
-  filter: var(--brightness, brightness(0.6)); /* Brighten the image */
+  filter: var(--brightness, brightness(0.2)); /* Brighten the image */
 }
 
 /* --- COMPASS TOGGLE --- */
