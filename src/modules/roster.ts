@@ -223,7 +223,7 @@ export class Roster extends CRABS_Base {
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
 		let compassBlock = "";
-		if (!character.IsPlayer()) {
+		if (!character.IsPlayer() && Settings.instance.data.showMapCompass) {
 			const trackedClass = this.trackedMapPlayer === character.MemberNumber ? "CRABS_compass-active" : "";
 			const compassIcon = Assets.printimage({ key: "compass", css_class_override: "CRABS_icon" });
 
@@ -457,7 +457,7 @@ export class Roster extends CRABS_Base {
 		const globalWindow = window as any;
 		if (typeof globalWindow.ChatRoomMapViewIsActive !== "function" || !globalWindow.ChatRoomMapViewIsActive()) return;
 
-		const target = globalWindow.ChatRoomCharacter?.find((character: any) => character.MemberNumber === this.hoveredMapPlayer);
+		const target = globalWindow.ChatRoomCharacter?.find((character: any) => character.MemberNumber === targetId);
 		const player = globalWindow.Player;
 
 		if (!target?.MapData?.Pos || !player?.MapData?.Pos) return;
