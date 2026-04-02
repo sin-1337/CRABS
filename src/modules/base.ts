@@ -31,6 +31,8 @@ export abstract class CRABS_Base {
 	/** The ModSDK API instance for the CRABS mod. */
 	declare CRABS: ModSDKModAPI;
 
+	public static debugMode: boolean = false;
+
 	/** Static reference to the subscreen definition for the game's preference menu. */
 	protected static subscreenDef: any = null;
 
@@ -404,31 +406,37 @@ export abstract class CRABS_Base {
 
 	private applyTieredOptimizations(): void {
 		const root = document.documentElement;
-		const tabLogo = document.getElementById("CRABS_Drawer_Logo");
+		// Target the specific container for the tab icon
+		const tabContainer = document.getElementById("drawer-tab");
 
 		switch (this.currentPerformanceLevel) {
 			case PerformanceLevel.NORMAL:
-				// Full Quality
 				root.style.setProperty("--crabs-blur", "10px");
-				if (tabLogo) tabLogo.setAttribute("src", "logo_animated.gif");
-				console.log("CRABS Perf: Normal Mode");
+				if (tabContainer && tabContainer.getAttribute("data-mode") !== "animated") {
+					tabContainer.innerHTML = Assets.printimage({ key: "animated_logo" });
+					tabContainer.setAttribute("data-mode", "animated");
+				}
 				break;
 
 			case PerformanceLevel.LOW:
-				// Tier 1: Reduce Blur Radius (< 35 FPS)
 				root.style.setProperty("--crabs-blur", "3px");
-				// Keep the animated icon for now, as it's less critical than blur
-				if (tabLogo) tabLogo.setAttribute("src", "logo_animated.gif");
-				console.log("CRABS Perf: Low Mode (Reduced Blur)");
+				// Stay animated in LOW mode
+				if (tabContainer && tabContainer.getAttribute("data-mode") !== "animated") {
+					tabContainer.innerHTML = Assets.printimage({ key: "animated_logo" });
+					tabContainer.setAttribute("data-mode", "animated");
+				}
 				break;
 
 			case PerformanceLevel.CRITICAL:
-				// Tier 2: Heavy Savings (< 15 FPS)
 				root.style.setProperty("--crabs-blur", "1px");
-				if (tabLogo) tabLogo.setAttribute("src", "logo.png");
-				console.log("CRABS Perf: Critical Mode (Static Icons & Throttling)");
+				// Swap to static in CRITICAL mode
+				if (tabContainer && tabContainer.getAttribute("data-mode") !== "static") {
+					tabContainer.innerHTML = Assets.printimage({ key: "logo" });
+					tabContainer.setAttribute("data-mode", "static");
+				}
 				break;
 		}
+		if (CRABS_Base.debugMode) console.log(`CRABS Performance mode: %{currentPerformanceLevel}`);
 	}
 
 	/**
