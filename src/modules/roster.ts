@@ -188,17 +188,17 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** * Builds the HTML card for a single player in the roster.
-	 * @param {PlayerCharacter} player - The player character object.
+	 * @param {PlayerCharacter} character - The player character object.
 	 * @param {string} badge - HTML string for the player's room badge (Admin/VIP/Guest).
 	 * @param {string} playerIcons - HTML string for the player's relational icons (Owner/Friend/etc).
 	 * @returns {string} The rendered HTML card.
 	 */
 	private buildCard(
-		player: PlayerCharacter,
+		character: PlayerCharacter,
 		badge: string,
 		playerIcons: string
 	): string {
-		const labelColor = player.LabelColor || "#FFFFFF";
+		const labelColor = character.LabelColor || "#FFFFFF";
 
 		// Extract exact RGB values to check for muddy/gray colors
 		let r = 255, g = 255, b = 255;
@@ -221,18 +221,27 @@ export class Roster extends CRABS_Base {
 			? `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
+		let compassBlock = "";
+		if (character.IsPlayer()) {
+			const trackedClass = this.trackedMapPlayer === character.MemberNumber ? "CRABS_compass-active" : "";
+			const compassIcon = Assets.printimage({ key: "compass", css_class_override: "CRABS_icon" });
+
+			compassBlock = `
+            <div class="CRABS_track-compass ${trackedClass}" style="margin-left: 8px; cursor: pointer; flex-shrink: 0;" data-player-number="${character.MemberNumber}">
+                ${compassIcon}
+            </div>`;
+		}
+
 		let templatevars: Record<string, string> = {
-			PlayerNumber: `${player.MemberNumber}`,
+			PlayerNumber: `${character.MemberNumber}`,
 			Badge: badge,
 			LabelColorBorder: `${this.convertColor(labelColor, 0.5)}`,
 			LabelColor: labelColor,
 			LabelShadow: labelShadow,
-			PlayerName: CharacterNickname(player).normalize("NFKC"),
+			PlayerName: CharacterNickname(character).normalize("NFKC"),
 			PlayerIcons: playerIcons,
-			StatusIcons: `${this.setStatusIcons(player)}`,
-
-			CompassIcon: Assets.printimage({ key: "compass" }), // Adjust key to match your compass asset
-			TrackedClass: this.trackedMapPlayer === player.MemberNumber ? "CRABS_compass-active" : "",
+			StatusIcons: `${this.setStatusIcons(character)}`,
+			CompassBlock: compassBlock
 		};
 
 		return this.template(rostercardstemplate, templatevars, false);
@@ -534,37 +543,37 @@ export class Roster extends CRABS_Base {
 	/**
 	 * Calculates a numerical score for sorting the roster. Lower score = higher on the list.
 	 */
-	private calculateSortScore(c: any, mode: string): number {
-		if (c.IsPlayer && c.IsPlayer()) return 0; // "You" are always absolute top
+	private calculateSortScore(character: any, mode: string): number {
+		if (character.IsPlayer && character.IsPlayer()) return 0; // "You" are always absolute top
 
-		const mNum = c.MemberNumber ?? -1;
-		const p = (window as any).Player;
-		const isBF = CrossMod.detectMod("BCTweaks") && p.BCT?.bctSettings?.bestFriendsList?.includes(mNum);
+		const mNum = character.MemberNumber ?? -1;
+		const player = (window as any).Player;
+		const isBestFriend = CrossMod.detectMod("BCTweaks") && player.BCT?.bctSettings?.bestFriendsList?.includes(mNum);
 
 		switch (mode) {
 			case "ds":
-				if (p.OwnerNumber && p.OwnerNumber() === mNum) return 1; // Owner
-				if (typeof c.IsOwnedByPlayer === "function" && c.IsOwnedByPlayer(p.MemberNumber ?? -1)) {
-					return c.Ownership?.Stage === 0 ? 3 : 2; // Sub (2), Trial (3)
+				if (player.OwnerNumber && player.OwnerNumber() === mNum) return 1; // Owner
+				if (typeof character.IsOwnedByPlayer === "function" && character.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
+					return character.Ownership?.Stage === 0 ? 3 : 2; // Sub (2), Trial (3)
 				}
-				if (typeof p.IsInFamilyOfMemberNumber === "function" && p.IsInFamilyOfMemberNumber(mNum)) return 4; // Family
+				if (typeof player.IsInFamilyOfMemberNumber === "function" && player.IsInFamilyOfMemberNumber(mNum)) return 4; // Family
 				return 5;
 			case "lovers":
-				if (p.GetLoversNumbers && p.GetLoversNumbers().includes(mNum)) return 1;
-				if (isBF) return 2;
-				if (p.FriendList && p.FriendList.includes(mNum)) return 3;
+				if (player.GetLoversNumbers && player.GetLoversNumbers().includes(mNum)) return 1;
+				if (isBestFriend) return 2;
+				if (player.FriendList && player.FriendList.includes(mNum)) return 3;
 				return 4;
 			case "friends":
-				if (isBF) return 1;
-				if (p.FriendList && p.FriendList.includes(mNum)) return 2;
+				if (isBestFriend) return 1;
+				if (player.FriendList && player.FriendList.includes(mNum)) return 2;
 				return 3;
 			case "whitelist":
-				if (p.WhiteList && p.WhiteList.includes(mNum)) return 1;
-				if (p.BlackList && p.BlackList.includes(mNum)) return 3;
+				if (player.WhiteList && player.WhiteList.includes(mNum)) return 1;
+				if (player.BlackList && player.BlackList.includes(mNum)) return 3;
 				return 2;
 			case "blacklist":
-				if (p.BlackList && p.BlackList.includes(mNum)) return 1;
-				if (p.WhiteList && p.WhiteList.includes(mNum)) return 2;
+				if (player.BlackList && player.BlackList.includes(mNum)) return 1;
+				if (player.WhiteList && player.WhiteList.includes(mNum)) return 2;
 				return 3;
 			case "role":
 			default:
