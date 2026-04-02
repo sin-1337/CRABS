@@ -38,6 +38,8 @@ export abstract class CRABS_Base {
 
 	protected currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
 
+	private perfStabilityCounter: number = 0;
+	private readonly STABILITY_THRESHOLD = 60;
 
 	/**
 	 * Creates an instance of a CRABS module.
@@ -404,59 +406,41 @@ export abstract class CRABS_Base {
 		}
 	}
 
-	private applyTieredOptimizations(): void {
-		const root = document.documentElement;
-		// Target the specific container for the tab icon
-		const tabContainer = document.getElementById("drawer-tab");
-
-		switch (this.currentPerformanceLevel) {
-			case PerformanceLevel.NORMAL:
-				root.style.setProperty("--crabs-blur", "10px");
-				if (tabContainer && tabContainer.getAttribute("data-mode") !== "animated") {
-					tabContainer.innerHTML = Assets.printimage({ key: "animated_logo" });
-					tabContainer.setAttribute("data-mode", "animated");
-				}
-				break;
-
-			case PerformanceLevel.LOW:
-				root.style.setProperty("--crabs-blur", "3px");
-				// Stay animated in LOW mode
-				if (tabContainer && tabContainer.getAttribute("data-mode") !== "animated") {
-					tabContainer.innerHTML = Assets.printimage({ key: "animated_logo" });
-					tabContainer.setAttribute("data-mode", "animated");
-				}
-				break;
-
-			case PerformanceLevel.CRITICAL:
-				root.style.setProperty("--crabs-blur", "1px");
-				// Swap to static in CRITICAL mode
-				if (tabContainer && tabContainer.getAttribute("data-mode") !== "static") {
-					tabContainer.innerHTML = Assets.printimage({ key: "static_logo" });
-					tabContainer.setAttribute("data-mode", "static");
-				}
-				break;
-		}
-		if (CRABS_Base.debugMode) console.log(`CRABS Performance mode: %{currentPerformanceLevel}`);
-	}
-
 	/**
 	 * Checks game performance and toggles a low-quality mode if FPS stays low.
 	 * Call this inside your main draw/run loop.
 	 */
 	protected updatePerformanceState(): void {
-		const fps = Math.round(10000 / (window as any).TimerRunInterval / 10);
+		const interval = (window as any).TimerRunInterval;
+		if (!interval || interval <= 0) return;
+
+		const fps = Math.round(10000 / interval / 10);
 		let targetLevel = PerformanceLevel.NORMAL;
 
+		// Determine the raw target based on FPS
 		if (fps < 15) {
 			targetLevel = PerformanceLevel.CRITICAL;
 		} else if (fps < 30) {
 			targetLevel = PerformanceLevel.LOW;
 		}
 
-		// Only update if the level actually changed
+		// If the FPS suggests a different level than our current one...
 		if (targetLevel !== this.currentPerformanceLevel) {
-			this.currentPerformanceLevel = targetLevel;
-			this.applyTieredOptimizations();
+			this.perfStabilityCounter++;
+
+			// Only switch if the FPS has been consistently in the new zone 
+			// for X number of frames.
+			if (this.perfStabilityCounter >= this.STABILITY_THRESHOLD) {
+				this.currentPerformanceLevel = targetLevel;
+				this.perfStabilityCounter = 0; // Reset
+
+				if (CRABS_Base.debugMode) {
+					console.log(`CRABS Performance Level Shifted to: ${this.currentPerformanceLevel} (FPS: ${fps})`);
+				}
+			}
+		} else {
+			// FPS matches our current tier? Reset the counter to keep us stable.
+			this.perfStabilityCounter = 0;
 		}
 	}
 

@@ -192,7 +192,7 @@ export class Drawer extends CRABS_Base {
 		if (tab) {
 			const isStatic = tab.getAttribute("data-mode") === "static";
 			if (lowPerf && !isStatic) {
-				tab.innerHTML = Assets.printimage({ key: "logo_static" }); // Ensure this exists in Assets
+				tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
 				tab.setAttribute("data-mode", "static");
 			} else if (!lowPerf && isStatic) {
 				tab.innerHTML = Assets.printimage({ key: "animated_logo" });
