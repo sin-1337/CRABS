@@ -234,30 +234,43 @@
 
 /* --- COMPASS TOGGLE --- */
 
-/* Parent container */
+/* Parent container stays at full brightness so tooltips remain readable */
 .CRABS_track-compass {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  position: relative; /* Useful if you use custom CSS tooltips */
 }
 
-/* Force the injected image to a strict size */
+/* Force the icon size */
 .CRABS_track-compass img,
 .CRABS_track-compass svg {
   height: 1.5rem;
   width: 1.5rem;
   object-fit: contain;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
 }
 
-/* When hovering an INACTIVE compass, bring the brightness back up */
-.CRABS_track-compass:not(.CRABS_compass-active):hover {
-  filter: brightness(1) grayscale(30%); /* Reduced grayscale, full brightness */
+/* 1. Dim ONLY the icon when NOT active */
+.CRABS_track-compass:not(.CRABS_compass-active) img,
+.CRABS_track-compass:not(.CRABS_compass-active) svg {
+  filter: brightness(0.4) grayscale(80%);
+  opacity: 0.6;
+}
+
+/* 2. "Wake up" ONLY the icon on hover (Tooltip stays bright) */
+.CRABS_track-compass:not(.CRABS_compass-active):hover img,
+.CRABS_track-compass:not(.CRABS_compass-active):hover svg {
+  filter: brightness(1) grayscale(20%);
   opacity: 1;
-  cursor: pointer;
 }
 
-/* When hovering an ACTIVE compass, give it a little extra pop */
-.CRABS_track-compass.CRABS_compass-active:hover {
-  filter: brightness(1.5);
-  cursor: pointer;
+/* 3. Brighten icon when ACTIVE */
+.CRABS_track-compass.CRABS_compass-active img,
+.CRABS_track-compass.CRABS_compass-active svg {
+  filter: brightness(1.2) drop-shadow(0 0 2px var(--player-color, white));
+  opacity: 1;
 }
