@@ -97,13 +97,14 @@ export class Roster extends CRABS_Base {
 		});
 	}
 
-	/** * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
-	 * @param {PlayerCharacter} player - The player character object to check.
+	/**
+	 * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
+	 * @param {Character} character - The character object to check.
 	 * @returns {string} HTML string containing the status icons.
 	 */
-	private setStatusIcons(player: PlayerCharacter): string {
+	private setStatusIcons(character: Character): string {
 		const prefixes = ["Blind", "Gag", "Deaf"];
-		const effects = CharacterGetEffects(player);
+		const effects = CharacterGetEffects(character);
 
 		// Effect lists mapping
 		const effectLists: { [key: string]: { [key: string]: number } } = {
@@ -194,7 +195,7 @@ export class Roster extends CRABS_Base {
 	 * @returns {string} The rendered HTML card.
 	 */
 	private buildCard(
-		character: PlayerCharacter,
+		character: Character,
 		badge: string,
 		playerIcons: string
 	): string {
@@ -222,7 +223,7 @@ export class Roster extends CRABS_Base {
 			: "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
 		let compassBlock = "";
-		if (character.IsPlayer()) {
+		if (!character.IsPlayer()) {
 			const trackedClass = this.trackedMapPlayer === character.MemberNumber ? "CRABS_compass-active" : "";
 			const compassIcon = Assets.printimage({ key: "compass", css_class_override: "CRABS_icon" });
 
@@ -298,76 +299,83 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** * Determines the room badge for a player (Admin, VIP, or Guest).
-	 * @param {PlayerCharacter} player - The player character to check.
+	 * @param {Character} character - The character to check.
 	 * @returns {string} HTML string representing the badge icon.
 	 */
-	private setbadge(player: PlayerCharacter): string {
+	private setbadge(character: Character): string {
+		const memberNum = character.MemberNumber ?? -1;
 		let badge = Assets.printimage({ key: "player" });
-		badge = ChatRoomData.Whitelist.includes(player.MemberNumber)
+
+		badge = ChatRoomData.Whitelist.includes(memberNum)
 			? Assets.printimage({ key: "vip" })
 			: badge;
-		badge = ChatRoomData.Admin.includes(player.MemberNumber)
+
+		badge = ChatRoomData.Admin.includes(memberNum)
 			? Assets.printimage({ key: "admin" })
 			: badge;
+
 		return badge;
 	}
 
 	/**
-	 * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
-	 * @param {PlayerCharacter} player - The player character object.
-	 * @returns {string} HTML string containing the relevant relational icons.
-	 */
-	private setIcons(player: PlayerCharacter): string {
+		 * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
+		 * @param {Character} character - The character object.
+		 * @returns {string} HTML string containing the relevant relational icons.
+		 */
+	private setIcons(character: Character): string {
 		let playerIcons = "";
+		const memberNum = character.MemberNumber ?? -1;
 
 		// Trial checks
-		const isTrial = player.Ownership?.MemberNumber === Player.MemberNumber && player.Ownership?.Stage === 0;
+		const isTrial = character.Ownership?.MemberNumber === Player.MemberNumber && character.Ownership?.Stage === 0;
 
-		if (Player.OwnerNumber() == player.MemberNumber) {
+		if (Player.OwnerNumber() === memberNum) {
 			// person owns you
 			playerIcons += Assets.printimage({ key: "owner" }) + " ";
-		} else if (player.IsOwnedByPlayer(Player.MemberNumber ?? -1)) {
-			// YOU own them
+		} else if (character.IsOwnedByPlayer()) {
+			// YOU own them (Notice how IsOwnedByPlayer takes no arguments in the new types!)
 			if (isTrial) {
 				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
 				playerIcons += Assets.printimage({ key: "sub" }) + " ";
 			}
-		} else if (Player.IsInFamilyOfMemberNumber(player.MemberNumber ?? -1)) {
+		} else if (Player.IsInFamilyOfMemberNumber(memberNum)) {
 			// they are in your family tree, but not owner or sub
 			playerIcons += Assets.printimage({ key: "family" }) + " ";
 		}
-		if (Player.GetLoversNumbers().includes(player.MemberNumber ?? -1)) {
+
+		if (Player.GetLoversNumbers().includes(memberNum)) {
 			// person is a lover
 			playerIcons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
 			if (CrossMod.detectMod("BCTweaks")) {
 				// BCTweaks mod is found
-				if (
-					Player.BCT.bctSettings.bestFriendsList.includes(player.MemberNumber)
-				) {
+				if (Player.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)) {
 					//Player is a best friend, skip checking if they are a friend.
 					playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
-				} else if (Player.FriendList.includes(player.MemberNumber)) {
+				} else if (Player.FriendList.includes(memberNum)) {
 					// Player is not a best friend, but they are a friend
 					playerIcons += Assets.printimage({ key: "friend" }) + " ";
 				}
-			} else if (Player.FriendList.includes(player.MemberNumber)) {
+			} else if (Player.FriendList.includes(memberNum)) {
 				// person is a friend, and the BCTweaks mod is not found
 				playerIcons += Assets.printimage({ key: "friend" }) + " ";
 			}
 		}
-		if (Player.WhiteList.includes(player.MemberNumber)) {
+
+		if (Player.WhiteList.includes(memberNum)) {
 			// Player is whitelisted
 			playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
-		} else if (Player.BlackList.includes(player.MemberNumber)) {
+		} else if (Player.BlackList.includes(memberNum)) {
 			// Player is blacklisted
 			playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
 		}
-		if (Player.GhostList.includes(player.MemberNumber)) {
+
+		if (Player.GhostList.includes(memberNum)) {
 			// Player is ghosted
 			playerIcons += Assets.printimage({ key: "ghost" }) + " ";
 		}
+
 		return playerIcons;
 	}
 
