@@ -51,6 +51,7 @@ export class Drawer extends CRABS_Base {
 	private lastKeys: string = "";
 	private lastFriends: string = "";
 	private lastMapState: boolean = false;
+	private lastOnlineFriends: number | string = "...";
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -171,18 +172,21 @@ export class Drawer extends CRABS_Base {
 		].join(",");
 		const currentFriends = (player.FriendList || []).join(",");
 		const isMapActive = ChatRoomMapViewIsActive();
+		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
 		if (currentRoster !== this.lastRoster ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
 			currentFriends !== this.lastFriends ||
-			isMapActive !== this.lastMapState) {
+			isMapActive !== this.lastMapState ||
+			currentOnlineFriends !== this.lastOnlineFriends) {
 
 			this.lastRoster = currentRoster;
 			this.lastAdminList = currentAdmins;
 			this.lastKeys = currentKeys;
 			this.lastFriends = currentFriends;
 			this.lastMapState = isMapActive;
+			this.lastOnlineFriends = currentOnlineFriends;
 			return true;
 		}
 		return false;

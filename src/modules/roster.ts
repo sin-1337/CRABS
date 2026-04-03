@@ -25,13 +25,11 @@ import rostercardstemplate from "./templates/roster_cards.html";
  */
 export class Roster extends CRABS_Base {
 	/** Cached count of online friends. */
-	private onlineFriendsCache: number = 0;
+	private onlineFriendsCache: number | string = "...";
 	/** Timestamp for the last server request to prevent spamming. */
 	private lastSentTime: number = 0;
-	/** Stores the active promise if a fetch is already in progress to prevent duplicate requests. */
-	private fetchPromise: Promise<number> | null = null;
-	/** Stores the resolve function to be called by the hook when data arrives. */
-	private fetchResolver: ((value: number) => void) | null = null;
+	/** Prevents multiple requests from firing at the same time. */
+	private isFetching: boolean = false;
 
 	/** Tracks the user's selected sort order in the drawer */
 	private currentSortMode: string = "role";
@@ -258,23 +256,17 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Hooks into the friend list loading to capture the online friend count.
-	 * @returns {void}
-	 */
+		 * Hooks into the friend list loading to capture the online friend count.
+		 * @returns {void}
+		 */
 	private loadFriendList(): void {
-		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (functionArguments, next) => {
-			const [friendData]: Array<Record<string, any>> = functionArguments;
-			this.onlineFriendsCache = friendData.length;
-			this.lastSentTime = Date.now();
-
-			// If a UI element is waiting for this data, resolve the promise instantly!
-			if (this.fetchResolver) {
-				this.fetchResolver(this.onlineFriendsCache);
-				this.fetchResolver = null;
-				this.fetchPromise = null;
+		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+			const [friendData] = args;
+			if (Array.isArray(friendData)) {
+				this.onlineFriendsCache = friendData.length;
 			}
-
-			return next(functionArguments);
+			this.isFetching = false; // Release the lock
+			return next(args);
 		});
 	}
 
@@ -292,44 +284,25 @@ export class Roster extends CRABS_Base {
 		return false;
 	}
 
-	/** 
-	 * Retrieves the current online friend count safely and asynchronously.
-	 * @returns {Promise<number>} The number of online friends.
-	 */
-	public async getOnlineFriendCount(): Promise<number> {
+	/**
+		 * Requests the online friend count from the server if the 5-minute cooldown has passed.
+		 * This is a "fire and forget" method; the UI will redraw when the hook catches the response.
+		 */
+	public requestOnlineFriends(): void {
 		const now = Date.now();
-
-		// 1. If we checked within the last 10 minutes, return the cached number instantly
-		if (now - this.lastSentTime < 10 * 60 * 1000) {
-			return this.onlineFriendsCache;
-		}
-
-		// 2. If a request is ALREADY in flight, just return the existing Promise
-		// (This prevents spamming the server if the UI redraws 5 times in one second)
-		if (this.fetchPromise) {
-			return this.fetchPromise;
-		}
-
-		// 3. Otherwise, create a new Promise, store its resolver, and ask the server
-		this.fetchPromise = new Promise((resolve) => {
-			this.fetchResolver = resolve;
-
-			// Bypass the base game's rate limiter and send directly to the server
+		if (now - this.lastSentTime >= 5 * 60 * 1000 && !this.isFetching) {
+			this.isFetching = true;
+			this.lastSentTime = now;
 			ServerSend("AccountQuery", { Query: "OnlineFriends" });
-		});
 
-		// 4. Safety Net: If the server drops the packet or never responds, 
-		// fallback to the cache after 3 seconds so the UI doesn't freeze forever.
-		setTimeout(() => {
-			if (this.fetchResolver) {
-				console.warn("CRABS: Online friends request timed out, falling back to cache.");
-				this.fetchResolver(this.onlineFriendsCache);
-				this.fetchResolver = null;
-				this.fetchPromise = null;
-			}
-		}, 3000);
+			// Failsafe: Release the lock after 3 seconds if the server drops the packet
+			setTimeout(() => { this.isFetching = false; }, 3000);
+		}
+	}
 
-		return this.fetchPromise;
+	/** Returns the currently cached online friends count for dirty-checking. */
+	public getOnlineFriendsCount(): number | string {
+		return this.onlineFriendsCache;
 	}
 
 	/**
@@ -640,6 +613,8 @@ export class Roster extends CRABS_Base {
 			return "";
 		}
 
+		this.requestOnlineFriends();
+
 		// Immersive Mode Check
 		let rosterStyle = "";
 		if (Settings.instance.data.immersiveBlind) {
@@ -720,7 +695,7 @@ export class Roster extends CRABS_Base {
 			playersInRoom: `${ChatRoomCharacter.length}`,
 			totalPlayers: `${ChatRoomData.Limit}`,
 			friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
-			friendsOnline: this.onlineFriends?.toString() ?? "...",
+			friendsOnline: `${this.onlineFriendsCache}`,
 			totalFriends: `${Player.FriendList.length}`,
 			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })
 				}`,
