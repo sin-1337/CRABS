@@ -222,7 +222,7 @@ export class Drawer extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
+		this.CRABS.hookFunction("ChatRoomDraw", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
 			// Update the performance state (defined in CRABS_Base)
@@ -244,6 +244,9 @@ export class Drawer extends CRABS_Base {
 			this.updateTick++;
 			if (this.updateTick >= threshold) {
 				this.updateTick = 0;
+
+				// Continuously evaluate visibility (Auto-stowing on focus screens)
+				this.updateVisibility();
 
 				// Only refresh if Drawer is open, not showing help, AND state actually changed
 				if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
@@ -369,8 +372,6 @@ export class Drawer extends CRABS_Base {
 			} else {
 				this.syncToChat();
 			}
-
-			this.refresh();
 		}
 	}
 
