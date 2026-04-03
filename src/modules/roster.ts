@@ -280,7 +280,7 @@ export class Roster extends CRABS_Base {
 		 */
 	public requestOnlineFriends(): void {
 		const now = Date.now();
-		if (now - this.lastSentTime >= 5 * 60 * 1000 && !this.isFetching) {
+		if (now - this.lastSentTime >= 1 * 60 * 1000 && !this.isFetching) {
 			this.isFetching = true;
 			this.lastSentTime = now;
 			ServerSend("AccountQuery", { Query: "OnlineFriends" });
