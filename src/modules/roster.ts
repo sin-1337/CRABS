@@ -37,9 +37,6 @@ export class Roster extends CRABS_Base {
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
 
-	/** Tracks the delta of deleted accounts to fix BC's live-update bug */
-	private ghostFriendCount: number | null = null;
-
 	/** Handler for when a player's entry is hovered in the roster UI. */
 	private onPlayerHover = (playerId: string) => {
 		// Mutual Exclusivity: If a player is locked, ignore all hovers.
@@ -256,32 +253,7 @@ export class Roster extends CRABS_Base {
 		return this.template(rostercardstemplate, templatevars, false);
 	}
 
-	/**
-	 * Calculates the true friend count live.
-	 * Subtracts the constant "ghost" account delta from the actively updating array.
-	 */
-	private getAccurateFriendCount(): number {
-		if (typeof Player === 'undefined' || !Player.FriendList) return 0;
-
-		// We need FriendNames to have synced at least once to find the accurate ghost delta.
-		// If it's 0, the game hasn't pulled data from the server yet.
-		if (this.ghostFriendCount === null) {
-			if (Player.FriendNames && Player.FriendNames.size > 0) {
-				// Lock in the delta
-				this.ghostFriendCount = Player.FriendList.length - Player.FriendNames.size;
-				if (this.ghostFriendCount < 0) this.ghostFriendCount = 0; // Failsafe
-			} else {
-				// Server hasn't synced names yet, fallback to raw array length to avoid showing 0
-				return Player.FriendList.length;
-			}
-		}
-
-		// Apply the delta to the live-updating FriendList
-		const trueCount = Player.FriendList.length - this.ghostFriendCount;
-		return Math.max(0, trueCount);
-	}
-
-	/**  
+	/** 
 	 * Hooks into the friend list loading to capture the online friend count.
 	 * @returns {void}
 	 */
@@ -290,13 +262,6 @@ export class Roster extends CRABS_Base {
 			const [friendData]: Array<Record<string, any>> = functionArguments;
 			this.onlineFriends = friendData.length;
 			this.lastSentTime = Date.now();
-
-			// Re-calibrate the ghost friend delta when the server natively syncs the list
-			if (typeof Player !== 'undefined' && Player.FriendList && Player.FriendNames) {
-				this.ghostFriendCount = Player.FriendList.length - Player.FriendNames.size;
-				if (this.ghostFriendCount < 0) this.ghostFriendCount = 0;
-			}
-
 			return next(functionArguments);
 		});
 	}
@@ -727,7 +692,7 @@ export class Roster extends CRABS_Base {
 			totalPlayers: `${ChatRoomData.Limit}`,
 			friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
 			friendsOnline: this.onlineFriends?.toString() ?? "...",
-			totalFriends: `${this.getAccurateFriendCount()}`,
+			totalFriends: `${Player.FriendList.length}`,
 			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })
 				}`,
 			onlinePlayers: `${CurrentOnlinePlayers} `,
