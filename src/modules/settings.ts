@@ -117,51 +117,60 @@ export class Settings extends CRABS_Base {
 		const canvas = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvas) return;
 
-		DrawRect(40, 40, 420, 920, "#222222aa");
-		DrawCharacter(Player, 50, 50, 0.9);
+		// Take a snapshot of the global canvas state before we alter it
+		canvas.save();
 
-		canvas.textAlign = "center";
-		canvas.textBaseline = "middle";
-		DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
-		DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
-		DrawButton(1710, 75, 90, 90, "", "White", "Icons/Chat.png", "To Chat");
+		try {
+			DrawRect(40, 40, 420, 920, "#222222aa");
+			DrawCharacter(Player, 50, 50, 0.9);
 
-		if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
-		else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
+			canvas.textAlign = "center";
+			canvas.textBaseline = "middle";
+			DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
+			DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
+			DrawButton(1710, 75, 90, 90, "", "White", "Icons/Chat.png", "To Chat");
 
-		const leftX = this.LEFT_COL_X - 20;
-		const rightX = this.RIGHT_COL_X - 20;
-		DrawRect(leftX, 200, 650, 125, "#00000011"); DrawText("Banner", leftX + 325, 220, "Black", "Gray");
-		DrawRect(leftX, 345, 650, 500, "#00000011"); DrawText("Drawer", leftX + 325, 365, "Black", "Gray");
-		DrawRect(rightX, 200, 650, 375, "#00000011"); DrawText("Immersion", rightX + 325, 220, "Black", "Gray");
-		DrawRect(rightX, 650, 650, 200, "#00000011"); DrawText("Maps", rightX + 325, 670, "Black", "Gray");
+			if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
+			else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
 
-		for (const el of this.elements) {
-			const isRight = el.category === "Immersion" || el.category === "Maps";
-			const x = isRight ? this.RIGHT_COL_X : this.LEFT_COL_X;
-			const cbX = x + this.CHECKBOX_X_OFFSET;
-			const txX = x + this.LABEL_X_OFFSET;
+			const leftX = this.LEFT_COL_X - 20;
+			const rightX = this.RIGHT_COL_X - 20;
+			DrawRect(leftX, 200, 650, 125, "#00000011"); DrawText("Banner", leftX + 325, 220, "Black", "Gray");
+			DrawRect(leftX, 345, 650, 500, "#00000011"); DrawText("Drawer", leftX + 325, 365, "Black", "Gray");
+			DrawRect(rightX, 200, 650, 375, "#00000011"); DrawText("Immersion", rightX + 325, 220, "Black", "Gray");
+			DrawRect(rightX, 650, 650, 200, "#00000011"); DrawText("Maps", rightX + 325, 670, "Black", "Gray");
 
-			const manualGray = typeof el.grayedOut === 'function' ? el.grayedOut() : el.grayedOut;
-			const hardcoreGray = this.isSettingLocked(el);
-			const isLocked = manualGray || hardcoreGray;
+			for (const el of this.elements) {
+				const isRight = el.category === "Immersion" || el.category === "Maps";
+				const x = isRight ? this.RIGHT_COL_X : this.LEFT_COL_X;
+				const cbX = x + this.CHECKBOX_X_OFFSET;
+				const txX = x + this.LABEL_X_OFFSET;
 
-			DrawCheckbox(cbX, el.yPos - 32, 64, 64, "", this.data[el.setting as keyof CRABS_Settings], isLocked);
-			canvas.textAlign = "left";
-			DrawText(el.text, txX, el.yPos, isLocked ? "#888888" : "Black", "");
+				const manualGray = typeof el.grayedOut === 'function' ? el.grayedOut() : el.grayedOut;
+				const hardcoreGray = this.isSettingLocked(el);
+				const isLocked = manualGray || hardcoreGray;
 
-			if (MouseIn(txX, el.yPos - 18, 450, 36) || MouseIn(cbX, el.yPos - 32, 64, 64)) {
-				canvas.textAlign = "center";
-				let displayHint = el.hint;
+				DrawCheckbox(cbX, el.yPos - 32, 64, 64, "", this.data[el.setting as keyof CRABS_Settings], isLocked);
 
-				if (el.setting === "mapSuperZoom" && manualGray) {
-					displayHint = "Disabled: Another mod or script is controlling this setting.";
+				canvas.textAlign = "left";
+				DrawText(el.text, txX, el.yPos, isLocked ? "#888888" : "Black", "");
+
+				if (MouseIn(txX, el.yPos - 18, 450, 36) || MouseIn(cbX, el.yPos - 32, 64, 64)) {
+					canvas.textAlign = "center";
+					let displayHint = el.hint;
+
+					if (el.setting === "mapSuperZoom" && manualGray) {
+						displayHint = "Disabled: Another mod or script is controlling this setting.";
+					}
+
+					DrawText(displayHint, 1200, 920, "Black", "Gray");
 				}
-
-				DrawText(displayHint, 1200, 920, "Black", "Gray");
 			}
+		} finally {
+			// Guarantee the canvas is restored to its exact previous state, 
+			// even if an error occurs during drawing!
+			canvas.restore();
 		}
-		canvas.textBaseline = "alphabetic";
 	}
 
 	public click(): void {
