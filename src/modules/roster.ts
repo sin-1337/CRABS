@@ -32,7 +32,8 @@ export class Roster extends CRABS_Base {
 	private isFetching: boolean = false;
 
 	/** Tracks the user's selected sort order in the drawer */
-	private currentSortMode: string = "role";
+	/** Tracks the user's selected sort order in the drawer */
+	private currentSortMode: string = localStorage.getItem("CRABS_SortMode") || "role";
 
 	/** The member number of the player currently hovered on the map. */
 	private hoveredMapPlayer: number | null = null;
@@ -703,7 +704,7 @@ export class Roster extends CRABS_Base {
 			for (const [key, value] of Object.entries(KEYS)) {
 				displaykeys += Assets.printimage({ key: value ? key : "keyNull" });
 			}
-			templatevars["collectedKeys"] = `< div class="CRABS_status_cell" > <div class="CRABS_roster_header_align" > ${displaykeys} </div></div > `;
+			templatevars["collectedKeys"] = `<div class="CRABS_status_cell"><div class="CRABS_roster_header_align">${displaykeys}</div></div>`;
 		} else {
 			templatevars["collectedKeys"] = "";
 		}
@@ -751,6 +752,7 @@ export class Roster extends CRABS_Base {
 
 			dropdown.onchange = (e) => {
 				this.currentSortMode = (e.target as HTMLSelectElement).value;
+				localStorage.setItem("CRABS_SortMode", this.currentSortMode); // Save the selection
 
 				// Directly target the drawer container to prevent spamming the chat log
 				const drawerRosterContainer = document.getElementById("CRABS_Drawer_Roster");

@@ -68,18 +68,29 @@
 }
 
 .drawer-content #drawer-title {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  /* Flexbox rules to dynamically fill available space */
+  flex: 1 1 auto;
+  margin: 0 12px;
+  text-align: center;
 
+  /* CRITICAL: Forces flexbox to allow the container to shrink smaller than the text */
+  min-width: 0;
+
+  /* Truncation magic */
   white-space: nowrap;
-  z-index: 0; /* Keeps it behind icons if they overlap */
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-  /* Your existing styles */
+  z-index: 0;
   font-size: 1.4rem;
   font-weight: bold;
-  pointer-events: none; /* Allows clicking "through" the title to icons if they overlap */
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .drawer-content #drawer-title {
+    display: none !important;
+  }
 }
 
 /* Ensure icons stay on top and are clickable */
