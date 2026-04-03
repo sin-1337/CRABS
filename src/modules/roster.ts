@@ -261,14 +261,22 @@ export class Roster extends CRABS_Base {
 	 * Subtracts the constant "ghost" account delta from the actively updating array.
 	 */
 	private getAccurateFriendCount(): number {
-		if (typeof Player === 'undefined' || !Player.FriendList || !Player.FriendNames) return 0;
+		if (typeof Player === 'undefined' || !Player.FriendList) return 0;
 
-		// Initialize the ghost count delta on first run
+		// We need FriendNames to have synced at least once to find the accurate ghost delta.
+		// If it's 0, the game hasn't pulled data from the server yet.
 		if (this.ghostFriendCount === null) {
-			this.ghostFriendCount = Player.FriendList.length - Player.FriendNames.size;
-			if (this.ghostFriendCount < 0) this.ghostFriendCount = 0; // Failsafe
+			if (Player.FriendNames && Player.FriendNames.size > 0) {
+				// Lock in the delta
+				this.ghostFriendCount = Player.FriendList.length - Player.FriendNames.size;
+				if (this.ghostFriendCount < 0) this.ghostFriendCount = 0; // Failsafe
+			} else {
+				// Server hasn't synced names yet, fallback to raw array length to avoid showing 0
+				return Player.FriendList.length;
+			}
 		}
 
+		// Apply the delta to the live-updating FriendList
 		const trueCount = Player.FriendList.length - this.ghostFriendCount;
 		return Math.max(0, trueCount);
 	}
