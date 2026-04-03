@@ -261,27 +261,17 @@ export class Roster extends CRABS_Base {
 		 */
 	private loadFriendList(): void {
 		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
-			const [friendData] = args;
+			// Cast args to any just for the extraction so TypeScript stops panicking
+			const friendData = (args as any)[0];
+
 			if (Array.isArray(friendData)) {
 				this.onlineFriendsCache = friendData.length;
 			}
 			this.isFetching = false; // Release the lock
+
+			// Pass the original, untouched args back to next()
 			return next(args);
 		});
-	}
-
-	/** 
-	 * Checks if enough time has passed to send another server request for friend status.
-	 * @returns {boolean} True if a request can be sent, false otherwise.
-	 */
-	private canSendServerRequest(): boolean {
-		const now = Date.now();
-		if (now - this.lastSentTime >= 10 * 60 * 1000) {
-			// 10 minutes in milliseconds
-			this.lastSentTime = now; // Update the lastSentTime to the current time
-			return true;
-		}
-		return false;
 	}
 
 	/**
