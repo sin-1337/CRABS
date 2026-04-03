@@ -222,7 +222,7 @@ export class Drawer extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		this.CRABS.hookFunction("ChatRoomDraw", 10, (functionArguments, next) => {
+		this.CRABS.hookFunction("ChatRoomRun", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
 			// Update the performance state (defined in CRABS_Base)
