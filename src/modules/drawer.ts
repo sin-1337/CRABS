@@ -264,11 +264,16 @@ export class Drawer extends CRABS_Base {
 	private setupElement(): void {
 		if (this.instance) return;
 
+		let title = "CRABS: Roster";
+		if (typeof ChatRoomData !== 'undefined' && ChatRoomData !== null && ChatRoomData.Name) {
+			title = `CRABS: ${ChatRoomData.Name}`;
+		}
+
 		const templateVars = {
 			Help: Assets.printimage({ key: "help", css_class_override: "CRABS_Drawer_Help_Icon" }),
 			Settings: Assets.printimage({ key: "settings", css_class_override: "CRABS_Drawer_Settings_Icon" }),
 			TabIcon: Assets.printimage({ key: "animated_logo" }),
-			TitleBar: `CRABS: Roster`,
+			TitleBar: title,
 			Close: Assets.printimage({ key: "close", css_class_override: "CRABS_Drawer_Close_Icon" }),
 		};
 
@@ -385,6 +390,9 @@ export class Drawer extends CRABS_Base {
 		const isRoomReady = typeof ChatRoomData !== 'undefined' && ChatRoomData !== null;
 
 		if (content && isRoomReady) {
+			const roomName = ChatRoomData.Name || "Roster";
+			const rosterTitle = `CRABS: ${roomName}`;
+
 			if (this.showingHelp) {
 				if (title && title.textContent !== "CRABS: Help") title.textContent = "CRABS: Help";
 
@@ -401,7 +409,7 @@ export class Drawer extends CRABS_Base {
 
 				content.innerHTML = this.helpModule.showHelp(false);
 			} else {
-				if (title && title.textContent !== "CRABS: Roster") title.textContent = "CRABS: Roster";
+				if (title && title.textContent !== rosterTitle) title.textContent = rosterTitle;
 
 				if (helpIconContainer && helpIconContainer.getAttribute("data-icon") !== "help") {
 					helpIconContainer.innerHTML = Assets.printimage({

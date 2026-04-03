@@ -5,28 +5,30 @@
   </div>
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">Key Features</div>
-    <div class="CRABS_help_feature">
-      <b>Interactive Side Drawer</b>
-      <div class="CRABS_help_description">
-        A sleek, stowable interface providing quick access to the Roster and Help. It auto-hides when focusing on characters or typing chat (configurable in settings).
+    <div class="CRABS_feature_grid">
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">🗄️ Interactive Drawer</div>
+        <div class="CRABS_help_description">A sleek, stowable roster interface. Auto-adjusts in hybrid rooms and hides when focusing characters.</div>
       </div>
-    </div>
-    <div class="CRABS_help_feature">
-      <b>Live Roster Sorting</b>
-      <div class="CRABS_help_description">
-        Use the dropdown in the top right of the drawer to instantly sort players by Room Role, D/s Family Tree, Lovers, Friends, or Whitelists.
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">🧭 Sticky Map Compass</div>
+        <div class="CRABS_help_description">Hover names to find players, or click the {{Icon_Compass}} to track them persistently! Auto-clears when stowed.</div>
       </div>
-    </div>
-    <div class="CRABS_help_feature">
-      <b>Map Compass</b>
-      <div class="CRABS_help_description">
-        Hover over a player's Name or ID in the roster to display a directional arrow on the map pointing toward their location.
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">⚡ Smart Performance</div>
+        <div class="CRABS_help_description">Monitors true frame delta to detect lag. Dynamically lowers visual quality and update rates to save your FPS.</div>
       </div>
-    </div>
-    <div class="CRABS_help_feature">
-      <b>Immersive Blindness & BCX Integration</b>
-      <div class="CRABS_help_description">
-        Optional blurring of the roster based on your character's blindness level. Fully respects BCX "Full Blind" rules when enabled.
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">👁️ Immersive Blindness</div>
+        <div class="CRABS_help_description">Optional roster blurring based on your blindness level. Fully respects BCX "Full Blind" rules.</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">✨ Smart Colors</div>
+        <div class="CRABS_help_description">Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">📝 Note to Self</div>
+        <div class="CRABS_help_description">Sending a Whisper+ to your own member number creates a private, grayed-out note in your chat log.</div>
       </div>
     </div>
   </div>
@@ -60,11 +62,11 @@
     </div>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Interactions</div>
+    <div class="CRABS_help_header">Interactions & Navigation</div>
     <ul class="CRABS_help_list">
       <li><b>Click Badge or Name:</b> Opens the character's focus screen / Whisper+.</li>
       <li><b>Click Number (ID):</b> Copies the player's member number to your clipboard.</li>
-      <li><b>Hover Name or ID:</b> Activates the Map Compass to track their position.</li>
+      <li><b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.</li>
     </ul>
   </div>
   <div class="CRABS_help_section">
@@ -83,7 +85,7 @@
       <div class="CRABS_help_item">{{Icon_Ghost}} Ghosted</div>
     </div>
   </div>
-  <div class="CRABS_help_section" style="border-bottom: none;">
+  <div class="CRABS_help_section">
     <div class="CRABS_help_header">Status & Badges</div>
     <div class="CRABS_help_grid">
       <div class="CRABS_help_item">{{Badge_Admin}} Room Admin</div>
@@ -93,5 +95,36 @@
     <div class="CRABS_help_description" style="margin-top: 1.2rem;">
       <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered.
     </div>
+  </div>
+  <div class="CRABS_help_section" style="border-bottom: none;">
+    <div class="CRABS_help_header">⚙️ Settings Detailed Overview</div>
+    <div class="CRABS_help_description" style="margin-bottom: 1rem;">
+      Access settings via the {{Icon_Settings}} icon in the drawer. <b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right of the settings screen to instantly return to the game.
+    </div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Banner</div>
+    <ul class="CRABS_help_list">
+      <li><b>Show Banner on Entry:</b> Displays a brief information summary when joining a new room.</li>
+    </ul>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Drawer</div>
+    <ul class="CRABS_help_list">
+      <li><b>Disable Drawer UI:</b> Turns off the sliding drawer entirely. The roster will only print directly in the chat log.</li>
+      <li><b>/roster toggles drawer:</b> Typing <span class="CRABS_help_command">/roster</span> or <span class="CRABS_help_command">/crabs</span> opens the drawer instead of printing to the chat window.</li>
+      <li><b>Hide Drawer Tab:</b> Removes the persistent visual tab on the side of the screen. (Requires commands to open the drawer).</li>
+      <li><b>Compact Height:</b> Limits the drawer to 77% of the chat window height, ensuring the chat input box remains uncovered.</li>
+      <li><b>Auto-stow on Whisper+:</b> Automatically closes the drawer after you send a Whisper+ message.</li>
+      <li><b>Auto-stow on Chat:</b> Automatically closes the drawer when you send a standard chat message.</li>
+    </ul>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Immersion</div>
+    <ul class="CRABS_help_list">
+      <li><b>Hardcore Lock:</b> Prevents you from disabling active immersion settings while your character is restrained.</li>
+      <li><b>Respect Blindness:</b> Blurs the roster UI based on your character's current blindness level.</li>
+      <li><b>Respect Gags:</b> Disables the Whisper+ system if your character is gagged.</li>
+      <li><b>Respect BCX Rules:</b> Enforces BCX rules (such as "Full Blind" or specific whisper restrictions) within the CRABS interface.</li>
+    </ul>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Maps</div>
+    <ul class="CRABS_help_list">
+      <li><b>Show Map Compass:</b> Toggle the Compass feature which displays a directional arrow on the map pointing toward tracked player.</li>
+      <li><b>SuperZoom:</b> Unlocks the game's default map zoom limitations. CRABS will disable this feature if we detect that another mod or script is tampering with it.</li>
+    </ul>
   </div>
 </div>

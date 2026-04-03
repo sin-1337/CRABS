@@ -23,22 +23,10 @@ import helptemplate from "./templates/help.html";
  * Class representing the help system and documentation viewer.
  */
 export class Help extends CRABS_Base {
-
-	/**
-	 * Creates an instance of the Help module.
-	 * 
-	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 	}
 
-	/** 
-	 * Generates the HTML content for the help screen by populating the help template.
-	 * 
-	 * @param {boolean} [wrapper=true] - Whether to wrap the content in the standard UI wrapper.
-	 * @returns {string} Completed HTML string for the help output.
-	 */
 	public showHelp(wrapper: boolean = true): string {
 		const templateVariables: Record<string, string> = {
 			"Version": VERSION,
@@ -59,6 +47,9 @@ export class Help extends CRABS_Base {
 			"Badge_Admin": Assets.printimage({ key: "admin", css_class_override: "CRABS_help_icon_small" }),
 			"Badge_VIP": Assets.printimage({ key: "vip", css_class_override: "CRABS_help_icon_small" }),
 			"Badge_Player": Assets.printimage({ key: "player", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Compass": Assets.printimage({ key: "compass", css_class_override: "CRABS_help_icon_small" }),
+			// Added Settings Icon for the new overview section
+			"Icon_Settings": Assets.printimage({ key: "settings", css_class_override: "CRABS_help_icon_small" }),
 		};
 
 		const wrapperVariables = {
