@@ -5,7 +5,7 @@
 <h1 align="center">Crazy Roster Add-on By Sin (CRABS) [Alpha]</h1>
 
 > ⚠️ **Development Branch Warning**
-> * This is an active Alpha branch where active development takes place!
+> * This is the Alpha branch where active development takes place!
 > * This branch can be volatile with frequent changes!
 > * Not recommended for normal use!
 ---
