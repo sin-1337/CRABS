@@ -157,7 +157,7 @@ Access settings via the Settings Icon in the drawer.
 ---
 
 ## 💖 Acknowledgements
-* **Sera Eldritch Esper:** Exceptional logo design and visual branding.
+* **Sera Eldritch Esper:** Thanks for the wonderful logo design! Both the big and mini versions!
 * **Gangriel:** For the animated logo and helping me inject some more fun into CRABS.
 * Thanks to many friends for various code advice and assistance!
 * Thanks to all the testers and people who have supported me throughout the development of this project!
