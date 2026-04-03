@@ -24,10 +24,12 @@ import rostercardstemplate from "./templates/roster_cards.html";
  * Class representing the enhanced player roster and related map features.
  */
 export class Roster extends CRABS_Base {
-	/** Current count of online friends. */
-	private onlineFriends: number | undefined = undefined;
+	/** Cached count of online friends. */
+	private onlineFriendsCache: number | string = "...";
 	/** Timestamp for the last server request to prevent spamming. */
 	private lastSentTime: number = 0;
+	/** Prevents multiple requests from firing at the same time. */
+	private isFetching: boolean = false;
 
 	/** Tracks the user's selected sort order in the drawer */
 	private currentSortMode: string = "role";
@@ -49,7 +51,8 @@ export class Roster extends CRABS_Base {
 
 
 
-	/** * Creates an instance of the Roster module and initializes map hooks.
+	/** 
+	 * Creates an instance of the Roster module and initializes map hooks.
 	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
 	 */
 	constructor(CRABS: ModSDKModAPI) {
@@ -64,7 +67,8 @@ export class Roster extends CRABS_Base {
 		});
 	}
 
-	/** * Detects overflow in card wrappers and applies scrolling animation if necessary.
+	/** 
+	 * Detects overflow in card wrappers and applies scrolling animation if necessary.
 	 * @param {string} [containerSelector=".CRABS_overflow-wrapper"] - CSS selector for the containers to check.
 	 * @returns {void}
 	 */
@@ -188,7 +192,8 @@ export class Roster extends CRABS_Base {
 		return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
 	}
 
-	/** * Builds the HTML card for a single player in the roster.
+	/** 
+	 * Builds the HTML card for a single player in the roster.
 	 * @param {PlayerCharacter} character - The player character object.
 	 * @param {string} badge - HTML string for the player's room badge (Admin/VIP/Guest).
 	 * @param {string} playerIcons - HTML string for the player's relational icons (Owner/Friend/etc).
@@ -250,57 +255,48 @@ export class Roster extends CRABS_Base {
 		return this.template(rostercardstemplate, templatevars, false);
 	}
 
-	/** * Hooks into the friend list loading to capture the online friend count.
-	 * @returns {void}
-	 */
+	/**
+		 * Hooks into the friend list loading to capture the online friend count.
+		 * @returns {void}
+		 */
 	private loadFriendList(): void {
-		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (functionArguments, next) => {
-			const [friendData]: Array<Record<string, any>> = functionArguments;
-			this.onlineFriends = friendData.length;
-			this.lastSentTime = Date.now();
-			return next(functionArguments);
+		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (args, next) => {
+			// Cast args to any just for the extraction so TypeScript stops panicking
+			const friendData = (args as any)[0];
+
+			if (Array.isArray(friendData)) {
+				this.onlineFriendsCache = friendData.length;
+			}
+			this.isFetching = false; // Release the lock
+
+			// Pass the original, untouched args back to next()
+			return next(args);
 		});
 	}
 
-	/** * Checks if enough time has passed to send another server request for friend status.
-	 * @returns {boolean} True if a request can be sent, false otherwise.
-	 */
-	private canSendServerRequest(): boolean {
+	/**
+		 * Requests the online friend count from the server if the 5-minute cooldown has passed.
+		 * This is a "fire and forget" method; the UI will redraw when the hook catches the response.
+		 */
+	public requestOnlineFriends(): void {
 		const now = Date.now();
-		if (now - this.lastSentTime >= 10 * 60 * 1000) {
-			// 10 minutes in milliseconds
-			this.lastSentTime = now; // Update the lastSentTime to the current time
-			return true;
+		if (now - this.lastSentTime >= 1 * 60 * 1000 && !this.isFetching) {
+			this.isFetching = true;
+			this.lastSentTime = now;
+			ServerSend("AccountQuery", { Query: "OnlineFriends" });
+
+			// Failsafe: Release the lock after 3 seconds if the server drops the packet
+			setTimeout(() => { this.isFetching = false; }, 3000);
 		}
-		return false;
 	}
 
-	/** * Retrieves the current online friend count, requesting an update if necessary.
-	 *
-	 * @returns {Promise<number>} The number of online friends.
-	 */
-	public async getOnlineFriendCount(): Promise<number> {
-		// Check if it's okay to send the server request
-		if (this.canSendServerRequest()) {
-			// Send server request if it's been more than 2 minutes
-			await ServerSend("AccountQuery", { Query: "OnlineFriends" });
-		}
-
-		// Wait for the hook function to finish (assuming `next` ensures it completes)
-		return new Promise<number>((resolve) => {
-			const checkOnlineFriends = () => {
-				if (this.onlineFriends !== undefined) {
-					resolve(this.onlineFriends); // Return the online friends count
-				} else {
-					setTimeout(checkOnlineFriends, 100); // Check again after 100ms
-				}
-			};
-
-			checkOnlineFriends(); // Start the checking process
-		});
+	/** Returns the currently cached online friends count for dirty-checking. */
+	public getOnlineFriendsCount(): number | string {
+		return this.onlineFriendsCache;
 	}
 
-	/** * Determines the room badge for a player (Admin, VIP, or Guest).
+	/**
+	 * Determines the room badge for a player (Admin, VIP, or Guest).
 	 * @param {Character} character - The character to check.
 	 * @returns {string} HTML string representing the badge icon.
 	 */
@@ -320,10 +316,10 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-		 * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
-		 * @param {Character} character - The character object.
-		 * @returns {string} HTML string containing the relevant relational icons.
-		 */
+	 * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
+	 * @param {Character} character - The character object.
+	 * @returns {string} HTML string containing the relevant relational icons.
+	 */
 	private setIcons(character: Character): string {
 		let playerIcons = "";
 		const memberNum = character.MemberNumber ?? -1;
@@ -414,7 +410,6 @@ export class Roster extends CRABS_Base {
 
 	/** 
 	 * Handler for tapping/clicking the compass icon. 
-	 *
 	 * @param {string} playerId - the id of the player to be tracked.
 	 */
 	private onPlayerToggleTrack = (playerId: string) => {
@@ -593,7 +588,8 @@ export class Roster extends CRABS_Base {
 		}
 	}
 
-	/** * Generates the HTML for the player roster based on provided arguments.
+	/** 
+	 * Generates the HTML for the player roster based on provided arguments.
 	 * @param {string} commandArguments - Command arguments determining which players to display.
 	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
 	 * @returns {string} The completed HTML roster.
@@ -606,6 +602,8 @@ export class Roster extends CRABS_Base {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) {
 			return "";
 		}
+
+		this.requestOnlineFriends();
 
 		// Immersive Mode Check
 		let rosterStyle = "";
@@ -687,10 +685,11 @@ export class Roster extends CRABS_Base {
 			playersInRoom: `${ChatRoomCharacter.length}`,
 			totalPlayers: `${ChatRoomData.Limit}`,
 			friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
-			friendsOnline: this.onlineFriends?.toString() ?? "...",
-			totalFriends: `${Player.FriendNames.size}`,
-			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })}`,
-			onlinePlayers: `${CurrentOnlinePlayers}`,
+			friendsOnline: `${this.onlineFriendsCache}`,
+			totalFriends: `${Player.FriendList.length}`,
+			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })
+				}`,
+			onlinePlayers: `${CurrentOnlinePlayers} `,
 			playerRows: output_rows
 		};
 
@@ -704,7 +703,7 @@ export class Roster extends CRABS_Base {
 			for (const [key, value] of Object.entries(KEYS)) {
 				displaykeys += Assets.printimage({ key: value ? key : "keyNull" });
 			}
-			templatevars["collectedKeys"] = `<div class="CRABS_status_cell"><div class="CRABS_roster_header_align">${displaykeys}</div></div>`;
+			templatevars["collectedKeys"] = `< div class="CRABS_status_cell" > <div class="CRABS_roster_header_align" > ${displaykeys} </div></div > `;
 		} else {
 			templatevars["collectedKeys"] = "";
 		}

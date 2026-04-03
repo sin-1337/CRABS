@@ -51,6 +51,7 @@ export class Drawer extends CRABS_Base {
 	private lastKeys: string = "";
 	private lastFriends: string = "";
 	private lastMapState: boolean = false;
+	private lastOnlineFriends: number | string = "...";
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -171,18 +172,21 @@ export class Drawer extends CRABS_Base {
 		].join(",");
 		const currentFriends = (player.FriendList || []).join(",");
 		const isMapActive = ChatRoomMapViewIsActive();
+		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
 		if (currentRoster !== this.lastRoster ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
 			currentFriends !== this.lastFriends ||
-			isMapActive !== this.lastMapState) {
+			isMapActive !== this.lastMapState ||
+			currentOnlineFriends !== this.lastOnlineFriends) {
 
 			this.lastRoster = currentRoster;
 			this.lastAdminList = currentAdmins;
 			this.lastKeys = currentKeys;
 			this.lastFriends = currentFriends;
 			this.lastMapState = isMapActive;
+			this.lastOnlineFriends = currentOnlineFriends;
 			return true;
 		}
 		return false;
@@ -222,7 +226,7 @@ export class Drawer extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		this.CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (functionArguments, next) => {
+		this.CRABS.hookFunction("ChatRoomRun", 10, (functionArguments, next) => {
 			const result = next(functionArguments);
 
 			// Update the performance state (defined in CRABS_Base)
@@ -244,6 +248,9 @@ export class Drawer extends CRABS_Base {
 			this.updateTick++;
 			if (this.updateTick >= threshold) {
 				this.updateTick = 0;
+
+				// Continuously evaluate visibility (Auto-stowing on focus screens)
+				this.updateVisibility();
 
 				// Only refresh if Drawer is open, not showing help, AND state actually changed
 				if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
@@ -369,8 +376,6 @@ export class Drawer extends CRABS_Base {
 			} else {
 				this.syncToChat();
 			}
-
-			this.refresh();
 		}
 	}
 
