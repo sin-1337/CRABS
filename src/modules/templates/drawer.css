@@ -87,7 +87,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 850px) {
   .drawer-content #drawer-title {
     display: none !important;
   }
