@@ -3,15 +3,15 @@
     {{TabIcon}}
   </div>
   <div class="drawer-content CRABS_wrapper">
-    <div class="CRABS_wrapper_header" style="position: relative; display: flex; align-items: center; padding: 8px 12px; min-height: 50px;">
-      <div class="header-left-icons" style="display: flex; gap: 4px; z-index: 2;">
+    <div class="CRABS_wrapper_header" style="display: flex; align-items: center; padding: 8px 12px; min-height: 50px; justify-content: space-between;">
+      <div class="header-left-icons" style="display: flex; gap: 4px; z-index: 2; flex-shrink: 0;">
         <div class="CRABS_Drawer_Help_Icon">{{Help}}</div>
         <div class="CRABS_Drawer_Settings_Icon">{{Settings}}</div>
       </div>
-      <div id="drawer-title" style="position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; font-weight: bold; font-size: 1.4rem; z-index: 1; pointer-events: none;">
+      <div id="drawer-title">
         {{TitleBar}}
       </div>
-      <div class="header-right-icons" style="display: flex; align-items: center; gap: 8px; z-index: 2; margin-left: auto;">
+      <div class="header-right-icons" style="display: flex; align-items: center; gap: 8px; z-index: 2; flex-shrink: 0;">
         <div id="CRABS_sort_container" style="display: flex; align-items: center; gap: 4px; font-size: 1.2rem; font-weight: bold;">
           Sort:
           <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
