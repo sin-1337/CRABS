@@ -24,10 +24,14 @@ import rostercardstemplate from "./templates/roster_cards.html";
  * Class representing the enhanced player roster and related map features.
  */
 export class Roster extends CRABS_Base {
-	/** Current count of online friends. */
-	private onlineFriends: number | undefined = undefined;
+	/** Cached count of online friends. */
+	private onlineFriendsCache: number = 0;
 	/** Timestamp for the last server request to prevent spamming. */
 	private lastSentTime: number = 0;
+	/** Stores the active promise if a fetch is already in progress to prevent duplicate requests. */
+	private fetchPromise: Promise<number> | null = null;
+	/** Stores the resolve function to be called by the hook when data arrives. */
+	private fetchResolver: ((value: number) => void) | null = null;
 
 	/** Tracks the user's selected sort order in the drawer */
 	private currentSortMode: string = "role";
@@ -253,15 +257,23 @@ export class Roster extends CRABS_Base {
 		return this.template(rostercardstemplate, templatevars, false);
 	}
 
-	/** 
+	/**
 	 * Hooks into the friend list loading to capture the online friend count.
 	 * @returns {void}
 	 */
 	private loadFriendList(): void {
 		this.CRABS.hookFunction("FriendListLoadFriendList", 0, (functionArguments, next) => {
 			const [friendData]: Array<Record<string, any>> = functionArguments;
-			this.onlineFriends = friendData.length;
+			this.onlineFriendsCache = friendData.length;
 			this.lastSentTime = Date.now();
+
+			// If a UI element is waiting for this data, resolve the promise instantly!
+			if (this.fetchResolver) {
+				this.fetchResolver(this.onlineFriendsCache);
+				this.fetchResolver = null;
+				this.fetchPromise = null;
+			}
+
 			return next(functionArguments);
 		});
 	}
@@ -280,31 +292,48 @@ export class Roster extends CRABS_Base {
 		return false;
 	}
 
-	/** * Retrieves the current online friend count, requesting an update if necessary.
+	/** 
+	 * Retrieves the current online friend count safely and asynchronously.
 	 * @returns {Promise<number>} The number of online friends.
 	 */
 	public async getOnlineFriendCount(): Promise<number> {
-		// Check if it's okay to send the server request
-		if (this.canSendServerRequest()) {
-			// Send server request if it's been more than 2 minutes
-			await ServerSend("AccountQuery", { Query: "OnlineFriends" });
+		const now = Date.now();
+
+		// 1. If we checked within the last 10 minutes, return the cached number instantly
+		if (now - this.lastSentTime < 10 * 60 * 1000) {
+			return this.onlineFriendsCache;
 		}
 
-		// Wait for the hook function to finish (assuming `next` ensures it completes)
-		return new Promise<number>((resolve) => {
-			const checkOnlineFriends = () => {
-				if (this.onlineFriends !== undefined) {
-					resolve(this.onlineFriends); // Return the online friends count
-				} else {
-					setTimeout(checkOnlineFriends, 100); // Check again after 100ms
-				}
-			};
+		// 2. If a request is ALREADY in flight, just return the existing Promise
+		// (This prevents spamming the server if the UI redraws 5 times in one second)
+		if (this.fetchPromise) {
+			return this.fetchPromise;
+		}
 
-			checkOnlineFriends(); // Start the checking process
+		// 3. Otherwise, create a new Promise, store its resolver, and ask the server
+		this.fetchPromise = new Promise((resolve) => {
+			this.fetchResolver = resolve;
+
+			// Bypass the base game's rate limiter and send directly to the server
+			ServerSend("AccountQuery", { Query: "OnlineFriends" });
 		});
+
+		// 4. Safety Net: If the server drops the packet or never responds, 
+		// fallback to the cache after 3 seconds so the UI doesn't freeze forever.
+		setTimeout(() => {
+			if (this.fetchResolver) {
+				console.warn("CRABS: Online friends request timed out, falling back to cache.");
+				this.fetchResolver(this.onlineFriendsCache);
+				this.fetchResolver = null;
+				this.fetchPromise = null;
+			}
+		}, 3000);
+
+		return this.fetchPromise;
 	}
 
-	/** * Determines the room badge for a player (Admin, VIP, or Guest).
+	/**
+	 * Determines the room badge for a player (Admin, VIP, or Guest).
 	 * @param {Character} character - The character to check.
 	 * @returns {string} HTML string representing the badge icon.
 	 */
