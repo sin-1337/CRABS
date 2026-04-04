@@ -15,7 +15,7 @@
 ### FUSAM (Recommended)
 * Install FUSAM if you do not already have it: https://sidiousious.gitlab.io/bc-addon-loader/
 * Find the **ADD-ON** button at the top of the main settings page once you log in.
-* Scroll to the bottom where you will see the **CRABS** addon. In the far right column, select **Stable** (or your preferred branch).
+* Scroll to the bottom where you will see the **CRABS** addon. In the far right column, select **Beta** (or your preferred branch).
 * Click Save and reload BC.
 
 ### User Script (Violentmonkey / Tampermonkey)
