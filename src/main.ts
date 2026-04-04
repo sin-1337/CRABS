@@ -1,218 +1,358 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import * as Modules from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets } from "./modules";
+
 
 //register the mod
 const CRABS = bcModSDK.registerMod({
-  name: NICKNAME,
-  fullName: NAME,
-  version: VERSION,
-  repository: "https://github.com/sin-1337/CRABS",
+	name: NICKNAME,
+	fullName: NAME,
+	version: VERSION,
+	repository: "https://github.com/sin-1337/CRABS",
 });
 
-const BANNER = new Modules.Banner(CRABS);
-const WHISPERPLUS = new Modules.WhisperPlus(CRABS);
-const ROSTER = new Modules.Roster(CRABS);
-const HELP = new Modules.Help(CRABS);
+// print version early, so you know what version is running even if it fails.
+console.log(`CRABS v${VERSION} Loading`); // do not remove
 
-window.sendWhisper = WHISPERPLUS.sendWhisper;
-window.PlayerFocus = ROSTER.showPlayerFocus;
-window.fakePlayerCommand = ROSTER.fakePlayerCommand;
-window.crabsCloseItem = ROSTER.closeElement.bind(ROSTER);
-window.crabsHelp = HELP.showHelp.bind(HELP);
+const SETTINGS = new Settings(CRABS);
+const BANNER = new Banner(CRABS);
+const WHISPERPLUS = new WhisperPlus(CRABS);
+const ROSTER = new Roster(CRABS);
+const HELP = new Help(CRABS);
+new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
+let crabsLastRoomName = "";
+WHISPERPLUS.setupHooks();
 
-// print version and load success in console
-console.log(`CRABS v${VERSION} Loaded`);  // do not remove
+SETTINGS.syncGameState();
 
-/** 
- * Draws the banner 
- *  
- * @returns void
+// Hook into chat sending for auto-stow feature
+CRABS.hookFunction("ChatRoomSendChat", 10, (functionArguments, next) => {
+	// Capture the message before next(functionArguments) clears the input box
+	const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
+	const message = chatInput?.value?.toLowerCase().trim() || "";
+
+	const result = next(functionArguments);
+
+	if (Settings.instance.data.closeDrawerOnChat) {
+		// Exception: Don't auto-close if the user is running a command that specifically opens/toggles the drawer
+		if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
+			Drawer.close();
+		}
+	}
+	return result;
+});
+
+// print version and confirm load success in console
+console.log(`CRABS v${VERSION} Loaded`); // do not remove
+
+/**
+ * Draws the room information banner.
+ *
+ * @returns {void | boolean} Returns false if the player has left the room.
  */
-function drawbanner() {
-  let output: string = "";
-  // if the player left the room, bail!
-  if (Player.LastChatRoom === null) {
-    // Must return false, even if we are bailing out!
-    return false;
-  }
+function drawbanner(): void | boolean {
 
-  // configure extra roster input to the banner
-  // TODO: make this optional in the future
-  let extradata = {
-    RosterCounters: ROSTER.buildroster("count", false),
-  };
-  BANNER.drawBanner(extradata);
+	//let output: string = "";
+	// if the player left the room, bail!
+	if (Player.LastChatRoom === null) {
+		// Must return false, even if we are bailing out!
+		return false;
+	}
+
+	// configure extra roster input to the banner
+	// TODO: make this optional in the future
+	const extraData = {
+		RosterCounters: ROSTER.buildroster("count", false),
+	};
+	BANNER.drawBanner(extraData);
 }
 
-// TODO: create ui to turn this off!!
-// TODO: This only triggers on rooms I didn't make, why?
-// set up a handler for room entry
-// This sets up the banner!
-ChatRoomRegisterMessageHandler({
-  Description: "Send room stats on entry.",
-  Priority: 0, // trigger immediately
-  Callback: (data: any) => {
-    // check if we are a player and we entered a room
-    if (
-      data.Type === "Action" &&
-      data.Content === "ServerEnter" &&
-      data.Sender === Player.MemberNumber
-    ) {
-      // work on a delay
-      setTimeout(() => {
-        // configure extra roster input to the banner
-        if(!ChatRoomData) return; // bail if ChatRoomData isn't initialized 
-        drawbanner();
-      }, 3600);
-    }
+/**
+ * Hook the native Exit function to ensure the drawer hides 
+ * even if the server message is delayed.
+ */
+const nativeChatRoomExit = window.ChatRoomExit;
 
-    // Must return false to allow other handlers to work with the data.
-    return false;
-  },
+window.ChatRoomExit = function () {
+	// Call the original game function
+	if (typeof nativeChatRoomExit === "function") {
+		nativeChatRoomExit();
+	}
+
+	// Trigger our drawer visibility logic
+	Drawer.updateVisibility();
+};
+
+/**
+ * Hook into the CreateRoomSync function.  
+ * It triggers when joining a room to execute
+ * code at join time.
+ */
+// Add this at the top level of your main.ts file to track the current room
+
+CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
+	// 1. Run the base game function
+	const result = next(args);
+
+	const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null && (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+
+	if (inChatRoom) {
+		// --- SCENARIO A: We just joined a new room! ---
+		if (ChatRoomData.Name !== crabsLastRoomName) {
+			crabsLastRoomName = ChatRoomData.Name;
+
+			try {
+				Drawer.updateVisibility();
+				SETTINGS.syncGameState();
+
+				if (Settings.instance.data.showBanner) {
+					drawbanner();
+				}
+			} catch (error) {
+				console.error("CRABS: Room Join execution failed:", error);
+			}
+		}
+
+		// --- SCENARIO B: We returned from Wardrobe, Profile, or Admin menu ---
+		// If no character dialog is open, but the drawer is mysteriously hidden, wake it up!
+		const isFocused = (window as any).CurrentCharacter !== null;
+		const drawerElement = document.getElementById("crabs-drawer");
+
+		if (!isFocused && drawerElement && drawerElement.style.display === "none" && !Settings.instance.data.disableDrawer) {
+			try {
+				Drawer.updateVisibility();
+			} catch (error) {
+				console.error("CRABS: Drawer recovery failed:", error);
+			}
+		}
+
+	} else {
+		// We left the room, reset the tracker so it fires again next time
+		crabsLastRoomName = "";
+	}
+
+	return result;
 });
 
-function argcheck(args: string): boolean {
-  const SPLITARGS = args.split(" ");
-  if (SPLITARGS[0].toLowerCase() == "help") {
-    HELP.sendoutput(HELP.showHelp(), "CRABS_Help");
-    const HELPBUTTON = document.getElementById("CRABS_Help_Icon")
-    if (HELPBUTTON) HELPBUTTON.style.display = "none";
-    return false;
-  } else if (SPLITARGS[0].toLowerCase() == "version") {
-    ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
-    return false;
-  } else if (SPLITARGS[0].toLowerCase() == "banner") {
-    drawbanner();
-    return false;
-  }
-  return true;
+/**
+ * Hook into the screen change function.
+ * This ensures the drawer auto-stows whenever the player navigates to a new screen.
+ */
+CRABS.hookFunction("CommonSetScreen", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
+	Drawer.updateVisibility();
+	return result;
+});
+
+/**
+ * Hook into character focus.
+ * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
+ */
+CRABS.hookFunction("ChatRoomFocusCharacter", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
+	Drawer.updateVisibility();
+	return result;
+});
+
+/**
+ * Hook into character dialog exit.
+ * This ensures the drawer/tab reappears when leaving a character profile or focus screen.
+ */
+CRABS.hookFunction("DialogLeave", 0, (functionArguments, next) => {
+	const result = next(functionArguments);
+	Drawer.updateVisibility();
+	return result;
+});
+
+/**
+ * Validates and processes basic mod commands.
+ *
+ * @param {string} commandArguments - The string of arguments passed to the command.
+ * @returns {boolean} Returns true if the command should proceed to the next handler, false otherwise.
+ */
+function argcheck(commandArguments: string): boolean {
+	const splitArgs = commandArguments.split(" ");
+	if (splitArgs[0].toLowerCase() == "help") {
+		HELP.buildui(HELP.showHelp(), "CRABS_Help");
+		const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
+		if (HELPBUTTON) HELPBUTTON.style.display = "none";
+		return false;
+	} else if (splitArgs[0].toLowerCase() == "version") {
+		ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
+		return false;
+	} else if (splitArgs[0].toLowerCase() == "banner") {
+		drawbanner();
+		return false;
+	}
+	return true;
 }
 
-function commandRedirect(command: string, args: string): void {
-  for (const [_, COMMAND] of Commands.entries()) {
-    if (COMMAND.Tag === command) {
-      COMMAND.Action(args);
-      break;
-    }
-  }
+/**
+ * Redirects a command to its corresponding action.
+ *
+ * @param {string} command - The tag of the command to redirect.
+ * @param {string} commandArguments - The arguments to pass to the command action.
+ * @returns {void}
+ */
+function commandRedirect(command: string, commandArguments: string): void {
+	for (let [_unused, COMMAND] of Commands.entries()) {
+		if (COMMAND.Tag === command) {
+			COMMAND.Action(commandArguments, command);
+			break;
+		}
+	}
 }
 
 // implements the whisper+ command
 CommandCombine([
-  {
-    Tag: "whisper+",
-    Description:
-      "Enables the /whisper+ command that does global whisper in a map room",
-    Action: (args: string, command: string) => {
-      WHISPERPLUS.whisperplus(args, command);
-    },
-  },
+	{
+		Tag: "whisper+",
+		Description: "Enables the /whisper+ command that does global whisper in a map room",
+		Action: (commandArguments: string, command: string) => {
+			WHISPERPLUS.whisperplus(commandArguments, command);
+		},
+	},
 ]);
 
+// implements the /w+ command as a synonym for the whisper+ command
 CommandCombine([
-  {
-    Tag: "w+",
-    Description:
-      "Enables the /w+ command that does global whisper in a map room",
-    Action: (args: string, command: string) => {
-      WHISPERPLUS.whisperplus(args, command);
-    },
-  },
+	{
+		Tag: "w+",
+		Description:
+			"Enables the /w+ command that does global whisper in a map room",
+		Action: (commandArguments: string) => {
+			commandRedirect("whisper+", commandArguments);
+		},
+	},
 ]);
 
-// implements the /crabs command
+// implements the /crabs command as a synonym for /roster
 CommandCombine([
-  {
-    Tag: "crabs",
-    Description: "Show the player count, helpful in maps.",
-    Action: (args: string) => {
-      commandRedirect("roster", args);
-    },
-  },
+	{
+		Tag: "crabs",
+		Description: "Open the CRABS Roster.",
+		Action: (commandArguments: string) => {
+			commandRedirect("roster", commandArguments);
+		},
+	},
+]);
+
+// who the heck knows what this does... clearly Sin was sleep deprived.
+CommandCombine([
+	{
+		Tag: "crab",
+		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volital, could do just about anything... even make noise!",
+		Action: (commandArguments: string) => {
+			const trimmedArgs = commandArguments.trim().toLowerCase();
+
+			if (!trimmedArgs) {
+				const noArgMessages = [
+					"The crab is confused. Maybe try telling it what to do?",
+					"The crab clicks its claws at you. Maybe try giving it an argument?",
+					"A tiny crab scuttles by, ignores you, and disappears into a hole. It seems to want a command.",
+					"You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
+					"The crab is currently on lunch break. Try back later with some instructions.",
+					"ERROR: Crab not found. Please provide an argument to locate the crab.",
+				];
+				ChatRoomSendLocal(noArgMessages[Math.floor(Math.random() * noArgMessages.length)]);
+				return;
+			}
+
+			if (trimmedArgs === "rave") {
+				Assets.PlayAudio("rave");
+				Drawer.RaveTab();
+				ChatRoomSendLocal("🦀 RAVE TIME! 🦀");
+				return;
+			}
+
+			const failMessages = [
+				`Trying it... nope, not that one.`,
+				`The crab looks confused. '${commandArguments}'? Is that even a word?`,
+				`You try to make the crab ${commandArguments}. It pinches you in response. Ouch!`,
+				`The crab tries its best to ${commandArguments}, but it just ends up spinning in circles.`,
+				"The crab remains unimpressed.",
+			];
+			ChatRoomSendLocal(failMessages[Math.floor(Math.random() * failMessages.length)]);
+		},
+	},
 ]);
 
 // implements the /roster command
 CommandCombine([
-  {
-    Tag: "roster",
-    Description: "Show the player count, helpful in maps.",
-    Action: (args: string) => {
-      if (argcheck(args))
-        ROSTER.sendoutput(ROSTER.buildroster(args), "CRABS_Roster");
-      ROSTER.initScrollingOverflow();
-      const elements = document.querySelectorAll<HTMLDivElement>(
-        "div.ChatMessageNonDialogue"
-      );
+	{
+		Tag: "roster",
+		Description: "Open the CRABS Roster.",
+		Action: (commandArguments: string) => {
+			if (Settings.instance.data.rosterOpensDrawer && !commandArguments) {
+				Drawer.updateVisibility();
+				Drawer.toggle();
+				return;
+			}
 
-      elements.forEach((element) => {
-        element.style.overflow = "visible";
-      });
+			if (argcheck(commandArguments)) {
+				ROSTER.buildui(ROSTER.buildroster(commandArguments), "CRABS_Roster");
 
-      //attach intractable roster events
-      ROSTER.attachEvent("CRABS_player-badge", "PlayerFocus", "playerNumber");
-      ROSTER.attachEvent("CRABS_player-id", "sendWhisper", "playerNumber");
-    },
-  },
-]);
+				// call this to set the whisper plus event in the roster ui
+				WHISPERPLUS.buildui();
+				ROSTER.initScrollingOverflow();
+			}
+			const elements = document.querySelectorAll<HTMLDivElement>(
+				"div.ChatMessageNonDialogue",
+			);
 
-// implements the /players command
-CommandCombine([
-  {
-    Tag: "players",
-    Description: "Deprecated: Show the player count, helpful in maps.",
-    Action: (args: string) => {
-      commandRedirect("roster", args);
-    },
-  },
+			elements.forEach((element) => {
+				element.style.overflow = "visible";
+			});
+		},
+	},
 ]);
 
 // implements /dropkeys command
 CommandCombine([
-  {
-    Tag: "dropkeys",
-    Description:
-      "Drops the specified keys: gold, silver, or bronze. You can also use all.",
-    Action: (args: string) => {
-      const splitArgs = args.toLowerCase().split(" ");
-      if (splitArgs.length < 1) {
-        ChatRoomSendLocal(
-          `You must supply which key to drop, or 'all' to drop them all.`
-        );
-        return;
-      }
-      if (!ChatRoomMapViewIsActive()) {
-        ChatRoomSendLocal(`Key only work on a map...`);
-        return;
-      }
-      for (let i = 0; i < splitArgs.length; i++) {
-        if (splitArgs[i] == "bronze" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeyBronze) {
-            Player.MapData.PrivateState.HasKeyBronze = false;
-            ChatRoomSendLocal(`Bronze key dropped.`);
-          }
-        }
-        if (splitArgs[i] == "silver" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeySilver) {
-            Player.MapData.PrivateState.HasKeySilver = false;
-            ChatRoomSendLocal(`Silver key dropped.`);
-          }
-        }
-        if (splitArgs[i] == "gold" || splitArgs[i] == "all") {
-          if (Player.MapData.PrivateState.HasKeyGold) {
-            Player.MapData.PrivateState.HasKeyGold = false;
-            ChatRoomSendLocal(`Gold key dropped.`);
-          }
-        }
-        if (
-          splitArgs[i] != "bronze" &&
-          splitArgs[i] != "silver" &&
-          splitArgs[i] != "gold" &&
-          splitArgs[i] != "all"
-        ) {
-          ChatRoomSendLocal(`Argument '${splitArgs[i]}', was not understood.`);
-        }
-      }
-    },
-  },
+	{
+		Tag: "dropkeys",
+		Description:
+			"Drops the specified keys: gold, silver, or bronze. You can also use all.",
+		Action: (commandArguments: string) => {
+			const splitArgs = commandArguments.toLowerCase().split(" ");
+			if (splitArgs.length < 1) {
+				ChatRoomSendLocal(
+					`You must supply which key to drop, or 'all' to drop them all.`,
+				);
+				return;
+			}
+			if (!ChatRoomMapViewIsActive()) {
+				ChatRoomSendLocal(`Key only work on a map...`);
+				return;
+			}
+			for (let index = 0; index < splitArgs.length; index++) {
+				if (splitArgs[index] == "bronze" || splitArgs[index] == "all") {
+					if (Player.MapData.PrivateState.HasKeyBronze) {
+						Player.MapData.PrivateState.HasKeyBronze = false;
+						ChatRoomSendLocal(`Bronze key dropped.`);
+					}
+				}
+				if (splitArgs[index] == "silver" || splitArgs[index] == "all") {
+					if (Player.MapData.PrivateState.HasKeySilver) {
+						Player.MapData.PrivateState.HasKeySilver = false;
+						ChatRoomSendLocal(`Silver key dropped.`);
+					}
+				}
+				if (splitArgs[index] == "gold" || splitArgs[index] == "all") {
+					if (Player.MapData.PrivateState.HasKeyGold) {
+						Player.MapData.PrivateState.HasKeyGold = false;
+						ChatRoomSendLocal(`Gold key dropped.`);
+					}
+				}
+				if (
+					splitArgs[index] != "bronze" &&
+					splitArgs[index] != "silver" &&
+					splitArgs[index] != "gold" &&
+					splitArgs[index] != "all"
+				) {
+					ChatRoomSendLocal(`Argument '${splitArgs[index]}', was not understood.`);
+				}
+			}
+		},
+	},
 ]);

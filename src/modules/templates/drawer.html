@@ -1,0 +1,34 @@
+<div id="crabs-drawer" class="drawer-closed">
+  <div id="drawer-tab">
+    {{TabIcon}}
+  </div>
+  <div class="drawer-content CRABS_wrapper">
+    <div class="CRABS_wrapper_header" style="display: flex; align-items: center; padding: 8px 12px; min-height: 50px; justify-content: space-between;">
+      <div class="header-left-icons" style="display: flex; gap: 4px; z-index: 2; flex-shrink: 0;">
+        <div class="CRABS_Drawer_Help_Icon">{{Help}}</div>
+        <div class="CRABS_Drawer_Settings_Icon">{{Settings}}</div>
+      </div>
+      <div id="drawer-title">
+        {{TitleBar}}
+      </div>
+      <div class="header-right-icons" style="display: flex; align-items: center; gap: 8px; z-index: 2; flex-shrink: 0;">
+        <div id="CRABS_sort_container" style="display: flex; align-items: center; gap: 4px; font-size: 1.2rem; font-weight: bold;">
+          Sort:
+          <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
+            <option value="role">Room Role</option>
+            <option value="ds">D/s Family</option>
+            <option value="lovers">Lovers</option>
+            <option value="friends">Friends</option>
+            <option value="whitelist">Whitelist</option>
+            <option value="blacklist">Blacklist</option>
+          </select>
+        </div>
+        <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>
+      </div>
+    </div>
+    <div class="CRABS_wrapper_content" style="display: flex; flex-direction: column;">
+      <div id="CRABS_Drawer_Roster">
+      </div>
+    </div>
+  </div>
+</div>

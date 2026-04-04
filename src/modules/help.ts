@@ -1,114 +1,62 @@
-import CRABS from "../base";
+/**
+ * CRABS Help Module
+ *
+ * This module implements the help system for the CRABS mod.
+ * It provides:
+ * - Help command functionality
+ * - Help template rendering
+ * - Documentation display for mod features
+ * - Integration with the CRABS base class and asset system
+ *
+ * The help module makes it easy for users to access information about
+ * the CRABS mod's features and commands.
+ */
+
+import { CRABS_Base } from "./base";
+import { Assets } from "./assets";
+import { CrossMod } from "./crossmod";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import "./templates/help.css";
 import helptemplate from "./templates/help.html";
 
+/**
+ * Class representing the help system and documentation viewer.
+ */
+export class Help extends CRABS_Base {
+	constructor(CRABS: ModSDKModAPI) {
+		super(CRABS);
+	}
 
-export class Help extends CRABS {
+	public showHelp(wrapper: boolean = true): string {
+		const templateVariables: Record<string, string> = {
+			"Version": VERSION,
+			"Logo": Assets.printimage({ key: "logo" }),
+			"Icon_You": Assets.printimage({ key: "you", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Owner": Assets.printimage({ key: "owner", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Sub": Assets.printimage({ key: "sub", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Trial": Assets.printimage({ key: "trial", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Lover": Assets.printimage({ key: "lover", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Family": Assets.printimage({ key: "family", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_BestFriend": CrossMod.detectMod("BCTweaks")
+				? Assets.printimage({ key: "bestfriend", css_class_override: "CRABS_help_icon_small" })
+				: "<i>(N/A)</i>",
+			"Icon_Friend": Assets.printimage({ key: "friend", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Whitelist": Assets.printimage({ key: "whitelist", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Blacklist": Assets.printimage({ key: "blacklist", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Ghost": Assets.printimage({ key: "ghost", css_class_override: "CRABS_help_icon_small" }),
+			"Badge_Admin": Assets.printimage({ key: "admin", css_class_override: "CRABS_help_icon_small" }),
+			"Badge_VIP": Assets.printimage({ key: "vip", css_class_override: "CRABS_help_icon_small" }),
+			"Badge_Player": Assets.printimage({ key: "player", css_class_override: "CRABS_help_icon_small" }),
+			"Icon_Compass": Assets.printimage({ key: "compass", css_class_override: "CRABS_help_icon_small" }),
+			// Added Settings Icon for the new overview section
+			"Icon_Settings": Assets.printimage({ key: "settings", css_class_override: "CRABS_help_icon_small" }),
+		};
 
-  /** 
-   * Shows help output
-   * 
-   * @param {string} VERSION - the version number for CRABS.
-   * @returns {string} Completed HTML for help output.
-   */
-  public showHelp(): string {
-    let output = `<table style="width: 100%"><tr><td>
-            <span style=" text-shadow: 0px 0px 3px #000000; white-space: normal;">
-            <hr>
-            ${this.printimage("logo", undefined, "CRABS_logo")}</br>
-            CRABS ${VERSION} help sheet</br>
-            /roster [optional argument] </br>
-            This command lists the number of admins and players
-            in a room and gives you some information about them </br>
-            
-            <br>
-            /roster Arguments: </br>
-            help - show this menu </br>
-            count - show only the player count </br>
-            admins - show only a list of admins and the counts </br>
-            vips - show only room whitelisted and the counts </br>
-            banner - draws the banner again </br>
-            version - shows the version of CRABS </br>
+		const wrapperVariables = {
+			TitleBar: `CRABS: Help`,
+			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Help"] })
+		};
 
-            </br>
-            /whisper+ [player number] </br>
-            /w+ [player number] </br>
-            Command that lets you whisper at range on maps, 
-            activated automatically by clicking the player
-            name in the roster. </br></br>
-
-            /dropkeys [gold silver bronze / all] </br>
-            Command that lets you drop your keys, you can 
-            supply one or more key colors, or all to drop 
-            all keys. </br>
-
-            </br>
-            Badges:
-            <hr>
-            ${this.printimage("admin")} = Person is Admin</br>
-            ${this.printimage("vip")} = Person is whitelisted in the room </br>
-            ${this.printimage("player")} = Person is a normal user </br>
-
-            </br>
-            Icons:
-            <hr>
-            ${this.printimage("you")} = Person is you </br>
-            ${this.printimage("owner")} = Person is your owner </br>
-            ${this.printimage("sub")} = Person is your submissive </br>
-            ${this.printimage("trial")} = Person is on trial with you </br>
-            ${this.printimage("lover")} = Person is your lover </br>`;
-
-    //prints only if the BCTweaks module is detected.
-    if (this.detectMod("BCTweaks")) {
-      output += `${this.printimage(
-        "bestfriend"
-      )} = Person is a best friend </br>`;
-    }
-
-    output += `${this.printimage("friend")} = Person is a friend </br>
-            ${this.printimage(
-              "whitelist"
-            )} = You have this person whitelisted </br>
-            ${this.printimage(
-              "blacklist"
-            )} = You have this person blacklisted </br>
-            ${this.printimage("ghost")} = You have ghosted this person </br>
-
-            </br>
-            Status Icons:
-            <hr>
-            There are 3 icons on the right side of each player card.
-            They indicate if the player is gagged, blind, or deaf 
-            and will light up to show this stats.</br>
-
-            </br>
-            Keys:
-            <hr>
-            When on a map, 3 key icons in the upper right corner of
-            the roster will light up as you collect the different keys. </br>
-
-            </br>
-            Actions:
-            <hr>
-            Click Badge - If you click the badge for a player it will 
-            be as if you clicked them to interact. It shows the focus 
-            screen.</br></br>
-            Click name - If you click the name/number of a player it 
-            will activate whisper+ and let you whisper them without 
-            range constraints. </br>
-            </span>
-            </td>
-            </tr>
-            </table>`;
-
-    let templatevars = {
-        "HelpOutput": output,
-    };
-    
-    let wrappervars = {
-        TitleBar: `CRABS: Help`,
-        Close: this.printimage("close", undefined, "CRABS_close", undefined, ["elementid", "CRABS_Help"])
-    }
-
-    return(this.template(helptemplate, templatevars, true, wrappervars));
-  }
+		return this.template(helptemplate, templateVariables, wrapper, wrapperVariables);
+	}
 }

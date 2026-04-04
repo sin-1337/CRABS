@@ -2,9 +2,11 @@
 node_modules/
 
 # ignore files
-package-lock.json
 README.md
 deploy.sh
+crabsloader.user.js
+packege.json
+rollup.config.mjs
 
 # ignore file types
 *.swp

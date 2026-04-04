@@ -1,0 +1,135 @@
+.CRABS_help_container {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #eee;
+  line-height: 1.4;
+  font-size: 1.2rem; /* Base scaling size */
+  padding: 0 0.5rem;
+}
+
+.CRABS_help_title_container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.CRABS_help_title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.CRABS_help_section {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 1.5rem;
+}
+
+.CRABS_help_header {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffaa00;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.CRABS_help_feature {
+  margin-top: 1.2rem;
+}
+
+.CRABS_help_command {
+  font-family: monospace;
+  color: #00ffcc;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+}
+
+.CRABS_help_arguments {
+  margin-left: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.CRABS_help_description {
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+  color: #bbb;
+}
+
+.CRABS_help_list {
+  margin-top: 0.5rem;
+  padding-left: 1.5rem;
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.CRABS_help_list li {
+  margin-bottom: 0.5rem;
+}
+
+.CRABS_help_list b {
+  color: #eee;
+}
+
+.CRABS_help_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.CRABS_help_item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.CRABS_help_icon_small {
+  width: 1.8rem;
+  height: 1.8rem;
+  object-fit: contain;
+}
+
+/* New Feature Card Grid Styling */
+.CRABS_feature_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.CRABS_feature_card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.CRABS_feature_card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 170, 0, 0.5);
+}
+
+.CRABS_feature_title {
+  color: #ffaa00;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
