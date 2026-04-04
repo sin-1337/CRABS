@@ -241,7 +241,7 @@ CommandCombine([
 CommandCombine([
 	{
 		Tag: "crab",
-		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volital, could do just about anything... even make noise!",
+		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volatile, could do just about anything... even make noise!",
 		Action: (commandArguments: string) => {
 			const trimmedArgs = commandArguments.trim().toLowerCase();
 
