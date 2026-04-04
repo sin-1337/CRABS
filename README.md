@@ -41,7 +41,7 @@ A sleek, stowable roster interface that provides rapid access to mod features wi
 * Auto-hides when focusing on characters or typing in chat (configurable).
 * **Live Sorting:** Use the dropdown to instantly sort players by Room Role, D/s Family Tree, Lovers, or Friends.
 
-### 🧭 Sticky Map Compass
+### 🧭 Map Compass
 Easily locate players in large map rooms.
 * **Hover:** Hover over a player's Name or ID to display a temporary directional arrow on the map.
 * **Sticky Tracking:** Mobile/Drawer users can tap the Compass Icon on a player's card to lock the compass to them! Tracking is mutually exclusive and auto-clears when the drawer is stowed.
@@ -59,8 +59,8 @@ Dynamic interface adjustments that reflect your character's sensory state.
 ### 🎨 Smart Colors
 Automatically detects dark or muddy player name colors and applies a high-contrast pastel outline to ensure readability on dark backgrounds.
 
-### 📝 Note to Self
-Sending a Whisper+ to your own member number creates a private, grayed-out note in your chat log.
+### 📝 Whisper+
+Send a Whisper across the map at any distance!
 
 ### 🤝 Cross-Mod Compatibility
 CRABS is designed to work seamlessly with other popular Bondage Club enhancements:
