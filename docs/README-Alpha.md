@@ -2,12 +2,12 @@
   <img src="https://sin-1337.github.io/CRABS/images/Crab_logo_big.png" alt="CRABS" width="50%" align="center">
 </div>
 
-<h1 align="center">Crazy Roster Add-on By Sin (CRABS) [Beta]</h1>
+<h1 align="center">Crazy Roster Add-on By Sin (CRABS) [Alpha]</h1>
 
 > ⚠️ **Development Branch Warning**
-> * This is the Beta branch for testing new features!
-> * This branch is mostly stable but gains feature more regularly than Stable does!
-> * Usually fine to use but some minor issues or frequent changes may arise.
+> * This is the Alpha branch for testing new features!
+> * This branch is where active development happens and can change or break suddenly and without warning!
+> * NOT RECOMMENDED FOR NORMAL USERS!
 ---
 
 ## 📥 Installation
@@ -19,14 +19,14 @@
 * Click Save and reload BC.
 
 ### User Script (Violentmonkey / Tampermonkey)
-* Click the userscript link: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Beta/crabsloader.user.js)
+* Click the userscript link: [crabsloader.user.js](https://github.com/sin-1337/CRABS/raw/refs/heads/Alpha/crabsloader.user.js)
 * Click the **[install]** button in your extension manager.
 * Reload the Bondage Club tab if you have it open already.
 
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:
 ` ` `javascript
-javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
 ` ` `
 *(Note: Remove spaces between backticks when copying)*
 Click the bookmark while on the Bondage Club page to load the mod.
