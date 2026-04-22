@@ -69,6 +69,11 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: relative;
   background-color: transparent;
+  z-index: 1; /* Establish base stacking context */
+}
+
+.CRABS_card:hover {
+  z-index: 99; /* Pop hovered card above all other cards so tooltips don't clip */
 }
 
 .CRABS_card::after {
@@ -120,7 +125,11 @@
   width: 100%;
   margin-top: 2px;
   position: relative;
-  z-index: 1;
+  z-index: 11; /* Ensure icons/tooltips beat the header's z-index (10) */
+}
+
+.CRABS_card_details:hover {
+  z-index: 20; /* Pop the bottom row above the top row when hovered */
 }
 
 /* --- SCROLLING TEXT & OVERFLOW --- */
@@ -212,6 +221,10 @@
   width: 100%;
   position: relative;
   z-index: 10;
+}
+
+.CRABS_player-header:hover {
+  z-index: 20; /* Pop the top row above the bottom row when hovered so the compass tooltip shows */
 }
 
 .CRABS_status-frame {
