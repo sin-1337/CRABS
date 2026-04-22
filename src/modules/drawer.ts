@@ -202,14 +202,18 @@ export class Drawer extends CRABS_Base {
 		const tab = this.instance.querySelector("#drawer-tab");
 		if (!tab) return;
 
-		// Bypass optimizations for easteregg
-		if (tab.getAttribute("data-mode") === "rave") return;
+		const currentMode = tab.getAttribute("data-mode");
 
-		const isStatic = tab.getAttribute("data-mode") === "static";
-		if (lowPerf && !isStatic) {
+		// Bypass optimizations for easteregg
+		if (currentMode === "rave") return;
+
+		// If we are lagging and not already static, force static
+		if (lowPerf && currentMode !== "static") {
 			tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
 			tab.setAttribute("data-mode", "static");
-		} else if (!lowPerf && isStatic) {
+		}
+		// If we are running fine and not already animated, force animated
+		else if (!lowPerf && currentMode !== "animated") {
 			tab.innerHTML = Assets.printimage({ key: "animated_logo" });
 			tab.setAttribute("data-mode", "animated");
 		}
