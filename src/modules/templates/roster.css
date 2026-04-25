@@ -8,6 +8,11 @@
   font-size: 1.2rem;
 }
 
+.CRABS_room-status:has(.CRABS_map-keys[data-map-active="true"])
+  .CRABS_status_cell:nth-child(4) {
+  border-right: none;
+}
+
 .CRABS_status_cell {
   flex: 1;
   display: flex;
@@ -57,14 +62,15 @@
 
 .CRABS_map-keys {
   display: none; /* Hidden by default */
-  /* This is our "White Bar" - we use border-left so it acts as a separator */
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-  padding-left: 8px;
-  margin-left: 4px;
+  flex: 1;
+  /* Use the same color as your other dividers for consistency */
+  border-left: 1px solid #ccc;
+  padding: 4px;
 }
 
+/* Only show the cell when the attribute is true */
 .CRABS_map-keys[data-map-active="true"] {
-  display: flex; /* Shows the cell AND the border-left */
+  display: flex;
 }
 
 /* --- THE ROSTER GRID --- */

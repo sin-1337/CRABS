@@ -118,9 +118,13 @@ export class Roster extends CRABS_Base {
 					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 				}
 
-				// Surgical update: Only touch the DOM if the keys actually changed
 				if (keyContent.innerHTML !== keyHtml) {
 					keyContent.innerHTML = keyHtml;
+				}
+			} else {
+				// Fix for Ghost Keys: Clear the content when not on a map
+				if (keyContent.innerHTML !== "") {
+					keyContent.innerHTML = "";
 				}
 			}
 		}
