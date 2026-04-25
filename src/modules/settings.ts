@@ -180,7 +180,7 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
+		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
 		if (MouseIn(1710, 75, 90, 90) && inChatRoom) {
 			// Tell the game to switch screens FIRST
