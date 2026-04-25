@@ -69,17 +69,23 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Updates the DOM elements within the roster without a full redraw.
-	 * Falls back to buildroster() if the container is missing or room composition changed.
-	 */
+		 * Updates the DOM elements within the roster without a full redraw.
+		 * Falls back to buildroster() if the container is missing or room composition changed.
+		 */
 	public updateRosterUI(root: HTMLElement): void {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
 
 		// Update Header Counters
 		const adminEl = root.querySelector("#CRABS_header_admins");
 		if (adminEl) {
-			const adminInRoom = ChatRoomData.Character.filter(c => ChatRoomData.Admin.includes(c.MemberNumber)).length;
+			// Added type : any to clear the error
+			const adminInRoom = ChatRoomData.Character.filter((c: any) => ChatRoomData.Admin.includes(c.MemberNumber)).length;
 			adminEl.textContent = `${adminInRoom}/${ChatRoomData.Admin.length}`;
+		}
+
+		const playersEl = root.querySelector("#CRABS_header_players");
+		if (playersEl) {
+			playersEl.textContent = `${ChatRoomCharacter.length}/${ChatRoomData.Limit}`;
 		}
 
 		const friendsEl = root.querySelector("#CRABS_header_friends");
@@ -103,38 +109,36 @@ export class Roster extends CRABS_Base {
 				keyGold: playerWindow.MapData.PrivateState.HasKeyGold,
 			};
 			for (const [key, value] of Object.entries(KEYS)) {
-				keyHtml += Assets.printimage({ key: value ? key : "keyNull" });
+				keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 			}
 			keyContainer.innerHTML = keyHtml;
 		}
 
 		// Update Individual Cards
-		// If a person joined or left, we still need a full rebuild to keep sorting correct
 		const container = root.querySelector(".CRABS_card-container");
 		const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
 
 		if (currentCardCount !== ChatRoomData.Character.length) {
-			// Structural change detected (Join/Leave) -> Full internal rebuild
 			if (container) {
-				container.innerHTML = this.buildroster("all", false, true); // See step 3 for 'true' flag
+				// Now matching the 3 arguments in buildroster
+				container.innerHTML = DOMPurify.sanitize(this.buildroster("all", false, true));
 				this.buildui(undefined, undefined, root);
 				return;
 			}
 		}
 
-		// Surgical update for existing cards (Appearance/Status changes)
-		ChatRoomData.Character.forEach(charData => {
+		// Update for existing cards (Appearance/Status changes)
+		// Added type : any to clear the error
+		ChatRoomData.Character.forEach((charData: any) => {
 			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
-				// Update Status Icons
 				const statusContainer = card.querySelector(".CRABS_status-icons");
 				if (statusContainer) {
 					statusContainer.innerHTML = this.setStatusIcons(character);
 				}
 
-				// Update Relationship Icons
 				const iconContainer = card.querySelector(".CRABS_player-icons");
 				if (iconContainer) {
 					iconContainer.innerHTML = this.setIcons(character);
@@ -716,14 +720,17 @@ export class Roster extends CRABS_Base {
 		}
 	}
 
-	/** * Generates the HTML for the player roster based on provided arguments.
+	/** 
+	 * Generates the HTML for the player roster based on provided arguments.
 	 * @param {string} commandArguments - Command arguments determining which players to display.
 	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
+	 * @param {boolean} [forceFullRows=false] - If true, returns only the player rows instead of the full table.
 	 * @returns {string} The completed HTML roster.
 	 */
 	public buildroster(
 		commandArguments: string,
-		wrapper: boolean = true
+		wrapper: boolean = true,
+		forceFullRows: boolean = false // Add this parameter!
 	): string {
 
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) {
@@ -841,6 +848,8 @@ export class Roster extends CRABS_Base {
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Roster"] })
 		};
+
+		if (forceFullRows) return output_rows;
 
 		return this.template(rostertemplate, templatevars, wrapper, wrappervars);
 	}
