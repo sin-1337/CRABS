@@ -98,10 +98,32 @@
   position: relative;
   background-color: transparent;
   z-index: 1;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .CRABS_card:hover {
   z-index: 99;
+  transform: translateY(-2px); /* Lifts the card up */
+  border-color: rgba(
+    255,
+    255,
+    255,
+    0.4
+  ) !important; /* Brightens the left border */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */
+}
+
+/* --- PERFORMANCE MODE --- */
+/* If the Drawer instance has the low-perf class, kill transitions on ALL cards */
+.drawer-open.CRABS_perf_low .CRABS_card,
+.drawer-open.CRABS_perf_low .CRABS_card:hover {
+  transition: none !important;
+  transform: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important; /* Force standard shadow */
 }
 
 .CRABS_card::after {

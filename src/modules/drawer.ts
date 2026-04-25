@@ -153,29 +153,38 @@ export class Drawer extends CRABS_Base {
 	private optimizeVisuals(lowPerf: boolean): void {
 		if (!this.instance) return;
 
-		// Toggle Static vs Animated Logo
 		const tab = this.instance.querySelector("#drawer-tab");
+		// Target the root instance so the class persists across roster redrawing
+		const root = this.instance;
 		if (!tab) return;
 
 		const currentMode = tab.getAttribute("data-mode");
-
-		// Bypass optimizations for easteregg
 		if (currentMode === "rave") return;
 
-		// If we are lagging and not already static, force static
+		// 1. Surgical Logo Swap
 		if (lowPerf && currentMode !== "static") {
-			tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
+			tab.innerHTML = Assets.printimage({ key: "logo" });
 			tab.setAttribute("data-mode", "static");
 		}
-		// If we are running fine and not already animated, force animated
 		else if (!lowPerf && currentMode !== "animated") {
 			tab.innerHTML = Assets.printimage({ key: "animated_logo" });
 			tab.setAttribute("data-mode", "animated");
 		}
 
-		// Toggle Blur Radius via CSS Variable
+		// 2. Class-Based Performance Toggling
+		// Adding the class to the drawer instance itself ensures it affects 
+		// all child cards, even if those cards are surgically updated later!
+		if (lowPerf && !root.classList.contains("CRABS_perf_low")) {
+			root.classList.add("CRABS_perf_low");
+		} else if (!lowPerf && root.classList.contains("CRABS_perf_low")) {
+			root.classList.remove("CRABS_perf_low");
+		}
+
+		// 3. CSS Variable Sync
 		const blurVal = lowPerf ? "3px" : "10px";
-		document.documentElement.style.setProperty("--crabs-blur", blurVal);
+		if (document.documentElement.style.getPropertyValue("--crabs-blur") !== blurVal) {
+			document.documentElement.style.setProperty("--crabs-blur", blurVal);
+		}
 	}
 
 	/**
