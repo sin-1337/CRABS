@@ -119,7 +119,7 @@ export class Settings extends CRABS_Base {
 
 		// Take a snapshot of the global canvas state before we alter it
 		canvas.save();
-		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
+		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
 		try {
 			DrawRect(40, 40, 420, 920, "#222222aa");
