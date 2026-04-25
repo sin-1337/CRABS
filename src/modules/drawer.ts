@@ -163,6 +163,10 @@ export class Drawer extends CRABS_Base {
 		}
 
 		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
+		const currentEffects = ChatRoomData.Character.map((c: any) => {
+			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
+			return char ? CharacterGetEffects(char).join("|") : "";
+		}).join(",");
 		const currentAdmins = (ChatRoomData.Admin || []).join(",");
 		const player = (window as any).Player;
 		const currentKeys = [
@@ -175,6 +179,7 @@ export class Drawer extends CRABS_Base {
 		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
 		if (currentRoster !== this.lastRoster ||
+			currentEffects !== (this as any).lastEffects ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
 			currentFriends !== this.lastFriends ||
