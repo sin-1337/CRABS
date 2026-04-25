@@ -7,6 +7,7 @@
  * - Automatic visibility management based on game state
  * - Integration with the game's chat log dimensions
  * - Event handling for navigation and interaction
+ * - Event-driven rendering based on the Roster module's state
  */
 
 import { CRABS_Base, PerformanceLevel } from "./base";
@@ -24,7 +25,7 @@ import { Settings } from "./settings";
  * Class representing the side drawer UI.
  * Manages the sliding panel that contains the Roster, Help, and Settings access.
  * Implements a Singleton pattern for global access via static methods.
- * * @extends CRABS_Base
+ * @extends CRABS_Base
  */
 export class Drawer extends CRABS_Base {
 	/** Singleton instance of the Drawer. */
@@ -43,21 +44,12 @@ export class Drawer extends CRABS_Base {
 	private resizeObserver: ResizeObserver | null = null;
 	/** Tracks if the drawer is currently displaying the Help view instead of the Roster. */
 	private showingHelp: boolean = false;
+	/** Counter used to throttle frame updates based on performance tier. */
 	private updateTick: number = 0;
-
-	// --- State Tracking for Optimized UI Refreshes ---
-	private lastRoster: string = "";
-	private lastAdminList: string = "";
-	private lastKeys: string = "";
-	private lastMapState: boolean = false;
-	private lastOnlineFriends: number | string = "...";
-	private lastRoomCharStates: string = "";
-	private lastRelationships: string = "";
-	private lastTotalOnline: number = 0;
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
-	 * * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
 	 * @param {Roster} roster - The Roster module instance.
 	 * @param {Help} help - The Help module instance.
 	 * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
@@ -94,9 +86,8 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
-
 	public RaveTab(): void {
 		if (!this.instance) return;
 		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
@@ -122,7 +113,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Bootstraps the drawer layout, injecting it into the DOM and establishing global hotkeys.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private init(): void {
@@ -154,75 +145,10 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Dirty-check to see if the relevant game state has actually changed.
-	 * Prevents expensive DOM re-renders every frame.
-	 * * @private
-	 * @returns {boolean} True if the room composition, admin list, keys, or friends list changed.
-	 */
-	private hasStateChanged(): boolean {
-		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null || typeof (window as any).Player === 'undefined') {
-			return false;
-		}
-
-		const player = (window as any).Player;
-		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
-
-		// Track Character-Specific States in the Room (Effects + Ownership)
-		const currentRoomCharStates = ChatRoomData.Character.map((c: any) => {
-			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
-			if (!char) return "";
-
-			const effects = CharacterGetEffects(char).join("~");
-			const owner = char.Ownership?.MemberNumber || "";
-			const stage = char.Ownership?.Stage || "";
-
-			return `${effects}|${owner}|${stage}`;
-		}).join(",");
-
-		// Track the Player's Local Relationship Lists
-		const currentRelationships = [
-			player.OwnerNumber ? player.OwnerNumber() : "",
-			player.GetLoversNumbers ? player.GetLoversNumbers().join(",") : "",
-			player.WhiteList ? player.WhiteList.join(",") : "",
-			player.BlackList ? player.BlackList.join(",") : "",
-			player.GhostList ? player.GhostList.join(",") : "",
-			player.FriendList ? player.FriendList.join(",") : "",
-			player.BCT?.bctSettings?.bestFriendsList ? player.BCT.bctSettings.bestFriendsList.join(",") : ""
-		].join("|");
-
-		const currentAdmins = (ChatRoomData.Admin || []).join(",");
-		const currentKeys = [
-			player.MapData?.PrivateState?.HasKeyBronze,
-			player.MapData?.PrivateState?.HasKeySilver,
-			player.MapData?.PrivateState?.HasKeyGold
-		].join(",");
-
-		const isMapActive = ChatRoomMapViewIsActive();
-		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
-
-		// Compare everything against our last known state (Excluding Global Online)
-		if (currentRoster !== this.lastRoster ||
-			currentRoomCharStates !== this.lastRoomCharStates ||
-			currentRelationships !== this.lastRelationships ||
-			currentAdmins !== this.lastAdminList ||
-			currentKeys !== this.lastKeys ||
-			isMapActive !== this.lastMapState ||
-			currentOnlineFriends !== this.lastOnlineFriends) {
-
-			this.lastRoster = currentRoster;
-			this.lastRoomCharStates = currentRoomCharStates;
-			this.lastRelationships = currentRelationships;
-			this.lastAdminList = currentAdmins;
-			this.lastKeys = currentKeys;
-			this.lastMapState = isMapActive;
-			this.lastOnlineFriends = currentOnlineFriends;
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Swaps visual assets and CSS variables based on performance needs.
+	 * @param {boolean} lowPerf - Indicates if the system is currently under heavy load.
+	 * @private
+	 * @returns {void}
 	 */
 	private optimizeVisuals(lowPerf: boolean): void {
 		if (!this.instance) return;
@@ -254,12 +180,15 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Hooks into the game's render loop to process updates.
-	 * Only triggers a refresh if the drawer is open, not on the help screen, and state has changed.
-	 * * @private
+	 * Now utilizes an event-driven architecture, relying on the Roster module's 
+	 * isDirty flag instead of heavy mathematical polling to determine if a redraw is needed.
+	 * Features graceful degradation via safeHook.
+	 *
+	 * @private
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		this.CRABS.hookFunction("ChatRoomRun", 10, (functionArguments, next) => {
+		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: Function) => {
 			const result = next(functionArguments);
 
 			// Update the performance state (defined in CRABS_Base)
@@ -285,9 +214,11 @@ export class Drawer extends CRABS_Base {
 				// Continuously evaluate visibility (Auto-stowing on focus screens)
 				this.updateVisibility();
 
-				// Only refresh if Drawer is open, not showing help, AND state actually changed
-				if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
+				// EVENT-DRIVEN CHECK: Only refresh if Drawer is open, not showing help, AND the Roster says it's dirty
+				if (this.isOpen && !this.showingHelp && this.rosterModule.isDirty) {
 					this.refresh();
+					// Reset the flag immediately after drawing
+					this.rosterModule.isDirty = false;
 				}
 			}
 
@@ -298,7 +229,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Compiles the drawer HTML template and injects it into the document body.
 	 * Binds internal events once the element is created.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private setupElement(): void {
@@ -333,7 +264,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Aligns the drawer UI to the dimensions and position of the native game chat log.
 	 * Adapts dynamically to window resizing and user settings.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private syncToChat(): void {
@@ -366,7 +297,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Determines whether the drawer should be injected into the DOM workflow based on:
 	 * User settings, current screen (ChatRoom), and modal overlays (CurrentCharacter).
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
@@ -413,10 +344,10 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-		 * Completely rebuilds the inner HTML of the drawer based on the current context 
-		 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
-		 * @returns {void}
-		 */
+	 * Completely rebuilds the inner HTML of the drawer based on the current context 
+	 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
+	 * @returns {void}
+	 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
@@ -475,7 +406,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Overrides the base class openSettings to ensure the drawer 
 	 * slides closed before the settings modal appears.
-	 * * @override
+	 * @override
 	 * @returns {Promise<void>}
 	 */
 	public override async openSettings(): Promise<void> {
@@ -486,7 +417,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Attaches click event listeners to the interactive elements within the drawer header.
 	 * Delegates handling for the Tab, Help, Settings, and Close buttons.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private bindEvents(): void {
@@ -522,7 +453,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Alternates the drawer's state between open and closed.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
@@ -530,7 +461,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Opens the drawer by updating the CSS classes and triggering a content refresh.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public open(): void {
 		if (!this.instance) return;
@@ -541,7 +472,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Closes the drawer by updating the CSS classes.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public close(): void {
 		if (!this.instance) return;

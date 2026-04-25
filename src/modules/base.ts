@@ -51,6 +51,33 @@ export abstract class CRABS_Base {
 	}
 
 	/**
+	 * Safely hooks a base-game function. 
+	 * Catches registration errors if the function is missing, and wraps the execution 
+	 * in a try/catch so mod logic failures don't crash the base game.
+	 * * @param targetFunction The name of the global game function to hook.
+	 * @param priority ModSDK priority level.
+	 * @param callback Your hook logic.
+	 */
+	protected safeHook(targetFunction: string, priority: number, callback: (args: any, next: Function) => any): void {
+		try {
+			this.CRABS.hookFunction(targetFunction, priority, (args: any, next: Function) => {
+				try {
+					// Attempt to run our mod's custom hook logic
+					return callback(args, next);
+				} catch (execError) {
+					// EXECUTION FAILED: Log it, but CRITICALLY, call next() 
+					// so the base game continues running uninterrupted!
+					console.error(`[CRABS ERROR] Execution failed in hook: '${targetFunction}'. Mod feature degraded.`, execError);
+					return next(args);
+				}
+			});
+		} catch (regError) {
+			// REGISTRATION FAILED: The function doesn't exist anymore.
+			console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'. Base game API may have changed!`, regError);
+		}
+	}
+
+	/**
 	 * Fakes a roster command as if the user ran the command themselves.
 	 *
 	 * @param {string} action - String that determines what the roster should print.
