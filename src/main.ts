@@ -20,7 +20,8 @@ const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
-let crabsLastRoomName = "";
+let crabsLastRoomID: number | null = null;
+
 WHISPERPLUS.setupHooks();
 
 SETTINGS.syncGameState();
@@ -83,23 +84,24 @@ window.ChatRoomExit = function () {
 	Drawer.updateVisibility();
 };
 
+
 /**
  * Hook into the CreateRoomSync function.  
  * It triggers when joining a room to execute
  * code at join time.
  */
-// Add this at the top level of your main.ts file to track the current room
-
 CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
-	// 1. Run the base game function
 	const result = next(args);
 
-	const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null && (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+	const inChatRoom = typeof ChatRoomData !== "undefined" &&
+		ChatRoomData !== null &&
+		(typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
 
 	if (inChatRoom) {
 		// --- SCENARIO A: We just joined a new room! ---
-		if (ChatRoomData.Name !== crabsLastRoomName) {
-			crabsLastRoomName = ChatRoomData.Name;
+		// Check the unique ID rather than the Name
+		if (ChatRoomData.ID !== crabsLastRoomID) {
+			crabsLastRoomID = ChatRoomData.ID;
 
 			try {
 				Drawer.updateVisibility();
@@ -113,8 +115,7 @@ CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
 			}
 		}
 
-		// --- SCENARIO B: We returned from Wardrobe, Profile, or Admin menu ---
-		// If no character dialog is open, but the drawer is mysteriously hidden, wake it up!
+		// --- SCENARIO B: Recovery Logic ---
 		const isFocused = (window as any).CurrentCharacter !== null;
 		const drawerElement = document.getElementById("crabs-drawer");
 
@@ -127,8 +128,8 @@ CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
 		}
 
 	} else {
-		// We left the room, reset the tracker so it fires again next time
-		crabsLastRoomName = "";
+		// Left the room, clear the ID tracker
+		crabsLastRoomID = null;
 	}
 
 	return result;
