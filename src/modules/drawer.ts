@@ -192,45 +192,35 @@ export class Drawer extends CRABS_Base {
 		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: (args: any[]) => any) => {
 			const result = next(functionArguments);
 
-			// Update the performance state (defined in CRABS_Base)
 			this.updatePerformanceState();
 
-			// Determine how many frames to skip based on performance tier
-			let threshold = 5; // Normal: ~12 polls/sec
+			let threshold = 5;
 			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
-				threshold = 30; // Low: ~2 polls/sec
-				this.optimizeVisuals(true);
+				threshold = 30;
 			} else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
-				threshold = 120; // Critical: ~once every 2 secs
-				this.optimizeVisuals(true);
-			} else {
-				this.optimizeVisuals(false);
+				threshold = 120;
 			}
 
-			// Process the loop tick
 			this.updateTick++;
 			if (this.updateTick >= threshold) {
 				this.updateTick = 0;
 
-				// Continuously evaluate visibility (Auto-stowing on focus screens)
 				this.updateVisibility();
 
-				// SURGICAL UPDATE CHECK:
-				// Only act if the Drawer is actually open and not currently showing the Help screen.
-				if (this.isOpen && !this.showingHelp && this.rosterModule.isDirty) {
-
-					// Check if the roster UI container actually exists in the DOM
+				if (this.isOpen && !this.showingHelp) {
+					// 1. ALWAYS run the surgical update if the drawer is open.
+					// Because updateRosterUI has its own internal "is dirty" checks 
+					// for counters and map-keys, this will now catch map toggles instantly.
 					const rosterRoot = this.instance?.querySelector(".CRABS_roster_center_table") as HTMLElement;
 
 					if (rosterRoot) {
-						// Surgical Move: Update specific spans and icons without destroying the container
 						this.rosterModule.updateRosterUI(this.instance!);
-					} else {
-						// Fallback: If the roster root is missing (e.g., first load), do a full render
+					} else if (this.rosterModule.isDirty) {
+						// Fallback only if the roster is physically missing from DOM
 						this.refresh();
 					}
 
-					// Reset the dirty flag immediately after the update is processed
+					// 2. Reset the dirty flag
 					this.rosterModule.isDirty = false;
 				}
 			}
