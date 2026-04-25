@@ -2,6 +2,13 @@
 
 All notable changes to the Crazy Roster Add-on By Sin (CRABS) will be documented in this file.
 
+## [2.0.1] - Clean up and Bug Fix
+### Fixed
+- Fixed bug where Gag, Deaf, Blind, didn't update in the drawer when those status changed.,
+- Fixed the same bug for the relationship icons.,
+- Fixed bug where if the settings were accessed outside of a chatroom the "back to chat" button would cause a crash.,
+- Fixed bug where the banner would reprint if the room name was updated.
+
 ## [2.0] - Rave
 This version introduces significant architectural improvements, dynamic performance scaling, and a brand new stowable UI.
 

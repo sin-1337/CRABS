@@ -119,7 +119,7 @@ export class Settings extends CRABS_Base {
 
 		// Take a snapshot of the global canvas state before we alter it
 		canvas.save();
-		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
+		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
 		try {
 			DrawRect(40, 40, 420, 920, "#222222aa");
@@ -180,7 +180,7 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
+		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
 		if (MouseIn(1710, 75, 90, 90) && inChatRoom) {
 			// Tell the game to switch screens FIRST
