@@ -300,17 +300,17 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(commandArguments: string, command: string): number {
-		// 1. Immersive Gag Check
+		// Immersive Gag Check
 		if (Settings.instance.data.immersiveGag && this.getGagLevel() > 0) {
 			if (typeof ToastManager !== "undefined") {
-				Notification.send("You cannot use Whisper+ while gagged.", "Whisper+ Blocked");
+				Notification.send({ message: "You cannot use Whisper+ while gagged.", title: "Whisper+ Blocked" });
 			} else {
 				ChatRoomSendLocal("You cannot use Whisper+ while gagged.", 10_000);
 			}
 			return 1;
 		}
 
-		// 2. BCX Rule Check: speech_restrict_whisper_send
+		// BCX Rule Check: speech_restrict_whisper_send
 		if (Settings.instance.data.respectBcxRules) {
 			const ruleState = CrossMod.getBCXRuleState("speech_restrict_whisper_send");
 			if (ruleState?.isEnforced) {

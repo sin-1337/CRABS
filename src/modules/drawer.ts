@@ -179,16 +179,17 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Hooks into the game's render loop to process updates.
-	 * Now utilizes an event-driven architecture, relying on the Roster module's 
-	 * isDirty flag instead of heavy mathematical polling to determine if a redraw is needed.
-	 * Features graceful degradation via safeHook.
-	 *
-	 * @private
-	 * @returns {void}
-	 */
+		 * Hooks into the game's render loop to process updates.
+		 * * This version implements "Surgical Updates": instead of redrawing the entire 
+		 * drawer when the roster is dirty, it attempts to target and update specific 
+		 * DOM elements. It only falls back to a full refresh if the roster structure 
+		 * itself is missing.
+		 *
+		 * @private
+		 * @returns {void}
+		 */
 	private setupDynamicUpdates(): void {
-		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: Function) => {
+		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: (args: any[]) => any) => {
 			const result = next(functionArguments);
 
 			// Update the performance state (defined in CRABS_Base)
@@ -198,7 +199,7 @@ export class Drawer extends CRABS_Base {
 			let threshold = 5; // Normal: ~12 polls/sec
 			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
 				threshold = 30; // Low: ~2 polls/sec
-				this.optimizeVisuals(true); // Helper to swap logo/blur
+				this.optimizeVisuals(true);
 			} else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
 				threshold = 120; // Critical: ~once every 2 secs
 				this.optimizeVisuals(true);
@@ -206,7 +207,7 @@ export class Drawer extends CRABS_Base {
 				this.optimizeVisuals(false);
 			}
 
-			// Process the poll
+			// Process the loop tick
 			this.updateTick++;
 			if (this.updateTick >= threshold) {
 				this.updateTick = 0;
@@ -214,10 +215,22 @@ export class Drawer extends CRABS_Base {
 				// Continuously evaluate visibility (Auto-stowing on focus screens)
 				this.updateVisibility();
 
-				// EVENT-DRIVEN CHECK: Only refresh if Drawer is open, not showing help, AND the Roster says it's dirty
+				// SURGICAL UPDATE CHECK:
+				// Only act if the Drawer is actually open and not currently showing the Help screen.
 				if (this.isOpen && !this.showingHelp && this.rosterModule.isDirty) {
-					this.refresh();
-					// Reset the flag immediately after drawing
+
+					// Check if the roster UI container actually exists in the DOM
+					const rosterRoot = this.instance?.querySelector(".CRABS_roster_center_table") as HTMLElement;
+
+					if (rosterRoot) {
+						// Surgical Move: Update specific spans and icons without destroying the container
+						this.rosterModule.updateRosterUI(this.instance!);
+					} else {
+						// Fallback: If the roster root is missing (e.g., first load), do a full render
+						this.refresh();
+					}
+
+					// Reset the dirty flag immediately after the update is processed
 					this.rosterModule.isDirty = false;
 				}
 			}

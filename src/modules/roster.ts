@@ -69,6 +69,81 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
+	 * Updates the DOM elements within the roster without a full redraw.
+	 * Falls back to buildroster() if the container is missing or room composition changed.
+	 */
+	public updateRosterUI(root: HTMLElement): void {
+		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
+
+		// Update Header Counters
+		const adminEl = root.querySelector("#CRABS_header_admins");
+		if (adminEl) {
+			const adminInRoom = ChatRoomData.Character.filter(c => ChatRoomData.Admin.includes(c.MemberNumber)).length;
+			adminEl.textContent = `${adminInRoom}/${ChatRoomData.Admin.length}`;
+		}
+
+		const friendsEl = root.querySelector("#CRABS_header_friends");
+		if (friendsEl) {
+			friendsEl.textContent = `${this.onlineFriendsCache}/${Player.FriendList.length}`;
+		}
+
+		const globalEl = root.querySelector("#CRABS_header_online");
+		if (globalEl) {
+			globalEl.textContent = `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `;
+		}
+
+		// Update Map Keys
+		const keyContainer = root.querySelector("#CRABS_key_container");
+		if (keyContainer && ChatRoomMapViewIsActive()) {
+			const playerWindow = (window as any).Player;
+			let keyHtml = "";
+			const KEYS = {
+				keyBronze: playerWindow.MapData.PrivateState.HasKeyBronze,
+				keySilver: playerWindow.MapData.PrivateState.HasKeySilver,
+				keyGold: playerWindow.MapData.PrivateState.HasKeyGold,
+			};
+			for (const [key, value] of Object.entries(KEYS)) {
+				keyHtml += Assets.printimage({ key: value ? key : "keyNull" });
+			}
+			keyContainer.innerHTML = keyHtml;
+		}
+
+		// Update Individual Cards
+		// If a person joined or left, we still need a full rebuild to keep sorting correct
+		const container = root.querySelector(".CRABS_card-container");
+		const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
+
+		if (currentCardCount !== ChatRoomData.Character.length) {
+			// Structural change detected (Join/Leave) -> Full internal rebuild
+			if (container) {
+				container.innerHTML = this.buildroster("all", false, true); // See step 3 for 'true' flag
+				this.buildui(undefined, undefined, root);
+				return;
+			}
+		}
+
+		// Surgical update for existing cards (Appearance/Status changes)
+		ChatRoomData.Character.forEach(charData => {
+			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
+			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
+
+			if (card && character) {
+				// Update Status Icons
+				const statusContainer = card.querySelector(".CRABS_status-icons");
+				if (statusContainer) {
+					statusContainer.innerHTML = this.setStatusIcons(character);
+				}
+
+				// Update Relationship Icons
+				const iconContainer = card.querySelector(".CRABS_player-icons");
+				if (iconContainer) {
+					iconContainer.innerHTML = this.setIcons(character);
+				}
+			}
+		});
+	}
+
+	/**
 	 * Hooks into base-game functions that represent state changes.
 	 * When these fire, the roster is flagged as dirty, triggering a UI refresh in the Drawer.
 	 * Utilizes safeHook to degrade gracefully if a game update breaks an API.
