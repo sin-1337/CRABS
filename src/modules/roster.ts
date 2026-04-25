@@ -44,11 +44,15 @@ export class Roster extends CRABS_Base {
 
 	/** Handler for when a player's entry is hovered in the roster UI. */
 	private onPlayerHover = (playerId: string) => {
-		// Mutual Exclusivity: If a player is locked, ignore all hovers.
 		if (this.trackedMapPlayer !== null) return;
 
-		this.hoveredMapPlayer = parseInt(playerId, 10);
+		// playerId here will be the value from data-player-number
+		const id = parseInt(playerId, 10);
+		if (!isNaN(id)) {
+			this.hoveredMapPlayer = id;
+		}
 	};
+
 	/** Handler for when a player's entry is no longer hovered. */
 	private onPlayerLeave = () => { this.hoveredMapPlayer = null; };
 
@@ -913,13 +917,8 @@ export class Roster extends CRABS_Base {
 		// Left Click Number -> Copy to Clipboard
 		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
 
-		// Hover Name -> Show Compass
-		this.attachEvent("CRABS_player-name", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
-		this.attachEvent("CRABS_player-name", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
-
-		// Hover Number -> Show Compass
-		this.attachEvent("CRABS_player-id", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
-		this.attachEvent("CRABS_player-id", this.onPlayerLeave, "playerNumber", undefined, "mouseleave", "class", root);
+		this.attachEvent("CRABS_card", this.onPlayerHover, "player-number", undefined, "mouseenter", "class", root);
+		this.attachEvent("CRABS_card", this.onPlayerLeave, undefined, undefined, "mouseleave", "class", root);
 
 		// Click Compass -> Toggle Sticky Compass Tracking
 		this.attachEvent("CRABS_track-compass", this.onPlayerToggleTrack, "playerNumber", undefined, "click", "class", root);
