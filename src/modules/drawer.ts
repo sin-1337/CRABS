@@ -49,11 +49,11 @@ export class Drawer extends CRABS_Base {
 	private lastRoster: string = "";
 	private lastAdminList: string = "";
 	private lastKeys: string = "";
-	private lastFriends: string = "";
 	private lastMapState: boolean = false;
 	private lastOnlineFriends: number | string = "...";
 	private lastRoomCharStates: string = "";
 	private lastRelationships: string = "";
+	private lastTotalOnline: number = 0;
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -201,6 +201,8 @@ export class Drawer extends CRABS_Base {
 		const isMapActive = ChatRoomMapViewIsActive();
 		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
+		const currentTotalOnline = typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : 0;
+
 		// 3. Compare everything against our last known state
 		if (currentRoster !== this.lastRoster ||
 			currentRoomCharStates !== this.lastRoomCharStates ||
@@ -208,7 +210,8 @@ export class Drawer extends CRABS_Base {
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
 			isMapActive !== this.lastMapState ||
-			currentOnlineFriends !== this.lastOnlineFriends) {
+			currentOnlineFriends !== this.lastOnlineFriends ||
+			currentTotalOnline !== this.lastTotalOnline) {
 
 			this.lastRoster = currentRoster;
 			this.lastRoomCharStates = currentRoomCharStates;

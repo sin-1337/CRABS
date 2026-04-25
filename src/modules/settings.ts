@@ -119,6 +119,7 @@ export class Settings extends CRABS_Base {
 
 		// Take a snapshot of the global canvas state before we alter it
 		canvas.save();
+		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
 
 		try {
 			DrawRect(40, 40, 420, 920, "#222222aa");
@@ -128,8 +129,7 @@ export class Settings extends CRABS_Base {
 			canvas.textBaseline = "middle";
 			DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
 			DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
-			DrawButton(1710, 75, 90, 90, "", "White", "Icons/Chat.png", "Return to Chat");
-
+			DrawButton(1710, 75, 90, 90, "", inChatRoom ? "White" : "#888888", "Icons/Chat.png", inChatRoom ? "Return to Chat" : "Not in a Chat Room");
 			if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
 			else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
 
@@ -180,7 +180,9 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		if (MouseIn(1710, 75, 90, 90)) {
+		const inChatRoom = typeof (window as any).ChatRoomData !== "undefined" && (window as any).ChatRoomData !== null;
+
+		if (MouseIn(1710, 75, 90, 90) && inChatRoom) {
 			// Tell the game to switch screens FIRST
 			if (typeof CommonSetScreen === "function") {
 				CommonSetScreen("Online", "ChatRoom");
