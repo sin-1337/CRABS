@@ -52,6 +52,8 @@ export class Drawer extends CRABS_Base {
 	private lastFriends: string = "";
 	private lastMapState: boolean = false;
 	private lastOnlineFriends: number | string = "...";
+	private lastRoomCharStates: string = "";
+	private lastRelationships: string = "";
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -162,34 +164,57 @@ export class Drawer extends CRABS_Base {
 			return false;
 		}
 
-		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
-		const currentEffects = ChatRoomData.Character.map((c: any) => {
-			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
-			return char ? CharacterGetEffects(char).join("|") : "";
-		}).join(",");
-		const currentAdmins = (ChatRoomData.Admin || []).join(",");
 		const player = (window as any).Player;
+		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
+
+		// Track Character-Specific States in the Room (Effects + Ownership)
+		// Tracks gags, blinds, deafening, and if someone gets collared/freed in the room
+		const currentRoomCharStates = ChatRoomData.Character.map((c: any) => {
+			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
+			if (!char) return "";
+
+			const effects = CharacterGetEffects(char).join("~");
+			const owner = char.Ownership?.MemberNumber || "";
+			const stage = char.Ownership?.Stage || "";
+
+			return `${effects}|${owner}|${stage}`;
+		}).join(",");
+
+		// Track the Player's Local Relationship Lists
+		// Tracks lovers, best friends, whitelist, blacklist, ghostlist, and normal friends
+		const currentRelationships = [
+			player.OwnerNumber ? player.OwnerNumber() : "",
+			player.GetLoversNumbers ? player.GetLoversNumbers().join(",") : "",
+			player.WhiteList ? player.WhiteList.join(",") : "",
+			player.BlackList ? player.BlackList.join(",") : "",
+			player.GhostList ? player.GhostList.join(",") : "",
+			player.FriendList ? player.FriendList.join(",") : "",
+			player.BCT?.bctSettings?.bestFriendsList ? player.BCT.bctSettings.bestFriendsList.join(",") : ""
+		].join("|");
+
+		const currentAdmins = (ChatRoomData.Admin || []).join(",");
 		const currentKeys = [
 			player.MapData?.PrivateState?.HasKeyBronze,
 			player.MapData?.PrivateState?.HasKeySilver,
 			player.MapData?.PrivateState?.HasKeyGold
 		].join(",");
-		const currentFriends = (player.FriendList || []).join(",");
 		const isMapActive = ChatRoomMapViewIsActive();
 		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
+		// 3. Compare everything against our last known state
 		if (currentRoster !== this.lastRoster ||
-			currentEffects !== (this as any).lastEffects ||
+			currentRoomCharStates !== this.lastRoomCharStates ||
+			currentRelationships !== this.lastRelationships ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
-			currentFriends !== this.lastFriends ||
 			isMapActive !== this.lastMapState ||
 			currentOnlineFriends !== this.lastOnlineFriends) {
 
 			this.lastRoster = currentRoster;
+			this.lastRoomCharStates = currentRoomCharStates;
+			this.lastRelationships = currentRelationships;
 			this.lastAdminList = currentAdmins;
 			this.lastKeys = currentKeys;
-			this.lastFriends = currentFriends;
 			this.lastMapState = isMapActive;
 			this.lastOnlineFriends = currentOnlineFriends;
 			return true;
