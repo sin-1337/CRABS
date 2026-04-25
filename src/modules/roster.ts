@@ -99,19 +99,30 @@ export class Roster extends CRABS_Base {
 		}
 
 		// Update Map Keys
-		const keyContainer = root.querySelector("#CRABS_key_container");
-		if (keyContainer && ChatRoomMapViewIsActive()) {
-			const playerWindow = (window as any).Player;
-			let keyHtml = "";
-			const KEYS = {
-				keyBronze: playerWindow.MapData.PrivateState.HasKeyBronze,
-				keySilver: playerWindow.MapData.PrivateState.HasKeySilver,
-				keyGold: playerWindow.MapData.PrivateState.HasKeyGold,
-			};
-			for (const [key, value] of Object.entries(KEYS)) {
-				keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
+		const keyContainer = root.querySelector("#CRABS_key_container") as HTMLElement;
+		if (keyContainer) {
+			const isMap = ChatRoomMapViewIsActive();
+			// Instantly toggle visibility via CSS attribute
+			keyContainer.dataset.mapActive = isMap ? "true" : "false";
+
+			if (isMap) {
+				const playerWindow = (window as any).Player;
+				let keyHtml = "";
+				// Only generate the string if we are actually looking at them
+				const KEYS = {
+					keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
+					keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
+					keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
+				};
+				for (const [key, value] of Object.entries(KEYS)) {
+					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
+				}
+
+				// Only update DOM if the HTML actually changed (prevents sluggishness)
+				if (keyContainer.firstElementChild!.innerHTML !== keyHtml) {
+					keyContainer.firstElementChild!.innerHTML = keyHtml;
+				}
 			}
-			keyContainer.innerHTML = keyHtml;
 		}
 
 		// Update Individual Cards
@@ -720,17 +731,16 @@ export class Roster extends CRABS_Base {
 		}
 	}
 
-	/** 
-	 * Generates the HTML for the player roster based on provided arguments.
-	 * @param {string} commandArguments - Command arguments determining which players to display.
-	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
-	 * @param {boolean} [forceFullRows=false] - If true, returns only the player rows instead of the full table.
-	 * @returns {string} The completed HTML roster.
-	 */
+	/** * Generates the HTML for the player roster based on provided arguments.
+		 * @param {string} commandArguments - Command arguments determining which players to display.
+		 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
+		 * @param {boolean} [forceFullRows=false] - If true, returns only the player rows for surgical DOM updates.
+		 * @returns {string} The completed HTML roster.
+		 */
 	public buildroster(
 		commandArguments: string,
 		wrapper: boolean = true,
-		forceFullRows: boolean = false // Add this parameter!
+		forceFullRows: boolean = false
 	): string {
 
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) {
@@ -739,16 +749,17 @@ export class Roster extends CRABS_Base {
 
 		this.requestOnlineFriends();
 
-		// Immersive Mode Check
+		// 1. Immersive Mode Check (Blindness Blurring)
 		let rosterStyle = "";
 		if (Settings.instance.data.immersiveBlind) {
 			const blindLevel = this.getBlindnessLevel();
 			if (blindLevel > 0) {
-				const blurAmount = blindLevel * 5; // 1=5px, 2=10px, 3=15px, 4=20px
+				const blurAmount = blindLevel * 5;
 				rosterStyle = `filter: blur(${blurAmount}px); pointer-events: none; user-select: none; transition: filter 0.5s ease;`;
 			}
 		}
 
+		// 2. Argument Parsing (Admins/VIPs/Count filters)
 		const splitArguments = commandArguments.split(" ");
 		let showme = true, showadmins = true, showvip = true, showplayers = true;
 
@@ -765,18 +776,19 @@ export class Roster extends CRABS_Base {
 		let admin_count = 0;
 		let rosterCards: { html: string, score: number, memberNumber: number, isMe: boolean, isAdmin: boolean, isVIP: boolean, isStandard: boolean }[] = [];
 
-		// wrapper = true means it's floating in the chat log (needs the wrapper UI).
-		// wrapper = false means it's inside the Drawer (drawer provides its own UI).
-		// If true (in chat log), force "role". If false (in drawer), respect user choice.
+		// 3. Determine Sort Mode (Force 'role' in chat log, respect choice in Drawer)
 		const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-		// Build the Data Array
+		// 4. Build Character Data Array
 		for (let characterIndex in ChatRoomData.Character) {
 			const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
 			const character = ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber);
 
 			if (!character) {
-				rosterCards.push({ html: "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n", score: 99, memberNumber: 9999999, isMe: false, isAdmin: false, isVIP: false, isStandard: true });
+				rosterCards.push({
+					html: "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n",
+					score: 99, memberNumber: 9999999, isMe: false, isAdmin: false, isVIP: false, isStandard: true
+				});
 				continue;
 			}
 
@@ -791,16 +803,17 @@ export class Roster extends CRABS_Base {
 			let playerIcons = this.setIcons(character);
 			if (isMe) playerIcons = Assets.printimage({ key: "you" }) + " " + playerIcons;
 
-			const html = this.buildCard(character, badge, playerIcons, !wrapper); // if we are not a wrapper, we are the drawer
+			// Generate the individual card HTML
+			const html = this.buildCard(character, badge, playerIcons, !wrapper);
 			const score = this.calculateSortScore(character, effectiveSortMode);
 
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
 		}
 
-		// Mathematically Sort the Cards (If scores tie, fallback to MemberNumber to prevent jumping)
+		// 5. Sort Cards (Score primary, MemberNumber secondary to prevent jumping)
 		rosterCards.sort((a, b) => a.score - b.score || a.memberNumber - b.memberNumber);
 
-		// Apply Command Filters & Output
+		// 6. Concatenate filtered rows
 		let output_rows = "";
 		for (const card of rosterCards) {
 			if (!showme && card.isMe) continue;
@@ -811,7 +824,9 @@ export class Roster extends CRABS_Base {
 		}
 
 		const playerWindow = (window as any).Player;
+		const isMap = ChatRoomMapViewIsActive();
 
+		// 7. Setup Template Variables
 		let templatevars: Record<string, string> = {
 			RosterStyle: rosterStyle,
 			adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
@@ -823,37 +838,33 @@ export class Roster extends CRABS_Base {
 			friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
 			friendsOnline: `${this.onlineFriendsCache}`,
 			totalFriends: `${playerWindow.FriendList.length}`,
-			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })
-				}`,
+			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })}`,
 			onlinePlayers: `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
-			playerRows: output_rows
+			playerRows: output_rows,
+			// Flag for CSS to toggle the map separator and keys
+			MapActive: isMap ? "true" : "false"
 		};
 
-		if (ChatRoomMapViewIsActive()) {
-			let displaykeys = "";
-			const KEYS = {
-				keyBronze: playerWindow.MapData.PrivateState.HasKeyBronze,
-				keySilver: playerWindow.MapData.PrivateState.HasKeySilver,
-				keyGold: playerWindow.MapData.PrivateState.HasKeyGold,
-			};
-			for (const [key, value] of Object.entries(KEYS)) {
-				displaykeys += Assets.printimage({ key: value ? (key as any) : "keyNull" });
-			}
+		// 8. Handle Map Keys and Separator
+		let displaykeys = "";
+		const KEYS = {
+			keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
+			keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
+			keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
+		};
 
-			// We move the separator logic here so it only exists if keys exist
-			templatevars["collectedKeys"] = `
-        <div class="CRABS_status_cell CRABS_map-separator">
-            <div class="CRABS_roster_header_align">${displaykeys}</div>
-        </div>`;
-		} else {
-			templatevars["collectedKeys"] = "";
+		for (const [key, value] of Object.entries(KEYS)) {
+			displaykeys += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 		}
+		// This is passed into {{collectedKeys}} in roster.html
+		templatevars["collectedKeys"] = displaykeys;
 
 		let wrappervars = {
 			TitleBar: `CRABS: Roster`,
 			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Roster"] })
 		};
 
+		// 9. Final Output Logic
 		if (forceFullRows) return output_rows;
 
 		return this.template(rostertemplate, templatevars, wrapper, wrappervars);
