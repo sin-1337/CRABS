@@ -83,15 +83,15 @@ export class Roster extends CRABS_Base {
 			return result;
 		};
 
-		// 1. Room Joins/Leaves
+		// Room Joins/Leaves
 		this.safeHook("ChatRoomSync", 10, flagDirty);
 		this.safeHook("ChatRoomSyncMemberJoin", 10, flagDirty);
 		this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
 
-		// 2. Character Appearance / Item Changes (Gags, Blinds, Collars)
+		// Character Appearance / Item Changes (Gags, Blinds, Collars)
 		this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
 
-		// 3. Actions in the room (Usually covers items being applied/removed)
+		// Actions in the room (Usually covers items being applied/removed)
 		this.safeHook("ChatRoomMessage", 10, (args: any, next: Function) => {
 			const result = next(args);
 			const data = args[0];
@@ -103,8 +103,17 @@ export class Roster extends CRABS_Base {
 			return result;
 		});
 
-		// 4. Player Relationship / Account Updates
-		this.safeHook("ServerAccountUpdate", 10, flagDirty);
+		// Player Relationship / Account Updates
+		this.safeHook("ServerSend", 10, (args, next) => {
+			const result = next(args);
+			const messageType = args[0];
+
+			// If the player is pushing an update to their account data, flag dirty
+			if (messageType === "AccountUpdate") {
+				this.isDirty = true;
+			}
+			return result;
+		});
 	}
 
 	/** * Detects overflow in card wrappers and applies scrolling animation if necessary.
