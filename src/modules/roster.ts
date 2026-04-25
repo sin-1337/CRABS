@@ -100,15 +100,15 @@ export class Roster extends CRABS_Base {
 
 		// Update Map Keys
 		const keyContainer = root.querySelector("#CRABS_key_container") as HTMLElement;
-		if (keyContainer) {
+		const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
+
+		if (keyContainer && keyContent) {
 			const isMap = ChatRoomMapViewIsActive();
-			// Instantly toggle visibility via CSS attribute
 			keyContainer.dataset.mapActive = isMap ? "true" : "false";
 
 			if (isMap) {
 				const playerWindow = (window as any).Player;
 				let keyHtml = "";
-				// Only generate the string if we are actually looking at them
 				const KEYS = {
 					keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
 					keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
@@ -118,9 +118,9 @@ export class Roster extends CRABS_Base {
 					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 				}
 
-				// Only update DOM if the HTML actually changed (prevents sluggishness)
-				if (keyContainer.firstElementChild!.innerHTML !== keyHtml) {
-					keyContainer.firstElementChild!.innerHTML = keyHtml;
+				// Surgical update: Only touch the DOM if the keys actually changed
+				if (keyContent.innerHTML !== keyHtml) {
+					keyContent.innerHTML = keyHtml;
 				}
 			}
 		}

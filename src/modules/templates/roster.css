@@ -9,12 +9,12 @@
 }
 
 .CRABS_status_cell {
-  flex: 1; /* Automatically divides width equally between 4 or 5 items */
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 4px;
-  border-right: 1px solid #ccc; /* Add divider to the right of every cell */
+  border-right: 1px solid #ccc;
 }
 
 /* Automatically removes the divider from whatever the very last cell is */
@@ -51,16 +51,20 @@
   margin-left: 4px;
 }
 
+#CRABS_key_container {
+  border-right: none;
+}
+
 .CRABS_map-keys {
   display: none; /* Hidden by default */
+  /* This is our "White Bar" - we use border-left so it acts as a separator */
   border-left: 1px solid rgba(255, 255, 255, 0.3);
   padding-left: 8px;
   margin-left: 4px;
 }
 
-/* Only show the cell (and its border) when the attribute is true */
 .CRABS_map-keys[data-map-active="true"] {
-  display: flex;
+  display: flex; /* Shows the cell AND the border-left */
 }
 
 /* --- THE ROSTER GRID --- */
