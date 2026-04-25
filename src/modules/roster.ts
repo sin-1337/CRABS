@@ -139,30 +139,39 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// Individual Cards (Status & Relationship)
+		// Individual Cards (Status & Relationship updates)
 		ChatRoomData.Character.forEach((charData: any) => {
 			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
-				// 1. STATUS ICONS: Only update if the character's effects array has changed
-				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
-				const currentEffects = CharacterGetEffects(character).join(",");
+				const mNum = character.MemberNumber ?? -1; // Fallback to clear TS error
 
-				// We use a data-attribute to store the last known state on the DOM itself
-				if (statusContainer && statusContainer.dataset.lastEffects !== currentEffects) {
-					statusContainer.innerHTML = DOMPurify.sanitize(this.setStatusIcons(character));
-					statusContainer.dataset.lastEffects = currentEffects; // Lock it in
+				// STATUS ICONS (Gag, Blind, Deaf) ---
+				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
+				if (statusContainer) {
+					// Create a fingerprint of the current effects
+					const currentEffects = CharacterGetEffects(character).join(",");
+
+					// ONLY touch the DOM if the effects changed
+					if (statusContainer.dataset.lastEffects !== currentEffects) {
+						statusContainer.innerHTML = DOMPurify.sanitize(this.setStatusIcons(character));
+						statusContainer.dataset.lastEffects = currentEffects;
+					}
 				}
 
-				// 2. RELATIONSHIP ICONS: Only update if their social status changed
+				// RELATIONSHIP ICONS (Owner, Sub, Friend, Star) ---
 				const iconContainer = card.querySelector(".CRABS_player-icons") as HTMLElement;
-				// Create a unique string representing their social "state"
-				const socialState = `${Player.OwnerNumber() === character.MemberNumber}-${character.IsOwnedByPlayer()}-${Player.FriendList.includes(character.MemberNumber)}`;
+				if (iconContainer) {
+					// Create a fingerprint of their social state
+					// The bitwise OR | 0 and the mNum fallback ensure TypeScript is happy
+					const socialState = `${Player.OwnerNumber() === mNum}-${character.IsOwnedByPlayer()}-${Player.FriendList.includes(mNum)}`;
 
-				if (iconContainer && iconContainer.dataset.lastSocial !== socialState) {
-					iconContainer.innerHTML = DOMPurify.sanitize(this.setIcons(character));
-					iconContainer.dataset.lastSocial = socialState; // Lock it in
+					// ONLY touch the DOM if the social state changed
+					if (iconContainer.dataset.lastSocial !== socialState) {
+						iconContainer.innerHTML = DOMPurify.sanitize(this.setIcons(character));
+						iconContainer.dataset.lastSocial = socialState;
+					}
 				}
 			}
 		});
