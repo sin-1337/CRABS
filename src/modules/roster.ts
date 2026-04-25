@@ -104,28 +104,33 @@ export class Roster extends CRABS_Base {
 
 		if (keyContainer && keyContent) {
 			const isMap = ChatRoomMapViewIsActive();
-			keyContainer.dataset.mapActive = isMap ? "true" : "false";
+
+			// Toggle the attribute so CSS can show/hide the whole block
+			const activeStr = isMap ? "true" : "false";
+			if (keyContainer.getAttribute("data-map-active") !== activeStr) {
+				keyContainer.setAttribute("data-map-active", activeStr);
+			}
 
 			if (isMap) {
 				const playerWindow = (window as any).Player;
-				let keyHtml = "";
 				const KEYS = {
 					keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
 					keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
 					keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
 				};
+
+				let keyHtml = "";
 				for (const [key, value] of Object.entries(KEYS)) {
 					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 				}
 
+				// Surgical Update
 				if (keyContent.innerHTML !== keyHtml) {
 					keyContent.innerHTML = keyHtml;
 				}
 			} else {
-				// Fix for Ghost Keys: Clear the content when not on a map
-				if (keyContent.innerHTML !== "") {
-					keyContent.innerHTML = "";
-				}
+				// Clear it out when not on map to prevent "Ghosting"
+				keyContent.innerHTML = "";
 			}
 		}
 
