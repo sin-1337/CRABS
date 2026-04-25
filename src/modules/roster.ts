@@ -837,9 +837,14 @@ export class Roster extends CRABS_Base {
 				keyGold: playerWindow.MapData.PrivateState.HasKeyGold,
 			};
 			for (const [key, value] of Object.entries(KEYS)) {
-				displaykeys += Assets.printimage({ key: value ? key : "keyNull" });
+				displaykeys += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 			}
-			templatevars["collectedKeys"] = `<div class="CRABS_status_cell"><div class="CRABS_roster_header_align">${displaykeys}</div></div>`;
+
+			// We move the separator logic here so it only exists if keys exist
+			templatevars["collectedKeys"] = `
+        <div class="CRABS_status_cell CRABS_map-separator">
+            <div class="CRABS_roster_header_align">${displaykeys}</div>
+        </div>`;
 		} else {
 			templatevars["collectedKeys"] = "";
 		}
