@@ -41,6 +41,9 @@ export abstract class CRABS_Base {
 	private perfStabilityCounter: number = 0;
 	private readonly STABILITY_THRESHOLD = 60;
 
+	/** Tracks hooks that have already failed to prevent log/toast spamming. */
+	private failedHooks: Set<string> = new Set();
+
 	/**
 	 * Creates an instance of a CRABS module.
 	 * 
@@ -51,29 +54,41 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Safely hooks a base-game function. 
-	 * Catches registration errors if the function is missing, and wraps the execution 
-	 * in a try/catch so mod logic failures don't crash the base game.
-	 * * @param targetFunction The name of the global game function to hook.
-	 * @param priority ModSDK priority level.
-	 * @param callback Your hook logic.
-	 */
-	protected safeHook(targetFunction: string, priority: number, callback: (args: any, next: Function) => any): void {
+		 * Safely hooks a base-game function. 
+		 * Catches registration errors if the function is missing, and wraps the execution 
+		 * in a try/catch so mod logic failures don't crash the base game.
+		 * * @param targetFunction The name of the global game function to hook.
+		 * @param priority ModSDK priority level.
+		 * @param callback Your hook logic.
+		 */
+	protected safeHook(
+		targetFunction: string,
+		priority: number,
+		callback: (args: any[], next: (args: any[]) => any) => any
+	): void {
 		try {
-			this.CRABS.hookFunction(targetFunction, priority, (args: any, next: Function) => {
+			// We cast to 'any' here to bypass ModSDK's strict string-literal generic constraints
+			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
 				try {
 					// Attempt to run our mod's custom hook logic
 					return callback(args, next);
 				} catch (execError) {
-					// EXECUTION FAILED: Log it, but CRITICALLY, call next() 
-					// so the base game continues running uninterrupted!
-					console.error(`[CRABS ERROR] Execution failed in hook: '${targetFunction}'. Mod feature degraded.`, execError);
-					return next(args);
+					// EXECUTION FAILED
+					if (!this.failedHooks.has(targetFunction)) {
+						this.failedHooks.add(targetFunction);
+						console.error(`[CRABS ERROR] Execution failed in hook: '${targetFunction}'. Mod feature degraded.`, execError);
+						Notification.send({ message: `Feature degraded: ${targetFunction} failed. Check console.`, title: "Crabs Error", duration: 5000 });
+					}
+					return next(args); // CRITICALLY, call next() so the game doesn't crash!
 				}
 			});
 		} catch (regError) {
-			// REGISTRATION FAILED: The function doesn't exist anymore.
-			console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'. Base game API may have changed!`, regError);
+			// REGISTRATION FAILED
+			if (!this.failedHooks.has(targetFunction)) {
+				this.failedHooks.add(targetFunction);
+				console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'. Base game API may have changed!`, regError);
+				Notification.send({ message: `Hook missing: ${targetFunction}. Mod feature degraded.`, title: "Crabs Error", duration: 5000 });
+			}
 		}
 	}
 
@@ -155,7 +170,7 @@ export abstract class CRABS_Base {
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(data);
-			Notification.send(`"${data}" copied to clipboard.`)
+			Notification.send({ message: `"${data}" copied to clipboard.` })
 			// console.log("DEBUG: Text copied to clipboard: ", data);
 			return;
 		} catch (error) {

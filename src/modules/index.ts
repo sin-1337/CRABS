@@ -15,3 +15,4 @@ export * from "./roster";
 export * from "./whisperplus";
 export * from "./settings";
 export * from "./setup";
+export * from "./notifications";

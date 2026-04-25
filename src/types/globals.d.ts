@@ -47,6 +47,18 @@ declare global {
 		data?: [string, string]
 	};
 
+	type NotificationParams = {
+		message: string;
+		title?: string;
+		image?: Extract<keyof typeof Assets.IMAGES.image, string>;
+		duration?: number;
+	};
+
+	type ErrorNotificationParams = {
+		message: string;
+		duration?: number;
+	};
+
 	type AudioStore = {
 		readonly basePath: string;
 		readonly [key: string]: string | {

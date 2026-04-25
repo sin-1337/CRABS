@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Notification } from "./modules";
 
 // register the mod
 const CRABS = bcModSDK.registerMod({
@@ -127,7 +127,11 @@ CommandCombine([
 			if (trimmedArgs === "rave") {
 				Assets.PlayAudio("rave");
 				Drawer.RaveTab();
-				ChatRoomSendLocal("🦀 RAVE TIME! 🦀");
+				Notification.send({
+					message: "🦀 RAVE TIME! 🦀",
+					image: "rave",
+					duration: 10000
+				});
 				return;
 			}
 
