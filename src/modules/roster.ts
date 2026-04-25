@@ -75,7 +75,7 @@ export class Roster extends CRABS_Base {
 	public updateRosterUI(root: HTMLElement): void {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
 
-		// 1. Surgical Counters (Only touch if text changed)
+		// Surgical Counters (Only touch if text changed)
 		const updateText = (id: string, text: string) => {
 			const el = root.querySelector(id);
 			if (el && el.textContent !== text) el.textContent = text;
@@ -87,7 +87,7 @@ export class Roster extends CRABS_Base {
 		updateText("#CRABS_header_friends", `${this.onlineFriendsCache}/${Player.FriendList.length}`);
 		updateText("#CRABS_header_online", `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `);
 
-		// 2. Map Keys (The Flicker-Free Way)
+		// Map Keys
 		const keyContainer = root.querySelector("#CRABS_key_container") as HTMLElement;
 		const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
 
@@ -95,31 +95,40 @@ export class Roster extends CRABS_Base {
 			const isMap = ChatRoomMapViewIsActive();
 			const activeStr = isMap ? "true" : "false";
 
+			// Sync the CSS Visibility attribute
 			if (keyContainer.getAttribute("data-map-active") !== activeStr) {
 				keyContainer.setAttribute("data-map-active", activeStr);
 			}
 
 			if (isMap) {
 				const playerWindow = (window as any).Player;
-				let keyHtml = "";
-				const KEYS = {
-					keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
-					keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
-					keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
-				};
-				for (const [key, value] of Object.entries(KEYS)) {
-					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
-				}
+				const pState = playerWindow.MapData?.PrivateState;
 
-				if (keyContent.innerHTML !== keyHtml) {
+				// Create a "Data Fingerprint" of your keys
+				const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
+
+				// ONLY update if the inventory actually changed
+				if (keyContent.dataset.lastKeys !== currentKeyState) {
+					let keyHtml = "";
+					const KEYS = {
+						keyBronze: pState?.HasKeyBronze,
+						keySilver: pState?.HasKeySilver,
+						keyGold: pState?.HasKeyGold,
+					};
+					for (const [key, value] of Object.entries(KEYS)) {
+						keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
+					}
+
 					keyContent.innerHTML = keyHtml;
+					keyContent.dataset.lastKeys = currentKeyState; // Lock the state
 				}
 			} else if (keyContent.innerHTML !== "") {
 				keyContent.innerHTML = "";
+				keyContent.removeAttribute("data-last-keys");
 			}
 		}
 
-		// 3. Structural Check (Joined/Left)
+		// Structural Check (Joined/Left)
 		const container = root.querySelector(".CRABS_card-container");
 		const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
 		if (currentCardCount !== ChatRoomData.Character.length) {
@@ -130,28 +139,30 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// 4. Individual Cards (Status & Relationship)
+		// Individual Cards (Status & Relationship)
 		ChatRoomData.Character.forEach((charData: any) => {
 			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
-				// Status Icons
-				const statusContainer = card.querySelector(".CRABS_status-icons");
-				if (statusContainer) {
-					const newStatusHtml = this.setStatusIcons(character);
-					if (statusContainer.innerHTML !== newStatusHtml) {
-						statusContainer.innerHTML = newStatusHtml;
-					}
+				// 1. STATUS ICONS: Only update if the character's effects array has changed
+				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
+				const currentEffects = CharacterGetEffects(character).join(",");
+
+				// We use a data-attribute to store the last known state on the DOM itself
+				if (statusContainer && statusContainer.dataset.lastEffects !== currentEffects) {
+					statusContainer.innerHTML = DOMPurify.sanitize(this.setStatusIcons(character));
+					statusContainer.dataset.lastEffects = currentEffects; // Lock it in
 				}
 
-				// Relationship Icons (Handles 'You' star automatically now)
-				const iconContainer = card.querySelector(".CRABS_player-icons");
-				if (iconContainer) {
-					const newIconsHtml = this.setIcons(character);
-					if (iconContainer.innerHTML !== newIconsHtml) {
-						iconContainer.innerHTML = newIconsHtml;
-					}
+				// 2. RELATIONSHIP ICONS: Only update if their social status changed
+				const iconContainer = card.querySelector(".CRABS_player-icons") as HTMLElement;
+				// Create a unique string representing their social "state"
+				const socialState = `${Player.OwnerNumber() === character.MemberNumber}-${character.IsOwnedByPlayer()}-${Player.FriendList.includes(character.MemberNumber)}`;
+
+				if (iconContainer && iconContainer.dataset.lastSocial !== socialState) {
+					iconContainer.innerHTML = DOMPurify.sanitize(this.setIcons(character));
+					iconContainer.dataset.lastSocial = socialState; // Lock it in
 				}
 			}
 		});
