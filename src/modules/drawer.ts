@@ -168,7 +168,6 @@ export class Drawer extends CRABS_Base {
 		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
 
 		// Track Character-Specific States in the Room (Effects + Ownership)
-		// Tracks gags, blinds, deafening, and if someone gets collared/freed in the room
 		const currentRoomCharStates = ChatRoomData.Character.map((c: any) => {
 			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
 			if (!char) return "";
@@ -181,7 +180,6 @@ export class Drawer extends CRABS_Base {
 		}).join(",");
 
 		// Track the Player's Local Relationship Lists
-		// Tracks lovers, best friends, whitelist, blacklist, ghostlist, and normal friends
 		const currentRelationships = [
 			player.OwnerNumber ? player.OwnerNumber() : "",
 			player.GetLoversNumbers ? player.GetLoversNumbers().join(",") : "",
@@ -198,20 +196,18 @@ export class Drawer extends CRABS_Base {
 			player.MapData?.PrivateState?.HasKeySilver,
 			player.MapData?.PrivateState?.HasKeyGold
 		].join(",");
+
 		const isMapActive = ChatRoomMapViewIsActive();
 		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
 
-		const currentTotalOnline = typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : 0;
-
-		// 3. Compare everything against our last known state
+		// Compare everything against our last known state (Excluding Global Online)
 		if (currentRoster !== this.lastRoster ||
 			currentRoomCharStates !== this.lastRoomCharStates ||
 			currentRelationships !== this.lastRelationships ||
 			currentAdmins !== this.lastAdminList ||
 			currentKeys !== this.lastKeys ||
 			isMapActive !== this.lastMapState ||
-			currentOnlineFriends !== this.lastOnlineFriends ||
-			currentTotalOnline !== this.lastTotalOnline) {
+			currentOnlineFriends !== this.lastOnlineFriends) {
 
 			this.lastRoster = currentRoster;
 			this.lastRoomCharStates = currentRoomCharStates;
