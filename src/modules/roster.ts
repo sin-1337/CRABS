@@ -75,11 +75,15 @@ export class Roster extends CRABS_Base {
 	public updateRosterUI(root: HTMLElement): void {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
 
-		// Surgical Counters (Only touch if text changed)
+		// Counters (Only touch if text changed)
 		const updateText = (id: string, text: string) => {
 			const el = root.querySelector(id);
 			if (el && el.textContent !== text) el.textContent = text;
 		};
+
+		// update room name if it changes
+		const currentRoomName = ChatRoomData.Name || "Roster";
+		updateText("#drawer-title", `CRABS: ${currentRoomName}`);
 
 		const adminInRoom = ChatRoomData.Character.filter((c: any) => ChatRoomData.Admin.includes(c.MemberNumber)).length;
 		updateText("#CRABS_header_admins", `${adminInRoom}/${ChatRoomData.Admin.length}`);
