@@ -69,99 +69,89 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-		 * Updates the DOM elements within the roster without a full redraw.
-		 * Falls back to buildroster() if the container is missing or room composition changed.
-		 */
+	 * Updates the DOM elements within the roster without a full redraw.
+	 * Falls back to buildroster() if the container is missing or room composition changed.
+	 */
 	public updateRosterUI(root: HTMLElement): void {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
 
-		// Update Header Counters
-		const adminEl = root.querySelector("#CRABS_header_admins");
-		if (adminEl) {
-			// Added type : any to clear the error
-			const adminInRoom = ChatRoomData.Character.filter((c: any) => ChatRoomData.Admin.includes(c.MemberNumber)).length;
-			adminEl.textContent = `${adminInRoom}/${ChatRoomData.Admin.length}`;
-		}
+		// 1. Surgical Counters (Only touch if text changed)
+		const updateText = (id: string, text: string) => {
+			const el = root.querySelector(id);
+			if (el && el.textContent !== text) el.textContent = text;
+		};
 
-		const playersEl = root.querySelector("#CRABS_header_players");
-		if (playersEl) {
-			playersEl.textContent = `${ChatRoomCharacter.length}/${ChatRoomData.Limit}`;
-		}
+		const adminInRoom = ChatRoomData.Character.filter((c: any) => ChatRoomData.Admin.includes(c.MemberNumber)).length;
+		updateText("#CRABS_header_admins", `${adminInRoom}/${ChatRoomData.Admin.length}`);
+		updateText("#CRABS_header_players", `${ChatRoomCharacter.length}/${ChatRoomData.Limit}`);
+		updateText("#CRABS_header_friends", `${this.onlineFriendsCache}/${Player.FriendList.length}`);
+		updateText("#CRABS_header_online", `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `);
 
-		const friendsEl = root.querySelector("#CRABS_header_friends");
-		if (friendsEl) {
-			friendsEl.textContent = `${this.onlineFriendsCache}/${Player.FriendList.length}`;
-		}
-
-		const globalEl = root.querySelector("#CRABS_header_online");
-		if (globalEl) {
-			globalEl.textContent = `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `;
-		}
-
-		// Update Map Keys
+		// 2. Map Keys (The Flicker-Free Way)
 		const keyContainer = root.querySelector("#CRABS_key_container") as HTMLElement;
 		const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
 
 		if (keyContainer && keyContent) {
 			const isMap = ChatRoomMapViewIsActive();
-
-			// Toggle the attribute so CSS can show/hide the whole block
 			const activeStr = isMap ? "true" : "false";
+
 			if (keyContainer.getAttribute("data-map-active") !== activeStr) {
 				keyContainer.setAttribute("data-map-active", activeStr);
 			}
 
 			if (isMap) {
 				const playerWindow = (window as any).Player;
+				let keyHtml = "";
 				const KEYS = {
 					keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
 					keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
 					keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
 				};
-
-				let keyHtml = "";
 				for (const [key, value] of Object.entries(KEYS)) {
 					keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 				}
 
-				// Surgical Update
 				if (keyContent.innerHTML !== keyHtml) {
 					keyContent.innerHTML = keyHtml;
 				}
-			} else {
-				// Clear it out when not on map to prevent "Ghosting"
+			} else if (keyContent.innerHTML !== "") {
 				keyContent.innerHTML = "";
 			}
 		}
 
-		// Update Individual Cards
+		// 3. Structural Check (Joined/Left)
 		const container = root.querySelector(".CRABS_card-container");
 		const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
-
 		if (currentCardCount !== ChatRoomData.Character.length) {
 			if (container) {
-				// Now matching the 3 arguments in buildroster
 				container.innerHTML = DOMPurify.sanitize(this.buildroster("all", false, true));
 				this.buildui(undefined, undefined, root);
 				return;
 			}
 		}
 
-		// Update for existing cards (Appearance/Status changes)
-		// Added type : any to clear the error
+		// 4. Individual Cards (Status & Relationship)
 		ChatRoomData.Character.forEach((charData: any) => {
 			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
+				// Status Icons
 				const statusContainer = card.querySelector(".CRABS_status-icons");
 				if (statusContainer) {
-					statusContainer.innerHTML = this.setStatusIcons(character);
+					const newStatusHtml = this.setStatusIcons(character);
+					if (statusContainer.innerHTML !== newStatusHtml) {
+						statusContainer.innerHTML = newStatusHtml;
+					}
 				}
 
+				// Relationship Icons (Handles 'You' star automatically now)
 				const iconContainer = card.querySelector(".CRABS_player-icons");
 				if (iconContainer) {
-					iconContainer.innerHTML = this.setIcons(character);
+					const newIconsHtml = this.setIcons(character);
+					if (iconContainer.innerHTML !== newIconsHtml) {
+						iconContainer.innerHTML = newIconsHtml;
+					}
 				}
 			}
 		});
@@ -472,6 +462,10 @@ export class Roster extends CRABS_Base {
 		let playerIcons = "";
 		const memberNum = character.MemberNumber ?? -1;
 		const playerWindow = (window as any).Player;
+
+		if (character.IsPlayer()) {
+			playerIcons += Assets.printimage({ key: "you" }) + " ";
+		}
 
 		// Trial checks
 		const isTrial = character.Ownership?.MemberNumber === playerWindow.MemberNumber && character.Ownership?.Stage === 0;
