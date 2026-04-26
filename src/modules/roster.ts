@@ -59,20 +59,18 @@ export class Roster extends CRABS_Base {
 	private onPlayerHover = (playerId: string) => {
 		if (this.trackedMapPlayer !== null || !playerId) return;
 
-		const mode = Settings.instance.data.pageShiftMode || "delay";
-		if (mode === "click") return;
+		// Abort immediately if the user disabled hover focus
+		if (!Settings.instance.data.pageFocusHover) return;
 
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			this.hoveredMapPlayer = id;
 
-			if (mode === "delay") {
-				this.hoverTimeout = window.setTimeout(() => {
-					this.autoPaginateToPlayer(id);
-				}, 500);
-			} else {
+			// Enforce a 500ms delay before shifting to prevent seizure-inducing flickering
+			// if the user rapidly moves their mouse down the list.
+			this.hoverTimeout = window.setTimeout(() => {
 				this.autoPaginateToPlayer(id);
-			}
+			}, 500);
 		}
 	};
 
@@ -91,8 +89,7 @@ export class Roster extends CRABS_Base {
 	 * @param {string} playerId - The ID of the clicked player.
 	 */
 	private onPlayerCardClick = (playerId: string) => {
-		if (Settings.instance.data.pageShiftMode !== "click") return;
-
+		// Clicks should always work instantly, overriding any hover delays
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			this.autoPaginateToPlayer(id);

@@ -6,7 +6,7 @@ import { Settings } from "./settings";
 /**
  * Class handling automatic background updates.
  * Polls the GitHub repository for new versions based on the active branch.
- * Gracefully shuts down polling once an update is discovered to prevent spam.
+ * Tracks notified versions in localStorage to prevent spamming the user across sessions.
  */
 export class Updater extends CRABS_Base {
 	private currentVersion: string;
@@ -15,6 +15,9 @@ export class Updater extends CRABS_Base {
 
 	/** The ID of the background polling interval, used to cancel it once an update is found. */
 	private updateIntervalId: number | null = null;
+
+	/** The key used to remember which update the user has already been warned about. */
+	private readonly STORAGE_KEY = "CRABS_NotifiedVersion";
 
 	/** The frequency of the background checks in milliseconds (1 Hour). */
 	private checkIntervalMs: number = 60 * 60 * 1000;
@@ -51,11 +54,14 @@ export class Updater extends CRABS_Base {
 
 	/**
 	 * Fetches the remote package.json and prompts the user if a newer version exists.
-	 * Aborts silently if the user has disabled update checking in their settings.
+	 * Aborts silently if the user has disabled update checking or already saw the notification.
 	 */
 	private async checkForUpdates(): Promise<void> {
 		// Obey user preferences
-		if (!Settings.instance.data.checkForUpdates) return;
+		if (!Settings.instance.data.checkForUpdates) {
+			this.stopPolling();
+			return;
+		}
 
 		try {
 			// Append a timestamp query to bust the browser cache
@@ -65,19 +71,35 @@ export class Updater extends CRABS_Base {
 			const data = await response.json();
 			const remoteVersion = data.version;
 
-			if (this.isNewerVersion(this.currentVersion, remoteVersion)) {
-				this.promptUserToUpdate(remoteVersion);
+			// If we've already notified the user about this exact version, stay silent and stop checking
+			if (localStorage.getItem(this.STORAGE_KEY) === remoteVersion) {
+				this.stopPolling();
+				return;
+			}
 
-				// Stop checking the network! We already found an update.
-				// A single page refresh is all it takes to apply it and restart the lifecycle.
-				if (this.updateIntervalId !== null) {
-					window.clearInterval(this.updateIntervalId);
-					this.updateIntervalId = null;
-				}
+			if (this.isNewerVersion(this.currentVersion, remoteVersion)) {
+				// Save this version to storage so we never bother them about it again
+				localStorage.setItem(this.STORAGE_KEY, remoteVersion);
+
+				this.promptUserToUpdate(remoteVersion);
+				this.stopPolling();
+			} else {
+				// Clean up the storage key if they are fully up-to-date
+				localStorage.removeItem(this.STORAGE_KEY);
 			}
 
 		} catch (error) {
 			if (CRABS_Base.debugMode) console.error(`CRABS Updater failed to fetch from ${this.branch}:`, error);
+		}
+	}
+
+	/**
+	 * Helper method to cleanly destroy the background polling interval.
+	 */
+	private stopPolling(): void {
+		if (this.updateIntervalId !== null) {
+			window.clearInterval(this.updateIntervalId);
+			this.updateIntervalId = null;
 		}
 	}
 

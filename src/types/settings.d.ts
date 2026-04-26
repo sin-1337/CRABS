@@ -54,6 +54,6 @@ interface CRABS_Settings {
 	lockImmersive: boolean;
 	showMapCompass: boolean;
 	mapSuperZoom: boolean;
-	pageShiftMode: "hover" | "delay" | "click";
+	pageFocusHover: boolean,
 	checkForUpdates: boolean;
 }
