@@ -88,6 +88,9 @@ export class Drawer extends CRABS_Base {
 	/** Triggers the easter egg visual effect on the drawer tab. */
 	public static RaveTab(): void { Drawer._instance?.RaveTab(); }
 
+	/** Caches the last known coordinates of the chat log to prevent layout thrashing */
+	private lastRect = { top: -1, width: -1, height: -1, right: -1, compact: false };
+
 	/**
 	 * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
 	 * @returns {void}
@@ -219,6 +222,7 @@ export class Drawer extends CRABS_Base {
 				this.updateTick = 0;
 
 				this.updateVisibility();
+				this.syncToChat();
 
 				if (this.isOpen && !this.showingHelp) {
 					// 1. ALWAYS run the surgical update if the drawer is open.
@@ -293,24 +297,28 @@ export class Drawer extends CRABS_Base {
 		if (!chatLog || !this.instance) return;
 
 		const rect = chatLog.getBoundingClientRect();
-
-		// If the chat log hasn't rendered yet (0 dimensions), abort.
-		// DO NOT teleport the drawer to 0px!
-		if (rect.width === 0 || rect.height === 0) {
-			return;
-		}
-
-		this.instance.style.top = `${rect.top}px`;
-		this.instance.style.width = `${rect.width}px`;
-
-		if (Settings.instance.data.compactDrawer) {
-			this.instance.style.height = `${rect.height * 0.77}px`;
-		} else {
-			this.instance.style.height = `${rect.height}px`;
-		}
+		if (rect.width === 0 || rect.height === 0) return;
 
 		const rightOffset = document.documentElement.clientWidth - rect.right;
-		this.instance.style.right = `${rightOffset}px`;
+		const compact = Settings.instance.data.compactDrawer;
+
+		// ONLY touch the DOM if the chatbox actually moved or resized!
+		// This completely eliminates layout thrashing.
+		if (
+			this.lastRect.top !== rect.top ||
+			this.lastRect.width !== rect.width ||
+			this.lastRect.height !== rect.height ||
+			this.lastRect.right !== rightOffset ||
+			this.lastRect.compact !== compact
+		) {
+			this.instance.style.top = `${rect.top}px`;
+			this.instance.style.width = `${rect.width}px`;
+			this.instance.style.height = compact ? `${rect.height * 0.77}px` : `${rect.height}px`;
+			this.instance.style.right = `${rightOffset}px`;
+
+			// Save the new coordinates
+			this.lastRect = { top: rect.top, width: rect.width, height: rect.height, right: rightOffset, compact };
+		}
 	}
 
 	/**
