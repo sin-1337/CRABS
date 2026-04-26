@@ -44,9 +44,8 @@ export class Roster extends CRABS_Base {
 
 	/** Handler for when a player's entry is hovered in the roster UI. */
 	private onPlayerHover = (playerId: string) => {
-		if (this.trackedMapPlayer !== null) return;
+		if (this.trackedMapPlayer !== null || !playerId) return;
 
-		// playerId here will be the value from data-player-number
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			this.hoveredMapPlayer = id;
@@ -917,7 +916,7 @@ export class Roster extends CRABS_Base {
 		// Left Click Number -> Copy to Clipboard
 		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
 
-		this.attachEvent("CRABS_card", this.onPlayerHover, "player-number", undefined, "mouseenter", "class", root);
+		this.attachEvent("CRABS_card", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
 		this.attachEvent("CRABS_card", this.onPlayerLeave, undefined, undefined, "mouseleave", "class", root);
 
 		// Click Compass -> Toggle Sticky Compass Tracking
