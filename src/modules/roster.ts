@@ -72,20 +72,30 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Hook the name draw logic in normal rooms
-		this.safeHook("ChatRoomDrawCharacterName", 10, (args: any, next: Function) => {
-			// Let the game draw the name regardless
-			next(args);
+		this.safeHook("ChatRoomCharacterViewDraw", 10, (functionArguments: any, next: Function) => {
+			// Let the game render the room, characters, and nameplates first
+			const result = next(functionArguments);
 
-			// ONLY trigger our indicator if:
-			//    - We are NOT on a map
-			//    - We have a target (hovered or tracked)
-			//    - The current character being drawn is that target
-			const isMap = typeof ChatRoomMapViewIsActive === "function" && ChatRoomMapViewIsActive();
-			const targetId = this.hoveredMapPlayer;
+			const globalWindow = window as any;
+			const drawList = globalWindow.ChatRoomCharacterDrawlist;
+			if (!drawList) return result;
 
-			if (!isMap && targetId && args[0].MemberNumber === targetId) {
-				this.drawNameIndicator(args[0], args[1], args[2]);
+			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
+			if (targetId) {
+				// Only draw if the target is currently visible on the screen
+				const targetChar = drawList.find((c: any) => c.MemberNumber === targetId);
+				if (targetChar) {
+					// Replicate the game's exact spacing math
+					const charIndex = drawList.indexOf(targetChar);
+					const charCount = drawList.length;
+					const x = (1000 / (charCount + 1)) * (charIndex + 1);
+
+					// Draw the compass arrow exactly at the Y=50 nameplate layer
+					this.drawNameIndicator(targetChar, x, 50);
+				}
 			}
+
+			return result;
 		});
 	}
 
@@ -712,14 +722,11 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Renders a visual "focus" indicator (▶) on the game canvas next to a character's name.
-	 * * This function is designed to be called within a hook of the game's name-drawing routine.
-	 * It calculates the width of the character's nickname to ensure the indicator is 
-	 * positioned dynamically to the left of the nameplate, regardless of name length.
-	 * * @private
-	 * @param {any} character - The character object provided by the game engine.
-	 * @param {number} x - The horizontal center-point of the character's nameplate.
-	 * @param {number} y - The vertical baseline of the character's nameplate.
+	 * Renders the custom map compass arrow next to a character's nameplate.
+	 * @private
+	 * @param {any} character - The character object to reference for colors and name.
+	 * @param {number} x - The calculated horizontal center of the character's slot.
+	 * @param {number} y - The vertical position of the nameplate area (Standard is 50).
 	 * @returns {void}
 	 */
 	private drawNameIndicator(character: any, x: number, y: number): void {
@@ -727,30 +734,49 @@ export class Roster extends CRABS_Base {
 		const ctx = canvasElement?.getContext("2d");
 		if (!ctx) return;
 
-		ctx.save();
-
-		// Set the font to match the game's name style but bold
-		ctx.font = "bold 25px Arial";
-		ctx.fillStyle = character.LabelColor || "white";
-		ctx.textAlign = "right"; // Position it to the left of the name center
-
-		// The game centers names. We calculate the width to offset our arrow.
+		// Measure the nickname to find the start of the nameplate
+		// The base game uses 36px sans-serif as its default UI font
+		ctx.font = "36px sans-serif";
 		const nameText = CharacterNickname(character);
 		const nameWidth = ctx.measureText(nameText).width;
 
-		// Draw the indicator slightly to the left of where the name starts
-		const indicatorX = x - (nameWidth / 2) - 10;
-		const indicatorY = y + 10; // Adjust to align vertically with the name baseline
+		// The game centers the text at X. 
+		// We want the arrow tip to be exactly 15px to the left of the text.
+		const tipX = x - (nameWidth / 2) - 15;
 
-		// Draw the symbol
-		ctx.fillText("▶", indicatorX, indicatorY);
+		// Calculate colors using your existing logic
+		const playerColor = character.LabelColor || "cyan";
+		const brightness = this.getColorBrightness(playerColor);
+		const isDark = brightness < 128;
 
-		// Optional: Add a small shadow/glow to make it pop
-		ctx.strokeStyle = "black";
-		ctx.lineWidth = 1;
-		ctx.strokeText("▶", indicatorX, indicatorY);
+		ctx.save();
+		try {
+			// Scale down the compass arrow (0.4 is a great size for UI text)
+			const scale = 0.4;
 
-		ctx.restore();
+			// The arrow tip is at X=20 in your path drawing. 
+			// So we move the origin left by (20 * scale) from the desired tip position.
+			ctx.translate(tipX - (20 * scale), y);
+			ctx.scale(scale, scale);
+
+			// Draw the exact same geometric shape as the map compass
+			ctx.beginPath();
+			ctx.moveTo(20, 0);       // Tip (pointing right)
+			ctx.lineTo(-20, 15);     // Bottom tail
+			ctx.lineTo(-20, -15);    // Top tail
+
+			ctx.fillStyle = playerColor;
+			ctx.fill();
+
+			ctx.strokeStyle = isDark ? "white" : "black";
+			// Divide the line width by scale so the 1.5px border stays crisp
+			ctx.lineWidth = 1.5 / scale;
+
+			ctx.closePath();
+			ctx.stroke();
+		} finally {
+			ctx.restore();
+		}
 	}
 
 	/**
