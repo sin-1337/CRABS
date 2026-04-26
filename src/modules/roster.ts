@@ -50,6 +50,7 @@ export class Roster extends CRABS_Base {
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			this.hoveredMapPlayer = id;
+			this.autoPaginateToPlayer(id);
 		}
 	};
 
@@ -80,18 +81,16 @@ export class Roster extends CRABS_Base {
 			const globalWindow = window as any;
 			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
 
-			// --- NEW: UI Visibility Checks ---
-			// 1. The "Eye Icon": If ChatRoomHideIconState > 0, the game hides names.
-			if (globalWindow.ChatRoomHideIconState > 0) return result;
+			// The "Eye Icon": If ChatRoomHideIconState > 3, the game hides names.
+			if (globalWindow.ChatRoomHideIconState >= 3) return result;
 
-			// 2. The Settings Menu: If the player explicitly disabled names in their settings.
+			// The Settings Menu: If the player explicitly disabled names in their settings.
 			if (globalWindow.Player?.OnlineSettings?.ShowNames === false) return result;
-			// ---------------------------------
 
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
-			// 3. Only draw if we have a target, we are not on a map, and this is the target
+			// Only draw if we have a target, we are not on a map, and this is the target
 			const character = args[0];
 			if (!isMap && targetId && character.MemberNumber === targetId) {
 
@@ -111,6 +110,41 @@ export class Roster extends CRABS_Base {
 
 			return result;
 		});
+	}
+
+	/**
+	 * Automatically switches the base game's ChatRoom pagination to the page
+	 * containing the targeted player.
+	 * @param targetId The MemberNumber of the player to locate.
+	 */
+	private autoPaginateToPlayer(targetId: number): void {
+		const globalWindow = window as any;
+
+		// Abort if we aren't in a standard room, or if there are 10 or fewer people
+		if (
+			globalWindow.CurrentScreen !== "ChatRoom" ||
+			typeof globalWindow.ChatRoomCharacterViewOffset !== "number" ||
+			!Array.isArray(globalWindow.ChatRoomCharacter) ||
+			globalWindow.ChatRoomCharacter.length <= 10
+		) {
+			return;
+		}
+
+		// Find the character's index in the base game's raw array
+		const charIndex = globalWindow.ChatRoomCharacter.findIndex((c: any) => c.MemberNumber === targetId);
+
+		if (charIndex !== -1) {
+			// Bondage Club puts indices 0-9 on Page 1 (offset 0), and 10+ on Page 2 (offset 10)
+			const requiredOffset = charIndex >= 10 ? 10 : 0;
+
+			// If the game is on the wrong page, flip the variable and force a display update
+			if (globalWindow.ChatRoomCharacterViewOffset !== requiredOffset) {
+				globalWindow.ChatRoomCharacterViewOffset = requiredOffset;
+				if (typeof globalWindow.ChatRoomUpdateDisplay === "function") {
+					globalWindow.ChatRoomUpdateDisplay();
+				}
+			}
+		}
 	}
 
 	/**
@@ -631,12 +665,16 @@ export class Roster extends CRABS_Base {
 		// Toggle logic: If clicking the already tracked player, untrack. Otherwise, track new.
 		this.trackedMapPlayer = (this.trackedMapPlayer === id) ? null : id;
 
+		if (this.trackedMapPlayer !== null) {
+			this.autoPaginateToPlayer(id); // <--- NEW: Flip the page if they click to track
+		}
+
 		// Fast UI Update: Remove active class from ALL compasses
 		document.querySelectorAll(".CRABS_track-compass").forEach(el => {
 			el.classList.remove("CRABS_compass-active");
 		});
 
-		// Add active class to the newly tracked player's compass (if we didn't just clear it)
+		// Add active class to the newly tracked player's compass
 		if (this.trackedMapPlayer !== null) {
 			document.querySelectorAll(`.CRABS_track-compass[data-player-number="${id}"]`).forEach(el => {
 				el.classList.add("CRABS_compass-active");
