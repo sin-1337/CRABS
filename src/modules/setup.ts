@@ -56,7 +56,7 @@ export class Setup extends CRABS_Base {
 				const isFocused = (window as any).CurrentCharacter !== null;
 				const drawerElement = document.getElementById("crabs-drawer");
 
-				if (!isFocused && drawerElement && drawerElement.style.display === "none" && !Settings.instance?.data.disableDrawer) {
+				if (!isFocused && drawerElement && drawerElement.style.display === "none" && !Settings.instance?.data.enableDrawer) {
 					Drawer.updateVisibility();
 				}
 			} else {
