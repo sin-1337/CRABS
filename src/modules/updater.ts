@@ -13,7 +13,7 @@ export class Updater extends CRABS_Base {
 
 	// Check every 60 minutes
 	// private checkIntervalMs: number = 60 * 60 * 1000;
-	private checkIntervalMs: number = 60; // Note: Set this back to 1 hour for production!
+	private checkIntervalMs: number = 60 * 100; // Note: Set this back to 1 hour for production!
 
 	/**
 	 * Initializes the Updater, determines the active branch, and starts the polling timers.
