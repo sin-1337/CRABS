@@ -72,18 +72,26 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Hook the name draw logic in normal rooms
+		// Hook the core character drawing function for perfect coordinate syncing
 		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
 			// 1. Let the game draw the character and their nameplate first
 			const result = next(args);
 
-			// Ensure we only do this in the ChatRoom so it doesn't bleed into the Wardrobe
 			const globalWindow = window as any;
 			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
+
+			// --- NEW: UI Visibility Checks ---
+			// 1. The "Eye Icon": If ChatRoomHideIconState > 0, the game hides names.
+			if (globalWindow.ChatRoomHideIconState > 0) return result;
+
+			// 2. The Settings Menu: If the player explicitly disabled names in their settings.
+			if (globalWindow.Player?.OnlineSettings?.ShowNames === false) return result;
+			// ---------------------------------
 
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
-			// 2. Only draw if we have a target, we are not on a map, and this is the target
+			// 3. Only draw if we have a target, we are not on a map, and this is the target
 			const character = args[0];
 			if (!isMap && targetId && character.MemberNumber === targetId) {
 
@@ -93,11 +101,9 @@ export class Roster extends CRABS_Base {
 				const zoom = args[3];
 
 				// BC characters are drawn 500px wide natively. 
-				// We find the center by adding 250 (scaled by the current room zoom)
 				const centerX = drawX + (250 * zoom);
 
-				// BC draws nameplates at the bottom of the character's bounding box
-				// Usually at Y + 980 * Zoom. We nudge it up by 5px so it centers with the text.
+				// Nameplates are drawn at the bottom of the character's bounding box
 				const nameY = drawY + (975 * zoom);
 
 				this.drawNameIndicator(character, centerX, nameY);
