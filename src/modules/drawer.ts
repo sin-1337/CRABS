@@ -337,7 +337,7 @@ export class Drawer extends CRABS_Base {
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		if (Settings.instance.data.disableDrawer) {
+		if (!Settings.instance.data.enableDrawer) {
 			this.instance.style.display = "none";
 			this.close();
 			return;

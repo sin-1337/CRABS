@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	compactDrawer: true,
 	closeDrawerOnWhisper: false,
 	closeDrawerOnChat: false,
-	disableDrawer: false,
+	enableDrawer: true,
 	lockImmersive: false,
 	showMapCompass: true,
 	mapSuperZoom: false,
@@ -145,9 +145,9 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "General", yPos: 280 });
 		this.addCheckbox("Notify me about updates", "checkForUpdates", "Periodically check for CRABS updates, and notify me.", { category: "General", yPos: 355 });
 
-		const isDrawerDisabled = () => this.data.disableDrawer;
+		const isDrawerDisabled = () => !this.data.enableDrawer;
 
-		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 500 });
+		this.addCheckbox("Enable Drawer", "enableDrawer", "Use the Drawer, disable for command line mode only.", { category: "Drawer", yPos: 500 });
 
 		// Drawer Tabs - Cascading visual hierarchy
 		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled, indent: 1 });
@@ -331,7 +331,7 @@ export class Settings extends CRABS_Base {
 					const settingsKey = element.setting as keyof CRABS_Settings;
 					(this.data as any)[settingsKey] = !(this.data as any)[settingsKey];
 
-					if (settingsKey === "disableDrawer" && this.data.disableDrawer) {
+					if (settingsKey === "enableDrawer" && !this.data.enableDrawer) {
 						this.data.rosterOpensDrawer = false;
 						this.data.showDrawerTab = false;
 					}
