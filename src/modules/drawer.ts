@@ -195,20 +195,29 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-		 * Hooks into the game's render loop to process updates.
-		 * * This version implements "Surgical Updates": instead of redrawing the entire 
-		 * drawer when the roster is dirty, it attempts to target and update specific 
-		 * DOM elements. It only falls back to a full refresh if the roster structure 
-		 * itself is missing.
-		 *
-		 * @private
-		 * @returns {void}
-		 */
+	 * Hooks into the game's render loop to process updates.
+	 * * This version implements "Surgical Updates": instead of redrawing the entire 
+	 * drawer when the roster is dirty, it attempts to target and update specific 
+	 * DOM elements. It only falls back to a full refresh if the roster structure 
+	 * itself is missing.
+	 *
+	 * @private
+	 * @returns {void}
+	 */
 	private setupDynamicUpdates(): void {
 		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: (args: any[]) => any) => {
 			const result = next(functionArguments);
 
+			// Keep track of what the level was before the check
+			const previousLevel = this.currentPerformanceLevel;
+
 			this.updatePerformanceState();
+
+			// NEW: If the performance level changed, trigger the visual optimizations instantly
+			if (previousLevel !== this.currentPerformanceLevel) {
+				const isLow = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+				this.optimizeVisuals(isLow);
+			}
 
 			let threshold = 5;
 			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
@@ -222,23 +231,24 @@ export class Drawer extends CRABS_Base {
 				this.updateTick = 0;
 
 				this.updateVisibility();
-				this.syncToChat();
+				this.syncToChat(); // Keep it aligned to the chat box without thrashing
 
 				if (this.isOpen && !this.showingHelp) {
-					// 1. ALWAYS run the surgical update if the drawer is open.
-					// Because updateRosterUI has its own internal "is dirty" checks 
-					// for counters and map-keys, this will now catch map toggles instantly.
-					const rosterRoot = this.instance?.querySelector(".CRABS_roster_center_table") as HTMLElement;
 
-					if (rosterRoot) {
-						this.rosterModule.updateRosterUI(this.instance!);
-					} else if (this.rosterModule.isDirty) {
-						// Fallback only if the roster is physically missing from DOM
-						this.refresh();
+					// CRITICAL FIX: Only update if the data ACTUALLY changed!
+					if (this.rosterModule.isDirty) {
+						const rosterRoot = this.instance?.querySelector(".CRABS_roster_center_table") as HTMLElement;
+
+						if (rosterRoot) {
+							this.rosterModule.updateRosterUI(this.instance!);
+						} else {
+							// Fallback only if the roster is physically missing from DOM
+							this.refresh();
+						}
+
+						// Reset the dirty flag so we don't obliterate the CPU next frame
+						this.rosterModule.isDirty = false;
 					}
-
-					// 2. Reset the dirty flag
-					this.rosterModule.isDirty = false;
 				}
 			}
 
