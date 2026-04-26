@@ -1119,3 +1119,4 @@ export class Roster extends CRABS_Base {
 		}
 	}
 }
+

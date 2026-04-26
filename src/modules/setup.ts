@@ -107,3 +107,4 @@ export class Setup extends CRABS_Base {
 		this.bannerModule.drawBanner(extraData);
 	}
 }
+
