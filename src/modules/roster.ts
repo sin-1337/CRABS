@@ -72,38 +72,35 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Hook the name draw logic in normal rooms
-		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
-			// Let the entire game frame render first
+		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
+			// 1. Let the game draw the character and their nameplate first
 			const result = next(args);
 
+			// Ensure we only do this in the ChatRoom so it doesn't bleed into the Wardrobe
 			const globalWindow = window as any;
+			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
+
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
+			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
-			// Only draw the name indicator if we are NOT on a map
-			if (!isMap) {
-				const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
-				const drawList = globalWindow.ChatRoomCharacterDrawlist;
+			// 2. Only draw if we have a target, we are not on a map, and this is the target
+			const character = args[0];
+			if (!isMap && targetId && character.MemberNumber === targetId) {
 
-				if (targetId && drawList) {
-					const targetChar = drawList.find((c: any) => c.MemberNumber === targetId);
-					if (targetChar) {
-						const charIndex = drawList.indexOf(targetChar);
-						const charCount = drawList.length;
+				// The raw coordinates provided by the game engine
+				const drawX = args[1];
+				const drawY = args[2];
+				const zoom = args[3];
 
-						// Bondage Club's exact horizontal centering math
-						// Space = 1000 / charCount. The character's center is half a space + previous spaces.
-						const x = (charIndex + 0.5) * (1000 / charCount);
+				// BC characters are drawn 500px wide natively. 
+				// We find the center by adding 250 (scaled by the current room zoom)
+				const centerX = drawX + (250 * zoom);
 
-						// Bondage Club's dynamic Y offset (Based on your provided chatroom.js)
-						let yOffset = 50;
-						if (charCount === 4) yOffset = 150;
-						if (charCount === 5) yOffset = 250;
+				// BC draws nameplates at the bottom of the character's bounding box
+				// Usually at Y + 980 * Zoom. We nudge it up by 5px so it centers with the text.
+				const nameY = drawY + (975 * zoom);
 
-						// Nameplates are drawn near the top of the character's Y offset. 
-						// yOffset - 10 centers our triangle perfectly with the text baseline.
-						this.drawNameIndicator(targetChar, x, yOffset - 10);
-					}
-				}
+				this.drawNameIndicator(character, centerX, nameY);
 			}
 
 			return result;
