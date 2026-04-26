@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	showBanner: true,
 	checkForUpdates: true,
 	rosterOpensDrawer: true,
-	hideDrawerTab: false,
+	showDrawerTab: true,
 	immersiveBlind: false,
 	immersiveGag: false,
 	respectBcxRules: false,
@@ -150,14 +150,18 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 500 });
 
 		// Drawer Tabs - Cascading visual hierarchy
-		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 650, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer, indent: 1 });
-		this.addCheckbox("Animated Tab Logo", "animatedCrabsLogo", "Use the animated logo when performance is optimal.", { category: "Drawer", yPos: 725, grayedOut: () => isDrawerDisabled() || this.data.hideDrawerTab, indent: 2 });
+		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled, indent: 1 });
 
-		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Focus follows mouse", "pageFocusHover", "When you mouse over a player's card, change the page they are on.", { category: "Drawer", yPos: 1025, grayedOut: isDrawerDisabled });
+		// <-- INVERTED SETTING -->
+		this.addCheckbox("Show Drawer Tab", "showDrawerTab", "Display the CRABS drawer tab on the edge of the screen.", { category: "Drawer", yPos: 650, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer, indent: 2 });
+
+		// <-- INVERTED DEPENDENCY LOGIC -->
+		this.addCheckbox("Animated Tab Logo", "animatedCrabsLogo", "Use the animated logo when performance is optimal.", { category: "Drawer", yPos: 725, grayedOut: () => isDrawerDisabled() || !this.data.showDrawerTab, indent: 3 });
+
+		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled, indent: 1 });
+		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled, indent: 1 });
+		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled, indent: 1 });
+		this.addCheckbox("Focus follows mouse", "pageFocusHover", "When you mouse over a player's card, change the page they are on.", { category: "Drawer", yPos: 1025, grayedOut: isDrawerDisabled, indent: 1 });
 
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
 		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
@@ -329,10 +333,13 @@ export class Settings extends CRABS_Base {
 
 					if (settingsKey === "disableDrawer" && this.data.disableDrawer) {
 						this.data.rosterOpensDrawer = false;
-						this.data.hideDrawerTab = false;
+						this.data.showDrawerTab = true;
 					}
 					if (settingsKey === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
-						this.data.hideDrawerTab = false;
+						this.data.showDrawerTab = true;
+					}
+					if (settingsKey === "showDrawerTab" && !this.data.showDrawerTab) {
+						this.data.animatedCrabsLogo = false;
 					}
 
 					this.save();

@@ -43,7 +43,7 @@ type UIElement = CheckboxElement | ButtonElement | InputElement | BackNextElemen
 interface CRABS_Settings {
 	showBanner: boolean;
 	rosterOpensDrawer: boolean;
-	hideDrawerTab: boolean;
+	showDrawerTab: boolean;
 	immersiveBlind: boolean;
 	immersiveGag: boolean;
 	respectBcxRules: boolean;

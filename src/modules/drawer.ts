@@ -361,8 +361,8 @@ export class Drawer extends CRABS_Base {
 
 			const tab = this.tabElement;
 			if (tab) {
-				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
-				tab.style.display = (shouldHideTab || isFocused) ? "none" : "flex";
+				const shouldHideTab = Settings.instance.data.showDrawerTab && Settings.instance.data.rosterOpensDrawer;
+				tab.style.display = (!shouldHideTab || isFocused) ? "none" : "flex";
 			}
 
 			if (!this.resizeObserver) {
