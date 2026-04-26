@@ -23,6 +23,7 @@ new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
 // Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
 const SETUP = new Setup(CRABS, ROSTER, BANNER);
+new Updater(CRABS, VERSION);
 
 WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
