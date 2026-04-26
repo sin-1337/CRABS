@@ -1,6 +1,19 @@
+/**
+ * CRABS Settings Module
+ *
+ * This module implements the configuration interface for the CRABS mod.
+ * It provides:
+ * - A custom in-game preference subscreen
+ * - Persistent storage of user configurations
+ * - Dynamic UI generation for various setting types (checkboxes, cycle buttons)
+ * - Integration with the Bondage Club Mod SDK
+ * - State synchronization with base game variables
+ */
+
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
+/** Default configuration values applied if no local storage data is found. */
 const DEFAULT_SETTINGS: CRABS_Settings = {
 	showBanner: true,
 	rosterOpensDrawer: true,
@@ -15,11 +28,18 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	lockImmersive: false,
 	showMapCompass: true,
 	mapSuperZoom: false,
+	pageShiftMode: "delay",
 };
 
+/**
+ * Class representing the mod settings menu and configuration manager.
+ * Handles rendering, user interaction, and data persistence for mod preferences.
+ */
 export class Settings extends CRABS_Base {
 	public static instance: Settings;
 	public data: CRABS_Settings;
+
+	/** Array containing the structured definitions of all UI elements to be rendered. */
 	private elements: any[] = [];
 	private readonly STORAGE_KEY = "CRABS_Settings";
 
@@ -29,56 +49,111 @@ export class Settings extends CRABS_Base {
 	private readonly LABEL_X_OFFSET = 120;
 	private readonly CHECKBOX_WIDTH = 64;
 
-	// Scrolling states
 	private scrollOffset: number = 0;
-	private readonly MAX_SCROLL: number = 500; // Increase this as you add more elements
+	private readonly MAX_SCROLL: number = 500;
 	private readonly SCROLL_STEP: number = 100;
 
+	/**
+	 * Initializes the settings manager, loads saved data, constructs the UI layout,
+	 * and registers the subscreen with the base game.
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		Settings.instance = this;
 		this.data = this.load();
 		this.setupUI();
 		this.registerExtension();
+
+		window.addEventListener("wheel", this.handleWheel);
 	}
 
+	/**
+	 * Retrieves and parses saved configuration data from local storage, 
+	 * merging it with default fallback values to ensure all properties exist.
+	 * @returns {CRABS_Settings} The compiled settings object.
+	 */
 	private load(): CRABS_Settings {
-		const saved = localStorage.getItem(this.STORAGE_KEY);
-		if (saved) {
-			try { return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) }; }
-			catch (e) { console.error("CRABS: Load failed", e); }
+		const savedData = localStorage.getItem(this.STORAGE_KEY);
+		if (savedData) {
+			try { return { ...DEFAULT_SETTINGS, ...JSON.parse(savedData) }; }
+			catch (error) { console.error("CRABS: Load failed", error); }
 		}
 		return { ...DEFAULT_SETTINGS };
 	}
 
+	/**
+	 * Serializes and commits the current configuration state to local storage.
+	 */
 	public save(): void {
 		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
 	}
 
+	/**
+	 * Evaluates if the player character is currently bound or restrained.
+	 * @returns {boolean} True if the player is restricted.
+	 */
 	private isRestricted(): boolean {
 		return (window as any).Player?.IsRestrained?.() || false;
 	}
 
-	private isSettingLocked(el: any): boolean {
+	/**
+	 * Determines if a specific UI element should be locked and unclickable 
+	 * based on hardcore immersion rules and the player's restraint status.
+	 * @param {any} element - The UI element configuration object to evaluate.
+	 * @returns {boolean} True if the element should be locked out.
+	 */
+	private isSettingLocked(element: any): boolean {
 		if (!this.isRestricted() || !this.data.lockImmersive) return false;
-		if (el.setting === "lockImmersive") return true;
-		if (el.category === "Immersion" && this.data[el.setting as keyof CRABS_Settings] === true) return true;
+
+		// The lock toggle itself cannot be disabled while currently restrained
+		if (element.setting === "lockImmersive") return true;
+
+		// Active immersion constraints lock into their ON state while restrained
+		if (element.category === "Immersion" && this.data[element.setting as keyof CRABS_Settings] === true) return true;
+
 		return false;
 	}
 
+	/**
+	 * Processes mouse wheel interactions to scroll the internal settings area.
+	 * Validates that the interaction occurs within the designated clipping bounds.
+	 * @param {WheelEvent} event - The native wheel event triggered by the DOM.
+	 */
+	private handleWheel = (event: WheelEvent): void => {
+		const globalWindow = window as any;
+
+		if (globalWindow.CurrentScreen !== "Preference" || globalWindow.PreferenceSubscreen !== "CRABS") return;
+
+		if (globalWindow.MouseX >= 500 && globalWindow.MouseX <= 1780 && globalWindow.MouseY >= 180 && globalWindow.MouseY <= 900) {
+			if (event.deltaY > 0) {
+				this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + 50);
+			} else if (event.deltaY < 0) {
+				this.scrollOffset = Math.max(0, this.scrollOffset - 50);
+			}
+		}
+	};
+
+	/**
+	 * Populates the internal element array with the structural definition of 
+	 * all setting toggles and buttons, organizing them by category and vertical position.
+	 */
 	private setupUI(): void {
 		this.elements = [];
 
 		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "Banner", yPos: 280 });
 
 		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 425 });
-		const drawerDisabled = () => this.data.disableDrawer;
 
-		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 500, grayedOut: drawerDisabled });
-		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 575, grayedOut: () => drawerDisabled() || !this.data.rosterOpensDrawer });
-		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 650, grayedOut: drawerDisabled });
-		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 725, grayedOut: drawerDisabled });
-		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 800, grayedOut: drawerDisabled });
+		const isDrawerDisabled = () => this.data.disableDrawer;
+
+		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 500, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 575, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer });
+		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 650, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 725, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled });
+
+		this.addCycle("Roster Shift Mode", "pageShiftMode", ["hover", "delay", "click"], "How to switch pages to targeted players.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
 
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
 		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
@@ -88,125 +163,163 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Show Map Compass", "showMapCompass", "Show a directional arrow on map.", { category: "Maps", yPos: 725 });
 
 		const isSuperZoomBlocked = () => {
-			const val = (window as any).ChatRoomMapViewPerceptionRangeMax;
-			return val !== undefined && val !== 7 && val !== 50;
+			const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
+			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
 		};
 		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
 	}
 
+	/**
+	 * Registers a boolean toggle element to be rendered in the settings view.
+	 * @param {string} text - The display label for the setting.
+	 * @param {string} setting - The key mapped to CRABS_Settings data property.
+	 * @param {string} hint - Tooltip description shown on hover.
+	 * @param {any} options - Optional configuration parameters including category, layout overrides, and disabling logic.
+	 */
 	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: any) {
 		this.elements.push({
 			type: 'Checkbox', text, setting, hint,
 			yPos: options?.yPos || 280,
 			width: this.CHECKBOX_WIDTH, height: this.CHECKBOX_WIDTH,
-			xModifier: 0, yModifier: 0,
 			category: options?.category,
 			grayedOut: options?.grayedOut
 		});
 	}
 
+	/**
+	 * Registers a multi-state cycle button to be rendered in the settings view.
+	 * @param {string} text - The display label for the setting.
+	 * @param {string} setting - The key mapped to CRABS_Settings data property.
+	 * @param {string[]} cycleOptions - Array of string values the setting will loop through on click.
+	 * @param {string} hint - Tooltip description shown on hover.
+	 * @param {any} options - Optional configuration parameters including category, layout overrides, and disabling logic.
+	 */
+	private addCycle(text: string, setting: keyof CRABS_Settings & string, cycleOptions: string[], hint: string, options?: any) {
+		this.elements.push({
+			type: 'Cycle', text, setting, cycleOptions, hint,
+			yPos: options?.yPos || 280,
+			category: options?.category,
+			grayedOut: options?.grayedOut
+		});
+	}
+
+	/**
+	 * Renders the graphical user interface for the settings screen onto the main game canvas.
+	 * Handles clipping boundaries, scrolling offset calculations, and interactive state rendering.
+	 */
 	public draw(): void {
 		const { MouseIn, DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
-		const canvas = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
-		if (!canvas) return;
+		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
+		if (!canvasContext) return;
 
-		canvas.save();
-		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+		canvasContext.save();
+		const isInChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
 		try {
-			// Static Base UI
 			DrawRect(40, 40, 420, 920, "#222222aa");
 			DrawCharacter(Player, 50, 50, 0.9);
 
-			canvas.textAlign = "center";
-			canvas.textBaseline = "middle";
+			canvasContext.textAlign = "center";
+			canvasContext.textBaseline = "middle";
 			DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
 			DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
-			DrawButton(1710, 75, 90, 90, "", inChatRoom ? "White" : "#888888", "Icons/Chat.png", inChatRoom ? "Return to Chat" : "Not in a Chat Room");
+			DrawButton(1710, 75, 90, 90, "", isInChatRoom ? "White" : "#888888", "Icons/Chat.png", isInChatRoom ? "Return to Chat" : "Not in a Chat Room");
 
-			// Scroll Buttons
 			DrawButton(1815, 200, 90, 90, "", this.scrollOffset > 0 ? "White" : "#888888", "Icons/Up.png", "Scroll Up");
 			DrawButton(1815, 800, 90, 90, "", this.scrollOffset < this.MAX_SCROLL ? "White" : "#888888", "Icons/Down.png", "Scroll Down");
 
 			if (PreferenceMessage) DrawText(PreferenceMessage, 1000, 150, "Red", "Black");
 			else DrawText("Hover settings for details", 1200, 150, "Black", "Gray");
 
-			// --- BEGIN SCROLLABLE AREA ---
-			canvas.save();
-			canvas.beginPath();
-			canvas.rect(500, 180, 1280, 720); // Clip bounds to keep items inside the center block
-			canvas.clip();
+			// Isolate the scrolling area with a clipping path
+			canvasContext.save();
+			canvasContext.beginPath();
+			canvasContext.rect(500, 180, 1280, 720);
+			canvasContext.clip();
 
-			const leftX = this.LEFT_COL_X - 20;
-			const rightX = this.RIGHT_COL_X - 20;
-			const offset = this.scrollOffset;
+			const leftColumnX = this.LEFT_COL_X - 20;
+			const rightColumnX = this.RIGHT_COL_X - 20;
+			const currentScrollOffset = this.scrollOffset;
 
-			// Offset the background panels
-			DrawRect(leftX, 200 - offset, 650, 125, "#00000011"); DrawText("Banner", leftX + 325, 220 - offset, "Black", "Gray");
-			DrawRect(leftX, 345 - offset, 650, 500, "#00000011"); DrawText("Drawer", leftX + 325, 365 - offset, "Black", "Gray");
-			DrawRect(rightX, 200 - offset, 650, 375, "#00000011"); DrawText("Immersion", rightX + 325, 220 - offset, "Black", "Gray");
-			DrawRect(rightX, 650 - offset, 650, 200, "#00000011"); DrawText("Maps", rightX + 325, 670 - offset, "Black", "Gray");
+			// Render category backdrops factoring in the current scroll depth
+			DrawRect(leftColumnX, 200 - currentScrollOffset, 650, 125, "#00000011"); DrawText("Banner", leftColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
+			DrawRect(leftColumnX, 345 - currentScrollOffset, 650, 575, "#00000011"); DrawText("Drawer", leftColumnX + 325, 365 - currentScrollOffset, "Black", "Gray");
+			DrawRect(rightColumnX, 200 - currentScrollOffset, 650, 375, "#00000011"); DrawText("Immersion", rightColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
+			DrawRect(rightColumnX, 650 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Maps", rightColumnX + 325, 670 - currentScrollOffset, "Black", "Gray");
 
-			let hintToDraw = "";
+			let tooltipHintToDraw = "";
 
-			for (const el of this.elements) {
-				const isRight = el.category === "Immersion" || el.category === "Maps";
-				const x = isRight ? this.RIGHT_COL_X : this.LEFT_COL_X;
-				const cbX = x + this.CHECKBOX_X_OFFSET;
-				const txX = x + this.LABEL_X_OFFSET;
+			for (const element of this.elements) {
+				const isRightColumn = element.category === "Immersion" || element.category === "Maps";
+				const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+				const checkboxX = columnX + this.CHECKBOX_X_OFFSET;
+				const textX = columnX + this.LABEL_X_OFFSET;
+				const renderPositionY = element.yPos - currentScrollOffset;
 
-				// Offset individual elements
-				const renderY = el.yPos - offset;
+				const isManuallyDisabled = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
+				const isHardcoreLocked = this.isSettingLocked(element);
+				const isElementLocked = isManuallyDisabled || isHardcoreLocked;
 
-				const manualGray = typeof el.grayedOut === 'function' ? el.grayedOut() : el.grayedOut;
-				const hardcoreGray = this.isSettingLocked(el);
-				const isLocked = manualGray || hardcoreGray;
+				if (element.type === 'Checkbox') {
+					DrawCheckbox(checkboxX, renderPositionY - 32, 64, 64, "", this.data[element.setting as keyof CRABS_Settings], isElementLocked);
+					canvasContext.textAlign = "left";
+					DrawText(element.text, textX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-				DrawCheckbox(cbX, renderY - 32, 64, 64, "", this.data[el.setting as keyof CRABS_Settings], isLocked);
+					if (MouseIn(textX, renderPositionY - 18, 450, 36) || MouseIn(checkboxX, renderPositionY - 32, 64, 64)) {
+						tooltipHintToDraw = element.hint;
+						if (element.setting === "mapSuperZoom" && isManuallyDisabled) {
+							tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
+						}
+					}
+				} else if (element.type === 'Cycle') {
+					const currentValue = this.data[element.setting as keyof CRABS_Settings];
+					const buttonWidth = 140;
+					const buttonHeight = 44;
+					const displayLabel = String(currentValue).toUpperCase();
 
-				canvas.textAlign = "left";
-				DrawText(el.text, txX, renderY, isLocked ? "#888888" : "Black", "");
+					DrawButton(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight, displayLabel, isElementLocked ? "#888888" : "White", "");
+					canvasContext.textAlign = "left";
+					DrawText(element.text, checkboxX + buttonWidth + 20, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-				// Check mouse against the rendered (scrolled) Y position
-				if (MouseIn(txX, renderY - 18, 450, 36) || MouseIn(cbX, renderY - 32, 64, 64)) {
-					hintToDraw = el.hint;
-					if (el.setting === "mapSuperZoom" && manualGray) {
-						hintToDraw = "Disabled: Another mod or script is controlling this setting.";
+					if (MouseIn(checkboxX + buttonWidth + 20, renderPositionY - 18, 450, 36) || MouseIn(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
+						tooltipHintToDraw = element.hint;
 					}
 				}
 			}
-			canvas.restore();
-			// --- END SCROLLABLE AREA ---
+			// Release the clipping bounds so global UI elements can render normally
+			canvasContext.restore();
 
-			// Draw hint below clip region so it's always visible
-			if (hintToDraw) {
-				canvas.textAlign = "center";
-				DrawText(hintToDraw, 1200, 920, "Black", "Gray");
+			if (tooltipHintToDraw) {
+				canvasContext.textAlign = "center";
+				DrawText(tooltipHintToDraw, 1200, 920, "Black", "Gray");
 			}
 
 		} finally {
-			canvas.restore();
+			canvasContext.restore();
 		}
 	}
 
+	/**
+	 * Processes click events within the settings screen.
+	 * Determines element intersections, updates internal configuration states, 
+	 * handles interdependent setting logic, and commits changes.
+	 */
 	public click(): void {
 		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 
-		// Exit / Chat buttons
 		if (MouseIn(1815, 75, 90, 90)) {
 			PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
-		const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
-		if (MouseIn(1710, 75, 90, 90) && inChatRoom) {
+		const isInChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+		if (MouseIn(1710, 75, 90, 90) && isInChatRoom) {
 			if (typeof CommonSetScreen === "function") CommonSetScreen("Online", "ChatRoom");
 			PreferenceSubscreenExtensionsClear?.();
 			(window as any).PreferenceMessage = "";
 			return;
 		}
 
-		// Scroll button handlers
 		if (MouseIn(1815, 200, 90, 90)) {
 			this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
 			return;
@@ -216,64 +329,93 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		// Element handlers
-		for (const el of this.elements) {
-			const isRight = el.category === "Immersion" || el.category === "Maps";
-			const x = isRight ? this.RIGHT_COL_X : this.LEFT_COL_X;
-			const cbX = x + this.CHECKBOX_X_OFFSET;
+		for (const element of this.elements) {
+			const isRightColumn = element.category === "Immersion" || element.category === "Maps";
+			const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+			const checkboxX = columnX + this.CHECKBOX_X_OFFSET;
+			const renderPositionY = element.yPos - this.scrollOffset;
 
-			// Check interaction against the scrolled Y coordinate
-			const renderY = el.yPos - this.scrollOffset;
+			const isManuallyDisabled = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
+			const isHardcoreLocked = this.isSettingLocked(element);
 
-			const manualGray = typeof el.grayedOut === 'function' ? el.grayedOut() : el.grayedOut;
-			const hardcoreGray = this.isSettingLocked(el);
+			// Skip interaction checks if the element is conceptually locked or physically outside the visible clipped area
+			if (isManuallyDisabled || isHardcoreLocked || renderPositionY < 180 || renderPositionY > 900) continue;
 
-			// Skip interaction if locked or outside clip bounds (Y: 180 to 900)
-			if (manualGray || hardcoreGray || renderY < 180 || renderY > 900) continue;
+			if (element.type === 'Checkbox') {
+				if (MouseIn(checkboxX, renderPositionY - 32, 450, 64)) {
+					const settingsKey = element.setting as keyof CRABS_Settings;
+					(this.data as any)[settingsKey] = !(this.data as any)[settingsKey];
 
-			if (MouseIn(cbX, renderY - 32, 450, 64)) {
-				const key = el.setting as keyof CRABS_Settings;
-				(this.data as any)[key] = !(this.data as any)[key];
+					// Interdependent setting enforcement
+					if (settingsKey === "disableDrawer" && this.data.disableDrawer) {
+						this.data.rosterOpensDrawer = false;
+						this.data.hideDrawerTab = false;
+					}
+					if (settingsKey === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
+						this.data.hideDrawerTab = false;
+					}
 
-				if (key === "disableDrawer" && this.data.disableDrawer) {
-					this.data.rosterOpensDrawer = false;
-					this.data.hideDrawerTab = false;
+					this.save();
+					this.syncGameState();
+					return;
 				}
-				if (key === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
-					this.data.hideDrawerTab = false;
-				}
+			} else if (element.type === 'Cycle') {
+				const buttonWidth = 140;
+				const buttonHeight = 44;
+				if (MouseIn(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
+					const settingsKey = element.setting as keyof CRABS_Settings;
+					const cycleOptionsArray = element.cycleOptions as string[];
+					const currentIndex = cycleOptionsArray.indexOf(this.data[settingsKey] as string);
 
-				this.save();
-				this.syncGameState();
-				return;
+					let nextIndex = currentIndex + 1;
+					if (nextIndex >= cycleOptionsArray.length) nextIndex = 0;
+
+					(this.data as any)[settingsKey] = cycleOptionsArray[nextIndex];
+					this.save();
+					return;
+				}
 			}
 		}
 	}
 
+	/**
+	 * Hooks the settings subscreen into the base game's preference menu system.
+	 * Utilizes a recursive timeout check to ensure the base game API is fully loaded before injection.
+	 */
 	private registerExtension(): void {
-		const global = window as any;
+		const globalWindow = window as any;
 		CRABS_Base.subscreenDef = {
 			Identifier: "CRABS", ButtonText: "CRABS",
 			Image: "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png",
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
-				global.PreferenceMessage = "";
-				global.PreferenceSubscreenExtensionsClear?.();
-				global.PreferenceOpenSubscreen?.("Extensions");
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
 				return false;
 			},
-			load: () => { global.PreferenceMessage = ""; }
+			load: () => { globalWindow.PreferenceMessage = ""; }
 		};
-		const reg = () => {
-			if (global.PreferenceRegisterExtensionSetting) global.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
-			else setTimeout(reg, 1000);
+
+		const registerHook = () => {
+			if (globalWindow.PreferenceRegisterExtensionSetting) {
+				globalWindow.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
+			} else {
+				setTimeout(registerHook, 1000);
+			}
 		};
-		reg();
+		registerHook();
 	}
 
+	/**
+	 * Pushes specific configuration states directly into the base game's active variables.
+	 * Built to yield control gracefully if another script is actively managing the same parameters.
+	 */
 	public syncGameState(): void {
-		const val = (window as any).ChatRoomMapViewPerceptionRangeMax;
-		if (val !== undefined && val !== 7 && val !== 50) return;
+		const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
+
+		// Yield control if the variable is defined and currently set to a custom value outside our known defaults
+		if (perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50) return;
 
 		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}

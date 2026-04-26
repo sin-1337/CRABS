@@ -1,4 +1,4 @@
-/**
+/*/**
  * CRABS Roster Module
  *
  * This module implements the enhanced roster functionality for the CRABS mod.
@@ -27,14 +27,17 @@ import rostercardstemplate from "./templates/roster_cards.html";
 export class Roster extends CRABS_Base {
 	/** Cached count of online friends. */
 	private onlineFriendsCache: number | string = "...";
+
 	/** Timestamp for the last server request to prevent spamming. */
 	private lastSentTime: number = 0;
+
 	/** Prevents multiple requests from firing at the same time. */
 	private isFetching: boolean = false;
+
 	/** Flag indicating the roster data has changed and needs a redraw. */
 	public isDirty: boolean = true;
 
-	/** Tracks the user's selected sort order in the drawer */
+	/** Tracks the user's selected sort order in the drawer. */
 	private currentSortMode: string = localStorage.getItem("CRABS_SortMode") || "role";
 
 	/** The member number of the player currently hovered on the map. */
@@ -43,22 +46,58 @@ export class Roster extends CRABS_Base {
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
 
-	/** Caches the measured width of player names */
+	/** Caches the measured width of player names. */
 	private nameWidthCache: Map<number, number> = new Map();
 
-	/** Handler for when a player's entry is hovered in the roster UI. */
+	/** Timer for the hover delay mode to prevent accidental pagination. */
+	private hoverTimeout: number | null = null;
+
+	/** * Handler for when a player's entry is hovered in the roster UI. 
+	 * Evaluates the current pageShiftMode setting to determine the interaction response.
+	 * @param {string} playerId - The ID of the hovered player.
+	 */
 	private onPlayerHover = (playerId: string) => {
 		if (this.trackedMapPlayer !== null || !playerId) return;
+
+		const mode = Settings.instance.data.pageShiftMode || "delay";
+		if (mode === "click") return;
 
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			this.hoveredMapPlayer = id;
-			this.autoPaginateToPlayer(id);
+
+			if (mode === "delay") {
+				this.hoverTimeout = window.setTimeout(() => {
+					this.autoPaginateToPlayer(id);
+				}, 500);
+			} else {
+				this.autoPaginateToPlayer(id);
+			}
 		}
 	};
 
-	/** Handler for when a player's entry is no longer hovered. */
-	private onPlayerLeave = () => { this.hoveredMapPlayer = null; };
+	/** * Handler for when a player's entry is no longer hovered. 
+	 * Clears active hover states and cancels any pending delayed shifts.
+	 */
+	private onPlayerLeave = () => {
+		this.hoveredMapPlayer = null;
+		if (this.hoverTimeout) {
+			window.clearTimeout(this.hoverTimeout);
+			this.hoverTimeout = null;
+		}
+	};
+
+	/** * Handler for explicit clicks on a player's roster card. 
+	 * @param {string} playerId - The ID of the clicked player.
+	 */
+	private onPlayerCardClick = (playerId: string) => {
+		if (Settings.instance.data.pageShiftMode !== "click") return;
+
+		const id = parseInt(playerId, 10);
+		if (!isNaN(id)) {
+			this.autoPaginateToPlayer(id);
+		}
+	};
 
 	/** * Creates an instance of the Roster module and initializes map and state hooks.
 	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
@@ -68,44 +107,33 @@ export class Roster extends CRABS_Base {
 		this.loadFriendList();
 		this.setupEventHooks();
 
-		// Hook the map's draw function to inject our compass
 		this.safeHook("ChatRoomMapViewDraw", 10, (functionArguments: any, next: Function) => {
-			const result = next(functionArguments); // Let the base map draw first
-			this.drawCompass();        // Then draw our overlay
+			const result = next(functionArguments);
+			this.drawCompass();
 			return result;
 		});
 
-		// Hook the name draw logic in normal rooms
-		// Hook the core character drawing function for perfect coordinate syncing
 		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
-			// 1. Let the game draw the character and their nameplate first
 			const result = next(args);
 
 			const globalWindow = window as any;
 			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
 
-			// The "Eye Icon": If ChatRoomHideIconState >= 3, the game hides names.
 			if (globalWindow.ChatRoomHideIconState >= 3) return result;
 
-			// The Settings Menu: If the player explicitly disabled names in their settings.
 			if (globalWindow.Player?.OnlineSettings?.ShowNames === false) return result;
 
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
-			// Only draw if we have a target, we are not on a map, and this is the target
 			const character = args[0];
 			if (!isMap && targetId && character.MemberNumber === targetId) {
 
-				// The raw coordinates provided by the game engine
 				const drawX = args[1];
 				const drawY = args[2];
 				const zoom = args[3];
 
-				// BC characters are drawn 500px wide natively. 
 				const centerX = drawX + (250 * zoom);
-
-				// Nameplates are drawn at the bottom of the character's bounding box
 				const nameY = drawY + (975 * zoom);
 
 				this.drawNameIndicator(character, centerX, nameY);
@@ -123,7 +151,6 @@ export class Roster extends CRABS_Base {
 	private autoPaginateToPlayer(targetId: number): void {
 		const globalWindow = window as any;
 
-		// Abort if we aren't in a standard room, or if there are 10 or fewer people
 		if (
 			globalWindow.CurrentScreen !== "ChatRoom" ||
 			typeof globalWindow.ChatRoomCharacterViewOffset !== "number" ||
@@ -133,15 +160,13 @@ export class Roster extends CRABS_Base {
 			return;
 		}
 
-		// 1. Are they ALREADY on the screen? (Works flawlessly with Echo)
 		if (globalWindow.ChatRoomCharacterDrawlist?.some((c: any) => c.MemberNumber === targetId)) {
-			return; // They are visible right now. Do nothing!
+			return;
 		}
 
 		const originalOffset = globalWindow.ChatRoomCharacterViewOffset;
 		const charCount = globalWindow.ChatRoomCharacter.length;
 
-		// 2. Try the "Expected" base-game page first to save CPU cycles
 		const charIndex = globalWindow.ChatRoomCharacter.findIndex((c: any) => c.MemberNumber === targetId);
 		if (charIndex !== -1) {
 			const expectedOffset = Math.floor(charIndex / 10) * 10;
@@ -150,14 +175,11 @@ export class Roster extends CRABS_Base {
 				globalWindow.ChatRoomUpdateDisplay();
 			}
 
-			// Did the expected page work?
 			if (globalWindow.ChatRoomCharacterDrawlist?.some((c: any) => c.MemberNumber === targetId)) {
-				return; // Found them! We are done.
+				return;
 			}
 		}
 
-		// 3. ECHO MOD FAILSAFE: The expected page failed. Flip through every page.
-		// Calculate the maximum possible page offset (0, 10, 20, etc.)
 		const highestValidOffset = Math.max(0, Math.floor((charCount - 1) / 10) * 10);
 		let found = false;
 
@@ -167,14 +189,12 @@ export class Roster extends CRABS_Base {
 				globalWindow.ChatRoomUpdateDisplay();
 			}
 
-			// Look at the new list generated by the game/mods
 			if (globalWindow.ChatRoomCharacterDrawlist?.some((c: any) => c.MemberNumber === targetId)) {
 				found = true;
-				break; // Found them! The loop stops, leaving the offset perfectly set.
+				break;
 			}
 		}
 
-		// 4. Absolute Failsafe: If they are nowhere to be found (hidden/removed), put the page back.
 		if (!found) {
 			globalWindow.ChatRoomCharacterViewOffset = originalOffset;
 			if (typeof globalWindow.ChatRoomUpdateDisplay === "function") {
@@ -186,17 +206,16 @@ export class Roster extends CRABS_Base {
 	/**
 	 * Updates the DOM elements within the roster without a full redraw.
 	 * Falls back to buildroster() if the container is missing or room composition changed.
+	 * @param {HTMLElement} root - The parent container element for the roster.
 	 */
 	public updateRosterUI(root: HTMLElement): void {
 		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null) return;
 
-		// Counters (Only touch if text changed)
 		const updateText = (id: string, text: string) => {
 			const el = root.querySelector(id);
 			if (el && el.textContent !== text) el.textContent = text;
 		};
 
-		// update room name if it changes
 		const currentRoomName = ChatRoomData.Name || "Roster";
 		updateText("#drawer-title", `CRABS: ${currentRoomName}`);
 
@@ -206,7 +225,6 @@ export class Roster extends CRABS_Base {
 		updateText("#CRABS_header_friends", `${this.onlineFriendsCache}/${Player.FriendList.length}`);
 		updateText("#CRABS_header_online", `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `);
 
-		// Map Keys
 		const keyContainer = root.querySelector("#CRABS_key_container") as HTMLElement;
 		const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
 
@@ -214,7 +232,6 @@ export class Roster extends CRABS_Base {
 			const isMap = ChatRoomMapViewIsActive();
 			const activeStr = isMap ? "true" : "false";
 
-			// Sync the CSS Visibility attribute
 			if (keyContainer.getAttribute("data-map-active") !== activeStr) {
 				keyContainer.setAttribute("data-map-active", activeStr);
 			}
@@ -223,10 +240,8 @@ export class Roster extends CRABS_Base {
 				const playerWindow = (window as any).Player;
 				const pState = playerWindow.MapData?.PrivateState;
 
-				// Create a "Data Fingerprint" of your keys
 				const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
 
-				// ONLY update if the inventory actually changed
 				if (keyContent.dataset.lastKeys !== currentKeyState) {
 					let keyHtml = "";
 					const KEYS = {
@@ -239,7 +254,7 @@ export class Roster extends CRABS_Base {
 					}
 
 					keyContent.innerHTML = keyHtml;
-					keyContent.dataset.lastKeys = currentKeyState; // Lock the state
+					keyContent.dataset.lastKeys = currentKeyState;
 				}
 			} else if (keyContent.innerHTML !== "") {
 				keyContent.innerHTML = "";
@@ -247,7 +262,6 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// Structural Check (Joined/Left)
 		const container = root.querySelector(".CRABS_card-container");
 		const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
 		if (currentCardCount !== ChatRoomData.Character.length) {
@@ -258,33 +272,26 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// Individual Cards (Status & Relationship updates)
 		ChatRoomData.Character.forEach((charData: any) => {
 			const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
 
-				// STATUS ICONS (Gag, Blind, Deaf) ---
 				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
 				if (statusContainer) {
-					// Create a fingerprint of the current effects
 					const currentEffects = CharacterGetEffects(character).join(",");
 
-					// ONLY touch the DOM if the effects changed
 					if (statusContainer.dataset.lastEffects !== currentEffects) {
 						statusContainer.innerHTML = DOMPurify.sanitize(this.setStatusIcons(character));
 						statusContainer.dataset.lastEffects = currentEffects;
 					}
 				}
 
-				// RELATIONSHIP ICONS (Owner, Sub, Friend, Star) ---
 				const iconContainer = card.querySelector(".CRABS_player-icons") as HTMLElement;
 				if (iconContainer) {
-					// Generate the fresh HTML for this character
 					const newIconHTML = this.setIcons(character);
 
-					// If the newly generated HTML doesn't match what we rendered last time, update the DOM
 					if (iconContainer.dataset.lastIcons !== newIconHTML) {
 						iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
 						iconContainer.dataset.lastIcons = newIconHTML;
@@ -298,7 +305,6 @@ export class Roster extends CRABS_Base {
 	 * Hooks into base-game functions that represent state changes.
 	 * When these fire, the roster is flagged as dirty, triggering a UI refresh in the Drawer.
 	 * Utilizes safeHook to degrade gracefully if a game update breaks an API.
-	 *
 	 * @private
 	 * @returns {void}
 	 */
@@ -309,32 +315,26 @@ export class Roster extends CRABS_Base {
 			return result;
 		};
 
-		// Room Joins/Leaves
 		this.safeHook("ChatRoomSync", 10, flagDirty);
 		this.safeHook("ChatRoomSyncMemberJoin", 10, flagDirty);
 		this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
 
-		// Character Appearance / Item Changes (Gags, Blinds, Collars)
 		this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
 
-		// Actions in the room (Usually covers items being applied/removed)
 		this.safeHook("ChatRoomMessage", 10, (args: any, next: Function) => {
 			const result = next(args);
 			const data = args[0];
 
-			// Only flag dirty for Actions (items) or Server messages (room updates)
 			if (data && (data.Type === "Action" || data.Type === "Server")) {
 				this.isDirty = true;
 			}
 			return result;
 		});
 
-		// Player Relationship / Account Updates
 		this.safeHook("ServerSend", 10, (args, next) => {
 			const result = next(args);
 			const messageType = args[0];
 
-			// If the player is pushing an update to their account data, flag dirty
 			if (messageType === "AccountUpdate") {
 				this.isDirty = true;
 			}
@@ -357,11 +357,9 @@ export class Roster extends CRABS_Base {
 			);
 			if (!scroller) return;
 
-			// Remove previous values
 			wrapper.classList.remove("scrolling");
 			scroller.style.removeProperty("--scroll-distance");
 
-			// Wait for layout
 			requestAnimationFrame(() => {
 				const scrollWidth = scroller.scrollWidth;
 				const wrapperWidth = wrapper.offsetWidth;
@@ -384,7 +382,6 @@ export class Roster extends CRABS_Base {
 		const prefixes = ["Blind", "Gag", "Deaf"];
 		const effects = CharacterGetEffects(character);
 
-		// Effect lists mapping
 		const effectLists: { [key: string]: { [key: string]: number } } = {
 			Blind: {
 				BlindLight: 1,
@@ -413,14 +410,12 @@ export class Roster extends CRABS_Base {
 			},
 		};
 
-		// Initialize icons as empty strings
 		const icons: { [key: string]: string } = {
 			Blind: "",
 			Gag: "",
 			Deaf: "",
 		};
 
-		// Helper function to determine the maximum value for each prefix and set the corresponding icon
 		const updateIcon = (prefix: string, effect: string): void => {
 			const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
 			const effectList = effectLists[prefix];
@@ -432,18 +427,17 @@ export class Roster extends CRABS_Base {
 					(icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
 				) {
 					icons[prefix] = Assets.printimage({
-						key: effectName, // which icon do we print
-						tooltip_override: `${prefix}: ${effectValue}`, // set a tooltip
-						css_class_override: `CRABS_status-icon`, // set a class
+						key: effectName,
+						tooltip_override: `${prefix}: ${effectValue}`,
+						css_class_override: `CRABS_status-icon`,
 						css_style: `--brightness: brightness(2.5);
             background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
-            `, //style overwrite
+            `,
 					});
 				}
 			}
 		};
 
-		// Process effects
 		for (let effect of effects) {
 			for (let prefix of prefixes) {
 				if (effect.startsWith(prefix)) {
@@ -452,7 +446,6 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// Set default icons if no icon was set
 		icons.Blind = icons.Blind || Assets.printimage({
 			key: "blindNone", css_class_override: "CRABS_status-icon"
 		});
@@ -481,7 +474,6 @@ export class Roster extends CRABS_Base {
 	): string {
 		const labelColor = character.LabelColor || "#FFFFFF";
 
-		// Extract exact RGB values to check for muddy/gray colors
 		let r = 255, g = 255, b = 255;
 		if (this.canvasContext) {
 			this.canvasContext.clearRect(0, 0, 1, 1);
@@ -494,7 +486,6 @@ export class Roster extends CRABS_Base {
 		const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 		const maxChannel = Math.max(r, g, b);
 
-		// Outline if truly dark (< 70) OR if it's a muddy/muted mid-tone (< 140 max channel)
 		const needsOutline = brightness < 70 || maxChannel < 140;
 		const outlineColor = this.getBrightOutlineColor(labelColor);
 
@@ -535,16 +526,14 @@ export class Roster extends CRABS_Base {
 	 */
 	private loadFriendList(): void {
 		this.safeHook("FriendListLoadFriendList", 0, (args: any, next: Function) => {
-			// Cast args to any just for the extraction so TypeScript stops panicking
 			const friendData = args[0];
 
 			if (Array.isArray(friendData)) {
 				this.onlineFriendsCache = friendData.length;
-				this.isDirty = true; // Trigger UI update when friends load
+				this.isDirty = true;
 			}
-			this.isFetching = false; // Release the lock
+			this.isFetching = false;
 
-			// Pass the original, untouched args back to next()
 			return next(args);
 		});
 	}
@@ -560,7 +549,6 @@ export class Roster extends CRABS_Base {
 			this.lastSentTime = now;
 			ServerSend("AccountQuery", { Query: "OnlineFriends" });
 
-			// Failsafe: Release the lock after 3 seconds if the server drops the packet
 			setTimeout(() => { this.isFetching = false; }, 3000);
 		}
 	}
@@ -596,7 +584,6 @@ export class Roster extends CRABS_Base {
 	 * @returns {string} HTML string containing the relevant relational icons.
 	 */
 	private setIcons(character: any): string {
-		// 1. If this is the player, they ONLY get the "you" icon. Short-circuit immediately.
 		if (character.IsPlayer()) {
 			return Assets.printimage({ key: "you" }) + " ";
 		}
@@ -605,26 +592,21 @@ export class Roster extends CRABS_Base {
 		const memberNum = character.MemberNumber ?? -1;
 		const playerWindow = (window as any).Player;
 
-		// Trial checks
 		const isTrial = character.Ownership?.MemberNumber === playerWindow.MemberNumber && character.Ownership?.Stage === 0;
 
 		if (playerWindow.OwnerNumber() === memberNum) {
-			// person owns you
 			playerIcons += Assets.printimage({ key: "owner" }) + " ";
 		} else if (character.IsOwnedByPlayer()) {
-			// YOU own them
 			if (isTrial) {
 				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
 				playerIcons += Assets.printimage({ key: "sub" }) + " ";
 			}
 		} else if (playerWindow.IsInFamilyOfMemberNumber(memberNum)) {
-			// they are in your family tree, but not owner or sub
 			playerIcons += Assets.printimage({ key: "family" }) + " ";
 		}
 
 		if (playerWindow.GetLoversNumbers().includes(memberNum)) {
-			// person is a lover
 			playerIcons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
 			if (CrossMod.detectMod("BCTweaks")) {
@@ -639,15 +621,12 @@ export class Roster extends CRABS_Base {
 		}
 
 		if (playerWindow.WhiteList.includes(memberNum)) {
-			// Player is whitelisted
 			playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
 		} else if (playerWindow.BlackList.includes(memberNum)) {
-			// Player is blacklisted
 			playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
 		}
 
 		if (playerWindow.GhostList.includes(memberNum)) {
-			// Player is ghosted
 			playerIcons += Assets.printimage({ key: "ghost" }) + " ";
 		}
 
@@ -661,25 +640,21 @@ export class Roster extends CRABS_Base {
 	private isEyesClosed(): boolean {
 		const playerWindow = (window as any).Player;
 
-		// Try the global function first if it's available
 		const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
 		if (typeof characterIsEyesClosed === "function") {
 			return characterIsEyesClosed(playerWindow);
 		}
 
-		// Try the method on the Player object
 		if (typeof (playerWindow as any).IsEyesClosed === "function") {
 			return (playerWindow as any).IsEyesClosed();
 		}
 
-		// Check the actual Expression property in the base game
 		if (Array.isArray(playerWindow.Appearance)) {
 			const eyesItem = playerWindow.Appearance.find(
 				(item: any) => item.Asset && item.Asset.Group && item.Asset.Group.Name === "Eyes"
 			);
 
 			if (eyesItem) {
-				// Facial expressions are stored in the Property object
 				return eyesItem.Property?.Expression === "Closed";
 			}
 		}
@@ -693,19 +668,16 @@ export class Roster extends CRABS_Base {
 	private onPlayerToggleTrack = (playerId: string) => {
 		const id = parseInt(playerId, 10);
 
-		// Toggle logic: If clicking the already tracked player, untrack. Otherwise, track new.
 		this.trackedMapPlayer = (this.trackedMapPlayer === id) ? null : id;
 
 		if (this.trackedMapPlayer !== null) {
-			this.autoPaginateToPlayer(id); // <--- NEW: Flip the page if they click to track
+			this.autoPaginateToPlayer(id);
 		}
 
-		// Fast UI Update: Remove active class from ALL compasses
 		document.querySelectorAll(".CRABS_track-compass").forEach(el => {
 			el.classList.remove("CRABS_compass-active");
 		});
 
-		// Add active class to the newly tracked player's compass
 		if (this.trackedMapPlayer !== null) {
 			document.querySelectorAll(`.CRABS_track-compass[data-player-number="${id}"]`).forEach(el => {
 				el.classList.add("CRABS_compass-active");
@@ -750,7 +722,7 @@ export class Roster extends CRABS_Base {
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-		let scale = 1; // Default scale for the edge HUD compass
+		let scale = 1;
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -761,9 +733,6 @@ export class Roster extends CRABS_Base {
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
 			arrowY = (deltaY + range) * tileW - (tileW * 0.85);
 			angle = Math.PI / 2;
-
-			// 111px is roughly the default tile width at range 4. 
-			// This makes the arrow grow and shrink perfectly with the character!
 			scale = tileW / 111;
 		} else {
 			angle = Math.atan2(deltaY, deltaX);
@@ -771,7 +740,6 @@ export class Roster extends CRABS_Base {
 			arrowY = 500 + Math.sin(angle) * 450;
 		}
 
-		// Calculate colors BEFORE transforming the canvas
 		const playerColor = target.LabelColor || "cyan";
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
@@ -780,7 +748,7 @@ export class Roster extends CRABS_Base {
 		try {
 			canvasContext.translate(arrowX, arrowY);
 			canvasContext.rotate(angle);
-			canvasContext.scale(scale, scale); // Apply the dynamic scale here!
+			canvasContext.scale(scale, scale);
 
 			canvasContext.beginPath();
 			canvasContext.moveTo(20, 0);
@@ -791,9 +759,6 @@ export class Roster extends CRABS_Base {
 			canvasContext.fill();
 
 			canvasContext.strokeStyle = isDark ? "white" : "black";
-
-			// We divide by scale here so the 1.5px border stays crisp and 
-			// doesn't turn into a massive thick line when you zoom in!
 			canvasContext.lineWidth = 1.5 / scale;
 
 			canvasContext.closePath();
@@ -817,11 +782,8 @@ export class Roster extends CRABS_Base {
 		const ctx = canvasElement?.getContext("2d");
 		if (!ctx) return;
 
-		// Measure the nickname to find the start of the nameplate
-		// The base game uses 36px sans-serif as its default UI font
 		ctx.font = "36px sans-serif";
 
-		// cache text measurement
 		let nameWidth = this.nameWidthCache.get(character.MemberNumber);
 		if (nameWidth === undefined) {
 			const nameText = CharacterNickname(character);
@@ -829,36 +791,27 @@ export class Roster extends CRABS_Base {
 			this.nameWidthCache.set(character.MemberNumber, nameWidth);
 		}
 
-		// The game centers the text at X. 
-		// We want the arrow tip to be exactly 15px to the left of the text.
 		const tipX = x - (nameWidth / 2) - 15;
 
-		// Calculate colors using your existing logic
 		const playerColor = character.LabelColor || "cyan";
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
 		ctx.save();
 		try {
-			// Scale down the compass arrow (0.4 is a great size for UI text)
 			const scale = 0.4;
-
-			// The arrow tip is at X=20 in your path drawing. 
-			// So we move the origin left by (20 * scale) from the desired tip position.
 			ctx.translate(tipX - (20 * scale), y);
 			ctx.scale(scale, scale);
 
-			// Draw the exact same geometric shape as the map compass
 			ctx.beginPath();
-			ctx.moveTo(20, 0);       // Tip (pointing right)
-			ctx.lineTo(-20, 15);     // Bottom tail
-			ctx.lineTo(-20, -15);    // Top tail
+			ctx.moveTo(20, 0);
+			ctx.lineTo(-20, 15);
+			ctx.lineTo(-20, -15);
 
 			ctx.fillStyle = playerColor;
 			ctx.fill();
 
 			ctx.strokeStyle = isDark ? "white" : "black";
-			// Divide the line width by scale so the 1.5px border stays crisp
 			ctx.lineWidth = 1.5 / scale;
 
 			ctx.closePath();
@@ -874,10 +827,8 @@ export class Roster extends CRABS_Base {
 	 * @returns {number} The blindness level.
 	 */
 	private getBlindnessLevel(): number {
-		// If Respect Blindness is OFF, we don't want any blindness blurring
 		if (!Settings.instance.data.immersiveBlind) return 0;
 
-		// Check BCX full blind rule - only applies if both blindness immersion and BCX rules are respected
 		if (Settings.instance.data.respectBcxRules && CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")) {
 			if (this.isEyesClosed()) {
 				return 4;
@@ -895,9 +846,12 @@ export class Roster extends CRABS_Base {
 
 	/**
 	 * Calculates a numerical score for sorting the roster. Lower score = higher on the list.
+	 * @param {any} character - The character to sort.
+	 * @param {string} mode - The sorting algorithm to apply.
+	 * @returns {number} The computed order weight.
 	 */
 	private calculateSortScore(character: any, mode: string): number {
-		if (character.IsPlayer && character.IsPlayer()) return 0; // "You" are always absolute top
+		if (character.IsPlayer && character.IsPlayer()) return 0;
 
 		const mNum = character.MemberNumber ?? -1;
 		const player = (window as any).Player;
@@ -905,11 +859,11 @@ export class Roster extends CRABS_Base {
 
 		switch (mode) {
 			case "ds":
-				if (player.OwnerNumber && player.OwnerNumber() === mNum) return 1; // Owner
+				if (player.OwnerNumber && player.OwnerNumber() === mNum) return 1;
 				if (typeof character.IsOwnedByPlayer === "function" && character.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
-					return character.Ownership?.Stage === 0 ? 3 : 2; // Sub (2), Trial (3)
+					return character.Ownership?.Stage === 0 ? 3 : 2;
 				}
-				if (typeof player.IsInFamilyOfMemberNumber === "function" && player.IsInFamilyOfMemberNumber(mNum)) return 4; // Family
+				if (typeof player.IsInFamilyOfMemberNumber === "function" && player.IsInFamilyOfMemberNumber(mNum)) return 4;
 				return 5;
 			case "lovers":
 				if (player.GetLoversNumbers && player.GetLoversNumbers().includes(mNum)) return 1;
@@ -937,11 +891,11 @@ export class Roster extends CRABS_Base {
 	}
 
 	/** * Generates the HTML for the player roster based on provided arguments.
-		 * @param {string} commandArguments - Command arguments determining which players to display.
-		 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
-		 * @param {boolean} [forceFullRows=false] - If true, returns only the player rows for surgical DOM updates.
-		 * @returns {string} The completed HTML roster.
-		 */
+	 * @param {string} commandArguments - Command arguments determining which players to display.
+	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
+	 * @param {boolean} [forceFullRows=false] - If true, returns only the player rows for surgical DOM updates.
+	 * @returns {string} The completed HTML roster.
+	 */
 	public buildroster(
 		commandArguments: string,
 		wrapper: boolean = true,
@@ -954,7 +908,6 @@ export class Roster extends CRABS_Base {
 
 		this.requestOnlineFriends();
 
-		// Immersive Mode Check (Blindness Blurring)
 		let rosterStyle = "";
 		if (Settings.instance.data.immersiveBlind) {
 			const blindLevel = this.getBlindnessLevel();
@@ -964,7 +917,6 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// Argument Parsing (Admins/VIPs/Count filters)
 		const splitArguments = commandArguments.split(" ");
 		let showme = true, showadmins = true, showvip = true, showplayers = true;
 
@@ -981,10 +933,8 @@ export class Roster extends CRABS_Base {
 		let admin_count = 0;
 		let rosterCards: { html: string, score: number, memberNumber: number, isMe: boolean, isAdmin: boolean, isVIP: boolean, isStandard: boolean }[] = [];
 
-		// Determine Sort Mode (Force 'role' in chat log, respect choice in Drawer)
 		const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-		// Build Character Data Array
 		for (let characterIndex in ChatRoomData.Character) {
 			const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
 			const character = ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber);
@@ -1007,17 +957,14 @@ export class Roster extends CRABS_Base {
 			const badge = this.setbadge(character);
 			let playerIcons = this.setIcons(character);
 
-			// Generate the individual card HTML
 			const html = this.buildCard(character, badge, playerIcons, !wrapper);
 			const score = this.calculateSortScore(character, effectiveSortMode);
 
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
 		}
 
-		// Sort Cards (Score primary, MemberNumber secondary to prevent jumping)
 		rosterCards.sort((a, b) => a.score - b.score || a.memberNumber - b.memberNumber);
 
-		// Concatenate filtered rows
 		let output_rows = "";
 		for (const card of rosterCards) {
 			if (!showme && card.isMe) continue;
@@ -1030,7 +977,6 @@ export class Roster extends CRABS_Base {
 		const playerWindow = (window as any).Player;
 		const isMap = ChatRoomMapViewIsActive();
 
-		// 7. Setup Template Variables
 		let templatevars: Record<string, string> = {
 			RosterStyle: rosterStyle,
 			adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
@@ -1045,11 +991,9 @@ export class Roster extends CRABS_Base {
 			connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })}`,
 			onlinePlayers: `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
 			playerRows: output_rows,
-			// Flag for CSS to toggle the map separator and keys
 			MapActive: isMap ? "true" : "false"
 		};
 
-		// 8. Handle Map Keys and Separator
 		let displaykeys = "";
 		const KEYS = {
 			keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
@@ -1060,7 +1004,6 @@ export class Roster extends CRABS_Base {
 		for (const [key, value] of Object.entries(KEYS)) {
 			displaykeys += Assets.printimage({ key: value ? (key as any) : "keyNull" });
 		}
-		// This is passed into {{collectedKeys}} in roster.html
 		templatevars["collectedKeys"] = displaykeys;
 
 		let wrappervars = {
@@ -1068,7 +1011,6 @@ export class Roster extends CRABS_Base {
 			Close: Assets.printimage({ key: "close", data: ["elementid", "CRABS_Roster"] })
 		};
 
-		// 9. Final Output Logic
 		if (forceFullRows) return output_rows;
 
 		return this.template(rostertemplate, templatevars, wrapper, wrappervars);
@@ -1084,39 +1026,30 @@ export class Roster extends CRABS_Base {
 	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
 		super.buildui(output, elementId, root);
 
-		// Left Click Badge -> Whisper Focus
 		this.attachEvent("CRABS_player-badge", this.showPlayerFocus, "playerNumber", undefined, "click", "class", root);
-
-		// Left Click Number -> Copy to Clipboard
 		this.attachEvent("CRABS_player-id", this.copyToClipboard, "playerNumber", undefined, "click", "class", root);
 
 		this.attachEvent("CRABS_card", this.onPlayerHover, "playerNumber", undefined, "mouseenter", "class", root);
 		this.attachEvent("CRABS_card", this.onPlayerLeave, undefined, undefined, "mouseleave", "class", root);
+		this.attachEvent("CRABS_card", this.onPlayerCardClick, "playerNumber", undefined, "click", "class", root);
 
-		// Click Compass -> Toggle Sticky Compass Tracking
 		this.attachEvent("CRABS_track-compass", this.onPlayerToggleTrack, "playerNumber", undefined, "click", "class", root);
 
-		// Handle Dropdown changes for live-sorting (Drawer Only)
 		const dropdown = (root || document).querySelector("#CRABS_sort_dropdown") as HTMLSelectElement;
 		if (dropdown) {
-			// Re-select the option if the UI was just redrawn
 			dropdown.value = this.currentSortMode;
 
 			dropdown.onchange = (e) => {
 				this.currentSortMode = (e.target as HTMLSelectElement).value;
-				localStorage.setItem("CRABS_SortMode", this.currentSortMode); // Save the selection
+				localStorage.setItem("CRABS_SortMode", this.currentSortMode);
 
-				// Directly target the drawer container to prevent spamming the chat log
 				const drawerRosterContainer = document.getElementById("CRABS_Drawer_Roster");
 				if (drawerRosterContainer) {
-					// Force wrapper = false because we are updating inside the Drawer!
 					const updatedHtml = this.buildroster("all", false);
 					drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, { USE_PROFILES: { html: true } });
-					// Re-attach all listeners to the fresh DOM elements inside the drawer
 					this.buildui(undefined, undefined, drawerRosterContainer);
 				}
 			};
 		}
 	}
 }
-

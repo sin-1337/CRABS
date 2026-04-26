@@ -124,6 +124,7 @@ declare global {
 		closeDrawerOnChat: boolean;
 		disableDrawer: boolean;
 		lockImmersive: boolean;
+		pageShiftMode: "hover" | "delay" | "click";
 	}
 
 	// Because of Declaration Merging, this adds `BCT` to the base game's PlayerCharacter type!
