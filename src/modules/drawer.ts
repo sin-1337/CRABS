@@ -46,6 +46,10 @@ export class Drawer extends CRABS_Base {
 	private showingHelp: boolean = false;
 	/** Counter used to throttle frame updates based on performance tier. */
 	private updateTick: number = 0;
+	/** Cached reference to the tab element to prevent DOM queries in the render loop */
+	private tabElement: HTMLElement | null = null;
+	/** Cached reference to the chat log element */
+	private chatLogElement: HTMLElement | null = null;
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
@@ -153,7 +157,7 @@ export class Drawer extends CRABS_Base {
 	private optimizeVisuals(lowPerf: boolean): void {
 		if (!this.instance) return;
 
-		const tab = this.instance.querySelector("#drawer-tab");
+		const tab = this.tabElement;
 		// Target the root instance so the class persists across roster redrawing
 		const root = this.instance;
 		if (!tab) return;
@@ -269,6 +273,11 @@ export class Drawer extends CRABS_Base {
 			element.style.display = "none";
 			document.body.appendChild(element);
 			this.instance = element;
+
+			// NEW: Cache the elements immediately after creating them
+			this.tabElement = element.querySelector("#drawer-tab") as HTMLElement;
+			this.chatLogElement = document.getElementById("TextAreaChatLog");
+
 			this.bindEvents();
 		}
 	}
@@ -336,14 +345,14 @@ export class Drawer extends CRABS_Base {
 			const isFocused = (window as any).CurrentCharacter !== null;
 			this.instance.style.display = isFocused ? "none" : "flex";
 
-			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
+			const tab = this.tabElement;
 			if (tab) {
 				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
 				tab.style.display = (shouldHideTab || isFocused) ? "none" : "flex";
 			}
 
 			if (!this.resizeObserver) {
-				const chatLog = document.getElementById("TextAreaChatLog");
+				const chatLog = this.chatLogElement; // Use the cache!
 				if (chatLog) {
 					this.resizeObserver = new ResizeObserver(() => this.syncToChat());
 					this.resizeObserver.observe(chatLog);

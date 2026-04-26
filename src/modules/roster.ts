@@ -43,6 +43,9 @@ export class Roster extends CRABS_Base {
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
 
+	/** Caches the measured width of player names */
+	private nameWidthCache: Map<number, number> = new Map();
+
 	/** Handler for when a player's entry is hovered in the roster UI. */
 	private onPlayerHover = (playerId: string) => {
 		if (this.trackedMapPlayer !== null || !playerId) return;
@@ -279,14 +282,13 @@ export class Roster extends CRABS_Base {
 				// RELATIONSHIP ICONS (Owner, Sub, Friend, Star) ---
 				const iconContainer = card.querySelector(".CRABS_player-icons") as HTMLElement;
 				if (iconContainer) {
-					// Create a fingerprint of their social state
-					// The bitwise OR | 0 and the mNum fallback ensure TypeScript is happy
-					const socialState = `${Player.OwnerNumber() === mNum}-${character.IsOwnedByPlayer()}-${Player.FriendList.includes(mNum)}`;
+					// Generate the fresh HTML for this character
+					const newIconHTML = this.setIcons(character);
 
-					// ONLY touch the DOM if the social state changed
-					if (iconContainer.dataset.lastSocial !== socialState) {
-						iconContainer.innerHTML = DOMPurify.sanitize(this.setIcons(character));
-						iconContainer.dataset.lastSocial = socialState;
+					// If the newly generated HTML doesn't match what we rendered last time, update the DOM
+					if (iconContainer.dataset.lastIcons !== newIconHTML) {
+						iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
+						iconContainer.dataset.lastIcons = newIconHTML;
 					}
 				}
 			}
@@ -595,13 +597,14 @@ export class Roster extends CRABS_Base {
 	 * @returns {string} HTML string containing the relevant relational icons.
 	 */
 	private setIcons(character: any): string {
+		// 1. If this is the player, they ONLY get the "you" icon. Short-circuit immediately.
+		if (character.IsPlayer()) {
+			return Assets.printimage({ key: "you" }) + " ";
+		}
+
 		let playerIcons = "";
 		const memberNum = character.MemberNumber ?? -1;
 		const playerWindow = (window as any).Player;
-
-		if (character.IsPlayer()) {
-			playerIcons += Assets.printimage({ key: "you" }) + " ";
-		}
 
 		// Trial checks
 		const isTrial = character.Ownership?.MemberNumber === playerWindow.MemberNumber && character.Ownership?.Stage === 0;
@@ -610,7 +613,7 @@ export class Roster extends CRABS_Base {
 			// person owns you
 			playerIcons += Assets.printimage({ key: "owner" }) + " ";
 		} else if (character.IsOwnedByPlayer()) {
-			// YOU own them (Notice how IsOwnedByPlayer takes no arguments in the new types!)
+			// YOU own them
 			if (isTrial) {
 				playerIcons += Assets.printimage({ key: "trial" }) + " ";
 			} else {
@@ -626,16 +629,12 @@ export class Roster extends CRABS_Base {
 			playerIcons += Assets.printimage({ key: "lover" }) + " ";
 		} else {
 			if (CrossMod.detectMod("BCTweaks")) {
-				// BCTweaks mod is found
 				if (playerWindow.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)) {
-					//Player is a best friend, skip checking if they are a friend.
 					playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
 				} else if (playerWindow.FriendList.includes(memberNum)) {
-					// Player is not a best friend, but they are a friend
 					playerIcons += Assets.printimage({ key: "friend" }) + " ";
 				}
 			} else if (playerWindow.FriendList.includes(memberNum)) {
-				// person is a friend, and the BCTweaks mod is not found
 				playerIcons += Assets.printimage({ key: "friend" }) + " ";
 			}
 		}
@@ -748,8 +747,8 @@ export class Roster extends CRABS_Base {
 
 		if (deltaX === 0 && deltaY === 0) return;
 
-		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		const canvasContext = canvasElement?.getContext("2d");
+		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
+		const canvasContext = canvasElement?.getContext("2d", { willReadFrequently: true });
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
@@ -815,15 +814,22 @@ export class Roster extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private drawNameIndicator(character: any, x: number, y: number): void {
-		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		const ctx = canvasElement?.getContext("2d");
+		const globalWindow = window as any;
+		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
+		const ctx = canvasElement?.getContext("2d", { willReadFrequently: true });
 		if (!ctx) return;
 
 		// Measure the nickname to find the start of the nameplate
 		// The base game uses 36px sans-serif as its default UI font
 		ctx.font = "36px sans-serif";
-		const nameText = CharacterNickname(character);
-		const nameWidth = ctx.measureText(nameText).width;
+
+		// cache text measurement
+		let nameWidth = this.nameWidthCache.get(character.MemberNumber);
+		if (nameWidth === undefined) {
+			const nameText = CharacterNickname(character);
+			nameWidth = ctx.measureText(nameText).width;
+			this.nameWidthCache.set(character.MemberNumber, nameWidth);
+		}
 
 		// The game centers the text at X. 
 		// We want the arrow tip to be exactly 15px to the left of the text.
