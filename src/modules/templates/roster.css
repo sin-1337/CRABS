@@ -112,7 +112,7 @@
     255,
     255,
     255,
-    0.4
+    0.15
   ) !important; /* Brightens the left border */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */
 }

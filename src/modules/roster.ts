@@ -39,6 +39,7 @@ export class Roster extends CRABS_Base {
 
 	/** The member number of the player currently hovered on the map. */
 	private hoveredMapPlayer: number | null = null;
+
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
 
@@ -68,6 +69,23 @@ export class Roster extends CRABS_Base {
 			const result = next(functionArguments); // Let the base map draw first
 			this.drawCompass();        // Then draw our overlay
 			return result;
+		});
+
+		// Hook the name draw logic in normal rooms
+		this.safeHook("ChatRoomDrawCharacterName", 10, (args: any, next: Function) => {
+			// Let the game draw the name regardless
+			next(args);
+
+			// ONLY trigger our indicator if:
+			//    - We are NOT on a map
+			//    - We have a target (hovered or tracked)
+			//    - The current character being drawn is that target
+			const isMap = typeof ChatRoomMapViewIsActive === "function" && ChatRoomMapViewIsActive();
+			const targetId = this.hoveredMapPlayer;
+
+			if (!isMap && targetId && args[0].MemberNumber === targetId) {
+				this.drawNameIndicator(args[0], args[1], args[2]);
+			}
 		});
 	}
 
@@ -691,6 +709,48 @@ export class Roster extends CRABS_Base {
 		} finally {
 			canvasContext.restore();
 		}
+	}
+
+	/**
+	 * Renders a visual "focus" indicator (▶) on the game canvas next to a character's name.
+	 * * This function is designed to be called within a hook of the game's name-drawing routine.
+	 * It calculates the width of the character's nickname to ensure the indicator is 
+	 * positioned dynamically to the left of the nameplate, regardless of name length.
+	 * * @private
+	 * @param {any} character - The character object provided by the game engine.
+	 * @param {number} x - The horizontal center-point of the character's nameplate.
+	 * @param {number} y - The vertical baseline of the character's nameplate.
+	 * @returns {void}
+	 */
+	private drawNameIndicator(character: any, x: number, y: number): void {
+		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
+		const ctx = canvasElement?.getContext("2d");
+		if (!ctx) return;
+
+		ctx.save();
+
+		// Set the font to match the game's name style but bold
+		ctx.font = "bold 25px Arial";
+		ctx.fillStyle = character.LabelColor || "white";
+		ctx.textAlign = "right"; // Position it to the left of the name center
+
+		// The game centers names. We calculate the width to offset our arrow.
+		const nameText = CharacterNickname(character);
+		const nameWidth = ctx.measureText(nameText).width;
+
+		// Draw the indicator slightly to the left of where the name starts
+		const indicatorX = x - (nameWidth / 2) - 10;
+		const indicatorY = y + 10; // Adjust to align vertically with the name baseline
+
+		// Draw the symbol
+		ctx.fillText("▶", indicatorX, indicatorY);
+
+		// Optional: Add a small shadow/glow to make it pop
+		ctx.strokeStyle = "black";
+		ctx.lineWidth = 1;
+		ctx.strokeText("▶", indicatorX, indicatorY);
+
+		ctx.restore();
 	}
 
 	/**
