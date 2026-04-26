@@ -294,11 +294,9 @@ export class Drawer extends CRABS_Base {
 
 		const rect = chatLog.getBoundingClientRect();
 
+		// If the chat log hasn't rendered yet (0 dimensions), abort.
+		// DO NOT teleport the drawer to 0px!
 		if (rect.width === 0 || rect.height === 0) {
-			this.instance.style.top = "0px";
-			this.instance.style.height = "100%";
-			this.instance.style.width = "400px";
-			this.instance.style.right = "0px";
 			return;
 		}
 
