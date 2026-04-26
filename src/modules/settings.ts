@@ -277,11 +277,18 @@ export class Settings extends CRABS_Base {
 					const buttonHeight = 44;
 					const displayLabel = String(currentValue).toUpperCase();
 
-					DrawButton(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight, displayLabel, isElementLocked ? "#888888" : "White", "");
-					canvasContext.textAlign = "left";
-					DrawText(element.text, checkboxX + buttonWidth + 20, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+					// Push the button to the right side of the column
+					const cycleButtonX = columnX + 450;
 
-					if (MouseIn(checkboxX + buttonWidth + 20, renderPositionY - 18, 450, 36) || MouseIn(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
+					// Draw text left-aligned with the rest of the column
+					canvasContext.textAlign = "left";
+					DrawText(element.text, textX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+
+					// Draw the button
+					DrawButton(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight, displayLabel, isElementLocked ? "#888888" : "White", "");
+
+					// Update hover hitboxes
+					if (MouseIn(textX, renderPositionY - 18, 450, 36) || MouseIn(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
 						tooltipHintToDraw = element.hint;
 					}
 				}
@@ -362,10 +369,12 @@ export class Settings extends CRABS_Base {
 			} else if (element.type === 'Cycle') {
 				const buttonWidth = 140;
 				const buttonHeight = 44;
-				if (MouseIn(checkboxX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
+				const cycleButtonX = columnX + 450; // Match the new X coordinate
+
+				if (MouseIn(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
 					const settingsKey = element.setting as keyof CRABS_Settings;
 					const cycleOptionsArray = element.cycleOptions as string[];
-					const currentIndex = cycleOptionsArray.indexOf(this.data[settingsKey] as string);
+					const currentIndex = cycleOptionsArray.indexOf(this.data[settingsKey] as unknown as string);
 
 					let nextIndex = currentIndex + 1;
 					if (nextIndex >= cycleOptionsArray.length) nextIndex = 0;
