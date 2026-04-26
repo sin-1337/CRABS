@@ -358,8 +358,6 @@ export class Drawer extends CRABS_Base {
 					this.resizeObserver.observe(chatLog);
 					this.syncToChat();
 				}
-			} else {
-				this.syncToChat();
 			}
 		}
 	}
