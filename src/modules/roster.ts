@@ -84,7 +84,7 @@ export class Roster extends CRABS_Base {
 			const globalWindow = window as any;
 			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
 
-			// The "Eye Icon": If ChatRoomHideIconState > 3, the game hides names.
+			// The "Eye Icon": If ChatRoomHideIconState >= 3, the game hides names.
 			if (globalWindow.ChatRoomHideIconState >= 3) return result;
 
 			// The Settings Menu: If the player explicitly disabled names in their settings.
@@ -264,7 +264,6 @@ export class Roster extends CRABS_Base {
 			const character = ChatRoomCharacter.find(c => c.MemberNumber === charData.MemberNumber);
 
 			if (card && character) {
-				const mNum = character.MemberNumber ?? -1; // Fallback to clear TS error
 
 				// STATUS ICONS (Gag, Blind, Deaf) ---
 				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
@@ -714,8 +713,7 @@ export class Roster extends CRABS_Base {
 		}
 	};
 
-	/** 
-	 * Clears the tracked player and resets compass UI. Call this when the drawer closes. 
+	/** * Clears the tracked player and resets compass UI. Call this when the drawer closes. 
 	 */
 	public clearTracking(): void {
 		this.trackedMapPlayer = null;
@@ -748,7 +746,7 @@ export class Roster extends CRABS_Base {
 		if (deltaX === 0 && deltaY === 0) return;
 
 		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
-		const canvasContext = canvasElement?.getContext("2d", { willReadFrequently: true });
+		const canvasContext = canvasElement?.getContext("2d");
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
@@ -816,7 +814,7 @@ export class Roster extends CRABS_Base {
 	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
 		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
-		const ctx = canvasElement?.getContext("2d", { willReadFrequently: true });
+		const ctx = canvasElement?.getContext("2d");
 		if (!ctx) return;
 
 		// Measure the nickname to find the start of the nameplate
