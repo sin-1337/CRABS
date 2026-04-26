@@ -270,10 +270,12 @@ export class Drawer extends CRABS_Base {
 			title = `CRABS: ${ChatRoomData.Name}`;
 		}
 
+		const logoKey = Settings.instance.data.animatedTabLogo ? "animated_logo" : "logo";
+
 		const templateVars = {
 			Help: Assets.printimage({ key: "help", css_class_override: "CRABS_Drawer_Help_Icon" }),
 			Settings: Assets.printimage({ key: "settings", css_class_override: "CRABS_Drawer_Settings_Icon" }),
-			TabIcon: Assets.printimage({ key: "animated_logo" }),
+			TabIcon: Assets.printimage({ key: logoKey }),
 			TitleBar: title,
 			Close: Assets.printimage({ key: "close", css_class_override: "CRABS_Drawer_Close_Icon" }),
 		};

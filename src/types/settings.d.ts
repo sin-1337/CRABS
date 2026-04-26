@@ -56,4 +56,5 @@ interface CRABS_Settings {
 	mapSuperZoom: boolean;
 	pageFocusHover: boolean,
 	checkForUpdates: boolean;
+	animatedTabLogo: boolean;
 }
