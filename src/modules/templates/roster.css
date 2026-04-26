@@ -9,7 +9,7 @@
   font-size: 1.2rem;
 }
 
-/* 1. Base Cell Style - No real borders anymore */
+/*  Base Cell Style */
 .CRABS_status_cell {
   flex: 1;
   display: flex;
@@ -19,7 +19,7 @@
   position: relative; /* Anchor for virtual divider */
 }
 
-/* 2. The Virtual Divider (Pseudo-element) */
+/* The Virtual Divider (Pseudo-element) */
 .CRABS_status_cell::after {
   content: "";
   position: absolute;
@@ -29,18 +29,18 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* 3. Logic: Hide the divider on the absolute last item */
+/* Logic: Hide the divider on the absolute last item */
 .CRABS_status_cell:last-child::after {
   display: none;
 }
 
-/* 4. Logic: If Map Keys are HIDDEN, hide the divider on the 4th cell (Online Count) */
+/* Logic: If Map Keys are HIDDEN, hide the divider on the 4th cell (Online Count) */
 .CRABS_room-status:not(:has(.CRABS_map-keys-container[data-map-active="true"]))
   .CRABS_status_cell:nth-child(4)::after {
   display: none;
 }
 
-/* 5. The Map Keys Container specific logic */
+/* The Map Keys Container specific logic */
 .CRABS_map-keys-container {
   display: none !important; /* Force hide */
   flex: 1;
@@ -112,7 +112,7 @@
     255,
     255,
     255,
-    0.15
+    0.05
   ) !important; /* Brightens the left border */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */
 }
