@@ -153,7 +153,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Swaps visual assets and CSS variables based on performance needs.
-	 * @param {boolean} lowPerf - Indicates if the system is currently under heavy load.
+	 * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
 	 * @private
 	 * @returns {void}
 	 */
@@ -171,7 +171,7 @@ export class Drawer extends CRABS_Base {
 		const shouldAnimate = !lowPerformance && userWantsAnimated;
 
 		if (!shouldAnimate && currentMode !== "static") {
-			tabElement.innerHTML = Assets.printimage({ key: "logo" });
+			tabElement.innerHTML = Assets.printimage({ key: "static_logo" });
 			tabElement.setAttribute("data-mode", "static");
 		}
 		else if (shouldAnimate && currentMode !== "animated") {
