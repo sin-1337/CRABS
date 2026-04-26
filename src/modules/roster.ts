@@ -950,7 +950,7 @@ export class Roster extends CRABS_Base {
 
 		this.requestOnlineFriends();
 
-		// 1. Immersive Mode Check (Blindness Blurring)
+		// Immersive Mode Check (Blindness Blurring)
 		let rosterStyle = "";
 		if (Settings.instance.data.immersiveBlind) {
 			const blindLevel = this.getBlindnessLevel();
@@ -960,7 +960,7 @@ export class Roster extends CRABS_Base {
 			}
 		}
 
-		// 2. Argument Parsing (Admins/VIPs/Count filters)
+		// Argument Parsing (Admins/VIPs/Count filters)
 		const splitArguments = commandArguments.split(" ");
 		let showme = true, showadmins = true, showvip = true, showplayers = true;
 
@@ -977,10 +977,10 @@ export class Roster extends CRABS_Base {
 		let admin_count = 0;
 		let rosterCards: { html: string, score: number, memberNumber: number, isMe: boolean, isAdmin: boolean, isVIP: boolean, isStandard: boolean }[] = [];
 
-		// 3. Determine Sort Mode (Force 'role' in chat log, respect choice in Drawer)
+		// Determine Sort Mode (Force 'role' in chat log, respect choice in Drawer)
 		const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-		// 4. Build Character Data Array
+		// Build Character Data Array
 		for (let characterIndex in ChatRoomData.Character) {
 			const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
 			const character = ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber);
@@ -1002,7 +1002,6 @@ export class Roster extends CRABS_Base {
 
 			const badge = this.setbadge(character);
 			let playerIcons = this.setIcons(character);
-			if (isMe) playerIcons = Assets.printimage({ key: "you" }) + " " + playerIcons;
 
 			// Generate the individual card HTML
 			const html = this.buildCard(character, badge, playerIcons, !wrapper);
@@ -1011,10 +1010,10 @@ export class Roster extends CRABS_Base {
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
 		}
 
-		// 5. Sort Cards (Score primary, MemberNumber secondary to prevent jumping)
+		// Sort Cards (Score primary, MemberNumber secondary to prevent jumping)
 		rosterCards.sort((a, b) => a.score - b.score || a.memberNumber - b.memberNumber);
 
-		// 6. Concatenate filtered rows
+		// Concatenate filtered rows
 		let output_rows = "";
 		for (const card of rosterCards) {
 			if (!showme && card.isMe) continue;
