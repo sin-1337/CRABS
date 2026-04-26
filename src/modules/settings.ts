@@ -99,7 +99,7 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
 
 		// <-- NEW CHECKBOX FOR HOVER FOCUS -->
-		this.addCheckbox("Hover Page Focus", "pageFocusHover", "When you mouse over a player, change to their page instead of requiring a click.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Focus follows mouse", "pageFocusHover", "When you mouse over a player, change to their page instead of requiring a click.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled });
 
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
 		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
