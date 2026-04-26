@@ -107,7 +107,7 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
 
 		this.addCheckbox("Focus follows mouse", "pageFocusHover", "When you mouse over a player's card, change the page they are on.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Animated Tab Logo", "animatedTabLogo", "Use the animated logo when performance is optimimal", { category: "Drawer", yPos: 1025, grayedOut: () => isDrawerDisabled() || this.data.hideDrawerTab });
+		this.addCheckbox("Animated Logo", "animatedCrabsLogo", "Use the animated logo when performance is optimimal", { category: "Drawer", yPos: 1025, grayedOut: () => isDrawerDisabled() || this.data.hideDrawerTab });
 
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
 		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
