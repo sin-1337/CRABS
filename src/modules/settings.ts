@@ -333,7 +333,7 @@ export class Settings extends CRABS_Base {
 
 					if (settingsKey === "disableDrawer" && this.data.disableDrawer) {
 						this.data.rosterOpensDrawer = false;
-						this.data.showDrawerTab = true;
+						this.data.showDrawerTab = false;
 					}
 					if (settingsKey === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
 						this.data.showDrawerTab = true;
