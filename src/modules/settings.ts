@@ -16,6 +16,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 /** Default configuration values applied if no local storage data is found. */
 const DEFAULT_SETTINGS: CRABS_Settings = {
 	showBanner: true,
+	checkForUpdates: true,
 	rosterOpensDrawer: true,
 	hideDrawerTab: false,
 	immersiveBlind: false,
@@ -50,7 +51,7 @@ export class Settings extends CRABS_Base {
 	private readonly CHECKBOX_WIDTH = 64;
 
 	private scrollOffset: number = 0;
-	private readonly MAX_SCROLL: number = 500;
+	private readonly MAX_SCROLL: number = 600; // Expanded to accommodate the new height
 	private readonly SCROLL_STEP: number = 100;
 
 	/**
@@ -106,10 +107,8 @@ export class Settings extends CRABS_Base {
 	private isSettingLocked(element: any): boolean {
 		if (!this.isRestricted() || !this.data.lockImmersive) return false;
 
-		// The lock toggle itself cannot be disabled while currently restrained
 		if (element.setting === "lockImmersive") return true;
 
-		// Active immersion constraints lock into their ON state while restrained
 		if (element.category === "Immersion" && this.data[element.setting as keyof CRABS_Settings] === true) return true;
 
 		return false;
@@ -141,25 +140,28 @@ export class Settings extends CRABS_Base {
 	private setupUI(): void {
 		this.elements = [];
 
-		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "Banner", yPos: 280 });
-
-		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 425 });
+		// CATEGORY: General
+		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "General", yPos: 280 });
+		this.addCheckbox("Check for Updates", "checkForUpdates", "Periodically check GitHub for mod updates.", { category: "General", yPos: 355 });
 
 		const isDrawerDisabled = () => this.data.disableDrawer;
 
-		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 500, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 575, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer });
-		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 650, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 725, grayedOut: isDrawerDisabled });
-		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled });
+		// CATEGORY: Drawer (All yPos shifted down by 75px to fit General expansion)
+		this.addCheckbox("Disable Drawer UI", "disableDrawer", "Disable the drawer, use inline chat roster only.", { category: "Drawer", yPos: 500 });
+		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Hide Drawer Tab", "hideDrawerTab", "Hide the CRABS drawer tab.", { category: "Drawer", yPos: 650, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer });
+		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 725, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled });
+		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
+		this.addCycle("Roster Shift Mode", "pageShiftMode", ["hover", "delay", "click"], "How to switch pages to targeted players.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled });
 
-		this.addCycle("Roster Shift Mode", "pageShiftMode", ["hover", "delay", "click"], "How to switch pages to targeted players.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled });
-
+		// CATEGORY: Immersion
 		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
 		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
 		this.addCheckbox("Respect Gags", "immersiveGag", "No Whisper+ when gagged.", { category: "Immersion", yPos: 430 });
 		this.addCheckbox("Respect BCX Rules", "respectBcxRules", "BCX integration.", { category: "Immersion", yPos: 505 });
 
+		// CATEGORY: Maps
 		this.addCheckbox("Show Map Compass", "showMapCompass", "Show a directional arrow on map.", { category: "Maps", yPos: 725 });
 
 		const isSuperZoomBlocked = () => {
@@ -242,8 +244,8 @@ export class Settings extends CRABS_Base {
 			const currentScrollOffset = this.scrollOffset;
 
 			// Render category backdrops factoring in the current scroll depth
-			DrawRect(leftColumnX, 200 - currentScrollOffset, 650, 125, "#00000011"); DrawText("Banner", leftColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
-			DrawRect(leftColumnX, 345 - currentScrollOffset, 650, 575, "#00000011"); DrawText("Drawer", leftColumnX + 325, 365 - currentScrollOffset, "Black", "Gray");
+			DrawRect(leftColumnX, 200 - currentScrollOffset, 650, 200, "#00000011"); DrawText("General", leftColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
+			DrawRect(leftColumnX, 420 - currentScrollOffset, 650, 575, "#00000011"); DrawText("Drawer", leftColumnX + 325, 440 - currentScrollOffset, "Black", "Gray");
 			DrawRect(rightColumnX, 200 - currentScrollOffset, 650, 375, "#00000011"); DrawText("Immersion", rightColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
 			DrawRect(rightColumnX, 650 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Maps", rightColumnX + 325, 670 - currentScrollOffset, "Black", "Gray");
 
@@ -277,17 +279,13 @@ export class Settings extends CRABS_Base {
 					const buttonHeight = 44;
 					const displayLabel = String(currentValue).toUpperCase();
 
-					// Push the button to the right side of the column
 					const cycleButtonX = columnX + 450;
 
-					// Draw text left-aligned with the rest of the column
 					canvasContext.textAlign = "left";
 					DrawText(element.text, textX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-					// Draw the button
 					DrawButton(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight, displayLabel, isElementLocked ? "#888888" : "White", "");
 
-					// Update hover hitboxes
 					if (MouseIn(textX, renderPositionY - 18, 450, 36) || MouseIn(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
 						tooltipHintToDraw = element.hint;
 					}
@@ -369,7 +367,7 @@ export class Settings extends CRABS_Base {
 			} else if (element.type === 'Cycle') {
 				const buttonWidth = 140;
 				const buttonHeight = 44;
-				const cycleButtonX = columnX + 450; // Match the new X coordinate
+				const cycleButtonX = columnX + 450;
 
 				if (MouseIn(cycleButtonX, renderPositionY - (buttonHeight / 2), buttonWidth, buttonHeight)) {
 					const settingsKey = element.setting as keyof CRABS_Settings;

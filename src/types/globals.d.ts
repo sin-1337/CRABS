@@ -112,21 +112,6 @@ declare global {
 
 	export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNextElement;
 
-	export interface CRABS_Settings {
-		showBanner: boolean;
-		rosterOpensDrawer: boolean;
-		hideDrawerTab: boolean;
-		immersiveBlind: boolean;
-		immersiveGag: boolean;
-		respectBcxRules: boolean;
-		compactDrawer: boolean;
-		closeDrawerOnWhisper: boolean;
-		closeDrawerOnChat: boolean;
-		disableDrawer: boolean;
-		lockImmersive: boolean;
-		pageShiftMode: "hover" | "delay" | "click";
-	}
-
 	// Because of Declaration Merging, this adds `BCT` to the base game's PlayerCharacter type!
 	interface PlayerCharacter {
 		BCT?: any; // only for BCTweaks
