@@ -34,6 +34,7 @@ export class Settings extends CRABS_Base {
 	private scrollOffset: number = 0;
 	private readonly MAX_SCROLL: number = 600;
 	private readonly SCROLL_STEP: number = 100;
+	private isMenuOpen: boolean = false;
 
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
@@ -42,7 +43,7 @@ export class Settings extends CRABS_Base {
 		this.setupUI();
 		this.registerExtension();
 
-		window.addEventListener("wheel", this.handleWheel);
+		window.addEventListener("wheel", this.handleWheel, { passive: false });
 	}
 
 	private load(): CRABS_Settings {
@@ -70,15 +71,21 @@ export class Settings extends CRABS_Base {
 	}
 
 	private handleWheel = (event: WheelEvent): void => {
+		// If our menu isn't open, ignore the wheel entirely
+		if (!this.isMenuOpen) return;
+
 		const globalWindow = window as any;
 
-		if (globalWindow.CurrentScreen !== "Preference" || globalWindow.PreferenceSubscreen !== "CRABS") return;
-
+		// Check if the mouse is hovering over the center clip-region
 		if (globalWindow.MouseX >= 500 && globalWindow.MouseX <= 1780 && globalWindow.MouseY >= 180 && globalWindow.MouseY <= 900) {
+
+			// Prevent the actual web page from scrolling
+			if (event.cancelable) event.preventDefault();
+
 			if (event.deltaY > 0) {
-				this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + 50);
+				this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
 			} else if (event.deltaY < 0) {
-				this.scrollOffset = Math.max(0, this.scrollOffset - 50);
+				this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
 			}
 		}
 	};
@@ -205,12 +212,14 @@ export class Settings extends CRABS_Base {
 		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 
 		if (MouseIn(1815, 75, 90, 90)) {
+			this.isMenuOpen = false;
 			PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
 		const isInChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		if (MouseIn(1710, 75, 90, 90) && isInChatRoom) {
+			this.isMenuOpen = false;
 			if (typeof CommonSetScreen === "function") CommonSetScreen("Online", "ChatRoom");
 			PreferenceSubscreenExtensionsClear?.();
 			(window as any).PreferenceMessage = "";
@@ -265,12 +274,16 @@ export class Settings extends CRABS_Base {
 			Image: "https://sin-1337.github.io/CRABS/images/CRABS_Logo.png",
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
+				this.isMenuOpen = false; // <-- Flag closed
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
 				return false;
 			},
-			load: () => { globalWindow.PreferenceMessage = ""; }
+			load: () => {
+				this.isMenuOpen = true; // <-- Flag open
+				globalWindow.PreferenceMessage = "";
+			}
 		};
 
 		const registerHook = () => {
