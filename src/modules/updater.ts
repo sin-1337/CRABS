@@ -8,7 +8,8 @@ export class Updater extends CRABS_Base {
 	private versionUrl: string = "https://raw.githubusercontent.com/sin-1337/CRABS/main/package.json";
 
 	// Check every 60 minutes
-	private checkIntervalMs: number = 60 * 60 * 1000;
+	// private checkIntervalMs: number = 60 * 60 * 1000;
+	private checkIntervalMs: number = 60;
 
 	constructor(CRABS: ModSDKModAPI, currentVersion: string) {
 		super(CRABS);
