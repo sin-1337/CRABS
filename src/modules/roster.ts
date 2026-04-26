@@ -72,26 +72,37 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Hook the name draw logic in normal rooms
-		this.safeHook("ChatRoomCharacterViewDraw", 10, (functionArguments: any, next: Function) => {
-			// Let the game render the room, characters, and nameplates first
-			const result = next(functionArguments);
+		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
+			// Let the entire game frame render first
+			const result = next(args);
 
 			const globalWindow = window as any;
-			const drawList = globalWindow.ChatRoomCharacterDrawlist;
-			if (!drawList) return result;
+			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 
-			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
-			if (targetId) {
-				// Only draw if the target is currently visible on the screen
-				const targetChar = drawList.find((c: any) => c.MemberNumber === targetId);
-				if (targetChar) {
-					// Replicate the game's exact spacing math
-					const charIndex = drawList.indexOf(targetChar);
-					const charCount = drawList.length;
-					const x = (1000 / (charCount + 1)) * (charIndex + 1);
+			// Only draw the name indicator if we are NOT on a map
+			if (!isMap) {
+				const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
+				const drawList = globalWindow.ChatRoomCharacterDrawlist;
 
-					// Draw the compass arrow exactly at the Y=50 nameplate layer
-					this.drawNameIndicator(targetChar, x, 50);
+				if (targetId && drawList) {
+					const targetChar = drawList.find((c: any) => c.MemberNumber === targetId);
+					if (targetChar) {
+						const charIndex = drawList.indexOf(targetChar);
+						const charCount = drawList.length;
+
+						// Bondage Club's exact horizontal centering math
+						// Space = 1000 / charCount. The character's center is half a space + previous spaces.
+						const x = (charIndex + 0.5) * (1000 / charCount);
+
+						// Bondage Club's dynamic Y offset (Based on your provided chatroom.js)
+						let yOffset = 50;
+						if (charCount === 4) yOffset = 150;
+						if (charCount === 5) yOffset = 250;
+
+						// Nameplates are drawn near the top of the character's Y offset. 
+						// yOffset - 10 centers our triangle perfectly with the text baseline.
+						this.drawNameIndicator(targetChar, x, yOffset - 10);
+					}
 				}
 			}
 
