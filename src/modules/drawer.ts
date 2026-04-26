@@ -157,40 +157,38 @@ export class Drawer extends CRABS_Base {
 	 * @private
 	 * @returns {void}
 	 */
-	private optimizeVisuals(lowPerf: boolean): void {
-		if (!this.instance) return;
+	private optimizeVisuals(lowPerformance: boolean): void {
+		if (!this.instance || !this.tabElement) return;
 
-		const tab = this.tabElement;
-		// Target the root instance so the class persists across roster redrawing
-		const root = this.instance;
-		if (!tab) return;
+		const tabElement = this.tabElement;
+		const rootElement = this.instance;
+		const currentMode = tabElement.getAttribute("data-mode");
 
-		const currentMode = tab.getAttribute("data-mode");
 		if (currentMode === "rave") return;
 
-		// 1. Surgical Logo Swap
-		if (lowPerf && currentMode !== "static") {
-			tab.innerHTML = Assets.printimage({ key: "logo" });
-			tab.setAttribute("data-mode", "static");
+		// Honor user settings first, fallback to performance throttling
+		const userWantsAnimated = Settings.instance.data.animatedCrabsLogo;
+		const shouldAnimate = !lowPerformance && userWantsAnimated;
+
+		if (!shouldAnimate && currentMode !== "static") {
+			tabElement.innerHTML = Assets.printimage({ key: "logo" });
+			tabElement.setAttribute("data-mode", "static");
 		}
-		else if (!lowPerf && currentMode !== "animated") {
-			tab.innerHTML = Assets.printimage({ key: "animated_logo" });
-			tab.setAttribute("data-mode", "animated");
+		else if (shouldAnimate && currentMode !== "animated") {
+			tabElement.innerHTML = Assets.printimage({ key: "animated_logo" });
+			tabElement.setAttribute("data-mode", "animated");
 		}
 
-		// 2. Class-Based Performance Toggling
-		// Adding the class to the drawer instance itself ensures it affects 
-		// all child cards, even if those cards are surgically updated later!
-		if (lowPerf && !root.classList.contains("CRABS_perf_low")) {
-			root.classList.add("CRABS_perf_low");
-		} else if (!lowPerf && root.classList.contains("CRABS_perf_low")) {
-			root.classList.remove("CRABS_perf_low");
+		// Applies CSS blur reduction for low-end hardware
+		if (lowPerformance && !rootElement.classList.contains("CRABS_perf_low")) {
+			rootElement.classList.add("CRABS_perf_low");
+		} else if (!lowPerformance && rootElement.classList.contains("CRABS_perf_low")) {
+			rootElement.classList.remove("CRABS_perf_low");
 		}
 
-		// 3. CSS Variable Sync
-		const blurVal = lowPerf ? "3px" : "10px";
-		if (document.documentElement.style.getPropertyValue("--crabs-blur") !== blurVal) {
-			document.documentElement.style.setProperty("--crabs-blur", blurVal);
+		const blurValue = lowPerformance ? "3px" : "10px";
+		if (document.documentElement.style.getPropertyValue("--crabs-blur") !== blurValue) {
+			document.documentElement.style.setProperty("--crabs-blur", blurValue);
 		}
 	}
 
@@ -270,7 +268,7 @@ export class Drawer extends CRABS_Base {
 			title = `CRABS: ${ChatRoomData.Name}`;
 		}
 
-		const logoKey = Settings.instance.data.animatedCrabsLogo ? "animated_logo" : "logo";
+		const logoKey = Settings.instance.data.animatedCrabsLogo ? "animated_logo" : "static_logo";
 
 		const templateVars = {
 			Help: Assets.printimage({ key: "help", css_class_override: "CRABS_Drawer_Help_Icon" }),
