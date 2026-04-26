@@ -152,7 +152,9 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Swaps visual assets and CSS variables based on performance needs.
+	 * Evaluates user settings and system performance to dictate visual intensity.
+	 * Restricts animations and intensive CSS effects when the engine is struggling, 
+	 * while strictly honoring the user's explicit preferences.
 	 * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
 	 * @private
 	 * @returns {void}
@@ -160,45 +162,38 @@ export class Drawer extends CRABS_Base {
 	private optimizeVisuals(lowPerformance: boolean): void {
 		if (!this.instance || !this.tabElement) return;
 
-		const tabElement = this.tabElement;
-		const rootElement = this.instance;
-		const currentMode = tabElement.getAttribute("data-mode");
+		const currentMode = this.tabElement.getAttribute("data-mode");
 
+		// Bail out early if we are locked in an easter egg
 		if (currentMode === "rave") return;
 
-		// Honor user settings first, fallback to performance throttling
-		const userWantsAnimated = Settings.instance.data.animatedCrabsLogo;
-		const shouldAnimate = !lowPerformance && userWantsAnimated;
+		// Determine target mode using our single source of truth
+		const targetMode = (!lowPerformance && Settings.instance.data.animatedCrabsLogo)
+			? "animated"
+			: "static";
 
-		if (!shouldAnimate && currentMode !== "static") {
-			tabElement.innerHTML = Assets.printimage({ key: "static_logo" });
-			tabElement.setAttribute("data-mode", "static");
-		}
-		else if (shouldAnimate && currentMode !== "animated") {
-			tabElement.innerHTML = Assets.printimage({ key: "animated_logo" });
-			tabElement.setAttribute("data-mode", "animated");
+		// Swap DOM only if modes mismatch
+		if (currentMode !== targetMode) {
+			const iconKey = targetMode === "animated" ? "animated_logo" : "logo";
+			this.tabElement.innerHTML = Assets.printimage({ key: iconKey });
+			this.tabElement.setAttribute("data-mode", targetMode);
 		}
 
-		// Applies CSS blur reduction for low-end hardware
+		// Handle CSS performance classes
+		const rootElement = this.instance;
 		if (lowPerformance && !rootElement.classList.contains("CRABS_perf_low")) {
 			rootElement.classList.add("CRABS_perf_low");
+			document.documentElement.style.setProperty("--crabs-blur", "3px");
 		} else if (!lowPerformance && rootElement.classList.contains("CRABS_perf_low")) {
 			rootElement.classList.remove("CRABS_perf_low");
-		}
-
-		const blurValue = lowPerformance ? "3px" : "10px";
-		if (document.documentElement.style.getPropertyValue("--crabs-blur") !== blurValue) {
-			document.documentElement.style.setProperty("--crabs-blur", blurValue);
+			document.documentElement.style.setProperty("--crabs-blur", "10px");
 		}
 	}
 
 	/**
 	 * Hooks into the game's render loop to process updates.
-	 * * This version implements "Surgical Updates": instead of redrawing the entire 
-	 * drawer when the roster is dirty, it attempts to target and update specific 
-	 * DOM elements. It only falls back to a full refresh if the roster structure 
-	 * itself is missing.
-	 *
+	 * Monitors performance state and executes surgical DOM updates to the roster
+	 * to preserve CPU cycles, only rebuilding entirely when structurally required.
 	 * @private
 	 * @returns {void}
 	 */
@@ -206,15 +201,18 @@ export class Drawer extends CRABS_Base {
 		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: (args: any[]) => any) => {
 			const result = next(functionArguments);
 
-			// Keep track of what the level was before the check
-			const previousLevel = this.currentPerformanceLevel;
-
+			const previousPerformanceLevel = this.currentPerformanceLevel;
 			this.updatePerformanceState();
 
-			// NEW: If the performance level changed, trigger the visual optimizations instantly
-			if (previousLevel !== this.currentPerformanceLevel) {
-				const isLow = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
-				this.optimizeVisuals(isLow);
+			const isLowPerformance = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+
+			// Check if the user's setting OR the performance requires a visual update
+			const expectedMode = (!isLowPerformance && Settings.instance.data.animatedCrabsLogo) ? "animated" : "static";
+			const actualMode = this.tabElement?.getAttribute("data-mode");
+
+			// If the performance changed, OR the tab is in the wrong mode (and not raving), fix it!
+			if (previousPerformanceLevel !== this.currentPerformanceLevel || (actualMode !== "rave" && actualMode !== expectedMode)) {
+				this.optimizeVisuals(isLowPerformance);
 			}
 
 			let threshold = 5;
