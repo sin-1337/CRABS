@@ -41,6 +41,9 @@ export abstract class CRABS_Base {
 	private perfStabilityCounter: number = 0;
 	private readonly STABILITY_THRESHOLD = 60;
 
+	/** Tracks hooks that have already failed to prevent log/toast spamming. */
+	private failedHooks: Set<string> = new Set();
+
 	/**
 	 * Creates an instance of a CRABS module.
 	 * 
@@ -48,6 +51,45 @@ export abstract class CRABS_Base {
 	 */
 	constructor(CRABS: ModSDKModAPI) {
 		this.CRABS = CRABS;
+	}
+
+	/**
+		 * Safely hooks a base-game function. 
+		 * Catches registration errors if the function is missing, and wraps the execution 
+		 * in a try/catch so mod logic failures don't crash the base game.
+		 * * @param targetFunction The name of the global game function to hook.
+		 * @param priority ModSDK priority level.
+		 * @param callback Your hook logic.
+		 */
+	protected safeHook(
+		targetFunction: string,
+		priority: number,
+		callback: (args: any[], next: (args: any[]) => any) => any
+	): void {
+		try {
+			// We cast to 'any' here to bypass ModSDK's strict string-literal generic constraints
+			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
+				try {
+					// Attempt to run our mod's custom hook logic
+					return callback(args, next);
+				} catch (execError) {
+					// EXECUTION FAILED
+					if (!this.failedHooks.has(targetFunction)) {
+						this.failedHooks.add(targetFunction);
+						console.error(`[CRABS ERROR] Execution failed in hook: '${targetFunction}'. Mod feature degraded.`, execError);
+						Notification.send({ message: `Feature degraded: ${targetFunction} failed. Check console.`, title: "Crabs Error", duration: 5000 });
+					}
+					return next(args); // CRITICALLY, call next() so the game doesn't crash!
+				}
+			});
+		} catch (regError) {
+			// REGISTRATION FAILED
+			if (!this.failedHooks.has(targetFunction)) {
+				this.failedHooks.add(targetFunction);
+				console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'. Base game API may have changed!`, regError);
+				Notification.send({ message: `Hook missing: ${targetFunction}. Mod feature degraded.`, title: "Crabs Error", duration: 5000 });
+			}
+		}
 	}
 
 	/**
@@ -128,7 +170,7 @@ export abstract class CRABS_Base {
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(data);
-			Notification.send(`"${data}" copied to clipboard.`)
+			Notification.send({ message: `"${data}" copied to clipboard.` })
 			// console.log("DEBUG: Text copied to clipboard: ", data);
 			return;
 		} catch (error) {
@@ -411,29 +453,16 @@ export abstract class CRABS_Base {
 	 * Call this inside your main draw/run loop.
 	 */
 	protected updatePerformanceState(): void {
-		// Get the current game timing interval (ms per frame)
 		const interval = (window as any).TimerRunInterval;
 		if (!interval || interval <= 0) return;
 
-		// Calculate current FPS and the target (capped) FPS
-		// Using 1000ms / interval gives us the frames per second
 		const actualFps = 1000 / interval;
-
-		// We assume the game is 'Healthy' if it's hitting its own target.
-		// If the game is capped at 10fps, hitting 10fps is 100% performance.
 		let targetLevel = PerformanceLevel.NORMAL;
 
-		// Performance Ratio Logic
-		// This allows us to be 'Normal' at 10fps if that's what the user chose.
-		// We only degrade if the game is struggling to keep up with its own limit.
 		if (actualFps < 10) {
-			// Hard floor: Below 10 FPS is always critical for UI usability
 			targetLevel = PerformanceLevel.CRITICAL;
 		} else if (actualFps < 25) {
-			// If the game is naturally low (30 or 15 clamp), 
-			// we check if we are significantly missing the target.
-			// A 10% drop from the cap usually indicates the CPU is choking.
-			const targetFps = (window as any).TimerLimit || 60; // Assuming 60 is default if undefined
+			const targetFps = (window as any).TimerLimit || 60;
 			const perfRatio = actualFps / targetFps;
 
 			if (perfRatio < 0.6) {
@@ -443,11 +472,13 @@ export abstract class CRABS_Base {
 			}
 		}
 
-		// Stability Logic (Your existing counter system)
 		if (targetLevel !== this.currentPerformanceLevel) {
+			// NEW: Degrade fast (5 frames), Recover slow (60 frames)
+			const threshold = (targetLevel > this.currentPerformanceLevel) ? 5 : this.STABILITY_THRESHOLD;
+
 			this.perfStabilityCounter++;
 
-			if (this.perfStabilityCounter >= this.STABILITY_THRESHOLD) {
+			if (this.perfStabilityCounter >= threshold) {
 				this.currentPerformanceLevel = targetLevel;
 				this.perfStabilityCounter = 0;
 

@@ -47,6 +47,18 @@ declare global {
 		data?: [string, string]
 	};
 
+	type NotificationParams = {
+		message: string;
+		title?: string;
+		image?: Extract<keyof typeof Assets.IMAGES.image, string>;
+		duration?: number;
+	};
+
+	type ErrorNotificationParams = {
+		message: string;
+		duration?: number;
+	};
+
 	type AudioStore = {
 		readonly basePath: string;
 		readonly [key: string]: string | {
@@ -99,20 +111,6 @@ declare global {
 	}
 
 	export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNextElement;
-
-	export interface CRABS_Settings {
-		showBanner: boolean;
-		rosterOpensDrawer: boolean;
-		hideDrawerTab: boolean;
-		immersiveBlind: boolean;
-		immersiveGag: boolean;
-		respectBcxRules: boolean;
-		compactDrawer: boolean;
-		closeDrawerOnWhisper: boolean;
-		closeDrawerOnChat: boolean;
-		disableDrawer: boolean;
-		lockImmersive: boolean;
-	}
 
 	// Because of Declaration Merging, this adds `BCT` to the base game's PlayerCharacter type!
 	interface PlayerCharacter {

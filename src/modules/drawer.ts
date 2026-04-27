@@ -7,6 +7,7 @@
  * - Automatic visibility management based on game state
  * - Integration with the game's chat log dimensions
  * - Event handling for navigation and interaction
+ * - Event-driven rendering based on the Roster module's state
  */
 
 import { CRABS_Base, PerformanceLevel } from "./base";
@@ -24,7 +25,7 @@ import { Settings } from "./settings";
  * Class representing the side drawer UI.
  * Manages the sliding panel that contains the Roster, Help, and Settings access.
  * Implements a Singleton pattern for global access via static methods.
- * * @extends CRABS_Base
+ * @extends CRABS_Base
  */
 export class Drawer extends CRABS_Base {
 	/** Singleton instance of the Drawer. */
@@ -43,21 +44,16 @@ export class Drawer extends CRABS_Base {
 	private resizeObserver: ResizeObserver | null = null;
 	/** Tracks if the drawer is currently displaying the Help view instead of the Roster. */
 	private showingHelp: boolean = false;
+	/** Counter used to throttle frame updates based on performance tier. */
 	private updateTick: number = 0;
-
-	// --- State Tracking for Optimized UI Refreshes ---
-	private lastRoster: string = "";
-	private lastAdminList: string = "";
-	private lastKeys: string = "";
-	private lastMapState: boolean = false;
-	private lastOnlineFriends: number | string = "...";
-	private lastRoomCharStates: string = "";
-	private lastRelationships: string = "";
-	private lastTotalOnline: number = 0;
+	/** Cached reference to the tab element to prevent DOM queries in the render loop */
+	private tabElement: HTMLElement | null = null;
+	/** Cached reference to the chat log element */
+	private chatLogElement: HTMLElement | null = null;
 
 	/**
 	 * Initializes the Drawer module and sets up the Singleton instance.
-	 * * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
 	 * @param {Roster} roster - The Roster module instance.
 	 * @param {Help} help - The Help module instance.
 	 * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
@@ -92,11 +88,13 @@ export class Drawer extends CRABS_Base {
 	/** Triggers the easter egg visual effect on the drawer tab. */
 	public static RaveTab(): void { Drawer._instance?.RaveTab(); }
 
+	/** Caches the last known coordinates of the chat log to prevent layout thrashing */
+	private lastRect = { top: -1, width: -1, height: -1, right: -1, compact: false };
+
 	/**
 	 * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
-
 	public RaveTab(): void {
 		if (!this.instance) return;
 		const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
@@ -122,7 +120,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Bootstraps the drawer layout, injecting it into the DOM and establishing global hotkeys.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private init(): void {
@@ -154,140 +152,99 @@ export class Drawer extends CRABS_Base {
 	}
 
 	/**
-	 * Dirty-check to see if the relevant game state has actually changed.
-	 * Prevents expensive DOM re-renders every frame.
-	 * * @private
-	 * @returns {boolean} True if the room composition, admin list, keys, or friends list changed.
+	 * Evaluates user settings and system performance to dictate visual intensity.
+	 * Restricts animations and intensive CSS effects when the engine is struggling, 
+	 * while strictly honoring the user's explicit preferences.
+	 * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
+	 * @private
+	 * @returns {void}
 	 */
-	private hasStateChanged(): boolean {
-		if (typeof ChatRoomData === 'undefined' || ChatRoomData === null || typeof (window as any).Player === 'undefined') {
-			return false;
-		}
+	private optimizeVisuals(lowPerformance: boolean): void {
+		if (!this.instance || !this.tabElement) return;
 
-		const player = (window as any).Player;
-		const currentRoster = ChatRoomData.Character.map((c: any) => c.MemberNumber).join(",");
+		const currentMode = this.tabElement.getAttribute("data-mode");
 
-		// Track Character-Specific States in the Room (Effects + Ownership)
-		const currentRoomCharStates = ChatRoomData.Character.map((c: any) => {
-			const char = ChatRoomCharacter.find(crc => crc.MemberNumber === c.MemberNumber);
-			if (!char) return "";
-
-			const effects = CharacterGetEffects(char).join("~");
-			const owner = char.Ownership?.MemberNumber || "";
-			const stage = char.Ownership?.Stage || "";
-
-			return `${effects}|${owner}|${stage}`;
-		}).join(",");
-
-		// Track the Player's Local Relationship Lists
-		const currentRelationships = [
-			player.OwnerNumber ? player.OwnerNumber() : "",
-			player.GetLoversNumbers ? player.GetLoversNumbers().join(",") : "",
-			player.WhiteList ? player.WhiteList.join(",") : "",
-			player.BlackList ? player.BlackList.join(",") : "",
-			player.GhostList ? player.GhostList.join(",") : "",
-			player.FriendList ? player.FriendList.join(",") : "",
-			player.BCT?.bctSettings?.bestFriendsList ? player.BCT.bctSettings.bestFriendsList.join(",") : ""
-		].join("|");
-
-		const currentAdmins = (ChatRoomData.Admin || []).join(",");
-		const currentKeys = [
-			player.MapData?.PrivateState?.HasKeyBronze,
-			player.MapData?.PrivateState?.HasKeySilver,
-			player.MapData?.PrivateState?.HasKeyGold
-		].join(",");
-
-		const isMapActive = ChatRoomMapViewIsActive();
-		const currentOnlineFriends = this.rosterModule.getOnlineFriendsCount();
-
-		// Compare everything against our last known state (Excluding Global Online)
-		if (currentRoster !== this.lastRoster ||
-			currentRoomCharStates !== this.lastRoomCharStates ||
-			currentRelationships !== this.lastRelationships ||
-			currentAdmins !== this.lastAdminList ||
-			currentKeys !== this.lastKeys ||
-			isMapActive !== this.lastMapState ||
-			currentOnlineFriends !== this.lastOnlineFriends) {
-
-			this.lastRoster = currentRoster;
-			this.lastRoomCharStates = currentRoomCharStates;
-			this.lastRelationships = currentRelationships;
-			this.lastAdminList = currentAdmins;
-			this.lastKeys = currentKeys;
-			this.lastMapState = isMapActive;
-			this.lastOnlineFriends = currentOnlineFriends;
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Swaps visual assets and CSS variables based on performance needs.
-	 */
-	private optimizeVisuals(lowPerf: boolean): void {
-		if (!this.instance) return;
-
-		// Toggle Static vs Animated Logo
-		const tab = this.instance.querySelector("#drawer-tab");
-		if (!tab) return;
-
-		const currentMode = tab.getAttribute("data-mode");
-
-		// Bypass optimizations for easteregg
+		// Bail out early if we are locked in an easter egg
 		if (currentMode === "rave") return;
 
-		// If we are lagging and not already static, force static
-		if (lowPerf && currentMode !== "static") {
-			tab.innerHTML = Assets.printimage({ key: "logo" }); // Ensure this exists in Assets
-			tab.setAttribute("data-mode", "static");
-		}
-		// If we are running fine and not already animated, force animated
-		else if (!lowPerf && currentMode !== "animated") {
-			tab.innerHTML = Assets.printimage({ key: "animated_logo" });
-			tab.setAttribute("data-mode", "animated");
+		// Determine target mode using our single source of truth
+		const targetMode = (!lowPerformance && Settings.instance.data.animatedCrabsLogo)
+			? "animated"
+			: "static";
+
+		// Swap DOM only if modes mismatch
+		if (currentMode !== targetMode) {
+			const iconKey = targetMode === "animated" ? "animated_logo" : "logo";
+			this.tabElement.innerHTML = Assets.printimage({ key: iconKey });
+			this.tabElement.setAttribute("data-mode", targetMode);
 		}
 
-		// Toggle Blur Radius via CSS Variable
-		const blurVal = lowPerf ? "3px" : "10px";
-		document.documentElement.style.setProperty("--crabs-blur", blurVal);
+		// Handle CSS performance classes
+		const rootElement = this.instance;
+		if (lowPerformance && !rootElement.classList.contains("CRABS_perf_low")) {
+			rootElement.classList.add("CRABS_perf_low");
+			document.documentElement.style.setProperty("--crabs-blur", "3px");
+		} else if (!lowPerformance && rootElement.classList.contains("CRABS_perf_low")) {
+			rootElement.classList.remove("CRABS_perf_low");
+			document.documentElement.style.setProperty("--crabs-blur", "10px");
+		}
 	}
 
 	/**
 	 * Hooks into the game's render loop to process updates.
-	 * Only triggers a refresh if the drawer is open, not on the help screen, and state has changed.
-	 * * @private
+	 * Monitors performance state and executes surgical DOM updates to the roster
+	 * to preserve CPU cycles, only rebuilding entirely when structurally required.
+	 * @private
 	 * @returns {void}
 	 */
 	private setupDynamicUpdates(): void {
-		this.CRABS.hookFunction("ChatRoomRun", 10, (functionArguments, next) => {
+		this.safeHook("ChatRoomRun", 10, (functionArguments: any, next: (args: any[]) => any) => {
 			const result = next(functionArguments);
 
-			// Update the performance state (defined in CRABS_Base)
+			const previousPerformanceLevel = this.currentPerformanceLevel;
 			this.updatePerformanceState();
 
-			// Determine how many frames to skip based on performance tier
-			let threshold = 5; // Normal: ~12 polls/sec
-			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
-				threshold = 30; // Low: ~2 polls/sec
-				this.optimizeVisuals(true); // Helper to swap logo/blur
-			} else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
-				threshold = 120; // Critical: ~once every 2 secs
-				this.optimizeVisuals(true);
-			} else {
-				this.optimizeVisuals(false);
+			const isLowPerformance = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+
+			// Check if the user's setting OR the performance requires a visual update
+			const expectedMode = (!isLowPerformance && Settings.instance.data.animatedCrabsLogo) ? "animated" : "static";
+			const actualMode = this.tabElement?.getAttribute("data-mode");
+
+			// If the performance changed, OR the tab is in the wrong mode (and not raving), fix it!
+			if (previousPerformanceLevel !== this.currentPerformanceLevel || (actualMode !== "rave" && actualMode !== expectedMode)) {
+				this.optimizeVisuals(isLowPerformance);
 			}
 
-			// Process the poll
+			let threshold = 5;
+			if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
+				threshold = 30;
+			} else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
+				threshold = 120;
+			}
+
 			this.updateTick++;
 			if (this.updateTick >= threshold) {
 				this.updateTick = 0;
 
-				// Continuously evaluate visibility (Auto-stowing on focus screens)
 				this.updateVisibility();
+				this.syncToChat(); // Keep it aligned to the chat box without thrashing
 
-				// Only refresh if Drawer is open, not showing help, AND state actually changed
-				if (this.isOpen && !this.showingHelp && this.hasStateChanged()) {
-					this.refresh();
+				if (this.isOpen && !this.showingHelp) {
+
+					// CRITICAL FIX: Only update if the data ACTUALLY changed!
+					if (this.rosterModule.isDirty) {
+						const rosterRoot = this.instance?.querySelector(".CRABS_roster_center_table") as HTMLElement;
+
+						if (rosterRoot) {
+							this.rosterModule.updateRosterUI(this.instance!);
+						} else {
+							// Fallback only if the roster is physically missing from DOM
+							this.refresh();
+						}
+
+						// Reset the dirty flag so we don't obliterate the CPU next frame
+						this.rosterModule.isDirty = false;
+					}
 				}
 			}
 
@@ -298,7 +255,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Compiles the drawer HTML template and injects it into the document body.
 	 * Binds internal events once the element is created.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private setupElement(): void {
@@ -309,10 +266,12 @@ export class Drawer extends CRABS_Base {
 			title = `CRABS: ${ChatRoomData.Name}`;
 		}
 
+		const logoKey = Settings.instance.data.animatedCrabsLogo ? "animated_logo" : "static_logo";
+
 		const templateVars = {
 			Help: Assets.printimage({ key: "help", css_class_override: "CRABS_Drawer_Help_Icon" }),
 			Settings: Assets.printimage({ key: "settings", css_class_override: "CRABS_Drawer_Settings_Icon" }),
-			TabIcon: Assets.printimage({ key: "animated_logo" }),
+			TabIcon: Assets.printimage({ key: logoKey }),
 			TitleBar: title,
 			Close: Assets.printimage({ key: "close", css_class_override: "CRABS_Drawer_Close_Icon" }),
 		};
@@ -326,6 +285,11 @@ export class Drawer extends CRABS_Base {
 			element.style.display = "none";
 			document.body.appendChild(element);
 			this.instance = element;
+
+			// NEW: Cache the elements immediately after creating them
+			this.tabElement = element.querySelector("#drawer-tab") as HTMLElement;
+			this.chatLogElement = document.getElementById("TextAreaChatLog");
+
 			this.bindEvents();
 		}
 	}
@@ -333,7 +297,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Aligns the drawer UI to the dimensions and position of the native game chat log.
 	 * Adapts dynamically to window resizing and user settings.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private syncToChat(): void {
@@ -341,37 +305,39 @@ export class Drawer extends CRABS_Base {
 		if (!chatLog || !this.instance) return;
 
 		const rect = chatLog.getBoundingClientRect();
-
-		if (rect.width === 0 || rect.height === 0) {
-			this.instance.style.top = "0px";
-			this.instance.style.height = "100%";
-			this.instance.style.width = "400px";
-			this.instance.style.right = "0px";
-			return;
-		}
-
-		this.instance.style.top = `${rect.top}px`;
-		this.instance.style.width = `${rect.width}px`;
-
-		if (Settings.instance.data.compactDrawer) {
-			this.instance.style.height = `${rect.height * 0.77}px`;
-		} else {
-			this.instance.style.height = `${rect.height}px`;
-		}
+		if (rect.width === 0 || rect.height === 0) return;
 
 		const rightOffset = document.documentElement.clientWidth - rect.right;
-		this.instance.style.right = `${rightOffset}px`;
+		const compact = Settings.instance.data.compactDrawer;
+
+		// ONLY touch the DOM if the chatbox actually moved or resized!
+		// This completely eliminates layout thrashing.
+		if (
+			this.lastRect.top !== rect.top ||
+			this.lastRect.width !== rect.width ||
+			this.lastRect.height !== rect.height ||
+			this.lastRect.right !== rightOffset ||
+			this.lastRect.compact !== compact
+		) {
+			this.instance.style.top = `${rect.top}px`;
+			this.instance.style.width = `${rect.width}px`;
+			this.instance.style.height = compact ? `${rect.height * 0.77}px` : `${rect.height}px`;
+			this.instance.style.right = `${rightOffset}px`;
+
+			// Save the new coordinates
+			this.lastRect = { top: rect.top, width: rect.width, height: rect.height, right: rightOffset, compact };
+		}
 	}
 
 	/**
 	 * Determines whether the drawer should be injected into the DOM workflow based on:
 	 * User settings, current screen (ChatRoom), and modal overlays (CurrentCharacter).
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public updateVisibility(): void {
 		if (!this.instance) return;
 
-		if (Settings.instance.data.disableDrawer) {
+		if (!Settings.instance.data.enableDrawer) {
 			this.instance.style.display = "none";
 			this.close();
 			return;
@@ -393,30 +359,28 @@ export class Drawer extends CRABS_Base {
 			const isFocused = (window as any).CurrentCharacter !== null;
 			this.instance.style.display = isFocused ? "none" : "flex";
 
-			const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
+			const tab = this.tabElement;
 			if (tab) {
-				const shouldHideTab = Settings.instance.data.hideDrawerTab && Settings.instance.data.rosterOpensDrawer;
-				tab.style.display = (shouldHideTab || isFocused) ? "none" : "flex";
+				// Show the tab only if the setting is true AND we aren't focused on a character dialog
+				tab.style.display = (Settings.instance.data.showDrawerTab && !isFocused) ? "flex" : "none";
 			}
 
 			if (!this.resizeObserver) {
-				const chatLog = document.getElementById("TextAreaChatLog");
+				const chatLog = this.chatLogElement; // Use the cache!
 				if (chatLog) {
 					this.resizeObserver = new ResizeObserver(() => this.syncToChat());
 					this.resizeObserver.observe(chatLog);
 					this.syncToChat();
 				}
-			} else {
-				this.syncToChat();
 			}
 		}
 	}
 
 	/**
-		 * Completely rebuilds the inner HTML of the drawer based on the current context 
-		 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
-		 * @returns {void}
-		 */
+	 * Completely rebuilds the inner HTML of the drawer based on the current context 
+	 * (Help Menu vs. Player Roster) and fires sub-module UI builds.
+	 * @returns {void}
+	 */
 	public refresh(): void {
 		const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
 		const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
@@ -475,7 +439,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Overrides the base class openSettings to ensure the drawer 
 	 * slides closed before the settings modal appears.
-	 * * @override
+	 * @override
 	 * @returns {Promise<void>}
 	 */
 	public override async openSettings(): Promise<void> {
@@ -486,7 +450,7 @@ export class Drawer extends CRABS_Base {
 	/**
 	 * Attaches click event listeners to the interactive elements within the drawer header.
 	 * Delegates handling for the Tab, Help, Settings, and Close buttons.
-	 * * @private
+	 * @private
 	 * @returns {void}
 	 */
 	private bindEvents(): void {
@@ -522,7 +486,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Alternates the drawer's state between open and closed.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public toggle(): void {
 		this.isOpen ? this.close() : this.open();
@@ -530,7 +494,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Opens the drawer by updating the CSS classes and triggering a content refresh.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public open(): void {
 		if (!this.instance) return;
@@ -541,7 +505,7 @@ export class Drawer extends CRABS_Base {
 
 	/**
 	 * Closes the drawer by updating the CSS classes.
-	 * * @returns {void}
+	 * @returns {void}
 	 */
 	public close(): void {
 		if (!this.instance) return;
@@ -554,3 +518,5 @@ export class Drawer extends CRABS_Base {
 		}
 	}
 }
+
+

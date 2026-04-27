@@ -1,9 +1,8 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Notification, Updater } from "./modules";
 
-
-//register the mod
+// register the mod
 const CRABS = bcModSDK.registerMod({
 	name: NICKNAME,
 	fullName: NAME,
@@ -14,156 +13,23 @@ const CRABS = bcModSDK.registerMod({
 // print version early, so you know what version is running even if it fails.
 console.log(`CRABS v${VERSION} Loading`); // do not remove
 
+// Initialize all core modules
 const SETTINGS = new Settings(CRABS);
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
-let crabsLastRoomID: number | null = null;
+
+// Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
+const SETUP = new Setup(CRABS, ROSTER, BANNER);
+new Updater(CRABS, VERSION);
 
 WHISPERPLUS.setupHooks();
-
 SETTINGS.syncGameState();
-
-// Hook into chat sending for auto-stow feature
-CRABS.hookFunction("ChatRoomSendChat", 10, (functionArguments, next) => {
-	// Capture the message before next(functionArguments) clears the input box
-	const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
-	const message = chatInput?.value?.toLowerCase().trim() || "";
-
-	const result = next(functionArguments);
-
-	if (Settings.instance.data.closeDrawerOnChat) {
-		// Exception: Don't auto-close if the user is running a command that specifically opens/toggles the drawer
-		if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
-			Drawer.close();
-		}
-	}
-	return result;
-});
 
 // print version and confirm load success in console
 console.log(`CRABS v${VERSION} Loaded`); // do not remove
-
-/**
- * Draws the room information banner.
- *
- * @returns {void | boolean} Returns false if the player has left the room.
- */
-function drawbanner(): void | boolean {
-
-	//let output: string = "";
-	// if the player left the room, bail!
-	if (Player.LastChatRoom === null) {
-		// Must return false, even if we are bailing out!
-		return false;
-	}
-
-	// configure extra roster input to the banner
-	// TODO: make this optional in the future
-	const extraData = {
-		RosterCounters: ROSTER.buildroster("count", false),
-	};
-	BANNER.drawBanner(extraData);
-}
-
-/**
- * Hook the native Exit function to ensure the drawer hides 
- * even if the server message is delayed.
- */
-const nativeChatRoomExit = window.ChatRoomExit;
-
-window.ChatRoomExit = function () {
-	// Call the original game function
-	if (typeof nativeChatRoomExit === "function") {
-		nativeChatRoomExit();
-	}
-
-	// Trigger our drawer visibility logic
-	Drawer.updateVisibility();
-};
-
-
-/**
- * Hook into the CreateRoomSync function.  
- * It triggers when joining a room to execute
- * code at join time.
- */
-CRABS.hookFunction("ChatRoomUpdateDisplay", 10, (args, next) => {
-	const result = next(args);
-
-	const inChatRoom = typeof ChatRoomData !== "undefined" &&
-		ChatRoomData !== null &&
-		(typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
-
-	if (inChatRoom) {
-		// --- SCENARIO A: We just joined a new room! ---
-		// Check the unique ID rather than the Name
-		if (ChatRoomData.ID !== crabsLastRoomID) {
-			crabsLastRoomID = ChatRoomData.ID;
-
-			try {
-				Drawer.updateVisibility();
-				SETTINGS.syncGameState();
-
-				if (Settings.instance.data.showBanner) {
-					drawbanner();
-				}
-			} catch (error) {
-				console.error("CRABS: Room Join execution failed:", error);
-			}
-		}
-
-		// --- SCENARIO B: Recovery Logic ---
-		const isFocused = (window as any).CurrentCharacter !== null;
-		const drawerElement = document.getElementById("crabs-drawer");
-
-		if (!isFocused && drawerElement && drawerElement.style.display === "none" && !Settings.instance.data.disableDrawer) {
-			try {
-				Drawer.updateVisibility();
-			} catch (error) {
-				console.error("CRABS: Drawer recovery failed:", error);
-			}
-		}
-
-	} else {
-		// Left the room, clear the ID tracker
-		crabsLastRoomID = null;
-	}
-
-	return result;
-});
-
-/**
- * Hook into the screen change function.
- * This ensures the drawer auto-stows whenever the player navigates to a new screen.
- */
-CRABS.hookFunction("CommonSetScreen", 0, (functionArguments, next) => {
-	const result = next(functionArguments);
-	Drawer.updateVisibility();
-	return result;
-});
-
-/**
- * Hook into character focus.
- * This ensures the drawer auto-stows when a player's profile/focus screen is opened.
- */
-CRABS.hookFunction("ChatRoomFocusCharacter", 0, (functionArguments, next) => {
-	const result = next(functionArguments);
-	Drawer.updateVisibility();
-	return result;
-});
-
-/**
- * Hook into character dialog exit.
- * This ensures the drawer/tab reappears when leaving a character profile or focus screen.
- */
-CRABS.hookFunction("DialogLeave", 0, (functionArguments, next) => {
-	const result = next(functionArguments);
-	Drawer.updateVisibility();
-	return result;
-});
 
 /**
  * Validates and processes basic mod commands.
@@ -182,7 +48,7 @@ function argcheck(commandArguments: string): boolean {
 		ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
 		return false;
 	} else if (splitArgs[0].toLowerCase() == "banner") {
-		drawbanner();
+		SETUP.drawbanner(); // Delegated to the Setup module
 		return false;
 	}
 	return true;
@@ -262,7 +128,11 @@ CommandCombine([
 			if (trimmedArgs === "rave") {
 				Assets.PlayAudio("rave");
 				Drawer.RaveTab();
-				ChatRoomSendLocal("🦀 RAVE TIME! 🦀");
+				Notification.send({
+					message: "🦀 RAVE TIME! 🦀",
+					image: "rave",
+					duration: 10000
+				});
 				return;
 			}
 
