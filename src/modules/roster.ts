@@ -46,8 +46,8 @@ export class Roster extends CRABS_Base {
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
 
-	/** Caches the measured width of player names. */
-	private nameWidthCache: Map<number, number> = new Map();
+	/** Caches the measured width of player names to prevent off-center arrows on name changes. */
+	private nameWidthCache: Map<number, { name: string, width: number }> = new Map();
 
 	/** Timer for the hover delay mode to prevent accidental pagination. */
 	private hoverTimeout: number | null = null;
@@ -301,9 +301,9 @@ export class Roster extends CRABS_Base {
 			if (card && character) {
 
 				// Handle nickname changes
-				const nameContainer = playerCard.querySelector(".CRABS_player-name") as HTMLElement;
+				const nameContainer = card.querySelector(".CRABS_player-name") as HTMLElement;
 				if (nameContainer) {
-					const currentNickname = CharacterNickname(playerCharacter).normalize("NFKC");
+					const currentNickname = CharacterNickname(character).normalize("NFKC");
 					if (nameContainer.textContent !== currentNickname) {
 						nameContainer.textContent = currentNickname;
 					}
@@ -817,14 +817,20 @@ export class Roster extends CRABS_Base {
 
 		ctx.font = "36px sans-serif";
 
-		let nameWidth = this.nameWidthCache.get(character.MemberNumber);
-		if (nameWidth === undefined) {
-			const nameText = CharacterNickname(character);
-			nameWidth = ctx.measureText(nameText).width;
-			this.nameWidthCache.set(character.MemberNumber, nameWidth);
+		const currentName = CharacterNickname(character).normalize("NFKC");
+		let cachedData = this.nameWidthCache.get(character.MemberNumber);
+
+		// If there is no cache, OR the player changed their name since we last checked, recalculate!
+		if (!cachedData || cachedData.name !== currentName) {
+			cachedData = {
+				name: currentName,
+				width: ctx.measureText(currentName).width
+			};
+			this.nameWidthCache.set(character.MemberNumber, cachedData);
 		}
 
-		const tipX = x - (nameWidth / 2) - 15;
+		// Use the newly robust cached width
+		const tipX = x - (cachedData.width / 2) - 15;
 
 		const playerColor = character.LabelColor || "cyan";
 		const brightness = this.getColorBrightness(playerColor);
