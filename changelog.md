@@ -10,7 +10,7 @@ The backend switched from a polling strategy to an event driven one! This should
 - **Optional Static Logo**: You can disable the animated logo on the drawer now, making it static.
 - **Player Focus Indicators**: The compass feature comes to normal rooms! Now you can mouse over a player card, and you'll get an indicator in the room for which player you are on. You can also click the card or turn on focus follows mouse to switch to the page the player is on automatically!
 - **Animations**: Player cards have been given a new animation to indicate the one with focus!
-CRABS performance throttling has been enhanced to disable some animations when frame delta lag is detected.
+_ **Performance Throttle Enhancments**: CRABS performance throttling has been enhanced to disable some animations when frame delta lag is detected.
 - **Settings Page Updated**: Settings page has been overhauled to add scrolling for more options, and it arranges them by hierarchy! Hopefully this makes the options less confusing!
 
 ## [2.0.1] - Clean up and Bug Fix
