@@ -7,7 +7,7 @@ All notable changes to the Crazy Roster Add-on By Sin (CRABS) will be documented
 - **Improved Drawer**: CRABS Drawer is now more reactive to change, Status icons, Room name, Player name, relationships all dynamically update now!,
 The backend switched from a polling strategy to an event driven one! This should allow CRABS to be more performant!,
 - **Update Notifications**: CRABS can now notify you if there in an update and let you know to refresh, you can turn this off in settings,
-You can disable the animated logo on the drawer now, making it static.,
+- **Optional Static Logo**: You can disable the animated logo on the drawer now, making it static.,
 - **Player Focus Indicatoors**: The compass feature comes to normal rooms! Now you can mouse over a player card and you'll get an indicator in the room for which player you are on. You can also click the card or turn on focus follows mouse to switch to the page the player is on automatically!,
 - **Animations**: Player cards have been given a new animation to indicate the one with focus!,
 CRABS performance throttling has been enhanced to disable some animations when frame delta lag is detected.,
