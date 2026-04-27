@@ -1,6 +1,6 @@
 // import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Notification, Updater } from "./modules";
+import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Notification, Updater, ChatManager } from "./modules";
 
 // register the mod
 const CRABS = bcModSDK.registerMod({
@@ -19,6 +19,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
+new ChatManager(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
 // Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
