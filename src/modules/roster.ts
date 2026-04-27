@@ -300,6 +300,16 @@ export class Roster extends CRABS_Base {
 
 			if (card && character) {
 
+				// Handle nickname changes
+				const nameContainer = playerCard.querySelector(".CRABS_player-name") as HTMLElement;
+				if (nameContainer) {
+					const currentNickname = CharacterNickname(playerCharacter).normalize("NFKC");
+					if (nameContainer.textContent !== currentNickname) {
+						nameContainer.textContent = currentNickname;
+					}
+				}
+
+				// Handle status icons
 				const statusContainer = card.querySelector(".CRABS_status-icons") as HTMLElement;
 				if (statusContainer) {
 					const currentEffects = CharacterGetEffects(character).join(",");
@@ -310,6 +320,7 @@ export class Roster extends CRABS_Base {
 					}
 				}
 
+				// Handle relationship icons
 				const iconContainer = card.querySelector(".CRABS_player-icons") as HTMLElement;
 				if (iconContainer) {
 					const newIconHTML = this.setIcons(character);
