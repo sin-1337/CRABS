@@ -1,5 +1,6 @@
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { Settings } from "./settings";
 
 /**
  * CRABS Chat Manager Module
@@ -25,7 +26,7 @@ export class ChatManager extends CRABS_Base {
 		style.id = "CRABS-chat-styles";
 		style.innerHTML = `
             .CRABS_mention_highlight {
-                background-color: rgba(255, 215, 0, 0.15) !important;
+			    background-color: rgba(255, 215, 0, 0.05) !important;
                 border-left: 4px solid rgba(255, 215, 0, 0.8) !important;
                 border-radius: 4px;
                 padding-left: 6px;
@@ -84,21 +85,33 @@ export class ChatManager extends CRABS_Base {
 			const msg = args[1];  // Formatted message string
 			const sender = args[2]; // Sender character object
 
-			// 1. Let the base game compile the HTML safely
+			// 1. Snapshot the scroll state BEFORE the base game modifies the DOM
+			const globalWindow = window as any;
+			const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+				? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+				: true;
+
+			// 2. Let the base game compile the HTML safely
 			const div = next(args);
 
-			// 2. Validate the returned element
+			// 3. Validate the returned element and check user settings
 			if (!div || !(div instanceof HTMLElement)) return div;
+			if (!Settings.instance.data.highlightMentions) return div;
 
-			// 3. Prevent automatic server messages/activities (like entering/leaving) from glowing
+			// 4. Prevent automatic server messages/activities from glowing
 			if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
 
-			// 4. Do not highlight messages that the player sent themselves
-			if (sender && sender.MemberNumber === (window as any).Player.MemberNumber) return div;
-
-			// 5. Check the exact text payload that is about to be rendered to the screen
+			// 5. Check the exact text payload
 			if (msg && this.isPlayerMentioned(String(msg))) {
 				div.classList.add("CRABS_mention_highlight");
+
+				// 6. Fix for Layout Thrashing: Adding the class changes the element's height. 
+				// If they were at the bottom, force the browser to scroll to the NEW bottom.
+				if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+					setTimeout(() => {
+						globalWindow.ElementScrollToEnd("TextAreaChatLog");
+					}, 0);
+				}
 			}
 
 			return div;

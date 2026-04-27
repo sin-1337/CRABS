@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	mapSuperZoom: false,
 	pageFocusHover: true,
 	animatedCrabsLogo: true,
+	highlightMentions: true, // <-- NEW SETTING
 };
 
 /**
@@ -53,7 +54,7 @@ export class Settings extends CRABS_Base {
 	private readonly INDENT_WIDTH = 40;
 
 	private scrollOffset: number = 0;
-	private readonly MAX_SCROLL: number = 600;
+	private readonly MAX_SCROLL: number = 700; // Bumped up slightly to accommodate the new column length
 	private readonly SCROLL_STEP: number = 100;
 	private isMenuOpen: boolean = false;
 
@@ -147,15 +148,11 @@ export class Settings extends CRABS_Base {
 
 		const isDrawerDisabled = () => !this.data.enableDrawer;
 
-		this.addCheckbox("Enable Drawer", "enableDrawer", "Use the Drawer, disable for command line mode only.", { category: "Drawer", yPos: 500 });
+		this.addCheckbox("Enable Drawer UI", "enableDrawer", "Enable the sliding drawer interface on the edge of the screen.", { category: "Drawer", yPos: 500 });
 
 		// Drawer Tabs - Cascading visual hierarchy
 		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled, indent: 1 });
-
-		// <-- INVERTED SETTING -->
 		this.addCheckbox("Show Drawer Tab", "showDrawerTab", "Display the CRABS drawer tab on the edge of the screen.", { category: "Drawer", yPos: 650, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer, indent: 2 });
-
-		// <-- INVERTED DEPENDENCY LOGIC -->
 		this.addCheckbox("Animated Tab Logo", "animatedCrabsLogo", "Use the animated logo when performance is optimal.", { category: "Drawer", yPos: 725, grayedOut: () => isDrawerDisabled() || !this.data.showDrawerTab, indent: 3 });
 
 		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled, indent: 1 });
@@ -175,6 +172,9 @@ export class Settings extends CRABS_Base {
 			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
 		};
 		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
+
+		// <-- NEW CHAT CATEGORY -->
+		this.addCheckbox("Highlight Mentions", "highlightMentions", "Highlights chat messages containing your name or nickname.", { category: "Chat", yPos: 975 });
 	}
 
 	/**
@@ -234,13 +234,17 @@ export class Settings extends CRABS_Base {
 
 			DrawRect(leftColumnX, 200 - currentScrollOffset, 650, 200, "#00000011"); DrawText("General", leftColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
 			DrawRect(leftColumnX, 420 - currentScrollOffset, 650, 650, "#00000011"); DrawText("Drawer", leftColumnX + 325, 440 - currentScrollOffset, "Black", "Gray");
+
 			DrawRect(rightColumnX, 200 - currentScrollOffset, 650, 375, "#00000011"); DrawText("Immersion", rightColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
 			DrawRect(rightColumnX, 650 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Maps", rightColumnX + 325, 670 - currentScrollOffset, "Black", "Gray");
+
+			// <-- NEW CHAT PANEL -->
+			DrawRect(rightColumnX, 900 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Chat", rightColumnX + 325, 920 - currentScrollOffset, "Black", "Gray");
 
 			let tooltipHintToDraw = "";
 
 			for (const element of this.elements) {
-				const isRightColumn = element.category === "Immersion" || element.category === "Maps";
+				const isRightColumn = element.category === "Immersion" || element.category === "Maps" || element.category === "Chat";
 				const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
 
 				// Calculate horizontal shifts based on assigned indentation level
@@ -312,7 +316,7 @@ export class Settings extends CRABS_Base {
 		}
 
 		for (const element of this.elements) {
-			const isRightColumn = element.category === "Immersion" || element.category === "Maps";
+			const isRightColumn = element.category === "Immersion" || element.category === "Maps" || element.category === "Chat";
 			const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
 
 			// Adjust the clickable hitbox region using the same indentation math

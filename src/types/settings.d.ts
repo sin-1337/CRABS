@@ -57,4 +57,5 @@ interface CRABS_Settings {
 	pageFocusHover: boolean,
 	checkForUpdates: boolean;
 	animatedCrabsLogo: boolean;
+	highlightMentions: boolean;
 }
