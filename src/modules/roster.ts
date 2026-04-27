@@ -52,6 +52,9 @@ export class Roster extends CRABS_Base {
 	/** Timer for the hover delay mode to prevent accidental pagination. */
 	private hoverTimeout: number | null = null;
 
+	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
+	private deferredIndicator: { character: any, x: number, y: number } | null = null;
+
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
 	 * @param {string} playerId - The ID of the hovered player.
@@ -110,14 +113,13 @@ export class Roster extends CRABS_Base {
 			return result;
 		});
 
+		// Capture the math during the character drawing phase
 		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
 			const result = next(args);
 
 			const globalWindow = window as any;
 			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
-
 			if (globalWindow.ChatRoomHideIconState >= 3) return result;
-
 			if (globalWindow.Player?.OnlineSettings?.ShowNames === false) return result;
 
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
@@ -133,7 +135,30 @@ export class Roster extends CRABS_Base {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
 
-				this.drawNameIndicator(character, centerX, nameY);
+				// STORE the data instead of drawing it immediately
+				this.deferredIndicator = { character, x: centerX, y: nameY };
+			}
+
+			return result;
+		});
+
+		// Paint the indicator AFTER the entire room is done rendering
+		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
+			this.deferredIndicator = null; // Clear previous frame's data
+
+			const result = next(args); // The base game draws the background, characters, and UI
+
+			// Force TypeScript to re-evaluate the variable's type since next() modified it!
+			const indicator = this.deferredIndicator as { character: any, x: number, y: number } | null;
+
+			// If we captured an indicator this frame, draw it NOW (on top of everything)
+			if (indicator) {
+				this.drawNameIndicator(
+					indicator.character,
+					indicator.x,
+					indicator.y
+				);
+				this.deferredIndicator = null; // Reset for the next frame
 			}
 
 			return result;
