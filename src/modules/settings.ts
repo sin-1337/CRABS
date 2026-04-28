@@ -285,18 +285,20 @@ export class Settings extends CRABS_Base {
 					}
 				}
 				else if (element.type === 'TextInput') {
-					// Draw the text label
+					// Draw the text label aligned with where the checkboxes normally sit
 					canvasContext.textAlign = "left";
-					DrawText(element.text, finalTextX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+					DrawText(element.text, finalCheckboxX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-					// Position the HTML input box next to the label if it is within the clipping window
+					// ElementPosition uses the CENTER of the element, not the left edge!
+					// Center the box 350 pixels to the right of the label so it doesn't overlap.
 					if (renderPositionY > 180 && renderPositionY < 900 && !isElementLocked && this.isMenuOpen) {
-						(window as any).ElementPosition("CRABS_CustomWords", finalTextX + 270, renderPositionY, 250, 40);
+						(window as any).ElementPosition("CRABS_CustomWords", finalCheckboxX + 350, renderPositionY, 300, 40);
 					} else {
 						(window as any).ElementPosition("CRABS_CustomWords", -1000, -1000, 0, 0); // Hide offscreen
 					}
 
-					if (MouseIn(finalTextX, renderPositionY - 18, 450, 36)) {
+					// Update the hover hitbox to match the new left-aligned position
+					if (MouseIn(finalCheckboxX, renderPositionY - 18, 500, 36)) {
 						tooltipHintToDraw = element.hint;
 					}
 				}
