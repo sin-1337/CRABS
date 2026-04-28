@@ -4,7 +4,27 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { CheckboxWidget, InputWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
-const DEFAULT_SETTINGS = { showBanner: true, enableDrawer: true, lockImmersive: false /* ... */ };
+const DEFAULT_SETTINGS: any = {
+	showBanner: true,
+	checkForUpdates: true,
+	rosterOpensDrawer: true,
+	showDrawerTab: true,
+	immersiveBlind: false,
+	immersiveGag: false,
+	respectBcxRules: false,
+	compactDrawer: true,
+	closeDrawerOnWhisper: false,
+	closeDrawerOnChat: false,
+	enableDrawer: true,
+	lockImmersive: false,
+	showMapCompass: true,
+	mapSuperZoom: false,
+	pageFocusHover: true,
+	animatedCrabsLogo: true,
+	highlightMentions: true,
+	customHighlightWords: "",
+	highlightColor: "#FFFF00",
+};
 
 export class Settings extends CRABS_Base {
 	public static instance: Settings;
@@ -13,6 +33,7 @@ export class Settings extends CRABS_Base {
 	private layout: LayoutEngine;
 	private registry: ConfiguredWidget[] = [];
 	private isMenuOpen: boolean = false;
+	private showResetConfirm: boolean = false;
 	private readonly STORAGE_KEY = "CRABS_Settings";
 
 	constructor(CRABS: ModSDKModAPI) {
@@ -128,34 +149,68 @@ export class Settings extends CRABS_Base {
 
 	public draw(): void {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
-		if (canvasContext) this.layout.draw(canvasContext);
+		if (!canvasContext) return;
+
+		this.layout.draw(canvasContext);
+
+		// Draw the confirmation dialog over everything else
+		if (this.showResetConfirm) {
+			const globalWindow = window as any;
+
+			// Dim the background
+			globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
+
+			// Draw the prompt box
+			globalWindow.DrawRect(700, 350, 600, 300, "#222222");
+			globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
+
+			canvasContext.textAlign = "center";
+			globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
+
+			// Draw Confirm / Cancel buttons
+			globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
+			globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+		}
 	}
 
 	public click(): void {
 		const globalWindow = window as any;
 
+		// Trap all clicks if the confirmation dialog is open
+		if (this.showResetConfirm) {
+			if (globalWindow.MouseIn(750, 500, 200, 60)) {
+				// User confirmed: Reset everything
+				this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+				this.save();
+				this.syncGameState();
+
+				for (const key of Object.keys(this.data)) {
+					const domElement = document.getElementById(`CRABS_Input_${key}`) as HTMLInputElement;
+					if (domElement) domElement.value = this.data[key];
+				}
+
+				this.showResetConfirm = false;
+				this.layout.updateDOM(this.isMenuOpen);
+			} else if (globalWindow.MouseIn(1050, 500, 200, 60)) {
+				// User canceled
+				this.showResetConfirm = false;
+				this.layout.updateDOM(this.isMenuOpen); // Restore DOM inputs
+			}
+			return; // Stop processing other clicks while modal is open
+		}
+
 		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
 
-		// 1. Handle Restore Defaults
+		// Open Restore Defaults confirmation
 		if (clickedReset) {
-			// Apply a deep copy of the defaults
-			this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-			this.save();
-			this.syncGameState();
-
-			// Force HTML inputs to visually update to the new default values
-			for (const key of Object.keys(this.data)) {
-				const domElement = document.getElementById(`CRABS_Input_${key}`) as HTMLInputElement;
-				if (domElement) domElement.value = this.data[key];
-			}
-
-			this.layout.updateDOM(this.isMenuOpen);
+			this.showResetConfirm = true;
+			this.layout.updateDOM(false); // Hide text inputs so they don't bleed through the dark overlay
 			return;
 		}
 
-		// 2. Handle native window exit and chat buttons
+		// Handle native window exit and chat buttons
 		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
 			this.layout.updateDOM(false);
@@ -168,16 +223,10 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		// 3. Pass everything else to the Layout engine
+		// Pass everything else to the Layout engine
 		if (this.layout.click(globalWindow.MouseX, globalWindow.MouseY)) {
 			this.layout.updateDOM(this.isMenuOpen); // Refresh DOM in case tabs changed
 		}
-	}
-
-	public syncGameState(): void {
-		const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
-		if (perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50) return;
-		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}
 
 	private registerExtension(): void {

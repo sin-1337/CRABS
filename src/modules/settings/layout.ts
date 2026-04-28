@@ -55,7 +55,9 @@ export class LayoutEngine {
 
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		globalWindow.DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
+
+		// header
+		globalWindow.DrawText("- CRABS Mod Settings -", 1140, 80, "Black", "Gray");
 
 		// Top right back buttons
 		globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
@@ -123,7 +125,8 @@ export class LayoutEngine {
 		}
 		ctx.restore();
 
-		if (this.currentTooltip) globalWindow.DrawText(this.currentTooltip, 1200, 920, "Black", "Gray");
+		// footer
+		if (this.currentTooltip) globalWindow.DrawText(this.currentTooltip, 1140, 920, "Black", "Gray");
 	}
 
 	public click(mouseX: number, mouseY: number): boolean {
