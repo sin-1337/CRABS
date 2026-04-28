@@ -153,26 +153,25 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		// Pass the modal state to the layout engine
-		this.layout.draw(canvasContext, this.showResetConfirm);
+		canvasContext.save(); // Take snapshot of the clean canvas
+		try {
+			this.layout.draw(canvasContext, this.showResetConfirm);
 
-		// Draw the confirmation dialog over everything else
-		if (this.showResetConfirm) {
-			const globalWindow = window as any;
+			if (this.showResetConfirm) {
+				const globalWindow = window as any;
+				globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
+				globalWindow.DrawRect(700, 350, 600, 300, "#222222");
+				globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
+				canvasContext.textAlign = "center";
 
-			// Dim the background
-			globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
-
-			// Draw the prompt box
-			globalWindow.DrawRect(700, 350, 600, 300, "#222222");
-			globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
-
-			canvasContext.textAlign = "center";
-			globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
-
-			// Draw Confirm / Cancel buttons
-			globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
-			globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+				// Restore defaults
+				globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
+				globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
+				globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+			}
+		} finally {
+			// Guarantee the clip is cleared, even if an error occurs!
+			canvasContext.restore();
 		}
 	}
 

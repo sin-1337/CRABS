@@ -28,16 +28,22 @@ export class LayoutEngine {
 
 	public updateDOM(isMenuOpen: boolean): void {
 		const visible = this.getVisibleWidgets();
+
 		for (const item of this.registry) {
 			const isVisibleOnTab = visible.includes(item);
 
-			// Calculate bounds for DOM element positioning
-			const index = visible.indexOf(item);
-			const yPos = 280 + (index * this.ROW_HEIGHT) - this.scrollOffset;
-			const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: yPos, w: 500, h: this.ROW_HEIGHT };
+			// Default off-screen bounds
+			let bounds = { x: -1000, y: -1000, w: 0, h: 0 };
+			let isSafelyOnScreen = false;
 
-			// Only show DOM if it's on the active tab and safely on screen
-			const isSafelyOnScreen = isMenuOpen && isVisibleOnTab && yPos > 210 && yPos < 870;
+			if (isVisibleOnTab) {
+				const index = visible.indexOf(item);
+				const yPos = 280 + (index * this.ROW_HEIGHT) - this.scrollOffset;
+				bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: yPos, w: 500, h: this.ROW_HEIGHT };
+
+				isSafelyOnScreen = isMenuOpen && yPos > 210 && yPos < 870;
+			}
+
 			item.widget.updateDOM(bounds, isSafelyOnScreen);
 		}
 	}
@@ -59,7 +65,7 @@ export class LayoutEngine {
 
 		// --- Draw Top-Right Nav Buttons (Greyed out if modal is open) ---
 		const btnColor = isModalOpen ? "#888888" : "White";
-		//globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
+		globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
 
 		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		globalWindow.DrawButton(1710, 75, 90, 90, "", isModalOpen || !isInChat ? "#888888" : "White", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
