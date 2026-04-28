@@ -281,12 +281,9 @@ export class Settings extends CRABS_Base {
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							// 1. Set a strict, much shorter width.
-							const inputWidth = 280;
-
-							// 2. Hardcode the center point exactly 240px to the right of the label's start.
-							// (Approx 100px for the word "Custom" + 140px for half the box width).
-							const centerX = finalTextX + 240;
+							const inputWidth = 260; // Slightly narrower to fit
+							const inputStartX = finalCheckboxX + 180; // Shoved 50px further to the right!
+							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
