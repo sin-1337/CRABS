@@ -54,6 +54,7 @@ export class Roster extends CRABS_Base {
 
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 	private deferredIndicator: { character: any, x: number, y: number } | null = null;
+	private indicatorStartTime: number = 0;
 
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
@@ -64,7 +65,9 @@ export class Roster extends CRABS_Base {
 
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
-			// ALWAYS set the ID so the indicator can draw
+			if (this.hoveredMapPlayer !== id) {
+				this.indicatorStartTime = Date.now(); // Trigger effect
+			}
 			this.hoveredMapPlayer = id;
 
 			// ONLY return early here so we don't start the pagination timer
@@ -701,10 +704,12 @@ export class Roster extends CRABS_Base {
 	 */
 	private onPlayerToggleTrack = (playerId: string) => {
 		const id = parseInt(playerId, 10);
+		const wasTracked = this.trackedMapPlayer === id;
 
-		this.trackedMapPlayer = (this.trackedMapPlayer === id) ? null : id;
+		this.trackedMapPlayer = wasTracked ? null : id;
 
-		if (this.trackedMapPlayer !== null) {
+		if (!wasTracked) {
+			this.indicatorStartTime = Date.now(); // Trigger effect
 			this.autoPaginateToPlayer(id);
 		}
 
@@ -831,7 +836,7 @@ export class Roster extends CRABS_Base {
 		}
 
 		// Use the newly robust cached width
-		const tipX = x - (cachedData.width / 2) - 15;
+		const tipX = x - (cachedData.width / 2) - 5;
 
 		const playerColor = character.LabelColor || "cyan";
 		const brightness = this.getColorBrightness(playerColor);
@@ -839,6 +844,27 @@ export class Roster extends CRABS_Base {
 
 		ctx.save();
 		try {
+			// Short lived highlight effect 
+			const elapsed = Date.now() - this.indicatorStartTime;
+			const duration = 800; // ms
+
+			if (elapsed < duration) {
+				const progress = elapsed / duration;
+				const alpha = 1 - progress; // Fade out
+				const pulseScale = 1 + (progress * 0.5); // Grow slightly
+
+				ctx.save();
+				ctx.globalAlpha = alpha * 0.4;
+				ctx.fillStyle = playerColor;
+				ctx.filter = 'blur(8px)';
+				// Draw a glowing pill shape behind the name
+				ctx.beginPath();
+				ctx.ellipse(x, y - 15, (cachedData.width / 2 + 20) * pulseScale, 25 * pulseScale, 0, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.restore();
+			}
+
+			// Draw the arrow
 			const scale = 0.4;
 			ctx.translate(tipX - (20 * scale), y);
 			ctx.scale(scale, scale);
