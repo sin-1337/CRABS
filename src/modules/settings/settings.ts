@@ -2,7 +2,7 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { CheckboxWidget, InputWidget } from "./widgets";
-import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
+import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
 const DEFAULT_SETTINGS: any = {
 	showBanner: true,
@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: any = {
 
 export class Settings extends CRABS_Base {
 	public static instance: Settings;
-	public data: any;
+	public data: any; // Type as CRABS_Settings
 
 	private layout: LayoutEngine;
 	private registry: ConfiguredWidget[] = [];
@@ -67,6 +67,7 @@ export class Settings extends CRABS_Base {
 			return this.isRestricted() && this.data.lockImmersive && (settingName === "lockImmersive" || this.data[settingName]);
 		};
 
+		// Helper for checkboxes (now includes onChange support)
 		const createCheck = (cat: ComponentCategory, setting: string, label: string, hint: string, indent = 0, extraDisable?: () => boolean, onChange?: (val: boolean) => void) => {
 			const isDisabled = () => hardcoreLock(setting) || (extraDisable ? extraDisable() : false);
 			const getVal = () => this.data[setting];
@@ -82,6 +83,7 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
+		// Helper for text/color inputs
 		const createInput = (cat: ComponentCategory, setting: string, label: string, hint: string, inputType: "text" | "color", indent = 0, extraDisable?: () => boolean) => {
 			const isDisabled = () => extraDisable ? extraDisable() : false;
 			const getVal = () => this.data[setting];
@@ -151,41 +153,36 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
+		// Pass the modal state to the layout engine
 		this.layout.draw(canvasContext, this.showResetConfirm);
 
+		// Draw the confirmation dialog over everything else
 		if (this.showResetConfirm) {
-			this.drawModal();
+			const globalWindow = window as any;
+
+			// Dim the background
+			globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
+
+			// Draw the prompt box
+			globalWindow.DrawRect(700, 350, 600, 300, "#222222");
+			globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
+
+			canvasContext.textAlign = "center";
+			globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
+
+			// Draw Confirm / Cancel buttons
+			globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
+			globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
 		}
-	}
-
-	private drawModal(): void {
-		const globalWindow = window as any;
-		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
-		if (!canvasContext) return;
-
-		// 1. Dim the entire screen
-		globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
-
-		// 2. THE EASY PEASY FIX: Draw a solid dark box right over the top-right buttons to hide them completely
-		globalWindow.DrawRect(1590, 60, 330, 120, "#111111");
-
-		// 3. Draw the prompt box
-		globalWindow.DrawRect(700, 350, 600, 300, "#222222");
-		globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
-
-		canvasContext.textAlign = "center";
-		globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
-
-		globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
-		globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
 	}
 
 	public click(): void {
 		const globalWindow = window as any;
 
-		// --- TRAP CLICKS INSIDE THE MODAL ---
+		// Trap all clicks if the confirmation dialog is open
 		if (this.showResetConfirm) {
 			if (globalWindow.MouseIn(750, 500, 200, 60)) {
+				// User confirmed: Reset everything
 				this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 				this.save();
 				this.syncGameState();
@@ -198,44 +195,40 @@ export class Settings extends CRABS_Base {
 				this.showResetConfirm = false;
 				this.layout.updateDOM(this.isMenuOpen);
 			} else if (globalWindow.MouseIn(1050, 500, 200, 60)) {
+				// User canceled
 				this.showResetConfirm = false;
-				this.layout.updateDOM(this.isMenuOpen);
+				this.layout.updateDOM(this.isMenuOpen); // Restore DOM inputs
 			}
-			return; // Stops execution dead in its tracks. Base game / buttons below cannot be clicked.
+			return; // Stop processing other clicks while modal is open
 		}
-		// ------------------------------------
 
+		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
-		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 
+		// Open Restore Defaults confirmation
 		if (clickedReset) {
 			this.showResetConfirm = true;
-			this.layout.updateDOM(false);
+			this.layout.updateDOM(false); // Hide text inputs so they don't bleed through the dark overlay
 			return;
 		}
 
+		// Handle native window exit and chat buttons
 		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
-			this.showResetConfirm = false;
 			this.layout.updateDOM(false);
-
-			for (const key of Object.keys(this.data)) {
-				globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
-			}
-			globalWindow.PreferenceMessage = "";
-			globalWindow.PreferenceSubscreenExtensionsClear?.();
 
 			if (clickedChat) {
 				globalWindow.CommonSetScreen("Online", "ChatRoom");
-			} else {
-				globalWindow.PreferenceOpenSubscreen?.("Extensions");
 			}
+
+			globalWindow.PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
+		// Pass everything else to the Layout engine
 		if (this.layout.click(globalWindow.MouseX, globalWindow.MouseY)) {
-			this.layout.updateDOM(this.isMenuOpen);
+			this.layout.updateDOM(this.isMenuOpen); // Refresh DOM in case tabs changed
 		}
 	}
 
@@ -256,21 +249,25 @@ export class Settings extends CRABS_Base {
 			run: () => this.draw(),
 			load: () => {
 				this.isMenuOpen = true;
-				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
 			},
-			// The native exit block is back where it belongs
 			exit: () => {
 				this.isMenuOpen = false;
-				this.showResetConfirm = false;
 				this.layout.updateDOM(false);
 
+				// Destroy all HTML inputs so they don't float over other screens
 				for (const key of Object.keys(this.data)) {
 					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 				}
+
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
+				return false;
 			}
 		};
 
+		// Attempt to register the mod settings tab, retry if the game isn't ready
 		const registerHook = () => {
 			if (globalWindow.PreferenceRegisterExtensionSetting) {
 				globalWindow.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
@@ -281,3 +278,4 @@ export class Settings extends CRABS_Base {
 		registerHook();
 	}
 }
+
