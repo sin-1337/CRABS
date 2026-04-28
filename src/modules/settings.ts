@@ -31,8 +31,25 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	mapSuperZoom: false,
 	pageFocusHover: true,
 	animatedCrabsLogo: true,
-	highlightMentions: true, // <-- NEW SETTING
+	highlightMentions: true,
+	customHighlightWords: "",
 };
+
+// Define the types of UI controls we support
+type ComponentType = "Checkbox" | "TextInput";
+type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
+
+// The master interface for a declarative setting
+interface UIComponent {
+	category: ComponentCategory;
+	type: ComponentType;
+	setting: keyof CRABS_Settings;
+	label: string;
+	hint: string;
+	indent?: number;
+	disabled?: () => boolean;
+	onChange?: (newValue: any) => void;
+}
 
 /**
  * Class representing the mod settings menu and configuration manager.
@@ -42,42 +59,32 @@ export class Settings extends CRABS_Base {
 	public static instance: Settings;
 	public data: CRABS_Settings;
 
-	/** Array containing the structured definitions of all UI elements to be rendered. */
-	private elements: any[] = [];
-	private readonly STORAGE_KEY = "CRABS_Settings";
+	/** Our declarative list of settings */
+	private registry: UIComponent[] = [];
 
+	private readonly STORAGE_KEY = "CRABS_Settings";
 	private readonly LEFT_COL_X = 550;
 	private readonly RIGHT_COL_X = 1250;
 	private readonly CHECKBOX_X_OFFSET = 30;
 	private readonly LABEL_X_OFFSET = 120;
-	private readonly CHECKBOX_WIDTH = 64;
 	private readonly INDENT_WIDTH = 40;
+	private readonly ROW_HEIGHT = 75;
 
 	private scrollOffset: number = 0;
-	private readonly MAX_SCROLL: number = 700; // Bumped up slightly to accommodate the new column length
+	private readonly MAX_SCROLL: number = 800;
 	private readonly SCROLL_STEP: number = 100;
 	private isMenuOpen: boolean = false;
 
-	/**
-	 * Initializes the settings manager, loads saved data, constructs the UI layout,
-	 * and registers the subscreen with the base game.
-	 * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-	 */
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		Settings.instance = this;
 		this.data = this.load();
-		this.setupUI();
+		this.buildRegistry();
 		this.registerExtension();
 
 		window.addEventListener("wheel", this.handleWheel, { passive: false });
 	}
 
-	/**
-	 * Retrieves and parses saved configuration data from local storage, 
-	 * merging it with default fallback values to ensure all properties exist.
-	 * @returns {CRABS_Settings} The compiled settings object.
-	 */
 	private load(): CRABS_Settings {
 		const savedData = localStorage.getItem(this.STORAGE_KEY);
 		if (savedData) {
@@ -87,120 +94,109 @@ export class Settings extends CRABS_Base {
 		return { ...DEFAULT_SETTINGS };
 	}
 
-	/**
-	 * Serializes and commits the current configuration state to local storage.
-	 */
 	public save(): void {
 		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
 	}
 
-	/**
-	 * Evaluates if the player character is currently bound or restrained.
-	 * @returns {boolean} True if the player is restricted.
-	 */
 	private isRestricted(): boolean {
 		return (window as any).Player?.IsRestrained?.() || false;
 	}
 
 	/**
-	 * Determines if a specific UI element should be locked and unclickable 
-	 * based on hardcore immersion rules and the player's restraint status.
-	 * @param {any} element - The UI element configuration object to evaluate.
-	 * @returns {boolean} True if the element should be locked out.
+	 * Determines if a specific UI element should be locked based on manual settings or hardcore immersion rules.
 	 */
-	private isSettingLocked(element: any): boolean {
-		if (!this.isRestricted() || !this.data.lockImmersive) return false;
-		if (element.setting === "lockImmersive") return true;
-		if (element.category === "Immersion" && this.data[element.setting as keyof CRABS_Settings] === true) return true;
+	private isSettingLocked(component: UIComponent): boolean {
+		// Check manual UI disables (the hierarchy logic) first!
+		if (component.disabled && component.disabled()) return true;
+
+		// Only check hardcore immersion locks if the player is actually restricted
+		if (this.isRestricted() && this.data.lockImmersive) {
+			if (component.setting === "lockImmersive") return true;
+			if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
+		}
+
 		return false;
 	}
 
-	/**
-	 * Processes mouse wheel interactions to scroll the internal settings area.
-	 * Validates that the interaction occurs within the designated clipping bounds.
-	 * @param {WheelEvent} event - The native wheel event triggered by the DOM.
-	 */
 	private handleWheel = (event: WheelEvent): void => {
 		if (!this.isMenuOpen) return;
-
 		const globalWindow = window as any;
-
 		if (globalWindow.MouseX >= 500 && globalWindow.MouseX <= 1780 && globalWindow.MouseY >= 180 && globalWindow.MouseY <= 900) {
 			if (event.cancelable) event.preventDefault();
-
-			if (event.deltaY > 0) {
-				this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
-			} else if (event.deltaY < 0) {
-				this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
-			}
+			if (event.deltaY > 0) this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
+			else if (event.deltaY < 0) this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
 		}
 	};
 
 	/**
-	 * Populates the internal element array with the structural definition of 
-	 * all setting toggles and buttons, organizing them by category, position, and indentation.
+	 * The Declarative Settings Engine. 
+	 * Add, remove, or reorder settings here and the UI will automatically calculate the math!
 	 */
-	private setupUI(): void {
-		this.elements = [];
-
-		this.addCheckbox("Show Banner on Entry", "showBanner", "Display info banner on room join.", { category: "General", yPos: 280 });
-		this.addCheckbox("Notify me about updates", "checkForUpdates", "Periodically check for CRABS updates, and notify me.", { category: "General", yPos: 355 });
-
+	private buildRegistry(): void {
 		const isDrawerDisabled = () => !this.data.enableDrawer;
 
-		this.addCheckbox("Enable Drawer UI", "enableDrawer", "Enable the sliding drawer interface on the edge of the screen.", { category: "Drawer", yPos: 500 });
+		// --- GENERAL ---
+		this.register({ category: "General", type: "Checkbox", setting: "showBanner", label: "Show Banner on Entry", hint: "Display info banner on room join." });
+		this.register({ category: "General", type: "Checkbox", setting: "checkForUpdates", label: "Notify me about updates", hint: "Periodically check for CRABS updates, and notify me." });
 
-		// Drawer Tabs - Cascading visual hierarchy
-		this.addCheckbox("/roster toggles drawer", "rosterOpensDrawer", "Toggle drawer via /roster or /crabs commands.", { category: "Drawer", yPos: 575, grayedOut: isDrawerDisabled, indent: 1 });
-		this.addCheckbox("Show Drawer Tab", "showDrawerTab", "Display the CRABS drawer tab on the edge of the screen.", { category: "Drawer", yPos: 650, grayedOut: () => isDrawerDisabled() || !this.data.rosterOpensDrawer, indent: 2 });
-		this.addCheckbox("Animated Tab Logo", "animatedCrabsLogo", "Use the animated logo when performance is optimal.", { category: "Drawer", yPos: 725, grayedOut: () => isDrawerDisabled() || !this.data.showDrawerTab, indent: 3 });
+		// --- DRAWER ---
+		this.register({
+			category: "Drawer", type: "Checkbox", setting: "enableDrawer", label: "Enable Drawer UI", hint: "Enable the sliding drawer interface on the edge of the screen.",
+			onChange: (enabled) => {
+				if (!enabled) {
+					this.data.rosterOpensDrawer = false;
+					this.data.showDrawerTab = false;
+				}
+			}
+		});
+		this.register({
+			category: "Drawer", type: "Checkbox", setting: "rosterOpensDrawer", label: "/roster toggles drawer", hint: "Toggle drawer via /roster or /crabs commands.", indent: 1, disabled: isDrawerDisabled,
+			onChange: (enabled) => { if (!enabled) this.data.showDrawerTab = true; }
+		});
+		this.register({
+			category: "Drawer", type: "Checkbox", setting: "showDrawerTab", label: "Show Drawer Tab", hint: "Display the CRABS drawer tab on the edge of the screen.", indent: 2,
+			disabled: () => isDrawerDisabled() || !this.data.rosterOpensDrawer,
+			onChange: (enabled) => { if (!enabled) this.data.animatedCrabsLogo = false; }
+		});
+		this.register({ category: "Drawer", type: "Checkbox", setting: "animatedCrabsLogo", label: "Animated Tab Logo", hint: "Use the animated logo when performance is optimal.", indent: 3, disabled: () => isDrawerDisabled() || !this.data.showDrawerTab });
+		this.register({ category: "Drawer", type: "Checkbox", setting: "compactDrawer", label: "Compact Height", hint: "Drawer has a 77% height limit.", indent: 1, disabled: isDrawerDisabled });
+		this.register({ category: "Drawer", type: "Checkbox", setting: "closeDrawerOnWhisper", label: "Auto-stow on Whisper+", hint: "Close drawer after sending a whisper+ message.", indent: 1, disabled: isDrawerDisabled });
+		this.register({ category: "Drawer", type: "Checkbox", setting: "closeDrawerOnChat", label: "Auto-stow on Chat", hint: "Close drawer after sending a message.", indent: 1, disabled: isDrawerDisabled });
+		this.register({ category: "Drawer", type: "Checkbox", setting: "pageFocusHover", label: "Focus follows mouse", hint: "When you mouse over a player's card, change the page they are on.", indent: 1, disabled: isDrawerDisabled });
 
-		this.addCheckbox("Compact Height", "compactDrawer", "Drawer has a 77% height limit.", { category: "Drawer", yPos: 800, grayedOut: isDrawerDisabled, indent: 1 });
-		this.addCheckbox("Auto-stow on Whisper+", "closeDrawerOnWhisper", "Close drawer after sending a whisper+ message.", { category: "Drawer", yPos: 875, grayedOut: isDrawerDisabled, indent: 1 });
-		this.addCheckbox("Auto-stow on Chat", "closeDrawerOnChat", "Close drawer after sending a message.", { category: "Drawer", yPos: 950, grayedOut: isDrawerDisabled, indent: 1 });
-		this.addCheckbox("Focus follows mouse", "pageFocusHover", "When you mouse over a player's card, change the page they are on.", { category: "Drawer", yPos: 1025, grayedOut: isDrawerDisabled, indent: 1 });
+		// --- IMMERSION ---
+		this.register({ category: "Immersion", type: "Checkbox", setting: "lockImmersive", label: "Hardcore Lock", hint: "Locks settings ON while bound." });
+		this.register({ category: "Immersion", type: "Checkbox", setting: "immersiveBlind", label: "Respect Blindness", hint: "Blurred roster when blind." });
+		this.register({ category: "Immersion", type: "Checkbox", setting: "immersiveGag", label: "Respect Gags", hint: "No Whisper+ when gagged." });
+		this.register({ category: "Immersion", type: "Checkbox", setting: "respectBcxRules", label: "Respect BCX Rules", hint: "BCX integration." });
 
-		this.addCheckbox("Hardcore Lock", "lockImmersive", "Locks settings ON while bound.", { category: "Immersion", yPos: 280 });
-		this.addCheckbox("Respect Blindness", "immersiveBlind", "Blurred roster when blind.", { category: "Immersion", yPos: 355 });
-		this.addCheckbox("Respect Gags", "immersiveGag", "No Whisper+ when gagged.", { category: "Immersion", yPos: 430 });
-		this.addCheckbox("Respect BCX Rules", "respectBcxRules", "BCX integration.", { category: "Immersion", yPos: 505 });
+		// --- MAPS ---
+		this.register({ category: "Maps", type: "Checkbox", setting: "showMapCompass", label: "Show Map Compass", hint: "Show a directional arrow on map." });
+		this.register({
+			category: "Maps", type: "Checkbox", setting: "mapSuperZoom", label: "SuperZoom", hint: "Unlock map zoom limits.",
+			disabled: () => {
+				const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
+				return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
+			}
+		});
 
-		this.addCheckbox("Show Map Compass", "showMapCompass", "Show a directional arrow on map.", { category: "Maps", yPos: 725 });
-
-		const isSuperZoomBlocked = () => {
-			const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
-			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
-		};
-		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
-
-		// <-- NEW CHAT CATEGORY -->
-		this.addCheckbox("Highlight Mentions", "highlightMentions", "Highlights chat messages containing your name or nickname.", { category: "Chat", yPos: 975 });
-	}
-
-	/**
-	 * Registers a boolean toggle element to be rendered in the settings view.
-	 * @param {string} text - The display label for the setting.
-	 * @param {string} setting - The key mapped to CRABS_Settings data property.
-	 * @param {string} hint - Tooltip description shown on hover.
-	 * @param {any} options - Configuration parameters including category, layout overrides, indentation, and disabling logic.
-	 */
-	private addCheckbox(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: any) {
-		this.elements.push({
-			type: 'Checkbox', text, setting, hint,
-			yPos: options?.yPos || 280,
-			width: this.CHECKBOX_WIDTH, height: this.CHECKBOX_WIDTH,
-			category: options?.category,
-			grayedOut: options?.grayedOut,
-			indent: options?.indent || 0
+		// --- CHAT ---
+		this.register({ category: "Chat", type: "Checkbox", setting: "highlightMentions", label: "Highlight Mentions", hint: "Highlights chat messages containing your name or nickname." });
+		this.register({
+			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
+			disabled: () => !this.data.highlightMentions
 		});
 	}
 
+	private register(component: UIComponent): void {
+		this.registry.push(component);
+	}
+
 	/**
-	 * Renders the graphical user interface for the settings screen onto the main game canvas.
-	 * Handles clipping boundaries, scrolling offset calculations, and interactive state rendering.
+	 * Auto-calculates layout and renders components sequentially.
 	 */
 	public draw(): void {
-		const { MouseIn, DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
+		const { DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
@@ -228,49 +224,87 @@ export class Settings extends CRABS_Base {
 			canvasContext.rect(500, 180, 1280, 720);
 			canvasContext.clip();
 
-			const leftColumnX = this.LEFT_COL_X - 20;
-			const rightColumnX = this.RIGHT_COL_X - 20;
-			const currentScrollOffset = this.scrollOffset;
-
-			DrawRect(leftColumnX, 200 - currentScrollOffset, 650, 200, "#00000011"); DrawText("General", leftColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
-			DrawRect(leftColumnX, 420 - currentScrollOffset, 650, 650, "#00000011"); DrawText("Drawer", leftColumnX + 325, 440 - currentScrollOffset, "Black", "Gray");
-
-			DrawRect(rightColumnX, 200 - currentScrollOffset, 650, 375, "#00000011"); DrawText("Immersion", rightColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
-			DrawRect(rightColumnX, 650 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Maps", rightColumnX + 325, 670 - currentScrollOffset, "Black", "Gray");
-
-			// <-- NEW CHAT PANEL -->
-			DrawRect(rightColumnX, 900 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Chat", rightColumnX + 325, 920 - currentScrollOffset, "Black", "Gray");
-
+			// Track Y positions dynamically
+			let currentLeftY = 200 - this.scrollOffset;
+			let currentRightY = 200 - this.scrollOffset;
 			let tooltipHintToDraw = "";
 
-			for (const element of this.elements) {
-				const isRightColumn = element.category === "Immersion" || element.category === "Maps" || element.category === "Chat";
-				const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+			const categories: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
 
-				// Calculate horizontal shifts based on assigned indentation level
-				const indentShift = (element.indent || 0) * this.INDENT_WIDTH;
-				const finalCheckboxX = columnX + this.CHECKBOX_X_OFFSET + indentShift;
-				const finalTextX = columnX + this.LABEL_X_OFFSET + indentShift;
+			for (const cat of categories) {
+				const isRightColumn = cat === "Immersion" || cat === "Maps" || cat === "Chat";
+				const baseX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+				let currentY = isRightColumn ? currentRightY : currentLeftY;
 
-				const renderPositionY = element.yPos - currentScrollOffset;
+				const categoryComponents = this.registry.filter(component => component.category === cat);
+				if (categoryComponents.length === 0) continue;
 
-				const isManuallyDisabled = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
-				const isHardcoreLocked = this.isSettingLocked(element);
-				const isElementLocked = isManuallyDisabled || isHardcoreLocked;
+				// Auto-calculate the height of the dark background box based on the number of items!
+				const boxHeight = (categoryComponents.length * this.ROW_HEIGHT) + 40;
+				DrawRect(baseX - 20, currentY, 650, boxHeight, "#00000011");
 
-				if (element.type === 'Checkbox') {
-					DrawCheckbox(finalCheckboxX, renderPositionY - 32, 64, 64, "", this.data[element.setting as keyof CRABS_Settings], isElementLocked);
-					canvasContext.textAlign = "left";
-					DrawText(element.text, finalTextX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+				canvasContext.textAlign = "center";
+				DrawText(cat, baseX + 305, currentY + 20, "Black", "Gray");
 
-					if (MouseIn(finalTextX, renderPositionY - 18, 450, 36) || MouseIn(finalCheckboxX, renderPositionY - 32, 64, 64)) {
-						tooltipHintToDraw = element.hint;
-						if (element.setting === "mapSuperZoom" && isManuallyDisabled) {
-							tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
+				// Start drawing items slightly below the header
+				currentY += 60;
+
+				for (const component of categoryComponents) {
+					const indentShift = (component.indent || 0) * this.INDENT_WIDTH;
+					const finalCheckboxX = baseX + this.CHECKBOX_X_OFFSET + indentShift;
+					const finalTextX = baseX + this.LABEL_X_OFFSET + indentShift;
+
+					const isLocked = this.isSettingLocked(component);
+					const isCanvasVisible = currentY > 180 && currentY < 900;
+
+					if (component.type === 'Checkbox') {
+						if (isCanvasVisible) {
+							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[component.setting as keyof CRABS_Settings], isLocked);
+
+							// Re-apply left-alignment before drawing the text so it doesn't inherit "center" from the category title
+							canvasContext.textAlign = "left";
+							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
+
+							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36) || (window as any).MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
+								tooltipHintToDraw = component.hint;
+								if (component.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
+							}
 						}
 					}
+					else if (component.type === 'TextInput') {
+						if (isCanvasVisible) {
+							// Re-apply left-alignment before drawing the text
+							canvasContext.textAlign = "left";
+							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
+
+							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36)) {
+								tooltipHintToDraw = component.hint;
+							}
+						}
+
+						const isSafelyOnScreen = currentY > 210 && currentY < 870;
+
+						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
+							const inputWidth = 260;
+
+							// Anchor it to the TEXT position this time, plus 160px for the word to breathe!
+							const inputStartX = finalCheckboxX + 160;
+							const centerX = inputStartX + (inputWidth / 2);
+
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
+						} else {
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
+						}
+					}
+
+					currentY += this.ROW_HEIGHT;
 				}
+
+				// Push the next category down dynamically!
+				if (isRightColumn) currentRightY += boxHeight + 20;
+				else currentLeftY += boxHeight + 20;
 			}
+
 			canvasContext.restore();
 
 			if (tooltipHintToDraw) {
@@ -284,80 +318,78 @@ export class Settings extends CRABS_Base {
 	}
 
 	/**
-	 * Processes click events within the settings screen.
-	 * Determines element intersections, updates internal configuration states, 
-	 * handles interdependent setting logic, and commits changes.
+	 * Auto-calculates hitboxes and fires declarative hooks.
 	 */
 	public click(): void {
-		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
+		const { PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 
-		if (MouseIn(1815, 75, 90, 90)) {
+		if ((window as any).MouseIn(1815, 75, 90, 90) || ((window as any).MouseIn(1710, 75, 90, 90) && ChatRoomData)) {
 			this.isMenuOpen = false;
-			PreferenceSubscreenExtensionsClear?.();
-			return;
-		}
-
-		const isInChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
-		if (MouseIn(1710, 75, 90, 90) && isInChatRoom) {
-			this.isMenuOpen = false;
-			if (typeof CommonSetScreen === "function") CommonSetScreen("Online", "ChatRoom");
+			this.cleanupDOMInputs();
+			if ((window as any).MouseIn(1710, 75, 90, 90)) CommonSetScreen("Online", "ChatRoom");
 			PreferenceSubscreenExtensionsClear?.();
 			(window as any).PreferenceMessage = "";
 			return;
 		}
 
-		if (MouseIn(1815, 200, 90, 90)) {
+		if ((window as any).MouseIn(1815, 200, 90, 90)) {
 			this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
 			return;
 		}
-		if (MouseIn(1815, 800, 90, 90)) {
+		if ((window as any).MouseIn(1815, 800, 90, 90)) {
 			this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
 			return;
 		}
 
-		for (const element of this.elements) {
-			const isRightColumn = element.category === "Immersion" || element.category === "Maps" || element.category === "Chat";
-			const columnX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+		let currentLeftY = 200 - this.scrollOffset;
+		let currentRightY = 200 - this.scrollOffset;
+		const categories: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
 
-			// Adjust the clickable hitbox region using the same indentation math
-			const indentShift = (element.indent || 0) * this.INDENT_WIDTH;
-			const finalCheckboxX = columnX + this.CHECKBOX_X_OFFSET + indentShift;
+		for (const cat of categories) {
+			const isRightColumn = cat === "Immersion" || cat === "Maps" || cat === "Chat";
+			const baseX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
+			let currentY = isRightColumn ? currentRightY : currentLeftY;
 
-			const renderPositionY = element.yPos - this.scrollOffset;
+			const categoryComponents = this.registry.filter(component => component.category === cat);
+			if (categoryComponents.length === 0) continue;
 
-			const isManuallyDisabled = typeof element.grayedOut === 'function' ? element.grayedOut() : element.grayedOut;
-			const isHardcoreLocked = this.isSettingLocked(element);
+			const boxHeight = (categoryComponents.length * this.ROW_HEIGHT) + 40;
+			currentY += 60;
 
-			if (isManuallyDisabled || isHardcoreLocked || renderPositionY < 180 || renderPositionY > 900) continue;
+			for (const component of categoryComponents) {
+				const indentShift = (component.indent || 0) * this.INDENT_WIDTH;
+				const finalCheckboxX = baseX + this.CHECKBOX_X_OFFSET + indentShift;
 
-			if (element.type === 'Checkbox') {
-				if (MouseIn(finalCheckboxX, renderPositionY - 32, 450, 64)) {
-					const settingsKey = element.setting as keyof CRABS_Settings;
-					(this.data as any)[settingsKey] = !(this.data as any)[settingsKey];
+				if (!this.isSettingLocked(component) && currentY > 180 && currentY < 900) {
+					if (component.type === 'Checkbox') {
+						if ((window as any).MouseIn(finalCheckboxX, currentY - 32, 450, 64)) {
+							const newValue = !(this.data as any)[component.setting];
+							(this.data as any)[component.setting] = newValue;
 
-					if (settingsKey === "enableDrawer" && !this.data.enableDrawer) {
-						this.data.rosterOpensDrawer = false;
-						this.data.showDrawerTab = false;
+							// Fire the declarative hook if it exists!
+							if (component.onChange) component.onChange(newValue);
+
+							this.save();
+							this.syncGameState();
+							return; // Stop checking clicks
+						}
 					}
-					if (settingsKey === "rosterOpensDrawer" && !this.data.rosterOpensDrawer) {
-						this.data.showDrawerTab = true;
-					}
-					if (settingsKey === "showDrawerTab" && !this.data.showDrawerTab) {
-						this.data.animatedCrabsLogo = false;
-					}
-
-					this.save();
-					this.syncGameState();
-					return;
 				}
+				currentY += this.ROW_HEIGHT;
 			}
+			if (isRightColumn) currentRightY += boxHeight + 20;
+			else currentLeftY += boxHeight + 20;
 		}
 	}
 
-	/**
-	 * Hooks the settings subscreen into the base game's preference menu system.
-	 * Utilizes a recursive timeout check to ensure the base game API is fully loaded before injection.
-	 */
+	/** Helper method to dynamically destroy all HTML inputs */
+	private cleanupDOMInputs(): void {
+		const textInputs = this.registry.filter(component => component.type === "TextInput");
+		for (const component of textInputs) {
+			(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
+		}
+	}
+
 	private registerExtension(): void {
 		const globalWindow = window as any;
 		CRABS_Base.subscreenDef = {
@@ -366,6 +398,7 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
 				this.isMenuOpen = false;
+				this.cleanupDOMInputs(); // Loops through all inputs automatically
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
@@ -374,6 +407,22 @@ export class Settings extends CRABS_Base {
 			load: () => {
 				this.isMenuOpen = true;
 				globalWindow.PreferenceMessage = "";
+
+				// Dynamically spawn HTML inputs for any TextInput component
+				const textInputs = this.registry.filter(component => component.type === "TextInput");
+				for (const component of textInputs) {
+					const domID = `CRABS_Input_${component.setting}`;
+					if (!document.getElementById(domID)) {
+						globalWindow.ElementCreateInput(domID, "text", this.data[component.setting] || "", 250);
+						const inputHTML = document.getElementById(domID) as HTMLInputElement;
+						if (inputHTML) {
+							inputHTML.addEventListener("input", () => {
+								(this.data as any)[component.setting] = inputHTML.value;
+								this.save();
+							});
+						}
+					}
+				}
 			}
 		};
 
@@ -387,10 +436,6 @@ export class Settings extends CRABS_Base {
 		registerHook();
 	}
 
-	/**
-	 * Pushes specific configuration states directly into the base game's active variables.
-	 * Built to yield control gracefully if another script is actively managing the same parameters.
-	 */
 	public syncGameState(): void {
 		const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
 		if (perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50) return;

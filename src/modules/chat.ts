@@ -38,8 +38,8 @@ export class ChatManager extends CRABS_Base {
 	}
 
 	/**
-	 * Custom, bulletproof mention detector that handles both Name and Nickname,
-	 * ignores case, and strictly matches word boundaries.
+	 * Custom mention detector that handles both Name, Nickname,
+	 * and a user-defined list of custom words.
 	 * @param {string} msg - The text to scan for mentions.
 	 * @returns {boolean} True if the player is mentioned.
 	 */
@@ -47,28 +47,33 @@ export class ChatManager extends CRABS_Base {
 		const player = (window as any).Player;
 		if (!player || !msg) return false;
 
-		const name = player.Name;
-		const nickname = player.Nickname;
-
 		const namesToMatch: string[] = [];
 
-		// Helper to safely escape regex characters in names (like if someone's name has a * or ? in it)
+		// Helper to safely escape regex characters so a stray "?" doesn't break the engine
 		const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-		// Add Name and Nickname to our search array if they exist
-		if (name && name.trim() !== "") {
-			namesToMatch.push(escapeRegExp(name.trim()));
+		// 1. Add standard Name and Nickname
+		if (player.Name && player.Name.trim() !== "") {
+			namesToMatch.push(escapeRegExp(player.Name.trim()));
 		}
-		if (nickname && nickname.trim() !== "") {
-			namesToMatch.push(escapeRegExp(nickname.trim()));
+		if (player.Nickname && player.Nickname.trim() !== "") {
+			namesToMatch.push(escapeRegExp(player.Nickname.trim()));
+		}
+
+		// 2. Add custom comma-separated words from settings
+		const customWordsSetting = Settings.instance.data.customHighlightWords;
+		if (customWordsSetting && customWordsSetting.trim() !== "") {
+			// Split by comma, trim whitespace, and filter out empty strings
+			const customWords = customWordsSetting.split(',').map(w => w.trim()).filter(w => w !== "");
+			for (const word of customWords) {
+				namesToMatch.push(escapeRegExp(word));
+			}
 		}
 
 		// If we somehow have no names at all, abort
 		if (namesToMatch.length === 0) return false;
 
-		// Build the regex: Matches the beginning of the string or a non-word character,
-		// then the name/nickname, then the end of the string or a non-word character.
-		// The 'i' flag makes it case-insensitive.
+		// Build the regex: Matches word boundaries, is case-insensitive
 		const regex = new RegExp(`(?:^|\\W)(${namesToMatch.join('|')})(?:$|\\W)`, 'i');
 
 		return regex.test(msg);
