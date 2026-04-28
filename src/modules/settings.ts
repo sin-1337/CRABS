@@ -290,17 +290,19 @@ export class Settings extends CRABS_Base {
 					}
 				}
 				else if (element.type === 'TextInput') {
-					// 1. Align the label perfectly with the text of the checkboxes above it
+					// 1. Align the label perfectly with the text of the checkboxes
 					canvasContext.textAlign = "left";
 					DrawText(element.text, finalTextX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-					// 2. Position the HTML input box so it sits cleanly after the text
+					// 2. Position the HTML input box dynamically based on the text width
 					if (renderPositionY > 180 && renderPositionY < 900 && !isElementLocked && this.isMenuOpen) {
-						const inputWidth = 260; // Shrunk slightly to ensure it never hangs off the edge
+						const inputWidth = 260;
 
-						// ElementPosition requires the X coordinate for the CENTER of the box.
-						// Center X = Start of text + Approx width of text (180px) + Half of input width (130px)
-						const centerX = finalTextX + 180 + (inputWidth / 2);
+						// Dynamically measure the exact width of the label text
+						const textWidth = canvasContext.measureText(element.text).width;
+
+						// Center X = Left Edge + Text Width + 20px gap + Half of input width
+						const centerX = finalTextX + textWidth + 20 + (inputWidth / 2);
 
 						(window as any).ElementPosition("CRABS_CustomWords", centerX, renderPositionY, inputWidth, 36);
 					} else {
