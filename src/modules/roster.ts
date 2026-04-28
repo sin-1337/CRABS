@@ -824,6 +824,10 @@ export class Roster extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private drawFocusGlow(character: any, drawX: number, drawY: number, zoom: number): void {
+
+		// bail out if user turns the halo off
+		if (!Settings.instance.data.enableFocusHalo) return;
+
 		const globalWindow = window as any;
 		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!ctx) return;

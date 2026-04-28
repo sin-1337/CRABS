@@ -13,7 +13,7 @@ export * from "./drawer";
 export * from "./help";
 export * from "./roster";
 export * from "./whisperplus";
-export * from "./settings";
+export * from "./settings/index";
 export * from "./setup";
 export * from "./notifications";
 export * from "./updater";
