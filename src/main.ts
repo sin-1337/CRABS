@@ -39,20 +39,33 @@ console.log(`CRABS v${VERSION} Loaded`); // do not remove
  * @returns {boolean} Returns true if the command should proceed to the next handler, false otherwise.
  */
 function argcheck(commandArguments: string): boolean {
-	const splitArgs = commandArguments.split(" ");
-	if (splitArgs[0].toLowerCase() == "help") {
+	const splitArgs = commandArguments.toLowerCase().split(" ");
+	const arg = splitArgs[0];
+
+	if (arg === "help") {
 		HELP.buildui(HELP.showHelp(), "CRABS_Help");
 		const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
 		if (HELPBUTTON) HELPBUTTON.style.display = "none";
 		return false;
-	} else if (splitArgs[0].toLowerCase() == "version") {
+	} else if (arg === "version") {
 		ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
 		return false;
-	} else if (splitArgs[0].toLowerCase() == "banner") {
-		SETUP.drawbanner(); // Delegated to the Setup module
+	} else if (arg === "banner") {
+		SETUP.drawbanner();
 		return false;
 	}
-	return true;
+
+	// Allowlist of words that are allowed to print the roster to the chat log
+	const validPrintArgs = ["print", "count", "admins", "vips", "all"];
+
+	// If there's no argument, or it's a valid print argument, return true to build the roster
+	if (arg === "" || validPrintArgs.includes(arg)) {
+		return true;
+	}
+
+	// If it's a nonsense word, catch it here and return false so the roster doesn't print
+	ChatRoomSendLocal(`Unrecognized argument: '${arg}'. Try '/roster help'`);
+	return false;
 }
 
 /**
