@@ -103,15 +103,17 @@ export class Settings extends CRABS_Base {
 	}
 
 	/**
-	 * Determines if a specific UI element should be locked based on hardcore immersion rules.
+	 * Determines if a specific UI element should be locked based on manual settings or hardcore immersion rules.
 	 */
 	private isSettingLocked(component: UIComponent): boolean {
-		if (!this.isRestricted() || !this.data.lockImmersive) return false;
-		if (component.setting === "lockImmersive") return true;
-		if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
-
-		// Also check manual disables
+		// Check manual UI disables (the hierarchy logic) first!
 		if (component.disabled && component.disabled()) return true;
+
+		// Only check hardcore immersion locks if the player is actually restricted
+		if (this.isRestricted() && this.data.lockImmersive) {
+			if (component.setting === "lockImmersive") return true;
+			if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
+		}
 
 		return false;
 	}
@@ -181,7 +183,7 @@ export class Settings extends CRABS_Base {
 		// --- CHAT ---
 		this.register({ category: "Chat", type: "Checkbox", setting: "highlightMentions", label: "Highlight Mentions", hint: "Highlights chat messages containing your name or nickname." });
 		this.register({
-			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom Words", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
+			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
 			disabled: () => !this.data.highlightMentions
 		});
 	}
@@ -273,7 +275,7 @@ export class Settings extends CRABS_Base {
 						if (isCanvasVisible) {
 							// Re-apply left-alignment before drawing the text
 							canvasContext.textAlign = "left";
-							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
+							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
 
 							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36)) {
 								tooltipHintToDraw = component.hint;
@@ -286,7 +288,7 @@ export class Settings extends CRABS_Base {
 							const inputWidth = 260;
 
 							// Anchor it to the TEXT position this time, plus 160px for the word to breathe!
-							const inputStartX = finalTextX + 160;
+							const inputStartX = finalCheckboxX + 160;
 							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
