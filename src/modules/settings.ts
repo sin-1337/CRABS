@@ -175,7 +175,7 @@ export class Settings extends CRABS_Base {
 		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
 
 		this.addCheckbox("Highlight Mentions", "highlightMentions", "Highlights chat messages containing your name or nickname.", { category: "Chat", yPos: 975 });
-		this.addTextInput("Custom Words", "customHighlightWords", "Comma-separated list of extra words to trigger highlights.", {
+		this.addTextInput("Custom", "customHighlightWords", "Comma-separated list of extra words to trigger highlights.", {
 			category: "Chat",
 			yPos: 1050,
 			grayedOut: () => !this.data.highlightMentions, // <-- Links the active state!
