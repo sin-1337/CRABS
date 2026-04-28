@@ -268,27 +268,31 @@ export class Settings extends CRABS_Base {
 						}
 					}
 					else if (comp.type === 'TextInput') {
-						if (isVisible) {
-							// Draw label at the exact same X coordinate as the checkboxes so it aligns beautifully
-							canvasContext.textAlign = "left";
-							DrawText(comp.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
+						canvasContext.textAlign = "left";
+						DrawText(comp.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							// Maintain the hover tooltip
-							if (MouseIn(finalCheckboxX, currentY - 18, 600, 36)) {
-								tooltipHintToDraw = comp.hint;
-							}
-						}
+						if (!isLocked && this.isMenuOpen) {
+							// 1. Measure how wide the label text is
+							const textWidth = canvasContext.measureText(comp.label).width;
 
-						// ElementPosition MUST be updated every frame, even if invisible, 
-						// so it hides properly when scrolling out of bounds instead of floating!
-						if (isVisible && !isLocked && this.isMenuOpen) {
-							const inputWidth = 380; // Wider box so you can read your words
-							const inputStartX = finalCheckboxX + 150; // Snap the box exactly 150px after the label
+							// 2. Calculate exactly where the input box should start (20px gap after text)
+							const inputStartX = finalTextX + textWidth + 20;
+
+							// 3. The dark background box is 650px wide (starts at baseX - 20, ends at baseX + 630).
+							// Let's set a strict right margin of baseX + 590 so it never hangs off the edge!
+							const targetRightEdge = baseX + 590;
+
+							// 4. Dynamically calculate the perfect width!
+							const inputWidth = targetRightEdge - inputStartX;
 							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
-							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, -1000, -1000, 0, 0); // Hide offscreen
+							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, -1000, -1000, 0, 0);
+						}
+
+						if (MouseIn(finalTextX, currentY - 18, 450, 36)) {
+							tooltipHintToDraw = comp.hint;
 						}
 					}
 
