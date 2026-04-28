@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS: any = {
 	highlightMentions: true,
 	customHighlightWords: "",
 	highlightColor: "#FFFF00",
+	enableFocusHalo: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -134,6 +135,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
+		createCheck("Chat", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when mousing over players in the roster.");
 	}
 
 	private handleWheel(event: WheelEvent): void {

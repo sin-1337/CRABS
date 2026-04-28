@@ -60,4 +60,5 @@ interface CRABS_Settings {
 	highlightMentions: boolean;
 	customHighlightWords: string;
 	highlightColor: string;
+	enableFocusHalo: boolean;
 }
