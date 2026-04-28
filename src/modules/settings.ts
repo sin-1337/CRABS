@@ -452,7 +452,7 @@ export class Settings extends CRABS_Base {
 					}
 					else if (component.type === "ColorPicker") {
 						// Native game call to create the picker
-						globalWindow.ElementCreateColorPicker(domID, this.data[component.setting] || "#FFFF00");
+						globalWindow.ElementCreateInput(domID, "color", this.data[component.setting] || "#FFFF00", 250);
 						document.getElementById(domID)?.addEventListener("input", (e) => {
 							(this.data as any)[component.setting] = (e.target as HTMLInputElement).value;
 							this.save();
