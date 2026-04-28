@@ -151,7 +151,8 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		this.layout.draw(canvasContext);
+		// Pass the modal state to the layout engine
+		this.layout.draw(canvasContext, this.showResetConfirm);
 
 		// Draw the confirmation dialog over everything else
 		if (this.showResetConfirm) {

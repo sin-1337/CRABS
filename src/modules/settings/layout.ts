@@ -42,7 +42,7 @@ export class LayoutEngine {
 		}
 	}
 
-	public draw(ctx: CanvasRenderingContext2D): void {
+	public draw(ctx: CanvasRenderingContext2D, isModalOpen: boolean = false): void {
 		const globalWindow = window as any;
 		this.currentTooltip = "";
 
@@ -55,23 +55,23 @@ export class LayoutEngine {
 
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-
-		// header
 		globalWindow.DrawText("- CRABS Mod Settings -", 1140, 80, "Black", "Gray");
 
-		// Top right back buttons
-		globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
-		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
-		globalWindow.DrawButton(1710, 75, 90, 90, "", isInChat ? "White" : "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+		// --- Draw Top-Right Nav Buttons (Greyed out if modal is open) ---
+		const btnColor = isModalOpen ? "#888888" : "White";
+		globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
 
-		// Restore defaults button
-		globalWindow.DrawButton(1605, 75, 90, 90, "", "White", "Icons/Reset.png", "Restore Defaults");
+		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+		globalWindow.DrawButton(1710, 75, 90, 90, "", isModalOpen || !isInChat ? "#888888" : "White", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+
+		globalWindow.DrawButton(1605, 75, 90, 90, "", btnColor, "Icons/Reset.png", "Restore Defaults");
 
 		// Tabs
 		let tabX = 500;
 		for (const tab of this.TABS) {
 			const isActive = this.activeTab === tab;
-			globalWindow.DrawButton(tabX, 130, 160, 45, tab, isActive ? "#DDDDDD" : "White", "", "");
+			const tabColor = isModalOpen ? "#888888" : (isActive ? "#DDDDDD" : "White");
+			globalWindow.DrawButton(tabX, 130, 160, 45, tab, tabColor, "", "");
 			tabX += 175;
 		}
 
