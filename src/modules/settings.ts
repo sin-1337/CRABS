@@ -33,10 +33,11 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	animatedCrabsLogo: true,
 	highlightMentions: true,
 	customHighlightWords: "",
+	highlightColor: "#FFFF00",
 };
 
 // Define the types of UI controls we support
-type ComponentType = "Checkbox" | "TextInput";
+type ComponentType = "Checkbox" | "TextInput" | "ColorPicker";
 type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
 
 // The master interface for a declarative setting
@@ -184,6 +185,15 @@ export class Settings extends CRABS_Base {
 		this.register({ category: "Chat", type: "Checkbox", setting: "highlightMentions", label: "Highlight Mentions", hint: "Highlights chat messages containing your name or nickname." });
 		this.register({
 			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
+			disabled: () => !this.data.highlightMentions
+		});
+		this.register({
+			category: "Chat",
+			type: "ColorPicker",
+			setting: "highlightColor",
+			label: "Highlight Color",
+			hint: "Pick a custom color for chat highlights.",
+			indent: 1,
 			disabled: () => !this.data.highlightMentions
 		});
 	}
