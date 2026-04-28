@@ -45,23 +45,6 @@ export class Settings extends CRABS_Base {
 		this.buildRegistry();
 		this.layout = new LayoutEngine(this.registry);
 
-		this.safeHook("PreferenceSubscreenExtensionsRun", 10, (args: any, next: Function) => {
-			const result = next(args); // Let BC draw everything (including its white Exit button)
-			if (this.isMenuOpen && this.showResetConfirm) {
-				this.drawModal(); // Draw our modal over the top of the Exit button!
-			}
-			return result;
-		});
-
-		this.safeHook("PreferenceSubscreenExtensionsClick", 10, (args: any, next: Function) => {
-			if (this.isMenuOpen && this.showResetConfirm) {
-				this.click(); // Manually route clicks to our modal logic
-				return; // KILL the base game execution so it can't trigger the Exit button
-			}
-			return next(args);
-		});
-		// ---------------------------------------------------------------------
-
 		this.registerExtension();
 		window.addEventListener("wheel", this.handleWheel.bind(this), { passive: false });
 	}
@@ -168,8 +151,13 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		// Modal drawing was moved to the hook to draw over the base game
+		// Let our layout engine draw the base menu
 		this.layout.draw(canvasContext, this.showResetConfirm);
+
+		// Draw our modal right over the top!
+		if (this.showResetConfirm) {
+			this.drawModal();
+		}
 	}
 
 	private drawModal(): void {
@@ -191,6 +179,7 @@ export class Settings extends CRABS_Base {
 	public click(): void {
 		const globalWindow = window as any;
 
+		// 1. MODAL TRAP
 		if (this.showResetConfirm) {
 			if (globalWindow.MouseIn(750, 500, 200, 60)) {
 				this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -208,11 +197,12 @@ export class Settings extends CRABS_Base {
 				this.showResetConfirm = false;
 				this.layout.updateDOM(this.isMenuOpen);
 			}
-			return;
+			return; // BLOCKS EVERYTHING ELSE
 		}
 
 		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
+		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 
 		if (clickedReset) {
 			this.showResetConfirm = true;
@@ -220,14 +210,23 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		if (clickedChat) {
+		// 2. OUR CUSTOM EXIT HANDLER
+		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
+			this.showResetConfirm = false; // Reset to prevent zombie modals!
 			this.layout.updateDOM(false);
+
 			for (const key of Object.keys(this.data)) {
 				globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 			}
-			globalWindow.CommonSetScreen("Online", "ChatRoom");
+			globalWindow.PreferenceMessage = "";
 			globalWindow.PreferenceSubscreenExtensionsClear?.();
+
+			if (clickedChat) {
+				globalWindow.CommonSetScreen("Online", "ChatRoom");
+			} else {
+				globalWindow.PreferenceOpenSubscreen?.("Extensions"); // Go back
+			}
 			return;
 		}
 
@@ -243,8 +242,6 @@ export class Settings extends CRABS_Base {
 	}
 
 	private registerExtension(): void {
-		const globalWindow = window as any;
-
 		CRABS_Base.subscreenDef = {
 			Identifier: "CRABS",
 			ButtonText: "CRABS",
@@ -253,21 +250,14 @@ export class Settings extends CRABS_Base {
 			run: () => this.draw(),
 			load: () => {
 				this.isMenuOpen = true;
+				this.showResetConfirm = false; // Fresh slate every time it loads
 				this.layout.updateDOM(true);
-			},
-			exit: () => {
-				this.isMenuOpen = false;
-				this.showResetConfirm = false;
-				this.layout.updateDOM(false);
-
-				// Native exit cleanup
-				for (const key of Object.keys(this.data)) {
-					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
-				}
 			}
+			// NO 'exit' property here. The native game will ignore our screen and let us handle it.
 		};
 
 		const registerHook = () => {
+			const globalWindow = window as any;
 			if (globalWindow.PreferenceRegisterExtensionSetting) {
 				globalWindow.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
 			} else {
