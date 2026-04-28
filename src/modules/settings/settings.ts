@@ -134,15 +134,41 @@ export class Settings extends CRABS_Base {
 	public click(): void {
 		const globalWindow = window as any;
 
-		// Handle native window exit buttons...
-		if (globalWindow.MouseIn(1815, 75, 90, 90)) {
+		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
+		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
+
+		// 1. Handle Restore Defaults
+		if (clickedReset) {
+			// Apply a deep copy of the defaults
+			this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+			this.save();
+			this.syncGameState();
+
+			// Force HTML inputs to visually update to the new default values
+			for (const key of Object.keys(this.data)) {
+				const domElement = document.getElementById(`CRABS_Input_${key}`) as HTMLInputElement;
+				if (domElement) domElement.value = this.data[key];
+			}
+
+			this.layout.updateDOM(this.isMenuOpen);
+			return;
+		}
+
+		// 2. Handle native window exit and chat buttons
+		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
 			this.layout.updateDOM(false);
+
+			if (clickedChat) {
+				globalWindow.CommonSetScreen("Online", "ChatRoom");
+			}
+
 			globalWindow.PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
-		// Pass everything else to the Layout engine
+		// 3. Pass everything else to the Layout engine
 		if (this.layout.click(globalWindow.MouseX, globalWindow.MouseY)) {
 			this.layout.updateDOM(this.isMenuOpen); // Refresh DOM in case tabs changed
 		}

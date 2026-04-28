@@ -1,5 +1,5 @@
 // layout.ts
-import { UIWidget, Bounds } from "./widgets";
+import { UIWidget } from "./widgets";
 
 export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
 
@@ -56,6 +56,14 @@ export class LayoutEngine {
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		globalWindow.DrawText("- CRABS Mod Settings -", 1200, 80, "Black", "Gray");
+
+		// Top right back buttons
+		globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
+		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+		globalWindow.DrawButton(1710, 75, 90, 90, "", isInChat ? "White" : "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+
+		// Restore defaults button
+		globalWindow.DrawButton(1605, 75, 90, 90, "", "White", "Icons/Reset.png", "Restore Defaults");
 
 		// Tabs
 		let tabX = 500;
