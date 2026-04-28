@@ -117,27 +117,36 @@ export class Roster extends CRABS_Base {
 
 		// Capture the math during the character drawing phase
 		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
+			const globalWindow = window as any;
+			let isTarget = false;
+			let drawX: number = 0, drawY: number = 0, zoom: number = 1, character: any = null;
+
+			if (globalWindow.CurrentScreen === "ChatRoom" &&
+				globalWindow.ChatRoomHideIconState < 3 &&
+				globalWindow.Player?.OnlineSettings?.ShowNames !== false) {
+
+				const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
+				const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
+				character = args[0];
+
+				if (!isMap && targetId && character.MemberNumber === targetId) {
+					isTarget = true;
+					drawX = args[1];
+					drawY = args[2];
+					zoom = args[3];
+
+					// Draw glow behind character
+					this.drawFocusGlow(character, drawX, drawY, zoom);
+				}
+			}
+
+			// Now draw the character (On top of the glow)
 			const result = next(args);
 
-			const globalWindow = window as any;
-			if (globalWindow.CurrentScreen !== "ChatRoom") return result;
-			if (globalWindow.ChatRoomHideIconState >= 3) return result;
-			if (globalWindow.Player?.OnlineSettings?.ShowNames === false) return result;
-
-			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
-			const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
-
-			const character = args[0];
-			if (!isMap && targetId && character.MemberNumber === targetId) {
-
-				const drawX = args[1];
-				const drawY = args[2];
-				const zoom = args[3];
-
+			// Store coords for the arrow (Drawn later on top of everything)
+			if (isTarget) {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
-
-				// STORE the data instead of drawing it immediately
 				this.deferredIndicator = { character, x: centerX, y: nameY };
 			}
 
@@ -805,6 +814,45 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
+	 * Renders a continuous, pulsating aura behind a targeted character on the main screen.
+	 * This effect is drawn before the character model to ensure it appears behind them.
+	 * @private
+	 * @param {any} character - The character object to reference for colors.
+	 * @param {number} drawX - The base X coordinate where the character is being drawn.
+	 * @param {number} drawY - The base Y coordinate where the character is being drawn.
+	 * @param {number} zoom - The current zoom/scaling factor of the room.
+	 * @returns {void}
+	 */
+	private drawFocusGlow(character: any, drawX: number, drawY: number, zoom: number): void {
+		const globalWindow = window as any;
+		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
+		if (!ctx) return;
+
+		const now = Date.now();
+		const playerColor = character.LabelColor || "cyan";
+		const pulseSpeed = 250;
+		const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
+
+		ctx.save();
+		try {
+			ctx.globalAlpha = pulseAlpha;
+			ctx.fillStyle = playerColor;
+			ctx.filter = 'blur(25px)'; // Extra blur for a massive aura
+
+			// Character canvas is standard 500x1000
+			const centerX = drawX + (250 * zoom);
+			const centerY = drawY + (500 * zoom);
+
+			ctx.beginPath();
+			// Draw an ellipse filling the entire 500x1000 character boundary
+			ctx.ellipse(centerX, centerY, 250 * zoom, 500 * zoom, 0, 0, Math.PI * 2);
+			ctx.fill();
+		} finally {
+			ctx.restore();
+		}
+	}
+
+	/**
 	 * Renders the custom map compass arrow next to a character's nameplate.
 	 * @private
 	 * @param {any} character - The character object to reference for colors and name.
@@ -814,15 +862,15 @@ export class Roster extends CRABS_Base {
 	 */
 	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
-		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
-		if (!ctx) return;
+		const context = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
+		if (!context) return;
 
 		const currentName = CharacterNickname(character).normalize("NFKC");
 		let cachedData = this.nameWidthCache.get(character.MemberNumber);
 
 		if (!cachedData || cachedData.name !== currentName) {
-			ctx.font = "36px sans-serif";
-			cachedData = { name: currentName, width: ctx.measureText(currentName).width };
+			context.font = "36px sans-serif";
+			cachedData = { name: currentName, width: context.measureText(currentName).width };
 			this.nameWidthCache.set(character.MemberNumber, cachedData);
 		}
 
@@ -830,52 +878,36 @@ export class Roster extends CRABS_Base {
 		const playerColor = character.LabelColor || "cyan";
 		const isDark = this.getColorBrightness(playerColor) < 128;
 
-		ctx.save();
+		context.save();
 		try {
-			// Transient Glow Effect
-			// Continuous Pulsing Glow Effect
-			// Math.sin creates a wave from -1 to 1.
-			// We shift it to 0 to 1, then multiply by 0.4 for max opacity.
-			const pulseSpeed = 250; // Lower is faster
-			const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
-
-			ctx.save();
-			ctx.globalAlpha = pulseAlpha;
-			ctx.fillStyle = playerColor;
-			ctx.filter = 'blur(8px)';
-			ctx.beginPath();
-			ctx.ellipse(x, y - 15, cachedData.width / 2 + 20, 25, 0, 0, Math.PI * 2);
-			ctx.fill();
-			ctx.restore();
-
 			// The Barrel Roll Arrow
 			const baseScale = 0.5;
 			const arrowWidth = 40 * baseScale;
 			const tipX = x - (cachedData.width / 2) - 5;
 			const centerX = tipX - (arrowWidth / 2);
 
-			ctx.translate(centerX, y);
+			context.translate(centerX, y);
 
 			// This creates the "roll" by flipping the Y scale from 1 to -1
 			// Adjust '500' to change roll speed (lower is faster)
 			const rollFactor = Math.sin(now / 500);
-			ctx.scale(baseScale, baseScale * rollFactor);
+			context.scale(baseScale, baseScale * rollFactor);
 
-			ctx.beginPath();
-			ctx.moveTo(20, 0);   // Tip
-			ctx.lineTo(-20, 15);  // Top back
-			ctx.lineTo(-20, -15); // Bottom back
-			ctx.closePath();
+			context.beginPath();
+			context.moveTo(20, 0);   // Tip
+			context.lineTo(-20, 15);  // Top back
+			context.lineTo(-20, -15); // Bottom back
+			context.closePath();
 
-			ctx.fillStyle = playerColor;
-			ctx.fill();
+			context.fillStyle = playerColor;
+			context.fill();
 
-			ctx.strokeStyle = isDark ? "white" : "black";
-			ctx.lineWidth = 1.5 / baseScale;
-			ctx.stroke();
+			context.strokeStyle = isDark ? "white" : "black";
+			context.lineWidth = 1.5 / baseScale;
+			context.stroke();
 
 		} finally {
-			ctx.restore();
+			context.restore();
 		}
 	}
 
