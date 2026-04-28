@@ -54,6 +54,7 @@ export class Roster extends CRABS_Base {
 
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 	private deferredIndicator: { character: any, x: number, y: number } | null = null;
+	private indicatorStartTime: number = 0;
 
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
@@ -64,7 +65,9 @@ export class Roster extends CRABS_Base {
 
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
-			// ALWAYS set the ID so the indicator can draw
+			if (this.hoveredMapPlayer !== id) {
+				this.indicatorStartTime = Date.now(); // Trigger effect
+			}
 			this.hoveredMapPlayer = id;
 
 			// ONLY return early here so we don't start the pagination timer
@@ -701,10 +704,12 @@ export class Roster extends CRABS_Base {
 	 */
 	private onPlayerToggleTrack = (playerId: string) => {
 		const id = parseInt(playerId, 10);
+		const wasTracked = this.trackedMapPlayer === id;
 
-		this.trackedMapPlayer = (this.trackedMapPlayer === id) ? null : id;
+		this.trackedMapPlayer = wasTracked ? null : id;
 
-		if (this.trackedMapPlayer !== null) {
+		if (!wasTracked) {
+			this.indicatorStartTime = Date.now(); // Trigger effect
 			this.autoPaginateToPlayer(id);
 		}
 
@@ -812,50 +817,64 @@ export class Roster extends CRABS_Base {
 	 */
 	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
-		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
-		const ctx = canvasElement?.getContext("2d");
+		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!ctx) return;
-
-		ctx.font = "36px sans-serif";
 
 		const currentName = CharacterNickname(character).normalize("NFKC");
 		let cachedData = this.nameWidthCache.get(character.MemberNumber);
 
-		// If there is no cache, OR the player changed their name since we last checked, recalculate!
 		if (!cachedData || cachedData.name !== currentName) {
-			cachedData = {
-				name: currentName,
-				width: ctx.measureText(currentName).width
-			};
+			ctx.font = "36px sans-serif";
+			cachedData = { name: currentName, width: ctx.measureText(currentName).width };
 			this.nameWidthCache.set(character.MemberNumber, cachedData);
 		}
 
-		// Use the newly robust cached width
-		const tipX = x - (cachedData.width / 2) - 15;
-
+		const now = Date.now();
 		const playerColor = character.LabelColor || "cyan";
-		const brightness = this.getColorBrightness(playerColor);
-		const isDark = brightness < 128;
+		const isDark = this.getColorBrightness(playerColor) < 128;
 
 		ctx.save();
 		try {
-			const scale = 0.4;
-			ctx.translate(tipX - (20 * scale), y);
-			ctx.scale(scale, scale);
+			// Transient Glow Effect
+			const elapsed = now - this.indicatorStartTime;
+			if (elapsed < 800) {
+				const alpha = (1 - elapsed / 800) * 0.4;
+				ctx.save();
+				ctx.globalAlpha = alpha;
+				ctx.fillStyle = playerColor;
+				ctx.filter = 'blur(8px)';
+				ctx.beginPath();
+				ctx.ellipse(x, y - 15, cachedData.width / 2 + 20, 25, 0, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.restore();
+			}
+
+			// The Barrel Roll Arrow
+			const baseScale = 0.5;
+			const arrowWidth = 40 * baseScale;
+			const tipX = x - (cachedData.width / 2) - 5;
+			const centerX = tipX - (arrowWidth / 2);
+
+			ctx.translate(centerX, y);
+
+			// This creates the "roll" by flipping the Y scale from 1 to -1
+			// Adjust '500' to change roll speed (lower is faster)
+			const rollFactor = Math.sin(now / 500);
+			ctx.scale(baseScale, baseScale * rollFactor);
 
 			ctx.beginPath();
-			ctx.moveTo(20, 0);
-			ctx.lineTo(-20, 15);
-			ctx.lineTo(-20, -15);
+			ctx.moveTo(20, 0);   // Tip
+			ctx.lineTo(-20, 15);  // Top back
+			ctx.lineTo(-20, -15); // Bottom back
+			ctx.closePath();
 
 			ctx.fillStyle = playerColor;
 			ctx.fill();
 
 			ctx.strokeStyle = isDark ? "white" : "black";
-			ctx.lineWidth = 1.5 / scale;
-
-			ctx.closePath();
+			ctx.lineWidth = 1.5 / baseScale;
 			ctx.stroke();
+
 		} finally {
 			ctx.restore();
 		}
