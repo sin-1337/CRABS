@@ -837,7 +837,7 @@ export class Roster extends CRABS_Base {
 		try {
 			// Transient Glow Effect
 			const elapsed = now - this.indicatorStartTime;
-			if (elapsed < 800) {
+			if (elapsed < 1200) {
 				const alpha = (1 - elapsed / 800) * 0.4;
 				ctx.save();
 				ctx.globalAlpha = alpha;
