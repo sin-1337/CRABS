@@ -817,87 +817,63 @@ export class Roster extends CRABS_Base {
 	 */
 	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
-		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
-		const ctx = canvasElement?.getContext("2d");
+		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!ctx) return;
-
-		ctx.font = "36px sans-serif";
 
 		const currentName = CharacterNickname(character).normalize("NFKC");
 		let cachedData = this.nameWidthCache.get(character.MemberNumber);
 
-		// If there is no cache, OR the player changed their name since we last checked, recalculate!
 		if (!cachedData || cachedData.name !== currentName) {
-			cachedData = {
-				name: currentName,
-				width: ctx.measureText(currentName).width
-			};
+			ctx.font = "36px sans-serif";
+			cachedData = { name: currentName, width: ctx.measureText(currentName).width };
 			this.nameWidthCache.set(character.MemberNumber, cachedData);
 		}
 
-		// Use the newly robust cached width
-		const tipX = x - (cachedData.width / 2) - 5;
-
-		const playerColor = character.LabelColor || "cyan";
-		const brightness = this.getColorBrightness(playerColor);
-		const isDark = brightness < 128;
-
 		const now = Date.now();
+		const playerColor = character.LabelColor || "cyan";
+		const isDark = this.getColorBrightness(playerColor) < 128;
 
 		ctx.save();
 		try {
-			// Short lived highlight effect 
-			const elapsed = Date.now() - this.indicatorStartTime;
-			const duration = 800; // ms
-
-			if (elapsed < duration) {
-				const progress = elapsed / duration;
-				const alpha = 1 - progress; // Fade out
-				const pulseScale = 1 + (progress * 0.5); // Grow slightly
-
+			// Transient Glow Effect
+			const elapsed = now - this.indicatorStartTime;
+			if (elapsed < 800) {
+				const alpha = (1 - elapsed / 800) * 0.4;
 				ctx.save();
-				ctx.globalAlpha = alpha * 0.4;
+				ctx.globalAlpha = alpha;
 				ctx.fillStyle = playerColor;
 				ctx.filter = 'blur(8px)';
-				// Draw a glowing pill shape behind the name
 				ctx.beginPath();
-				ctx.ellipse(x, y - 15, (cachedData.width / 2 + 20) * pulseScale, 25 * pulseScale, 0, 0, Math.PI * 2);
+				ctx.ellipse(x, y - 15, cachedData.width / 2 + 20, 25, 0, 0, Math.PI * 2);
 				ctx.fill();
 				ctx.restore();
 			}
 
-			const scale = 0.4;
+			// The Barrel Roll Arrow
+			const baseScale = 0.4;
+			const arrowWidth = 40 * baseScale;
+			const tipX = x - (cachedData.width / 2) - 5;
+			const centerX = tipX - (arrowWidth / 2);
 
-			// SPINNING LOGIC - We must rotate around the arrow's center, not its tip.
-			ctx.save();
-			// Position the coordinate system at the arrow's exact center point (40 pixels behind the tip)
-			ctx.translate(tipX - (20 * scale) - (40 * scale), y);
+			ctx.translate(centerX, y);
 
-			// Apply rotation. Using now() creates a constant spin. Adjust '3000' to change speed (higher = slower).
-			const angle = (now / 3000) * (Math.PI * 2); // Full rotation every 3 seconds
-			ctx.rotate(angle);
+			// This creates the "roll" by flipping the Y scale from 1 to -1
+			// Adjust '500' to change roll speed (lower is faster)
+			const rollFactor = Math.sin(now / 500);
+			ctx.scale(baseScale, baseScale * rollFactor);
 
-			// Scale the arrow itself
-			ctx.scale(scale, scale);
-
-			// Draw the arrow geometry, centered around the current (translated) origin.
 			ctx.beginPath();
-			ctx.moveTo(60, 0);   // Tip relative to center
-			ctx.lineTo(20, 15);  // Top back
-			ctx.lineTo(20, -15); // Bottom back
+			ctx.moveTo(20, 0);   // Tip
+			ctx.lineTo(-20, 15);  // Top back
+			ctx.lineTo(-20, -15); // Bottom back
+			ctx.closePath();
 
 			ctx.fillStyle = playerColor;
 			ctx.fill();
 
-			// Contrast outline
 			ctx.strokeStyle = isDark ? "white" : "black";
-			ctx.lineWidth = 1.5 / scale; // Keep line sharp regardless of scaling
-
-			ctx.closePath();
+			ctx.lineWidth = 1.5 / baseScale;
 			ctx.stroke();
-
-			// Restore from the isolated spinning logic block
-			ctx.restore();
 
 		} finally {
 			ctx.restore();
