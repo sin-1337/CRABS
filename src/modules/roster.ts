@@ -62,22 +62,23 @@ export class Roster extends CRABS_Base {
 	private onPlayerHover = (playerId: string) => {
 		if (this.trackedMapPlayer !== null || !playerId) return;
 
-		// Abort immediately if the user disabled hover focus
-		if (!Settings.instance.data.pageFocusHover) return;
-
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
+			// ALWAYS set the ID so the indicator can draw
 			this.hoveredMapPlayer = id;
 
-			// Enforce a 500ms delay before shifting to prevent seizure-inducing flickering
-			// if the user rapidly moves their mouse down the list.
+			// ONLY return early here so we don't start the pagination timer
+			if (!Settings.instance.data.pageFocusHover) return;
+
+			// Enforce the 500ms delay for auto-pagination
 			this.hoverTimeout = window.setTimeout(() => {
 				this.autoPaginateToPlayer(id);
 			}, 500);
 		}
 	};
 
-	/** * Handler for when a player's entry is no longer hovered. 
+	/** 
+	 * Handler for when a player's entry is no longer hovered. 
 	 * Clears active hover states and cancels any pending delayed shifts.
 	 */
 	private onPlayerLeave = () => {
