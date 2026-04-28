@@ -290,20 +290,25 @@ export class Settings extends CRABS_Base {
 					}
 				}
 				else if (element.type === 'TextInput') {
-					// Draw the text label aligned with where the checkboxes normally sit
+					// 1. Align the label perfectly with the text of the checkboxes above it
 					canvasContext.textAlign = "left";
-					DrawText(element.text, finalCheckboxX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+					DrawText(element.text, finalTextX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
 
-					// ElementPosition uses the CENTER of the element, not the left edge!
-					// Center the box 350 pixels to the right of the label so it doesn't overlap.
+					// 2. Position the HTML input box so it sits cleanly after the text
 					if (renderPositionY > 180 && renderPositionY < 900 && !isElementLocked && this.isMenuOpen) {
-						(window as any).ElementPosition("CRABS_CustomWords", finalCheckboxX + 350, renderPositionY, 300, 40);
+						const inputWidth = 260; // Shrunk slightly to ensure it never hangs off the edge
+
+						// ElementPosition requires the X coordinate for the CENTER of the box.
+						// Center X = Start of text + Approx width of text (180px) + Half of input width (130px)
+						const centerX = finalTextX + 180 + (inputWidth / 2);
+
+						(window as any).ElementPosition("CRABS_CustomWords", centerX, renderPositionY, inputWidth, 36);
 					} else {
 						(window as any).ElementPosition("CRABS_CustomWords", -1000, -1000, 0, 0); // Hide offscreen
 					}
 
-					// Update the hover hitbox to match the new left-aligned position
-					if (MouseIn(finalCheckboxX, renderPositionY - 18, 500, 36)) {
+					// Maintain the hover tooltip
+					if (MouseIn(finalTextX, renderPositionY - 18, 450, 36)) {
 						tooltipHintToDraw = element.hint;
 					}
 				}
