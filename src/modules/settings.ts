@@ -270,21 +270,23 @@ export class Settings extends CRABS_Base {
 					else if (component.type === 'TextInput') {
 						if (isCanvasVisible) {
 							canvasContext.textAlign = "left";
-							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
+							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							if (MouseIn(finalCheckboxX, currentY - 18, 600, 36)) {
+							if (MouseIn(finalTextX, currentY - 18, 450, 36)) {
 								tooltipHintToDraw = component.hint;
 							}
 						}
 
+						// The safe zone to prevent floating elements
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							const textWidth = canvasContext.measureText(component.label).width;
-							const inputStartX = finalCheckboxX + textWidth + 20;
-							const targetRightEdge = baseX + 590;
-							const inputWidth = targetRightEdge - inputStartX;
-							const centerX = inputStartX + (inputWidth / 2);
+							// 1. Set a strict, much shorter width.
+							const inputWidth = 280;
+
+							// 2. Hardcode the center point exactly 240px to the right of the label's start.
+							// (Approx 100px for the word "Custom" + 140px for half the box width).
+							const centerX = finalTextX + 240;
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
