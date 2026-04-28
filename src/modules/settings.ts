@@ -1,5 +1,5 @@
 /**
- * CRABS Settings Module (Refactored)
+ * CRABS Settings Module
  *
  * Provides a fully dynamic, declarative settings UI for the CRABS mod.
  *
