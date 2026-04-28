@@ -387,9 +387,9 @@ export class Settings extends CRABS_Base {
 	}
 
 	/**
-	 * Hooks the settings subscreen into the base game's preference menu system.
-	 * Utilizes a recursive timeout check to ensure the base game API is fully loaded before injection.
-	 */
+		* Hooks the settings subscreen into the base game's preference menu system.
+		* Utilizes a recursive timeout check to ensure the base game API is fully loaded before injection.
+		*/
 	private registerExtension(): void {
 		const globalWindow = window as any;
 		CRABS_Base.subscreenDef = {
@@ -398,7 +398,7 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
 				this.isMenuOpen = false;
-				globalWindow.ElementRemove?.("CRABS_CustomWords");
+				globalWindow.ElementRemove?.("CRABS_CustomWords"); // <-- Cleans up DOM on exit
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
@@ -407,6 +407,18 @@ export class Settings extends CRABS_Base {
 			load: () => {
 				this.isMenuOpen = true;
 				globalWindow.PreferenceMessage = "";
+
+				// <-- MISSING LOGIC: Construct the DOM element and attach an auto-save listener -->
+				if (!document.getElementById("CRABS_CustomWords")) {
+					globalWindow.ElementCreateInput("CRABS_CustomWords", "text", this.data.customHighlightWords || "", 250);
+					const input = document.getElementById("CRABS_CustomWords") as HTMLInputElement;
+					if (input) {
+						input.addEventListener("input", () => {
+							this.data.customHighlightWords = input.value;
+							this.save();
+						});
+					}
+				}
 			}
 		};
 
