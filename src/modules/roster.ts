@@ -842,6 +842,8 @@ export class Roster extends CRABS_Base {
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
+		const now = Date.now();
+
 		ctx.save();
 		try {
 			// Short lived highlight effect 
@@ -864,24 +866,39 @@ export class Roster extends CRABS_Base {
 				ctx.restore();
 			}
 
-			// Draw the arrow
 			const scale = 0.4;
-			ctx.translate(tipX - (20 * scale), y);
+
+			// SPINNING LOGIC - We must rotate around the arrow's center, not its tip.
+			ctx.save();
+			// Position the coordinate system at the arrow's exact center point (40 pixels behind the tip)
+			ctx.translate(tipX - (20 * scale) - (40 * scale), y);
+
+			// Apply rotation. Using now() creates a constant spin. Adjust '3000' to change speed (higher = slower).
+			const angle = (now / 3000) * (Math.PI * 2); // Full rotation every 3 seconds
+			ctx.rotate(angle);
+
+			// Scale the arrow itself
 			ctx.scale(scale, scale);
 
+			// Draw the arrow geometry, centered around the current (translated) origin.
 			ctx.beginPath();
-			ctx.moveTo(20, 0);
-			ctx.lineTo(-20, 15);
-			ctx.lineTo(-20, -15);
+			ctx.moveTo(60, 0);   // Tip relative to center
+			ctx.lineTo(20, 15);  // Top back
+			ctx.lineTo(20, -15); // Bottom back
 
 			ctx.fillStyle = playerColor;
 			ctx.fill();
 
+			// Contrast outline
 			ctx.strokeStyle = isDark ? "white" : "black";
-			ctx.lineWidth = 1.5 / scale;
+			ctx.lineWidth = 1.5 / scale; // Keep line sharp regardless of scaling
 
 			ctx.closePath();
 			ctx.stroke();
+
+			// Restore from the isolated spinning logic block
+			ctx.restore();
+
 		} finally {
 			ctx.restore();
 		}
