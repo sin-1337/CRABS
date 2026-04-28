@@ -31,7 +31,8 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	mapSuperZoom: false,
 	pageFocusHover: true,
 	animatedCrabsLogo: true,
-	highlightMentions: true, // <-- NEW SETTING
+	highlightMentions: true,
+	customHighlightWords: "",
 };
 
 /**
@@ -54,7 +55,7 @@ export class Settings extends CRABS_Base {
 	private readonly INDENT_WIDTH = 40;
 
 	private scrollOffset: number = 0;
-	private readonly MAX_SCROLL: number = 700; // Bumped up slightly to accommodate the new column length
+	private readonly MAX_SCROLL: number = 800;
 	private readonly SCROLL_STEP: number = 100;
 	private isMenuOpen: boolean = false;
 
@@ -173,8 +174,22 @@ export class Settings extends CRABS_Base {
 		};
 		this.addCheckbox("SuperZoom", "mapSuperZoom", "Unlock map zoom limits.", { category: "Maps", yPos: 800, grayedOut: isSuperZoomBlocked });
 
-		// <-- NEW CHAT CATEGORY -->
 		this.addCheckbox("Highlight Mentions", "highlightMentions", "Highlights chat messages containing your name or nickname.", { category: "Chat", yPos: 975 });
+		this.addTextInput("Custom Words", "customHighlightWords", "Comma-separated list of extra words to trigger highlights.", { category: "Chat", yPos: 1050, indent: 1 });
+	}
+
+	/**
+	 * Registers a text input element to be rendered in the settings view.
+	 */
+	private addTextInput(text: string, setting: keyof CRABS_Settings & string, hint: string, options?: any) {
+		this.elements.push({
+			type: 'TextInput', text, setting, hint,
+			yPos: options?.yPos || 280,
+			width: 300, height: 40,
+			category: options?.category,
+			grayedOut: options?.grayedOut,
+			indent: options?.indent || 0
+		});
 	}
 
 	/**
@@ -238,7 +253,6 @@ export class Settings extends CRABS_Base {
 			DrawRect(rightColumnX, 200 - currentScrollOffset, 650, 375, "#00000011"); DrawText("Immersion", rightColumnX + 325, 220 - currentScrollOffset, "Black", "Gray");
 			DrawRect(rightColumnX, 650 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Maps", rightColumnX + 325, 670 - currentScrollOffset, "Black", "Gray");
 
-			// <-- NEW CHAT PANEL -->
 			DrawRect(rightColumnX, 900 - currentScrollOffset, 650, 200, "#00000011"); DrawText("Chat", rightColumnX + 325, 920 - currentScrollOffset, "Black", "Gray");
 
 			let tooltipHintToDraw = "";
@@ -270,6 +284,22 @@ export class Settings extends CRABS_Base {
 						}
 					}
 				}
+				else if (element.type === 'TextInput') {
+					// Draw the text label
+					canvasContext.textAlign = "left";
+					DrawText(element.text, finalTextX, renderPositionY, isElementLocked ? "#888888" : "Black", "");
+
+					// Position the HTML input box next to the label if it is within the clipping window
+					if (renderPositionY > 180 && renderPositionY < 900 && !isElementLocked && this.isMenuOpen) {
+						(window as any).ElementPosition("CRABS_CustomWords", finalTextX + 270, renderPositionY, 250, 40);
+					} else {
+						(window as any).ElementPosition("CRABS_CustomWords", -1000, -1000, 0, 0); // Hide offscreen
+					}
+
+					if (MouseIn(finalTextX, renderPositionY - 18, 450, 36)) {
+						tooltipHintToDraw = element.hint;
+					}
+				}
 			}
 			canvasContext.restore();
 
@@ -289,10 +319,11 @@ export class Settings extends CRABS_Base {
 	 * handles interdependent setting logic, and commits changes.
 	 */
 	public click(): void {
-		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
+		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen, ElementRemove } = window as any;
 
 		if (MouseIn(1815, 75, 90, 90)) {
 			this.isMenuOpen = false;
+			ElementRemove?.("CRABS_CustomWords");
 			PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
@@ -300,6 +331,7 @@ export class Settings extends CRABS_Base {
 		const isInChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		if (MouseIn(1710, 75, 90, 90) && isInChatRoom) {
 			this.isMenuOpen = false;
+			ElementRemove?.("CRABS_CustomWords");
 			if (typeof CommonSetScreen === "function") CommonSetScreen("Online", "ChatRoom");
 			PreferenceSubscreenExtensionsClear?.();
 			(window as any).PreferenceMessage = "";
@@ -366,6 +398,7 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
 				this.isMenuOpen = false;
+				globalWindow.ElementRemove?.("CRABS_CustomWords");
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");

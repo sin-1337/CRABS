@@ -58,4 +58,5 @@ interface CRABS_Settings {
 	checkForUpdates: boolean;
 	animatedCrabsLogo: boolean;
 	highlightMentions: boolean;
+	customHighlightWords: string;
 }
