@@ -105,13 +105,13 @@ export class Settings extends CRABS_Base {
 	/**
 	 * Determines if a specific UI element should be locked based on hardcore immersion rules.
 	 */
-	private isSettingLocked(comp: UIComponent): boolean {
+	private isSettingLocked(component: UIComponent): boolean {
 		if (!this.isRestricted() || !this.data.lockImmersive) return false;
-		if (comp.setting === "lockImmersive") return true;
-		if (comp.category === "Immersion" && this.data[comp.setting as keyof CRABS_Settings] === true) return true;
+		if (component.setting === "lockImmersive") return true;
+		if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
 
 		// Also check manual disables
-		if (comp.disabled && comp.disabled()) return true;
+		if (component.disabled && component.disabled()) return true;
 
 		return false;
 	}
@@ -234,7 +234,7 @@ export class Settings extends CRABS_Base {
 				const baseX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
 				let currentY = isRightColumn ? currentRightY : currentLeftY;
 
-				const categoryComponents = this.registry.filter(comp => comp.category === cat);
+				const categoryComponents = this.registry.filter(component => component.category === cat);
 				if (categoryComponents.length === 0) continue;
 
 				// Auto-calculate the height of the dark background box based on the number of items!
@@ -247,55 +247,50 @@ export class Settings extends CRABS_Base {
 				// Start drawing items slightly below the header
 				currentY += 60;
 
-				for (const comp of categoryComponents) {
-					const indentShift = (comp.indent || 0) * this.INDENT_WIDTH;
+				for (const component of categoryComponents) {
+					const indentShift = (component.indent || 0) * this.INDENT_WIDTH;
 					const finalCheckboxX = baseX + this.CHECKBOX_X_OFFSET + indentShift;
 					const finalTextX = baseX + this.LABEL_X_OFFSET + indentShift;
 
-					const isLocked = this.isSettingLocked(comp);
-					const isVisible = currentY > 180 && currentY < 900;
+					const isLocked = this.isSettingLocked(component);
+					const isCanvasVisible = currentY > 180 && currentY < 900;
 
-					if (comp.type === 'Checkbox') {
-						if (isVisible) {
-							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[comp.setting], isLocked);
+					if (component.type === 'Checkbox') {
+						if (isCanvasVisible) {
+							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[component.setting], isLocked);
 							canvasContext.textAlign = "left";
-							DrawText(comp.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
+							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
 							if (MouseIn(finalTextX, currentY - 18, 450, 36) || MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
-								tooltipHintToDraw = comp.hint;
-								if (comp.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
+								tooltipHintToDraw = component.hint;
+								if (component.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
 							}
 						}
 					}
-					else if (comp.type === 'TextInput') {
-						canvasContext.textAlign = "left";
-						DrawText(comp.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
+					else if (component.type === 'TextInput') {
+						if (isCanvasVisible) {
+							canvasContext.textAlign = "left";
+							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
 
-						if (!isLocked && this.isMenuOpen) {
-							// 1. Measure how wide the label text is
-							const textWidth = canvasContext.measureText(comp.label).width;
+							if (MouseIn(finalCheckboxX, currentY - 18, 600, 36)) {
+								tooltipHintToDraw = component.hint;
+							}
+						}
 
-							// 2. Calculate exactly where the input box should start (20px gap after text)
-							const inputStartX = finalTextX + textWidth + 20;
+						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
-							// 3. The dark background box is 650px wide (starts at baseX - 20, ends at baseX + 630).
-							// Let's set a strict right margin of baseX + 590 so it never hangs off the edge!
+						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
+							const textWidth = canvasContext.measureText(component.label).width;
+							const inputStartX = finalCheckboxX + textWidth + 20;
 							const targetRightEdge = baseX + 590;
-
-							// 4. Dynamically calculate the perfect width!
 							const inputWidth = targetRightEdge - inputStartX;
 							const centerX = inputStartX + (inputWidth / 2);
 
-							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, centerX, currentY, inputWidth, 36);
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
-							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, -1000, -1000, 0, 0);
-						}
-
-						if (MouseIn(finalTextX, currentY - 18, 450, 36)) {
-							tooltipHintToDraw = comp.hint;
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
 						}
 					}
-
 					currentY += this.ROW_HEIGHT;
 				}
 
@@ -349,24 +344,24 @@ export class Settings extends CRABS_Base {
 			const baseX = isRightColumn ? this.RIGHT_COL_X : this.LEFT_COL_X;
 			let currentY = isRightColumn ? currentRightY : currentLeftY;
 
-			const categoryComponents = this.registry.filter(comp => comp.category === cat);
+			const categoryComponents = this.registry.filter(component => component.category === cat);
 			if (categoryComponents.length === 0) continue;
 
 			const boxHeight = (categoryComponents.length * this.ROW_HEIGHT) + 40;
 			currentY += 60;
 
-			for (const comp of categoryComponents) {
-				const indentShift = (comp.indent || 0) * this.INDENT_WIDTH;
+			for (const component of categoryComponents) {
+				const indentShift = (component.indent || 0) * this.INDENT_WIDTH;
 				const finalCheckboxX = baseX + this.CHECKBOX_X_OFFSET + indentShift;
 
-				if (!this.isSettingLocked(comp) && currentY > 180 && currentY < 900) {
-					if (comp.type === 'Checkbox') {
+				if (!this.isSettingLocked(component) && currentY > 180 && currentY < 900) {
+					if (component.type === 'Checkbox') {
 						if (MouseIn(finalCheckboxX, currentY - 32, 450, 64)) {
-							const newValue = !(this.data as any)[comp.setting];
-							(this.data as any)[comp.setting] = newValue;
+							const newValue = !(this.data as any)[component.setting];
+							(this.data as any)[component.setting] = newValue;
 
 							// Fire the declarative hook if it exists!
-							if (comp.onChange) comp.onChange(newValue);
+							if (component.onChange) component.onChange(newValue);
 
 							this.save();
 							this.syncGameState();
@@ -383,9 +378,9 @@ export class Settings extends CRABS_Base {
 
 	/** Helper method to dynamically destroy all HTML inputs */
 	private cleanupDOMInputs(): void {
-		const textInputs = this.registry.filter(c => c.type === "TextInput");
-		for (const input of textInputs) {
-			(window as any).ElementRemove?.(`CRABS_Input_${input.setting}`);
+		const textInputs = this.registry.filter(component => component.type === "TextInput");
+		for (const component of textInputs) {
+			(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
 		}
 	}
 
@@ -408,15 +403,15 @@ export class Settings extends CRABS_Base {
 				globalWindow.PreferenceMessage = "";
 
 				// Dynamically spawn HTML inputs for any TextInput component
-				const textInputs = this.registry.filter(c => c.type === "TextInput");
-				for (const comp of textInputs) {
-					const domID = `CRABS_Input_${comp.setting}`;
+				const textInputs = this.registry.filter(component => component.type === "TextInput");
+				for (const component of textInputs) {
+					const domID = `CRABS_Input_${component.setting}`;
 					if (!document.getElementById(domID)) {
-						globalWindow.ElementCreateInput(domID, "text", this.data[comp.setting] || "", 250);
+						globalWindow.ElementCreateInput(domID, "text", this.data[component.setting] || "", 250);
 						const inputHTML = document.getElementById(domID) as HTMLInputElement;
 						if (inputHTML) {
 							inputHTML.addEventListener("input", () => {
-								(this.data as any)[comp.setting] = inputHTML.value;
+								(this.data as any)[component.setting] = inputHTML.value;
 								this.save();
 							});
 						}
@@ -441,4 +436,3 @@ export class Settings extends CRABS_Base {
 		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}
 }
-
