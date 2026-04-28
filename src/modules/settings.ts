@@ -281,8 +281,10 @@ export class Settings extends CRABS_Base {
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							const inputWidth = 260; // Slightly narrower to fit
-							const inputStartX = finalCheckboxX + 180; // Shoved 50px further to the right!
+							const inputWidth = 260;
+
+							// Anchor it to the TEXT position this time, plus 160px for the word to breathe!
+							const inputStartX = finalTextX + 160;
 							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
