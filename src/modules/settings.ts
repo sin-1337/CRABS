@@ -306,6 +306,22 @@ export class Settings extends CRABS_Base {
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
 						}
 					}
+					else if (component.type === 'ColorPicker') {
+						if (isCanvasVisible) {
+							canvasContext.textAlign = "left";
+							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
+						}
+
+						const isSafelyOnScreen = currentY > 210 && currentY < 870;
+						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
+							const inputWidth = 260;
+							const centerX = baseX + 340; // Using your perfected coordinate!
+
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
+						} else {
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
+						}
+					}
 
 					currentY += this.ROW_HEIGHT;
 				}
@@ -398,6 +414,11 @@ export class Settings extends CRABS_Base {
 		for (const component of textInputs) {
 			(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
 		}
+		for (const component of this.registry) {
+			if (component.type === "TextInput" || component.type === "ColorPicker") {
+				(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
+			}
+		}
 	}
 
 	private registerExtension(): void {
@@ -416,21 +437,26 @@ export class Settings extends CRABS_Base {
 			},
 			load: () => {
 				this.isMenuOpen = true;
-				globalWindow.PreferenceMessage = "";
+				const globalWindow = window as any;
 
-				// Dynamically spawn HTML inputs for any TextInput component
-				const textInputs = this.registry.filter(component => component.type === "TextInput");
-				for (const component of textInputs) {
+				for (const component of this.registry) {
 					const domID = `CRABS_Input_${component.setting}`;
-					if (!document.getElementById(domID)) {
+					if (document.getElementById(domID)) continue;
+
+					if (component.type === "TextInput") {
 						globalWindow.ElementCreateInput(domID, "text", this.data[component.setting] || "", 250);
-						const inputHTML = document.getElementById(domID) as HTMLInputElement;
-						if (inputHTML) {
-							inputHTML.addEventListener("input", () => {
-								(this.data as any)[component.setting] = inputHTML.value;
-								this.save();
-							});
-						}
+						document.getElementById(domID)?.addEventListener("input", (e) => {
+							(this.data as any)[component.setting] = (e.target as HTMLInputElement).value;
+							this.save();
+						});
+					}
+					else if (component.type === "ColorPicker") {
+						// Native game call to create the picker
+						globalWindow.ElementCreateColorPicker(domID, this.data[component.setting] || "#FFFF00");
+						document.getElementById(domID)?.addEventListener("input", (e) => {
+							(this.data as any)[component.setting] = (e.target as HTMLInputElement).value;
+							this.save();
+						});
 					}
 				}
 			}
