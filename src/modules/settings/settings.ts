@@ -229,6 +229,12 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
+	public syncGameState(): void {
+		const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
+		if (perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50) return;
+		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
+	}
+
 	private registerExtension(): void {
 		const globalWindow = window as any;
 
