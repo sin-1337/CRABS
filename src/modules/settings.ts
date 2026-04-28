@@ -1,14 +1,14 @@
 /**
-* CRABS Settings Module
-*
-* This module implements the configuration interface for the CRABS mod.
-* It provides:
-* - A custom in-game preference subscreen
-* - Persistent storage of user configurations
-* - Dynamic UI generation for various setting types (checkboxes, cycle buttons)
-* - Visual hierarchy via indentation for dependent settings
-* - State synchronization with base game variables
-*/
+ * CRABS Settings Module
+ *
+ * This module implements the configuration interface for the CRABS mod.
+ * It provides:
+ * - A custom in-game preference subscreen
+ * - Persistent storage of user configurations
+ * - Dynamic UI generation for various setting types (checkboxes, cycle buttons)
+ * - Visual hierarchy via indentation for dependent settings
+ * - State synchronization with base game variables
+ */
 
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -110,7 +110,6 @@ export class Settings extends CRABS_Base {
 		if (component.setting === "lockImmersive") return true;
 		if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
 
-		// Also check manual disables
 		if (component.disabled && component.disabled()) return true;
 
 		return false;
@@ -128,7 +127,6 @@ export class Settings extends CRABS_Base {
 
 	/**
 	 * The Declarative Settings Engine. 
-	 * Add, remove, or reorder settings here and the UI will automatically calculate the math!
 	 */
 	private buildRegistry(): void {
 		const isDrawerDisabled = () => !this.data.enableDrawer;
@@ -181,7 +179,7 @@ export class Settings extends CRABS_Base {
 		// --- CHAT ---
 		this.register({ category: "Chat", type: "Checkbox", setting: "highlightMentions", label: "Highlight Mentions", hint: "Highlights chat messages containing your name or nickname." });
 		this.register({
-			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom Words", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
+			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
 			disabled: () => !this.data.highlightMentions
 		});
 	}
@@ -190,11 +188,8 @@ export class Settings extends CRABS_Base {
 		this.registry.push(component);
 	}
 
-	/**
-	 * Auto-calculates layout and renders components sequentially.
-	 */
 	public draw(): void {
-		const { DrawText, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
+		const { MouseIn, DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
@@ -222,7 +217,6 @@ export class Settings extends CRABS_Base {
 			canvasContext.rect(500, 180, 1280, 720);
 			canvasContext.clip();
 
-			// Track Y positions dynamically
 			let currentLeftY = 200 - this.scrollOffset;
 			let currentRightY = 200 - this.scrollOffset;
 			let tooltipHintToDraw = "";
@@ -237,14 +231,12 @@ export class Settings extends CRABS_Base {
 				const categoryComponents = this.registry.filter(component => component.category === cat);
 				if (categoryComponents.length === 0) continue;
 
-				// Auto-calculate the height of the dark background box based on the number of items!
 				const boxHeight = (categoryComponents.length * this.ROW_HEIGHT) + 40;
 				DrawRect(baseX - 20, currentY, 650, boxHeight, "#00000011");
 
 				canvasContext.textAlign = "center";
 				DrawText(cat, baseX + 305, currentY + 20, "Black", "Gray");
 
-				// Start drawing items slightly below the header
 				currentY += 60;
 
 				for (const component of categoryComponents) {
@@ -257,15 +249,10 @@ export class Settings extends CRABS_Base {
 
 					if (component.type === 'Checkbox') {
 						if (isCanvasVisible) {
-							(window as any).DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[component.setting as keyof CRABS_Settings], isLocked);
+							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[component.setting as keyof CRABS_Settings], isLocked);
+							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							// Bypass the game's text wrapper to force STRICT left-alignment
-							canvasContext.textAlign = "left";
-							canvasContext.textBaseline = "middle";
-							canvasContext.fillStyle = isLocked ? "#888888" : "Black";
-							canvasContext.fillText(component.label, finalTextX, currentY);
-
-							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36) || (window as any).MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
+							if (MouseIn(finalTextX - 100, currentY - 18, 450, 36) || MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
 								tooltipHintToDraw = component.hint;
 								if (component.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
 							}
@@ -273,13 +260,9 @@ export class Settings extends CRABS_Base {
 					}
 					else if (component.type === 'TextInput') {
 						if (isCanvasVisible) {
-							// Bypass the game's text wrapper here too!
-							canvasContext.textAlign = "left";
-							canvasContext.textBaseline = "middle";
-							canvasContext.fillStyle = isLocked ? "#888888" : "Black";
-							canvasContext.fillText(component.label, finalTextX, currentY);
+							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36)) {
+							if (MouseIn(finalTextX - 100, currentY - 18, 450, 36)) {
 								tooltipHintToDraw = component.hint;
 							}
 						}
@@ -287,11 +270,16 @@ export class Settings extends CRABS_Base {
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							const inputWidth = 280;
+							canvasContext.font = "36px Arial"; // Ensure we match game font for accurate math
+							const textWidth = canvasContext.measureText(component.label).width;
 
-							// Absolute Grid Anchoring: Center the box exactly 420 pixels from the left 
-							// edge of the category box. This completely ignores text length and indentation!
-							const centerX = baseX + 420;
+							// DrawText centers the text at finalTextX. We find the right edge by adding half the width.
+							const rightEdgeOfWord = finalTextX + (textWidth / 2);
+
+							const inputStartX = rightEdgeOfWord + 20;
+							const targetRightEdge = baseX + 600;
+							const inputWidth = targetRightEdge - inputStartX;
+							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
@@ -302,7 +290,6 @@ export class Settings extends CRABS_Base {
 					currentY += this.ROW_HEIGHT;
 				}
 
-				// Push the next category down dynamically!
 				if (isRightColumn) currentRightY += boxHeight + 20;
 				else currentLeftY += boxHeight + 20;
 			}
@@ -319,9 +306,6 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
-	/**
-	 * Auto-calculates hitboxes and fires declarative hooks.
-	 */
 	public click(): void {
 		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 
@@ -339,7 +323,7 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 		if (MouseIn(1815, 800, 90, 90)) {
-			this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset - this.SCROLL_STEP * -1); // Failsafe scrolling
+			this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
 			return;
 		}
 
@@ -368,12 +352,11 @@ export class Settings extends CRABS_Base {
 							const newValue = !(this.data as any)[component.setting];
 							(this.data as any)[component.setting] = newValue;
 
-							// Fire the declarative hook if it exists!
 							if (component.onChange) component.onChange(newValue);
 
 							this.save();
 							this.syncGameState();
-							return; // Stop checking clicks
+							return;
 						}
 					}
 				}
@@ -384,7 +367,6 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
-	/** Helper method to dynamically destroy all HTML inputs */
 	private cleanupDOMInputs(): void {
 		const textInputs = this.registry.filter(component => component.type === "TextInput");
 		for (const component of textInputs) {
@@ -400,7 +382,7 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
 				this.isMenuOpen = false;
-				this.cleanupDOMInputs(); // Loops through all inputs automatically
+				this.cleanupDOMInputs();
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
@@ -410,7 +392,6 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = true;
 				globalWindow.PreferenceMessage = "";
 
-				// Dynamically spawn HTML inputs for any TextInput component
 				const textInputs = this.registry.filter(component => component.type === "TextInput");
 				for (const component of textInputs) {
 					const domID = `CRABS_Input_${component.setting}`;
