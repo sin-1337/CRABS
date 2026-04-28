@@ -850,7 +850,7 @@ export class Roster extends CRABS_Base {
 			}
 
 			// The Barrel Roll Arrow
-			const baseScale = 0.4;
+			const baseScale = 0.5;
 			const arrowWidth = 40 * baseScale;
 			const tipX = x - (cachedData.width / 2) - 5;
 			const centerX = tipX - (arrowWidth / 2);
