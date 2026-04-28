@@ -54,7 +54,6 @@ export class Roster extends CRABS_Base {
 
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 	private deferredIndicator: { character: any, x: number, y: number } | null = null;
-	private indicatorStartTime: number = 0;
 
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
@@ -66,7 +65,6 @@ export class Roster extends CRABS_Base {
 		const id = parseInt(playerId, 10);
 		if (!isNaN(id)) {
 			if (this.hoveredMapPlayer !== id) {
-				this.indicatorStartTime = Date.now(); // Trigger effect
 			}
 			this.hoveredMapPlayer = id;
 
@@ -709,7 +707,6 @@ export class Roster extends CRABS_Base {
 		this.trackedMapPlayer = wasTracked ? null : id;
 
 		if (!wasTracked) {
-			this.indicatorStartTime = Date.now(); // Trigger effect
 			this.autoPaginateToPlayer(id);
 		}
 
@@ -836,18 +833,20 @@ export class Roster extends CRABS_Base {
 		ctx.save();
 		try {
 			// Transient Glow Effect
-			const elapsed = now - this.indicatorStartTime;
-			if (elapsed < 800) {
-				const alpha = (1 - elapsed / 800) * 0.4;
-				ctx.save();
-				ctx.globalAlpha = alpha;
-				ctx.fillStyle = playerColor;
-				ctx.filter = 'blur(8px)';
-				ctx.beginPath();
-				ctx.ellipse(x, y - 15, cachedData.width / 2 + 20, 25, 0, 0, Math.PI * 2);
-				ctx.fill();
-				ctx.restore();
-			}
+			// Continuous Pulsing Glow Effect
+			// Math.sin creates a wave from -1 to 1.
+			// We shift it to 0 to 1, then multiply by 0.4 for max opacity.
+			const pulseSpeed = 250; // Lower is faster
+			const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
+
+			ctx.save();
+			ctx.globalAlpha = pulseAlpha;
+			ctx.fillStyle = playerColor;
+			ctx.filter = 'blur(8px)';
+			ctx.beginPath();
+			ctx.ellipse(x, y - 15, cachedData.width / 2 + 20, 25, 0, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.restore();
 
 			// The Barrel Roll Arrow
 			const baseScale = 0.5;
