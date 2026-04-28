@@ -45,8 +45,7 @@ export class Settings extends CRABS_Base {
 		this.buildRegistry();
 		this.layout = new LayoutEngine(this.registry);
 
-		// --- THE FIX: Hook the base game to outsmart its native Exit button ---
-		this.safeHook("PreferenceSubscreenExtensionsDraw", 10, (args: any, next: Function) => {
+		this.safeHook("PreferenceSubscreenExtensionsRun", 10, (args: any, next: Function) => {
 			const result = next(args); // Let BC draw everything (including its white Exit button)
 			if (this.isMenuOpen && this.showResetConfirm) {
 				this.drawModal(); // Draw our modal over the top of the Exit button!
