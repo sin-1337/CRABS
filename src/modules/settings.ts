@@ -253,10 +253,10 @@ export class Settings extends CRABS_Base {
 					const finalTextX = baseX + this.LABEL_X_OFFSET + indentShift;
 
 					const isLocked = this.isSettingLocked(comp);
+					const isVisible = currentY > 180 && currentY < 900;
 
-					if (currentY > 180 && currentY < 900) {
-
-						if (comp.type === 'Checkbox') {
+					if (comp.type === 'Checkbox') {
+						if (isVisible) {
 							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[comp.setting], isLocked);
 							canvasContext.textAlign = "left";
 							DrawText(comp.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
@@ -266,24 +266,32 @@ export class Settings extends CRABS_Base {
 								if (comp.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
 							}
 						}
-						else if (comp.type === 'TextInput') {
+					}
+					else if (comp.type === 'TextInput') {
+						if (isVisible) {
+							// Draw label at the exact same X coordinate as the checkboxes so it aligns beautifully
 							canvasContext.textAlign = "left";
-							DrawText(comp.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
+							DrawText(comp.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
 
-							if (!isLocked && this.isMenuOpen) {
-								const inputWidth = 260;
-								const textWidth = canvasContext.measureText(comp.label).width;
-								const centerX = finalTextX + textWidth + 20 + (inputWidth / 2);
-								(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, centerX, currentY, inputWidth, 36);
-							} else {
-								(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, -1000, -1000, 0, 0);
-							}
-
-							if (MouseIn(finalTextX, currentY - 18, 450, 36)) {
+							// Maintain the hover tooltip
+							if (MouseIn(finalCheckboxX, currentY - 18, 600, 36)) {
 								tooltipHintToDraw = comp.hint;
 							}
 						}
+
+						// ElementPosition MUST be updated every frame, even if invisible, 
+						// so it hides properly when scrolling out of bounds instead of floating!
+						if (isVisible && !isLocked && this.isMenuOpen) {
+							const inputWidth = 380; // Wider box so you can read your words
+							const inputStartX = finalCheckboxX + 150; // Snap the box exactly 150px after the label
+							const centerX = inputStartX + (inputWidth / 2);
+
+							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, centerX, currentY, inputWidth, 36);
+						} else {
+							(window as any).ElementPosition(`CRABS_Input_${comp.setting}`, -1000, -1000, 0, 0); // Hide offscreen
+						}
 					}
+
 					currentY += this.ROW_HEIGHT;
 				}
 
@@ -429,3 +437,4 @@ export class Settings extends CRABS_Base {
 		(window as any).ChatRoomMapViewPerceptionRangeMax = this.data.mapSuperZoom ? 50 : 7;
 	}
 }
+
