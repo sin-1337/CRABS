@@ -218,11 +218,19 @@ export class Settings extends CRABS_Base {
 			this.isMenuOpen = false;
 			this.layout.updateDOM(false);
 
+			// Destroy all HTML inputs so they don't float over other screens
+			for (const key of Object.keys(this.data)) {
+				globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+			}
+			globalWindow.PreferenceMessage = "";
+			globalWindow.PreferenceSubscreenExtensionsClear?.();
+
 			if (clickedChat) {
 				globalWindow.CommonSetScreen("Online", "ChatRoom");
+			} else {
+				// Route them back to the Extensions list
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
 			}
-
-			globalWindow.PreferenceSubscreenExtensionsClear?.();
 			return;
 		}
 
@@ -251,20 +259,6 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = true;
 				this.layout.updateDOM(true);
 			},
-			exit: () => {
-				this.isMenuOpen = false;
-				this.layout.updateDOM(false);
-
-				// Destroy all HTML inputs so they don't float over other screens
-				for (const key of Object.keys(this.data)) {
-					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
-				}
-
-				globalWindow.PreferenceMessage = "";
-				globalWindow.PreferenceSubscreenExtensionsClear?.();
-				globalWindow.PreferenceOpenSubscreen?.("Extensions");
-				return false;
-			}
 		};
 
 		// Attempt to register the mod settings tab, retry if the game isn't ready

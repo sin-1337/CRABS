@@ -42,7 +42,7 @@ export class LayoutEngine {
 		}
 	}
 
-	public draw(ctx: CanvasRenderingContext2D, isModalOpen: boolean = false): void {
+	public draw(context: CanvasRenderingContext2D, isModalOpen: boolean = false): void {
 		const globalWindow = window as any;
 		this.currentTooltip = "";
 
@@ -53,13 +53,13 @@ export class LayoutEngine {
 		globalWindow.DrawRect(40, 40, 420, 920, "#222222aa");
 		globalWindow.DrawCharacter(globalWindow.Player, 50, 50, 0.9);
 
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
+		context.textAlign = "center";
+		context.textBaseline = "middle";
 		globalWindow.DrawText("- CRABS Mod Settings -", 1140, 80, "Black", "Gray");
 
 		// --- Draw Top-Right Nav Buttons (Greyed out if modal is open) ---
 		const btnColor = isModalOpen ? "#888888" : "White";
-		globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
+		//globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
 
 		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		globalWindow.DrawButton(1710, 75, 90, 90, "", isModalOpen || !isInChat ? "#888888" : "White", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
@@ -77,15 +77,15 @@ export class LayoutEngine {
 		}
 
 		// Clip Region (so scrolling cuts off perfectly)
-		ctx.save();
-		ctx.beginPath();
-		ctx.rect(500, 200, 1280, 680);
-		ctx.clip();
+		context.save();
+		context.beginPath();
+		context.rect(500, 200, 1280, 680);
+		context.clip();
 
 		// PASS 1: Draw the tree hierarchy lines
-		ctx.beginPath();
-		ctx.strokeStyle = "#666666"; // A subtle grey color
-		ctx.lineWidth = 3;
+		context.beginPath();
+		context.strokeStyle = "#666666"; // A subtle grey color
+		context.lineWidth = 3;
 
 		let currentY = 280 - this.scrollOffset;
 		for (let i = 0; i < visible.length; i++) {
@@ -106,25 +106,25 @@ export class LayoutEngine {
 					const spineX = this.BASE_X + ((item.indent - 1) * this.INDENT_WIDTH) + 32;
 					const childX = this.BASE_X + (item.indent * this.INDENT_WIDTH);
 
-					ctx.moveTo(spineX, parentY + 32);  // Start spine at the bottom edge of parent checkbox
-					ctx.lineTo(spineX, currentY);      // Drop down to the child's level
-					ctx.lineTo(childX - 10, currentY); // Branch right to touch the child
+					context.moveTo(spineX, parentY + 32);  // Start spine at the bottom edge of parent checkbox
+					context.lineTo(spineX, currentY);      // Drop down to the child's level
+					context.lineTo(childX - 10, currentY); // Branch right to touch the child
 				}
 			}
 			currentY += this.ROW_HEIGHT;
 		}
-		ctx.stroke(); // Draw all lines at once!
+		context.stroke(); // Draw all lines at once!
 
 		// PASS 2: Draw the actual Widgets
 		currentY = 280 - this.scrollOffset;
 		for (const item of visible) {
 			if (currentY > 180 && currentY < 900) {
 				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: this.ROW_HEIGHT };
-				item.widget.draw(ctx, bounds, (hint) => { this.currentTooltip = hint; });
+				item.widget.draw(context, bounds, (hint) => { this.currentTooltip = hint; });
 			}
 			currentY += this.ROW_HEIGHT;
 		}
-		ctx.restore();
+		context.restore();
 
 		// footer
 		if (this.currentTooltip) globalWindow.DrawText(this.currentTooltip, 1140, 920, "Black", "Gray");

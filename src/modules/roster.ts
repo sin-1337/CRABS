@@ -829,30 +829,30 @@ export class Roster extends CRABS_Base {
 		if (!Settings.instance.data.enableFocusHalo) return;
 
 		const globalWindow = window as any;
-		const ctx = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
-		if (!ctx) return;
+		const context = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
+		if (!context) return;
 
 		const now = Date.now();
 		const playerColor = character.LabelColor || "cyan";
 		const pulseSpeed = 250;
 		const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
 
-		ctx.save();
+		context.save();
 		try {
-			ctx.globalAlpha = pulseAlpha;
-			ctx.fillStyle = playerColor;
-			ctx.filter = 'blur(25px)'; // Extra blur for a massive aura
+			context.globalAlpha = pulseAlpha;
+			context.fillStyle = playerColor;
+			context.filter = 'blur(25px)'; // Extra blur for a massive aura
 
 			// Character canvas is standard 500x1000
 			const centerX = drawX + (250 * zoom);
 			const centerY = drawY + (500 * zoom);
 
-			ctx.beginPath();
+			context.beginPath();
 			// Draw an ellipse filling the entire 500x1000 character boundary
-			ctx.ellipse(centerX, centerY, 250 * zoom, 500 * zoom, 0, 0, Math.PI * 2);
-			ctx.fill();
+			context.ellipse(centerX, centerY, 250 * zoom, 500 * zoom, 0, 0, Math.PI * 2);
+			context.fill();
 		} finally {
-			ctx.restore();
+			context.restore();
 		}
 	}
 
