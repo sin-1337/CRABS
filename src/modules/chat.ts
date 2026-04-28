@@ -57,7 +57,10 @@ export class ChatManager extends CRABS_Base {
 
 		const customWordsSetting = Settings.instance.data.customHighlightWords;
 		if (customWordsSetting && customWordsSetting.trim() !== "") {
-			const customWords = customWordsSetting.split(',').map(w => w.trim()).filter(w => w !== "");
+			const customWords = String(customWordsSetting || "")
+				.split(',')
+				.map((w: string) => w.trim())
+				.filter((w: string) => w !== "");
 			for (const word of customWords) {
 				namesToMatch.push(escapeRegExp(word));
 			}
