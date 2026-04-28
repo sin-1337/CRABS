@@ -59,4 +59,5 @@ interface CRABS_Settings {
 	animatedCrabsLogo: boolean;
 	highlightMentions: boolean;
 	customHighlightWords: string;
+	highlightColor: string;
 }

@@ -33,10 +33,11 @@ const DEFAULT_SETTINGS: CRABS_Settings = {
 	animatedCrabsLogo: true,
 	highlightMentions: true,
 	customHighlightWords: "",
+	highlightColor: "#FFFF00",
 };
 
 // Define the types of UI controls we support
-type ComponentType = "Checkbox" | "TextInput";
+type ComponentType = "Checkbox" | "TextInput" | "ColorPicker";
 type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
 
 // The master interface for a declarative setting
@@ -186,6 +187,15 @@ export class Settings extends CRABS_Base {
 			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
 			disabled: () => !this.data.highlightMentions
 		});
+		this.register({
+			category: "Chat",
+			type: "ColorPicker",
+			setting: "highlightColor",
+			label: "Highlight Color",
+			hint: "Pick a custom color for chat highlights.",
+			indent: 1,
+			disabled: () => !this.data.highlightMentions
+		});
 	}
 
 	private register(component: UIComponent): void {
@@ -296,6 +306,22 @@ export class Settings extends CRABS_Base {
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
 						}
 					}
+					else if (component.type === 'ColorPicker') {
+						if (isCanvasVisible) {
+							canvasContext.textAlign = "left";
+							DrawText(component.label, finalCheckboxX, currentY, isLocked ? "#888888" : "Black", "");
+						}
+
+						const isSafelyOnScreen = currentY > 210 && currentY < 870;
+						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
+							const inputWidth = 180;
+							const centerX = baseX + 410;
+
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
+						} else {
+							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, -1000, -1000, 0, 0);
+						}
+					}
 
 					currentY += this.ROW_HEIGHT;
 				}
@@ -388,6 +414,11 @@ export class Settings extends CRABS_Base {
 		for (const component of textInputs) {
 			(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
 		}
+		for (const component of this.registry) {
+			if (component.type === "TextInput" || component.type === "ColorPicker") {
+				(window as any).ElementRemove?.(`CRABS_Input_${component.setting}`);
+			}
+		}
 	}
 
 	private registerExtension(): void {
@@ -406,21 +437,26 @@ export class Settings extends CRABS_Base {
 			},
 			load: () => {
 				this.isMenuOpen = true;
-				globalWindow.PreferenceMessage = "";
+				const globalWindow = window as any;
 
-				// Dynamically spawn HTML inputs for any TextInput component
-				const textInputs = this.registry.filter(component => component.type === "TextInput");
-				for (const component of textInputs) {
+				for (const component of this.registry) {
 					const domID = `CRABS_Input_${component.setting}`;
-					if (!document.getElementById(domID)) {
+					if (document.getElementById(domID)) continue;
+
+					if (component.type === "TextInput") {
 						globalWindow.ElementCreateInput(domID, "text", this.data[component.setting] || "", 250);
-						const inputHTML = document.getElementById(domID) as HTMLInputElement;
-						if (inputHTML) {
-							inputHTML.addEventListener("input", () => {
-								(this.data as any)[component.setting] = inputHTML.value;
-								this.save();
-							});
-						}
+						document.getElementById(domID)?.addEventListener("input", (e) => {
+							(this.data as any)[component.setting] = (e.target as HTMLInputElement).value;
+							this.save();
+						});
+					}
+					else if (component.type === "ColorPicker") {
+						// Native game call to create the picker
+						globalWindow.ElementCreateInput(domID, "color", this.data[component.setting] || "#FFFF00", 250);
+						document.getElementById(domID)?.addEventListener("input", (e) => {
+							(this.data as any)[component.setting] = (e.target as HTMLInputElement).value;
+							this.save();
+						});
 					}
 				}
 			}
