@@ -314,8 +314,8 @@ export class Settings extends CRABS_Base {
 
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							const inputWidth = 260;
-							const centerX = baseX + 340; // Using your perfected coordinate!
+							const inputWidth = 180;
+							const centerX = baseX + 410;
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
 						} else {
