@@ -182,9 +182,14 @@ export class Settings extends CRABS_Base {
 	/**
 	 * Builds the declarative registry of UI components
 	 */
+	/**
+	 * Builds the declarative registry of UI components.
+	 * This defines ALL settings, their hierarchy, and behaviors.
+	 */
 	private buildRegistry(): void {
 		const isDrawerDisabled = () => !this.data.enableDrawer;
 
+		// --- GENERAL ---
 		this.registry.push(
 			{
 				category: "General",
@@ -198,16 +203,19 @@ export class Settings extends CRABS_Base {
 				type: "Checkbox",
 				setting: "checkForUpdates",
 				label: "Notify me about updates",
-				hint: "Check for updates."
-			},
+				hint: "Periodically check for CRABS updates."
+			}
+		);
 
+		// --- DRAWER ---
+		this.registry.push(
 			{
 				category: "Drawer",
 				type: "Checkbox",
 				setting: "enableDrawer",
 				label: "Enable Drawer UI",
-				hint: "Enable drawer interface.",
-				onChange: (enabled) => {
+				hint: "Enable the sliding drawer interface.",
+				onChange: (enabled: boolean) => {
 					if (!enabled) {
 						this.data.rosterOpensDrawer = false;
 						this.data.showDrawerTab = false;
@@ -219,27 +227,152 @@ export class Settings extends CRABS_Base {
 				type: "Checkbox",
 				setting: "rosterOpensDrawer",
 				label: "/roster toggles drawer",
-				hint: "Toggle drawer via command.",
+				hint: "Toggle drawer via /roster or /crabs.",
 				indent: 1,
-				disabled: isDrawerDisabled
+				disabled: isDrawerDisabled,
+				onChange: (enabled: boolean) => {
+					if (!enabled) this.data.showDrawerTab = true;
+				}
 			},
 			{
 				category: "Drawer",
 				type: "Checkbox",
 				setting: "showDrawerTab",
 				label: "Show Drawer Tab",
-				hint: "Display drawer tab.",
+				hint: "Display the drawer tab.",
 				indent: 2,
-				disabled: () => isDrawerDisabled() || !this.data.rosterOpensDrawer
+				disabled: () => isDrawerDisabled() || !this.data.rosterOpensDrawer,
+				onChange: (enabled: boolean) => {
+					if (!enabled) this.data.animatedCrabsLogo = false;
+				}
 			},
 			{
 				category: "Drawer",
 				type: "Checkbox",
 				setting: "animatedCrabsLogo",
 				label: "Animated Tab Logo",
-				hint: "Animated logo.",
+				hint: "Use animated logo.",
 				indent: 3,
 				disabled: () => isDrawerDisabled() || !this.data.showDrawerTab
+			},
+			{
+				category: "Drawer",
+				type: "Checkbox",
+				setting: "compactDrawer",
+				label: "Compact Height",
+				hint: "Drawer uses reduced height.",
+				indent: 1,
+				disabled: isDrawerDisabled
+			},
+			{
+				category: "Drawer",
+				type: "Checkbox",
+				setting: "closeDrawerOnWhisper",
+				label: "Auto-stow on Whisper+",
+				hint: "Close drawer after whisper.",
+				indent: 1,
+				disabled: isDrawerDisabled
+			},
+			{
+				category: "Drawer",
+				type: "Checkbox",
+				setting: "closeDrawerOnChat",
+				label: "Auto-stow on Chat",
+				hint: "Close drawer after chat.",
+				indent: 1,
+				disabled: isDrawerDisabled
+			},
+			{
+				category: "Drawer",
+				type: "Checkbox",
+				setting: "pageFocusHover",
+				label: "Focus follows mouse",
+				hint: "Hovering switches pages.",
+				indent: 1,
+				disabled: isDrawerDisabled
+			}
+		);
+
+		// --- IMMERSION ---
+		this.registry.push(
+			{
+				category: "Immersion",
+				type: "Checkbox",
+				setting: "lockImmersive",
+				label: "Hardcore Lock",
+				hint: "Locks immersive settings when bound."
+			},
+			{
+				category: "Immersion",
+				type: "Checkbox",
+				setting: "immersiveBlind",
+				label: "Respect Blindness",
+				hint: "Blur roster when blind."
+			},
+			{
+				category: "Immersion",
+				type: "Checkbox",
+				setting: "immersiveGag",
+				label: "Respect Gags",
+				hint: "Disable whisper when gagged."
+			},
+			{
+				category: "Immersion",
+				type: "Checkbox",
+				setting: "respectBcxRules",
+				label: "Respect BCX Rules",
+				hint: "Integrate with BCX."
+			}
+		);
+
+		// --- MAPS ---
+		this.registry.push(
+			{
+				category: "Maps",
+				type: "Checkbox",
+				setting: "showMapCompass",
+				label: "Show Map Compass",
+				hint: "Display compass."
+			},
+			{
+				category: "Maps",
+				type: "Checkbox",
+				setting: "mapSuperZoom",
+				label: "SuperZoom",
+				hint: "Unlock zoom limits.",
+				disabled: () => {
+					const value = (window as any).ChatRoomMapViewPerceptionRangeMax;
+					return value !== undefined && value !== 7 && value !== 50;
+				}
+			}
+		);
+
+		// --- CHAT ---
+		this.registry.push(
+			{
+				category: "Chat",
+				type: "Checkbox",
+				setting: "highlightMentions",
+				label: "Highlight Mentions",
+				hint: "Highlight messages containing your name."
+			},
+			{
+				category: "Chat",
+				type: "TextInput",
+				setting: "customHighlightWords",
+				label: "Custom Words",
+				hint: "Comma-separated list.",
+				indent: 1,
+				disabled: () => !this.data.highlightMentions
+			},
+			{
+				category: "Chat",
+				type: "ColorPicker",
+				setting: "highlightColor",
+				label: "Highlight Color",
+				hint: "Pick highlight color.",
+				indent: 1,
+				disabled: () => !this.data.highlightMentions
 			}
 		);
 	}
