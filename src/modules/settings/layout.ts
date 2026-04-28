@@ -70,7 +70,8 @@ export class LayoutEngine {
 		let tabX = 500;
 		for (const tab of this.TABS) {
 			const isActive = this.activeTab === tab;
-			const tabColor = isModalOpen ? "#888888" : (isActive ? "#DDDDDD" : "White");
+			// Grey out the tab if the modal is open OR if it's currently active
+			const tabColor = isModalOpen || isActive ? "#888888" : "White";
 			globalWindow.DrawButton(tabX, 130, 160, 45, tab, tabColor, "", "");
 			tabX += 175;
 		}
@@ -136,9 +137,12 @@ export class LayoutEngine {
 		let tabX = 500;
 		for (const tab of this.TABS) {
 			if (globalWindow.MouseIn(tabX, 130, 160, 45)) {
-				this.activeTab = tab;
-				this.scrollOffset = 0;
-				return true;
+				// Only process the click if they clicked a DIFFERENT tab
+				if (this.activeTab !== tab) {
+					this.activeTab = tab;
+					this.scrollOffset = 0;
+					return true;
+				}
 			}
 			tabX += 175;
 		}
