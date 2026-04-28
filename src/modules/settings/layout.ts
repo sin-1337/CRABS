@@ -11,7 +11,7 @@ export interface ConfiguredWidget {
 
 export class LayoutEngine {
 	private readonly BASE_X = 600;
-	private readonly INDENT_WIDTH = 40;
+	private readonly INDENT_WIDTH = 50;
 	private readonly ROW_HEIGHT = 75;
 	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
 
@@ -65,13 +65,47 @@ export class LayoutEngine {
 			tabX += 175;
 		}
 
-		// Clip & Draw Widgets
+		// Clip Region (so scrolling cuts off perfectly)
 		ctx.save();
 		ctx.beginPath();
 		ctx.rect(500, 200, 1280, 680);
 		ctx.clip();
 
+		// PASS 1: Draw the tree hierarchy lines
+		ctx.beginPath();
+		ctx.strokeStyle = "#666666"; // A subtle grey color
+		ctx.lineWidth = 3;
+
 		let currentY = 280 - this.scrollOffset;
+		for (let i = 0; i < visible.length; i++) {
+			const item = visible[i];
+
+			// Only calculate lines for indented children
+			if (item.indent > 0) {
+				// Look backwards to find the immediate parent
+				let parentY = null;
+				for (let j = i - 1; j >= 0; j--) {
+					if (visible[j].indent === item.indent - 1) {
+						parentY = 280 + (j * this.ROW_HEIGHT) - this.scrollOffset;
+						break;
+					}
+				}
+
+				if (parentY !== null) {
+					const spineX = this.BASE_X + ((item.indent - 1) * this.INDENT_WIDTH) + 32;
+					const childX = this.BASE_X + (item.indent * this.INDENT_WIDTH);
+
+					ctx.moveTo(spineX, parentY + 32);  // Start spine at the bottom edge of parent checkbox
+					ctx.lineTo(spineX, currentY);      // Drop down to the child's level
+					ctx.lineTo(childX - 10, currentY); // Branch right to touch the child
+				}
+			}
+			currentY += this.ROW_HEIGHT;
+		}
+		ctx.stroke(); // Draw all lines at once!
+
+		// PASS 2: Draw the actual Widgets
+		currentY = 280 - this.scrollOffset;
 		for (const item of visible) {
 			if (currentY > 180 && currentY < 900) {
 				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: this.ROW_HEIGHT };

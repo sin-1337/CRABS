@@ -98,9 +98,9 @@ export class Settings extends CRABS_Base {
 
 		// --- IMMERSION ---
 		createCheck("Immersion", "lockImmersive", "Hardcore Lock", "Locks settings ON while bound.");
-		createCheck("Immersion", "immersiveBlind", "Respect Blindness", "Blurred roster when blind.");
-		createCheck("Immersion", "immersiveGag", "Respect Gags", "No Whisper+ when gagged.");
-		createCheck("Immersion", "respectBcxRules", "Respect BCX Rules", "BCX integration.");
+		createCheck("Immersion", "immersiveBlind", "Respect Blindness", "Blurred roster when blind.", 1);
+		createCheck("Immersion", "immersiveGag", "Respect Gags", "No Whisper+ when gagged.", 1);
+		createCheck("Immersion", "respectBcxRules", "Respect BCX Rules", "BCX integration.", 1);
 
 		// --- MAPS ---
 		createCheck("Maps", "showMapCompass", "Show Map Compass", "Show a directional arrow on map.");

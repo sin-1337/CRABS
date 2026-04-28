@@ -40,7 +40,7 @@ export class CheckboxWidget extends UIWidget {
 
 	updateDOM() { /* No DOM for checkboxes */ }
 
-	click(bounds: Bounds, mouseX: number, mouseY: number): boolean {
+	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
 		if (this.getIsDisabled()) return false;
 
 		if ((window as any).MouseIn(bounds.x, bounds.y - 32, 500, 64)) {
@@ -87,7 +87,10 @@ export class InputWidget extends UIWidget {
 
 		if (!locked && isVisible) {
 			const inputWidth = this.inputType === "color" ? 180 : 260;
-			const inputStartX = bounds.x + 200;
+
+			// INCREASED OFFSET: Pushes the DOM element further right to clear the canvas text
+			const inputStartX = bounds.x + 320;
+
 			const centerX = inputStartX + (inputWidth / 2);
 			globalWindow.ElementPosition(this.domID, centerX, bounds.y, inputWidth, 36);
 		} else {
