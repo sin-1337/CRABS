@@ -110,6 +110,7 @@ export class Settings extends CRABS_Base {
 		if (component.setting === "lockImmersive") return true;
 		if (component.category === "Immersion" && this.data[component.setting as keyof CRABS_Settings] === true) return true;
 
+		// Also check manual disables
 		if (component.disabled && component.disabled()) return true;
 
 		return false;
@@ -127,6 +128,7 @@ export class Settings extends CRABS_Base {
 
 	/**
 	 * The Declarative Settings Engine. 
+	 * Add, remove, or reorder settings here and the UI will automatically calculate the math!
 	 */
 	private buildRegistry(): void {
 		const isDrawerDisabled = () => !this.data.enableDrawer;
@@ -179,7 +181,7 @@ export class Settings extends CRABS_Base {
 		// --- CHAT ---
 		this.register({ category: "Chat", type: "Checkbox", setting: "highlightMentions", label: "Highlight Mentions", hint: "Highlights chat messages containing your name or nickname." });
 		this.register({
-			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
+			category: "Chat", type: "TextInput", setting: "customHighlightWords", label: "Custom Words", hint: "Comma-separated list of extra words to trigger highlights.", indent: 1,
 			disabled: () => !this.data.highlightMentions
 		});
 	}
@@ -188,8 +190,11 @@ export class Settings extends CRABS_Base {
 		this.registry.push(component);
 	}
 
+	/**
+	 * Auto-calculates layout and renders components sequentially.
+	 */
 	public draw(): void {
-		const { MouseIn, DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
+		const { DrawText, DrawCheckbox, DrawCharacter, DrawRect, PreferenceMessage, DrawButton, Player } = window as any;
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
@@ -217,6 +222,7 @@ export class Settings extends CRABS_Base {
 			canvasContext.rect(500, 180, 1280, 720);
 			canvasContext.clip();
 
+			// Track Y positions dynamically
 			let currentLeftY = 200 - this.scrollOffset;
 			let currentRightY = 200 - this.scrollOffset;
 			let tooltipHintToDraw = "";
@@ -231,12 +237,14 @@ export class Settings extends CRABS_Base {
 				const categoryComponents = this.registry.filter(component => component.category === cat);
 				if (categoryComponents.length === 0) continue;
 
+				// Auto-calculate the height of the dark background box based on the number of items!
 				const boxHeight = (categoryComponents.length * this.ROW_HEIGHT) + 40;
 				DrawRect(baseX - 20, currentY, 650, boxHeight, "#00000011");
 
 				canvasContext.textAlign = "center";
 				DrawText(cat, baseX + 305, currentY + 20, "Black", "Gray");
 
+				// Start drawing items slightly below the header
 				currentY += 60;
 
 				for (const component of categoryComponents) {
@@ -250,9 +258,12 @@ export class Settings extends CRABS_Base {
 					if (component.type === 'Checkbox') {
 						if (isCanvasVisible) {
 							DrawCheckbox(finalCheckboxX, currentY - 32, 64, 64, "", this.data[component.setting as keyof CRABS_Settings], isLocked);
+
+							// Re-apply left-alignment before drawing the text so it doesn't inherit "center" from the category title
+							canvasContext.textAlign = "left";
 							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							if (MouseIn(finalTextX - 100, currentY - 18, 450, 36) || MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
+							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36) || (window as any).MouseIn(finalCheckboxX, currentY - 32, 64, 64)) {
 								tooltipHintToDraw = component.hint;
 								if (component.setting === "mapSuperZoom" && isLocked) tooltipHintToDraw = "Disabled: Another mod or script is controlling this setting.";
 							}
@@ -260,9 +271,11 @@ export class Settings extends CRABS_Base {
 					}
 					else if (component.type === 'TextInput') {
 						if (isCanvasVisible) {
+							// Re-apply left-alignment before drawing the text
+							canvasContext.textAlign = "left";
 							DrawText(component.label, finalTextX, currentY, isLocked ? "#888888" : "Black", "");
 
-							if (MouseIn(finalTextX - 100, currentY - 18, 450, 36)) {
+							if ((window as any).MouseIn(finalTextX, currentY - 18, 450, 36)) {
 								tooltipHintToDraw = component.hint;
 							}
 						}
@@ -270,15 +283,10 @@ export class Settings extends CRABS_Base {
 						const isSafelyOnScreen = currentY > 210 && currentY < 870;
 
 						if (!isLocked && this.isMenuOpen && isSafelyOnScreen) {
-							canvasContext.font = "36px Arial"; // Ensure we match game font for accurate math
-							const textWidth = canvasContext.measureText(component.label).width;
+							const inputWidth = 260;
 
-							// DrawText centers the text at finalTextX. We find the right edge by adding half the width.
-							const rightEdgeOfWord = finalTextX + (textWidth / 2);
-
-							const inputStartX = rightEdgeOfWord + 20;
-							const targetRightEdge = baseX + 600;
-							const inputWidth = targetRightEdge - inputStartX;
+							// Anchor it to the TEXT position this time, plus 160px for the word to breathe!
+							const inputStartX = finalTextX + 160;
 							const centerX = inputStartX + (inputWidth / 2);
 
 							(window as any).ElementPosition(`CRABS_Input_${component.setting}`, centerX, currentY, inputWidth, 36);
@@ -290,6 +298,7 @@ export class Settings extends CRABS_Base {
 					currentY += this.ROW_HEIGHT;
 				}
 
+				// Push the next category down dynamically!
 				if (isRightColumn) currentRightY += boxHeight + 20;
 				else currentLeftY += boxHeight + 20;
 			}
@@ -306,23 +315,26 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Auto-calculates hitboxes and fires declarative hooks.
+	 */
 	public click(): void {
-		const { MouseIn, PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
+		const { PreferenceSubscreenExtensionsClear, CommonSetScreen } = window as any;
 
-		if (MouseIn(1815, 75, 90, 90) || (MouseIn(1710, 75, 90, 90) && ChatRoomData)) {
+		if ((window as any).MouseIn(1815, 75, 90, 90) || ((window as any).MouseIn(1710, 75, 90, 90) && ChatRoomData)) {
 			this.isMenuOpen = false;
 			this.cleanupDOMInputs();
-			if (MouseIn(1710, 75, 90, 90)) CommonSetScreen("Online", "ChatRoom");
+			if ((window as any).MouseIn(1710, 75, 90, 90)) CommonSetScreen("Online", "ChatRoom");
 			PreferenceSubscreenExtensionsClear?.();
 			(window as any).PreferenceMessage = "";
 			return;
 		}
 
-		if (MouseIn(1815, 200, 90, 90)) {
+		if ((window as any).MouseIn(1815, 200, 90, 90)) {
 			this.scrollOffset = Math.max(0, this.scrollOffset - this.SCROLL_STEP);
 			return;
 		}
-		if (MouseIn(1815, 800, 90, 90)) {
+		if ((window as any).MouseIn(1815, 800, 90, 90)) {
 			this.scrollOffset = Math.min(this.MAX_SCROLL, this.scrollOffset + this.SCROLL_STEP);
 			return;
 		}
@@ -348,15 +360,16 @@ export class Settings extends CRABS_Base {
 
 				if (!this.isSettingLocked(component) && currentY > 180 && currentY < 900) {
 					if (component.type === 'Checkbox') {
-						if (MouseIn(finalCheckboxX, currentY - 32, 450, 64)) {
+						if ((window as any).MouseIn(finalCheckboxX, currentY - 32, 450, 64)) {
 							const newValue = !(this.data as any)[component.setting];
 							(this.data as any)[component.setting] = newValue;
 
+							// Fire the declarative hook if it exists!
 							if (component.onChange) component.onChange(newValue);
 
 							this.save();
 							this.syncGameState();
-							return;
+							return; // Stop checking clicks
 						}
 					}
 				}
@@ -367,6 +380,7 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
+	/** Helper method to dynamically destroy all HTML inputs */
 	private cleanupDOMInputs(): void {
 		const textInputs = this.registry.filter(component => component.type === "TextInput");
 		for (const component of textInputs) {
@@ -382,7 +396,7 @@ export class Settings extends CRABS_Base {
 			click: () => this.click(), run: () => this.draw(),
 			exit: () => {
 				this.isMenuOpen = false;
-				this.cleanupDOMInputs();
+				this.cleanupDOMInputs(); // Loops through all inputs automatically
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
@@ -392,6 +406,7 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = true;
 				globalWindow.PreferenceMessage = "";
 
+				// Dynamically spawn HTML inputs for any TextInput component
 				const textInputs = this.registry.filter(component => component.type === "TextInput");
 				for (const component of textInputs) {
 					const domID = `CRABS_Input_${component.setting}`;
