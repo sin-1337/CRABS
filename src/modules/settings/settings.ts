@@ -45,28 +45,6 @@ export class Settings extends CRABS_Base {
 		this.buildRegistry();
 		this.layout = new LayoutEngine(this.registry);
 
-		// --- THE TRAP: Intercept the base game's loop ---
-
-		// 1. Draw our modal AFTER the base game draws its white exit button
-		this.safeHook("PreferenceSubscreenExtensionsRun", 10, (args: any, next: Function) => {
-			const result = next(args);
-			if (this.isMenuOpen && this.showResetConfirm) {
-				this.drawModal();
-			}
-			return result;
-		});
-
-		// 2. Intercept the click BEFORE the base game checks the exit button
-		this.safeHook("PreferenceSubscreenExtensionsClick", 10, (args: any, next: Function) => {
-			if (this.isMenuOpen && this.showResetConfirm) {
-				this.click(); // Handle our modal Confirm/Cancel
-				return; // Kills the base game execution, trapping the user!
-			}
-			return next(args);
-		});
-
-		// ------------------------------------------------
-
 		this.registerExtension();
 		window.addEventListener("wheel", this.handleWheel.bind(this), { passive: false });
 	}
@@ -173,8 +151,11 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		// Just draw the layout normally. The hook handles the modal overlay.
 		this.layout.draw(canvasContext, this.showResetConfirm);
+
+		if (this.showResetConfirm) {
+			this.drawModal();
+		}
 	}
 
 	private drawModal(): void {
@@ -182,10 +163,13 @@ export class Settings extends CRABS_Base {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		// Draw a solid dark overlay to dim everything (including the base game's Exit button)
+		// 1. Dim the entire screen
 		globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
 
-		// Draw the prompt box
+		// 2. THE EASY PEASY FIX: Draw a solid dark box right over the top-right buttons to hide them completely
+		globalWindow.DrawRect(1590, 60, 330, 120, "#111111");
+
+		// 3. Draw the prompt box
 		globalWindow.DrawRect(700, 350, 600, 300, "#222222");
 		globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
 
@@ -199,7 +183,7 @@ export class Settings extends CRABS_Base {
 	public click(): void {
 		const globalWindow = window as any;
 
-		// 1. Handle Modal Clicks
+		// --- TRAP CLICKS INSIDE THE MODAL ---
 		if (this.showResetConfirm) {
 			if (globalWindow.MouseIn(750, 500, 200, 60)) {
 				this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -217,12 +201,13 @@ export class Settings extends CRABS_Base {
 				this.showResetConfirm = false;
 				this.layout.updateDOM(this.isMenuOpen);
 			}
-			return;
+			return; // Stops execution dead in its tracks. Base game / buttons below cannot be clicked.
 		}
+		// ------------------------------------
 
-		// 2. Handle Custom Toolbar Clicks
 		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
+		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 
 		if (clickedReset) {
 			this.showResetConfirm = true;
@@ -230,18 +215,25 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		if (clickedChat) {
+		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
+			this.showResetConfirm = false;
 			this.layout.updateDOM(false);
+
 			for (const key of Object.keys(this.data)) {
 				globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 			}
-			globalWindow.CommonSetScreen("Online", "ChatRoom");
+			globalWindow.PreferenceMessage = "";
 			globalWindow.PreferenceSubscreenExtensionsClear?.();
+
+			if (clickedChat) {
+				globalWindow.CommonSetScreen("Online", "ChatRoom");
+			} else {
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
+			}
 			return;
 		}
 
-		// 3. Handle Layout Widget Clicks
 		if (this.layout.click(globalWindow.MouseX, globalWindow.MouseY)) {
 			this.layout.updateDOM(this.isMenuOpen);
 		}
@@ -264,11 +256,11 @@ export class Settings extends CRABS_Base {
 			run: () => this.draw(),
 			load: () => {
 				this.isMenuOpen = true;
-				this.showResetConfirm = false; // Always ensure modal is closed on fresh load
+				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
 			},
+			// The native exit block is back where it belongs
 			exit: () => {
-				// Restoration of the native exit cleanup logic
 				this.isMenuOpen = false;
 				this.showResetConfirm = false;
 				this.layout.updateDOM(false);
