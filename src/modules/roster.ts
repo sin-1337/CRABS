@@ -744,6 +744,79 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
+	 * Renders a 3D-spinning directional arrow indicator on the canvas.
+	 * The arrow is natively drawn pointing right (0 radians); use the angle parameter to reorient.
+	 * Applies a continuous Y-axis squish to simulate a barrel roll, complete with dynamic specular highlights and shadows.
+	 * * @param {CanvasRenderingContext2D} context - The 2D rendering context of the target canvas.
+	 * @param {number} x - The absolute X coordinate on the canvas to place the center of the indicator.
+	 * @param {number} y - The absolute Y coordinate on the canvas to place the center of the indicator.
+	 * @param {number} angle - The rotation angle in radians (e.g., Math.PI / 2 points it downwards).
+	 * @param {number} scale - The uniform scaling multiplier for the indicator's size.
+	 * @param {string} color - The CSS color string used to fill the base of the arrow.
+	 * @param {boolean} isDark - True if the base color is dark; toggles the outline stroke to white for contrast.
+	 * @returns {void}
+	 */
+	private drawIndicator(
+		context: CanvasRenderingContext2D,
+		x: number,
+		y: number,
+		angle: number,
+		scale: number,
+		color: string,
+		isDark: boolean
+	): void {
+		const now = Date.now();
+
+		context.save();
+		try {
+			context.translate(x, y);
+			context.rotate(angle);
+
+			const rollFactor = Math.sin(now / 500);
+
+			context.scale(scale, scale * rollFactor);
+
+			context.beginPath();
+			context.moveTo(20, 0);
+			context.lineTo(-20, 15);
+			context.lineTo(-20, -15);
+			context.closePath();
+
+			context.fillStyle = color;
+			context.fill();
+
+			if (rollFactor > 0) {
+				context.save();
+				context.clip();
+
+				const sweepX = Math.cos(now / 500) * 30;
+				context.translate(sweepX, 0);
+
+				const shineGrad = context.createLinearGradient(-10, 0, 10, 0);
+				shineGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
+				shineGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
+				shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+				context.fillStyle = shineGrad;
+				context.fillRect(-40, -20, 80, 40);
+
+				context.restore();
+			} else {
+				const shadowAlpha = Math.abs(rollFactor) * 0.4;
+				context.fillStyle = `rgba(0, 0, 0, ${shadowAlpha})`;
+				context.fill();
+			}
+
+			context.strokeStyle = isDark ? "white" : "black";
+			context.lineWidth = 1.5 / scale;
+			context.stroke();
+
+		} finally {
+			context.restore();
+		}
+	}
+
+	/**
 	 * Draws a directional arrow pointing toward the hovered player on the map.
 	 * @returns {void}
 	 */
@@ -770,8 +843,7 @@ export class Roster extends CRABS_Base {
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-		let scale = 0.6; // Lock the base size so it never shrinks
-		const now = Date.now();
+		const scale = 0.6; // Locked base size
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -779,22 +851,15 @@ export class Roster extends CRABS_Base {
 		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-			// IN RANGE: Hover directly above the character's map tile
-			angle = Math.PI / 2; // Point downward
+			angle = Math.PI / 2; // Point down at the tile
 
-			// Find the exact center of the current tile
 			const tileCenterX = (deltaX + range) * tileW + (tileW / 2);
 			const tileCenterY = (deltaY + range) * tileW + (tileW / 2);
 
 			arrowX = tileCenterX;
-
-			// Position the arrow dynamically so the tip is just above the tile, 
-			// regardless of how far zoomed out the map is.
 			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 5;
-
 		} else {
-			// OUT OF RANGE: Point from the edge of the screen compass
-			angle = Math.atan2(deltaY, deltaX);
+			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
 			arrowX = 500 + Math.cos(angle) * 450;
 			arrowY = 500 + Math.sin(angle) * 450;
 		}
@@ -803,31 +868,8 @@ export class Roster extends CRABS_Base {
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
-		canvasContext.save();
-		try {
-			canvasContext.translate(arrowX, arrowY);
-			canvasContext.rotate(angle);
-
-			// Apply the barrel roll factor
-			const rollFactor = Math.sin(now / 500);
-			canvasContext.scale(scale, scale * rollFactor);
-
-			canvasContext.beginPath();
-			canvasContext.moveTo(20, 0);
-			canvasContext.lineTo(-20, 15);
-			canvasContext.lineTo(-20, -15);
-
-			canvasContext.fillStyle = playerColor;
-			canvasContext.fill();
-
-			canvasContext.strokeStyle = isDark ? "white" : "black";
-			canvasContext.lineWidth = 1.5 / scale;
-
-			canvasContext.closePath();
-			canvasContext.stroke();
-		} finally {
-			canvasContext.restore();
-		}
+		// Call the unified drawer
+		this.drawIndicator(canvasContext, arrowX, arrowY, angle, scale, playerColor, isDark);
 	}
 
 	/**
@@ -874,62 +916,28 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Renders the custom map compass arrow next to a character's nameplate.
+	 * Renders the custom indicator arrow above a character's head in the room.
 	 * @private
-	 * @param {any} character - The character object to reference for colors and name.
-	 * @param {number} x - The calculated horizontal center of the character's slot.
-	 * @param {number} y - The vertical position of the nameplate area (Standard is 50).
+	 * @param {any} character - The character object.
+	 * @param {number} x - The horizontal center position above the character.
+	 * @param {number} y - The vertical position above the character's head.
+	 * @param {number} zoom - The room's current zoom level (passed by hook, unused in render to lock size).
 	 * @returns {void}
 	 */
-	private drawNameIndicator(character: any, x: number, y: number): void {
+	private drawNameIndicator(character: any, x: number, y: number, zoom: number): void {
 		const globalWindow = window as any;
-		const context = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
-		if (!context) return;
+		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
+		if (!canvasContext) return;
 
-		const currentName = CharacterNickname(character).normalize("NFKC");
-		let cachedData = this.nameWidthCache.get(character.MemberNumber);
-
-		if (!cachedData || cachedData.name !== currentName) {
-			context.font = "36px sans-serif";
-			cachedData = { name: currentName, width: context.measureText(currentName).width };
-			this.nameWidthCache.set(character.MemberNumber, cachedData);
-		}
-
-		const now = Date.now();
 		const playerColor = character.LabelColor || "cyan";
-		const isDark = this.getColorBrightness(playerColor) < 128;
+		const brightness = this.getColorBrightness(playerColor);
+		const isDark = brightness < 128;
 
-		context.save();
-		try {
-			// The Barrel Roll Arrow
-			const baseScale = 0.5;
-			const arrowWidth = 40 * baseScale;
-			const tipX = x - (cachedData.width / 2) - 5;
-			const centerX = tipX - (arrowWidth / 2);
+		const scale = 0.6;
+		const angle = Math.PI / 2; // Hard lock rotation so it points straight down
 
-			context.translate(centerX, y);
-
-			// This creates the "roll" by flipping the Y scale from 1 to -1
-			// Adjust '500' to change roll speed (lower is faster)
-			const rollFactor = Math.sin(now / 500);
-			context.scale(baseScale, baseScale * rollFactor);
-
-			context.beginPath();
-			context.moveTo(20, 0);   // Tip
-			context.lineTo(-20, 15);  // Top back
-			context.lineTo(-20, -15); // Bottom back
-			context.closePath();
-
-			context.fillStyle = playerColor;
-			context.fill();
-
-			context.strokeStyle = isDark ? "white" : "black";
-			context.lineWidth = 1.5 / baseScale;
-			context.stroke();
-
-		} finally {
-			context.restore();
-		}
+		// Call the unified drawer
+		this.drawIndicator(canvasContext, x, y, angle, scale, playerColor, isDark);
 	}
 
 	/**
