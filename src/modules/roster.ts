@@ -854,9 +854,9 @@ export class Roster extends CRABS_Base {
 
 			arrowX = tileCenterX;
 
-			// Pushed the Y-coordinate significantly higher. 
-			// (tileW / 2) finds the absolute top border of the map tile, 
-			// and we subtract an extra 15 pixels of padding so it hovers cleanly over the head.
+			// (tileW / 2) finds the top edge of the map tile.
+			// (20 * scale) accounts for the height of the arrow itself.
+			// The extra 15 (or 25, if you need more room) pushes it into the air above her head.
 			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 15;
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
