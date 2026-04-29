@@ -248,6 +248,7 @@ export class Settings extends CRABS_Base {
 			run: () => this.draw(),
 			load: () => {
 				this.isMenuOpen = true;
+				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
 			},
 			exit: () => {
