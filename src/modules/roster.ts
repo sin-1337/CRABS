@@ -940,14 +940,15 @@ export class Roster extends CRABS_Base {
 		const scale = 0.6;
 		const angle = 0; // Point Right (>)
 
-		const scaledNameWidth = cachedData.width * zoom;
+		// 1. Removed the zoom multiplier entirely. The UI text doesn't scale!
+		const textWidth = cachedData.width;
 
-		// FIX: Increased the base padding from 10 to 35 to clear the bounding box overlap
-		const padding = 35 * zoom;
+		// 2. Bumped padding from 35 up to 55 to give it an extra character's width of space.
+		const padding = 45;
 		const arrowWidth = 40 * scale;
 
 		// Calculate exact left-edge position
-		const tipX = x - (scaledNameWidth / 2) - padding;
+		const tipX = x - (textWidth / 2) - padding;
 		const finalArrowX = tipX - (arrowWidth / 2);
 
 		this.drawIndicator(canvasContext, finalArrowX, y, angle, scale, playerColor, isDark);
