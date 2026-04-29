@@ -944,7 +944,7 @@ export class Roster extends CRABS_Base {
 		const textWidth = cachedData.width;
 
 		// 2. Bumped padding from 35 up to 55 to give it an extra character's width of space.
-		const padding = 32;
+		const padding = 10;
 		const arrowWidth = 40 * scale;
 
 		// Calculate exact left-edge position
