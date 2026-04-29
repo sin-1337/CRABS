@@ -837,7 +837,9 @@ export class Roster extends CRABS_Base {
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-		const scale = 0.6; // Locked base size
+
+		// Bumped size up by 10% (0.6 -> 0.66)
+		const scale = 0.66;
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -845,15 +847,17 @@ export class Roster extends CRABS_Base {
 		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-			angle = Math.PI / 2; // Point down at the map icon
+			angle = Math.PI / 2; // Point down at the tile
 
 			const tileCenterX = (deltaX + range) * tileW + (tileW / 2);
 			const tileCenterY = (deltaY + range) * tileW + (tileW / 2);
 
 			arrowX = tileCenterX;
-			// Dropped the Y coordinate down slightly so it points at the map icon's top edge
-			// rather than the absolute border of the map tile square.
-			arrowY = tileCenterY - (tileW * 0.35) - (20 * scale);
+
+			// Pushed the Y-coordinate significantly higher. 
+			// (tileW / 2) finds the absolute top border of the map tile, 
+			// and we subtract an extra 15 pixels of padding so it hovers cleanly over the head.
+			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 15;
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
 			arrowX = 500 + Math.cos(angle) * 450;
