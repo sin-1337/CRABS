@@ -170,12 +170,14 @@ export class Settings extends CRABS_Base {
 				globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
 				globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
 
-				// Re-draw the Exit button brightly on top so it acts as an emergency escape
+				// Re-draw the Exit button brightly on top
 				globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
 
-				// Re-draw the other two buttons cleanly greyed out
+				// Re-draw the Back to Chat button brightly (if they are in a room)
 				const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
-				globalWindow.DrawButton(1710, 75, 90, 90, "", "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+				globalWindow.DrawButton(1710, 75, 90, 90, "", isInChat ? "White" : "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+
+				// Leave the Reset button greyed out
 				globalWindow.DrawButton(1605, 75, 90, 90, "", "#888888", "Icons/Reset.png", "Restore Defaults");
 			}
 		} finally {
@@ -204,9 +206,36 @@ export class Settings extends CRABS_Base {
 			} else if (globalWindow.MouseIn(1050, 500, 200, 60)) {
 				// User canceled
 				this.showResetConfirm = false;
-				this.layout.updateDOM(this.isMenuOpen); // Restore DOM inputs
+				this.layout.updateDOM(this.isMenuOpen);
+			} else if (globalWindow.MouseIn(1815, 75, 90, 90)) {
+				// Back to Extensions settings selection
+				this.showResetConfirm = false;
+				this.isMenuOpen = false;
+				this.layout.updateDOM(false);
+
+				for (const key of Object.keys(this.data)) {
+					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+				}
+
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
+			} else if (globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null) {
+				// Back to Chat Room directly
+				this.showResetConfirm = false;
+				this.isMenuOpen = false;
+				this.layout.updateDOM(false);
+
+				for (const key of Object.keys(this.data)) {
+					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+				}
+
+				// Route them to the chat room BEFORE clearing the extensions state
+				globalWindow.CommonSetScreen("Online", "ChatRoom");
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
 			}
-			return; // Stop processing other clicks while modal is open
+			return; // Stop processing other clicks while modal is open		
 		}
 
 		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
