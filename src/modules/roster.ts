@@ -164,7 +164,6 @@ export class Roster extends CRABS_Base {
 					indicator.character,
 					indicator.x,
 					indicator.y,
-					indicator.zoom // Passed zoom here to clear TS(2554)
 				);
 				this.deferredIndicator = null;
 			}
@@ -919,7 +918,7 @@ export class Roster extends CRABS_Base {
 	 * Renders the custom indicator arrow to the left of the character's nameplate in normal rooms.
 	 * @private
 	 */
-	private drawNameIndicator(character: any, x: number, y: number, zoom: number): void {
+	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
 		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
