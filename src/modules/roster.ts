@@ -164,7 +164,6 @@ export class Roster extends CRABS_Base {
 					indicator.character,
 					indicator.x,
 					indicator.y,
-					indicator.zoom // Passed zoom here to clear TS(2554)
 				);
 				this.deferredIndicator = null;
 			}
@@ -919,12 +918,11 @@ export class Roster extends CRABS_Base {
 	 * Renders the custom indicator arrow to the left of the character's nameplate in normal rooms.
 	 * @private
 	 */
-	private drawNameIndicator(character: any, x: number, y: number, zoom: number): void {
+	private drawNameIndicator(character: any, x: number, y: number): void {
 		const globalWindow = window as any;
 		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
-		// Clears TS(6133) by utilizing the cache again
 		const currentName = CharacterNickname(character).normalize("NFKC");
 		let cachedData = this.nameWidthCache.get(character.MemberNumber);
 
@@ -941,12 +939,15 @@ export class Roster extends CRABS_Base {
 		const scale = 0.6;
 		const angle = 0; // Point Right (>)
 
-		// Calculate offset based on room zoom so it tightly hugs the text
-		const scaledNameWidth = cachedData.width * zoom;
-		const padding = 10 * zoom;
+		// 1. Removed the zoom multiplier entirely. The UI text doesn't scale!
+		const textWidth = cachedData.width;
+
+		// 2. Bumped padding from 35 up to 55 to give it an extra character's width of space.
+		const padding = 10;
 		const arrowWidth = 40 * scale;
 
-		const tipX = x - (scaledNameWidth / 2) - padding;
+		// Calculate exact left-edge position
+		const tipX = x - (textWidth / 2) - padding;
 		const finalArrowX = tipX - (arrowWidth / 2);
 
 		this.drawIndicator(canvasContext, finalArrowX, y, angle, scale, playerColor, isDark);
