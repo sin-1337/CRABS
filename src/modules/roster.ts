@@ -830,7 +830,7 @@ export class Roster extends CRABS_Base {
 		let deltaX = target.MapData.Pos.X - player.MapData.Pos.X;
 		let deltaY = target.MapData.Pos.Y - player.MapData.Pos.Y;
 
-		if (deltaX === 0 && deltaY === 0) return;
+		// REMOVED: if (deltaX === 0 && deltaY === 0) return;
 
 		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
 		const canvasContext = canvasElement?.getContext("2d");
