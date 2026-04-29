@@ -131,11 +131,18 @@ export class Roster extends CRABS_Base {
 
 				if (!isMap && targetId && character.MemberNumber === targetId) {
 					isTarget = true;
+					zoom = args[3];
 					drawX = args[1];
 					drawY = args[2];
-					zoom = args[3];
 
-					// Draw glow behind character
+					// Check if Echo is running, and if it has overridden the X/Y coords for a cuddle
+					// (Note: Verify the exact mod name string in your console if "Echo" doesn't catch it)
+					if (CrossMod.detectMod("Echo")) {
+						drawX = (typeof character.X === 'number') ? character.X : drawX;
+						drawY = (typeof character.Y === 'number') ? character.Y : drawY;
+					}
+
+					// Draw glow behind character at the finalized coordinates
 					this.drawFocusGlow(character, drawX, drawY, zoom);
 				}
 			}
@@ -143,7 +150,7 @@ export class Roster extends CRABS_Base {
 			// Now draw the character (On top of the glow)
 			const result = next(args);
 
-			// Store coords for the arrow (Drawn later on top of everything)
+			// Store coords for the arrow using the same finalized coordinates
 			if (isTarget) {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
@@ -159,11 +166,10 @@ export class Roster extends CRABS_Base {
 
 			const result = next(args); // The base game draws the background, characters, and UI
 
-			// Force TypeScript to re-evaluate the variable's type since next() modified it!
 			const indicator = this.deferredIndicator as { character: any, x: number, y: number } | null;
 
-			// If we captured an indicator this frame, draw it NOW (on top of everything)
-			if (indicator) {
+			// If we captured an indicator this frame, verify it's actually on the visible canvas
+			if (indicator && indicator.x >= 0 && indicator.x <= 1000 && indicator.y >= 0 && indicator.y <= 1000) {
 				this.drawNameIndicator(
 					indicator.character,
 					indicator.x,
