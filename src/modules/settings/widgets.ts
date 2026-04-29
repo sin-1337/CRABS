@@ -1,4 +1,5 @@
 // widgets.ts
+
 export interface Bounds { x: number; y: number; w: number; h: number; }
 
 export abstract class UIWidget {
@@ -77,8 +78,9 @@ export class InputWidget extends UIWidget {
 	updateDOM(bounds: Bounds, isVisible: boolean): void {
 		const globalWindow = window as any;
 		const locked = this.getIsDisabled();
+		const el = document.getElementById(this.domID);
 
-		if (!document.getElementById(this.domID) && isVisible) {
+		if (!el && isVisible) {
 			globalWindow.ElementCreateInput(this.domID, this.inputType, this.getValue(), this.inputType === "color" ? 180 : 250);
 			document.getElementById(this.domID)?.addEventListener("input", (e) => {
 				this.setValue((e.target as HTMLInputElement).value);
@@ -87,13 +89,10 @@ export class InputWidget extends UIWidget {
 
 		if (!locked && isVisible) {
 			const inputWidth = this.inputType === "color" ? 180 : 260;
-
-			// INCREASED OFFSET: Pushes the DOM element further right to clear the canvas text
 			const inputStartX = bounds.x + 320;
-
 			const centerX = inputStartX + (inputWidth / 2);
 			globalWindow.ElementPosition(this.domID, centerX, bounds.y, inputWidth, 36);
-		} else {
+		} else if (document.getElementById(this.domID)) {
 			globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
 		}
 	}

@@ -152,27 +152,36 @@ export class Settings extends CRABS_Base {
 	public draw(): void {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
+		const globalWindow = window as any;
 
-		// Pass the modal state to the layout engine
-		this.layout.draw(canvasContext, this.showResetConfirm);
+		canvasContext.save();
+		try {
+			this.layout.draw(canvasContext, this.showResetConfirm);
 
-		// Draw the confirmation dialog over everything else
-		if (this.showResetConfirm) {
-			const globalWindow = window as any;
+			if (this.showResetConfirm) {
+				// Dim the background
+				globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
 
-			// Dim the background
-			globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
+				// Draw the prompt box
+				globalWindow.DrawRect(700, 350, 600, 300, "#222222");
+				globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
+				canvasContext.textAlign = "center";
+				globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
+				globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
+				globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
 
-			// Draw the prompt box
-			globalWindow.DrawRect(700, 350, 600, 300, "#222222");
-			globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
+				// Re-draw the Exit button brightly on top
+				globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
 
-			canvasContext.textAlign = "center";
-			globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
+				// Re-draw the Back to Chat button brightly (if they are in a room)
+				const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+				globalWindow.DrawButton(1710, 75, 90, 90, "", isInChat ? "White" : "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
 
-			// Draw Confirm / Cancel buttons
-			globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
-			globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+				// Leave the Reset button greyed out
+				globalWindow.DrawButton(1605, 75, 90, 90, "", "#888888", "Icons/Reset.png", "Restore Defaults");
+			}
+		} finally {
+			canvasContext.restore();
 		}
 	}
 
@@ -197,9 +206,36 @@ export class Settings extends CRABS_Base {
 			} else if (globalWindow.MouseIn(1050, 500, 200, 60)) {
 				// User canceled
 				this.showResetConfirm = false;
-				this.layout.updateDOM(this.isMenuOpen); // Restore DOM inputs
+				this.layout.updateDOM(this.isMenuOpen);
+			} else if (globalWindow.MouseIn(1815, 75, 90, 90)) {
+				// Back to Extensions settings selection
+				this.showResetConfirm = false;
+				this.isMenuOpen = false;
+				this.layout.updateDOM(false);
+
+				for (const key of Object.keys(this.data)) {
+					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+				}
+
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
+				globalWindow.PreferenceOpenSubscreen?.("Extensions");
+			} else if (globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null) {
+				// Back to Chat Room directly
+				this.showResetConfirm = false;
+				this.isMenuOpen = false;
+				this.layout.updateDOM(false);
+
+				for (const key of Object.keys(this.data)) {
+					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+				}
+
+				// Route them to the chat room BEFORE clearing the extensions state
+				globalWindow.CommonSetScreen("Online", "ChatRoom");
+				globalWindow.PreferenceMessage = "";
+				globalWindow.PreferenceSubscreenExtensionsClear?.();
 			}
-			return; // Stop processing other clicks while modal is open
+			return; // Stop processing other clicks while modal is open		
 		}
 
 		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
@@ -249,6 +285,7 @@ export class Settings extends CRABS_Base {
 			run: () => this.draw(),
 			load: () => {
 				this.isMenuOpen = true;
+				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
 			},
 			exit: () => {
@@ -278,3 +315,4 @@ export class Settings extends CRABS_Base {
 		registerHook();
 	}
 }
+
