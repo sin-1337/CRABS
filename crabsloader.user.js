@@ -10,7 +10,7 @@
 // @match https://www.bondage-europe.com/*
 // @match https://www.bondageprojects.com/*
 // @match http://localhost:*/*
-// @icon https://sin-1337.github.io/CRABS/CRABS_Logo.png
+// @icon https://sin-1337.github.io/CRABS/images/CRABS_Logo.png
 // @grant none
 // @run-at document-end
 // ==/UserScript==
