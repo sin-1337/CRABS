@@ -53,7 +53,7 @@ export class Roster extends CRABS_Base {
 	private hoverTimeout: number | null = null;
 
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
-	private deferredIndicator: { character: any, x: number, y: number } | null = null;
+	private deferredIndicator: { character: any, x: number, y: number, zoom: number } | null = null;
 
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
@@ -116,7 +116,6 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Capture the math during the character drawing phase
-		// PRIORITY -100: Ensures CRABS runs AFTER Echo and other positional mods
 		this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
 			const globalWindow = window as any;
 			let isTarget = false;
@@ -132,47 +131,42 @@ export class Roster extends CRABS_Base {
 
 				if (!isMap && targetId && character.MemberNumber === targetId) {
 					isTarget = true;
-
-					// Because we run at priority -100, args[1] and args[2] 
-					// ALREADY contain the "cuddle" offsets applied by Echo!
 					drawX = args[1];
 					drawY = args[2];
 					zoom = args[3];
 
-					// Draw glow behind character at the new coordinates
 					this.drawFocusGlow(character, drawX, drawY, zoom);
 				}
 			}
 
-			// Now draw the character (On top of the glow)
 			const result = next(args);
 
-			// Store coords for the arrow using the finalized math
 			if (isTarget) {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
-				this.deferredIndicator = { character, x: centerX, y: nameY };
+				// Included zoom here to clear TS(6133)
+				this.deferredIndicator = { character, x: centerX, y: nameY, zoom };
 			}
 
 			return result;
 		});
 
-		// Paint the indicator AFTER the entire room is done rendering
 		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
-			this.deferredIndicator = null; // Clear previous frame's data
+			this.deferredIndicator = null;
 
-			const result = next(args); // The base game draws the background, characters, and UI
+			const result = next(args);
 
-			const indicator = this.deferredIndicator as { character: any, x: number, y: number } | null;
+			// Updated type cast to include zoom
+			const indicator = this.deferredIndicator as { character: any, x: number, y: number, zoom: number } | null;
 
-			// If we captured an indicator this frame, verify it's actually on the visible canvas
 			if (indicator && indicator.x >= 0 && indicator.x <= 1000 && indicator.y >= 0 && indicator.y <= 1000) {
 				this.drawNameIndicator(
 					indicator.character,
 					indicator.x,
-					indicator.y
+					indicator.y,
+					indicator.zoom // Passed zoom here to clear TS(2554)
 				);
-				this.deferredIndicator = null; // Reset for the next frame
+				this.deferredIndicator = null;
 			}
 
 			return result;
@@ -851,13 +845,15 @@ export class Roster extends CRABS_Base {
 		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-			angle = Math.PI / 2; // Point down at the tile
+			angle = Math.PI / 2; // Point down at the map icon
 
 			const tileCenterX = (deltaX + range) * tileW + (tileW / 2);
 			const tileCenterY = (deltaY + range) * tileW + (tileW / 2);
 
 			arrowX = tileCenterX;
-			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 5;
+			// Dropped the Y coordinate down slightly so it points at the map icon's top edge
+			// rather than the absolute border of the map tile square.
+			arrowY = tileCenterY - (tileW * 0.35) - (20 * scale);
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
 			arrowX = 500 + Math.cos(angle) * 450;
@@ -916,28 +912,40 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Renders the custom indicator arrow above a character's head in the room.
+	 * Renders the custom indicator arrow to the left of the character's nameplate in normal rooms.
 	 * @private
-	 * @param {any} character - The character object.
-	 * @param {number} x - The horizontal center position above the character.
-	 * @param {number} y - The vertical position above the character's head.
-	 * @param {number} zoom - The room's current zoom level (passed by hook, unused in render to lock size).
-	 * @returns {void}
 	 */
 	private drawNameIndicator(character: any, x: number, y: number, zoom: number): void {
 		const globalWindow = window as any;
 		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
+		// Clears TS(6133) by utilizing the cache again
+		const currentName = CharacterNickname(character).normalize("NFKC");
+		let cachedData = this.nameWidthCache.get(character.MemberNumber);
+
+		if (!cachedData || cachedData.name !== currentName) {
+			canvasContext.font = "36px sans-serif";
+			cachedData = { name: currentName, width: canvasContext.measureText(currentName).width };
+			this.nameWidthCache.set(character.MemberNumber, cachedData);
+		}
+
 		const playerColor = character.LabelColor || "cyan";
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
 		const scale = 0.6;
-		const angle = Math.PI / 2; // Hard lock rotation so it points straight down
+		const angle = 0; // Point Right (>)
 
-		// Call the unified drawer
-		this.drawIndicator(canvasContext, x, y, angle, scale, playerColor, isDark);
+		// Calculate offset based on room zoom so it tightly hugs the text
+		const scaledNameWidth = cachedData.width * zoom;
+		const padding = 10 * zoom;
+		const arrowWidth = 40 * scale;
+
+		const tipX = x - (scaledNameWidth / 2) - padding;
+		const finalArrowX = tipX - (arrowWidth / 2);
+
+		this.drawIndicator(canvasContext, finalArrowX, y, angle, scale, playerColor, isDark);
 	}
 
 	/**
