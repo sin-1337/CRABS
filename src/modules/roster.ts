@@ -116,7 +116,8 @@ export class Roster extends CRABS_Base {
 		});
 
 		// Capture the math during the character drawing phase
-		this.safeHook("DrawCharacter", 10, (args: any, next: Function) => {
+		// PRIORITY -100: Ensures CRABS runs AFTER Echo and other positional mods
+		this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
 			const globalWindow = window as any;
 			let isTarget = false;
 			let drawX: number = 0, drawY: number = 0, zoom: number = 1, character: any = null;
@@ -131,18 +132,14 @@ export class Roster extends CRABS_Base {
 
 				if (!isMap && targetId && character.MemberNumber === targetId) {
 					isTarget = true;
-					zoom = args[3];
+
+					// Because we run at priority -100, args[1] and args[2] 
+					// ALREADY contain the "cuddle" offsets applied by Echo!
 					drawX = args[1];
 					drawY = args[2];
+					zoom = args[3];
 
-					// Check if Echo is running, and if it has overridden the X/Y coords for a cuddle
-					// (Note: Verify the exact mod name string in your console if "Echo" doesn't catch it)
-					if (CrossMod.detectMod("Echo")) {
-						drawX = (typeof character.X === 'number') ? character.X : drawX;
-						drawY = (typeof character.Y === 'number') ? character.Y : drawY;
-					}
-
-					// Draw glow behind character at the finalized coordinates
+					// Draw glow behind character at the new coordinates
 					this.drawFocusGlow(character, drawX, drawY, zoom);
 				}
 			}
@@ -150,7 +147,7 @@ export class Roster extends CRABS_Base {
 			// Now draw the character (On top of the glow)
 			const result = next(args);
 
-			// Store coords for the arrow using the same finalized coordinates
+			// Store coords for the arrow using the finalized math
 			if (isTarget) {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
@@ -747,9 +744,9 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-		 * Draws a directional arrow pointing toward the hovered player on the map.
-		 * @returns {void}
-		 */
+	 * Draws a directional arrow pointing toward the hovered player on the map.
+	 * @returns {void}
+	 */
 	private drawCompass(): void {
 		const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
@@ -773,7 +770,7 @@ export class Roster extends CRABS_Base {
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-		let scale = 1;
+		let scale = 0.6; // Lock the base size so it never shrinks
 		const now = Date.now();
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
@@ -782,18 +779,21 @@ export class Roster extends CRABS_Base {
 		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-			arrowX = (deltaX + range) * tileW + (tileW / 2);
-			angle = Math.PI / 2;
+			// IN RANGE: Hover directly above the character's map tile
+			angle = Math.PI / 2; // Point downward
 
-			// Calculate base scale, but enforce a minimum size (e.g., 0.4) 
-			const baseScale = tileW / 111;
-			scale = Math.max(0.4, baseScale);
+			// Find the exact center of the current tile
+			const tileCenterX = (deltaX + range) * tileW + (tileW / 2);
+			const tileCenterY = (deltaY + range) * tileW + (tileW / 2);
 
-			// Dynamically adjust Y offset so a clamped (larger) arrow doesn't overlap the tiny character icon
-			const yOffset = (tileW * 0.85) + (scale > baseScale ? (scale - baseScale) * 30 : 0);
-			arrowY = (deltaY + range) * tileW - yOffset;
+			arrowX = tileCenterX;
+
+			// Position the arrow dynamically so the tip is just above the tile, 
+			// regardless of how far zoomed out the map is.
+			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 5;
 
 		} else {
+			// OUT OF RANGE: Point from the edge of the screen compass
 			angle = Math.atan2(deltaY, deltaX);
 			arrowX = 500 + Math.cos(angle) * 450;
 			arrowY = 500 + Math.sin(angle) * 450;
