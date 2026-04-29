@@ -747,9 +747,9 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-	 * Draws a directional arrow pointing toward the hovered player on the map.
-	 * @returns {void}
-	 */
+		 * Draws a directional arrow pointing toward the hovered player on the map.
+		 * @returns {void}
+		 */
 	private drawCompass(): void {
 		const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
@@ -774,6 +774,7 @@ export class Roster extends CRABS_Base {
 
 		let arrowX, arrowY, angle;
 		let scale = 1;
+		const now = Date.now();
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -782,9 +783,16 @@ export class Roster extends CRABS_Base {
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
-			arrowY = (deltaY + range) * tileW - (tileW * 0.85);
 			angle = Math.PI / 2;
-			scale = tileW / 111;
+
+			// Calculate base scale, but enforce a minimum size (e.g., 0.4) 
+			const baseScale = tileW / 111;
+			scale = Math.max(0.4, baseScale);
+
+			// Dynamically adjust Y offset so a clamped (larger) arrow doesn't overlap the tiny character icon
+			const yOffset = (tileW * 0.85) + (scale > baseScale ? (scale - baseScale) * 30 : 0);
+			arrowY = (deltaY + range) * tileW - yOffset;
+
 		} else {
 			angle = Math.atan2(deltaY, deltaX);
 			arrowX = 500 + Math.cos(angle) * 450;
@@ -799,7 +807,10 @@ export class Roster extends CRABS_Base {
 		try {
 			canvasContext.translate(arrowX, arrowY);
 			canvasContext.rotate(angle);
-			canvasContext.scale(scale, scale);
+
+			// Apply the barrel roll factor
+			const rollFactor = Math.sin(now / 500);
+			canvasContext.scale(scale, scale * rollFactor);
 
 			canvasContext.beginPath();
 			canvasContext.moveTo(20, 0);
