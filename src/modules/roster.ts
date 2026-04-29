@@ -847,14 +847,16 @@ export class Roster extends CRABS_Base {
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
 			angle = Math.PI / 2; // Point down
 
-			// Calculate how zoomed out we are relative to the ideal range 4 (where tileW is ~111)
-			const zoomRatio = 111 / tileW;
-
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
 
-			// (tileW * 0.85) covers the proportional character height
-			// (25 * zoomRatio) physically forces the arrow higher into the air as the tile shrinks
-			arrowY = (deltaY + range) * tileW - (tileW * 0.85) - (25 * zoomRatio);
+			// Find the absolute top edge of the grid tile
+			const tileTop = (deltaY + range) * tileW;
+
+			// Calculate the dynamic height of the character sprite overhang (67% of tile width)
+			const headY = tileTop - (tileW * 0.67);
+
+			// Anchor the center of the fixed-size arrow exactly half its height above the head
+			arrowY = headY - (20 * scale) - 5;
 
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
