@@ -832,12 +832,12 @@ export class Roster extends CRABS_Base {
 
 		if (deltaX === 0 && deltaY === 0) return;
 
-		const canvasElement = globalWindow.MainCanvas as HTMLCanvasElement;
+		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
 		const canvasContext = canvasElement?.getContext("2d");
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-		const scale = 0.66; // Locked base size (10% larger than normal room indicator)
+		const scale = 0.66; // Locked base size
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -847,9 +847,14 @@ export class Roster extends CRABS_Base {
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
 			angle = Math.PI / 2; // Point down
 
-			// Using the exact coordinate math from your original working code!
+			// Calculate how zoomed out we are relative to the ideal range 4 (where tileW is ~111)
+			const zoomRatio = 111 / tileW;
+
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
-			arrowY = (deltaY + range) * tileW - (tileW * 0.85);
+
+			// (tileW * 0.85) covers the proportional character height
+			// (25 * zoomRatio) physically forces the arrow higher into the air as the tile shrinks
+			arrowY = (deltaY + range) * tileW - (tileW * 0.85) - (25 * zoomRatio);
 
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
