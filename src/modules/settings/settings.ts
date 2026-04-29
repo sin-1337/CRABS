@@ -152,25 +152,33 @@ export class Settings extends CRABS_Base {
 	public draw(): void {
 		const canvasContext = (document.getElementById("MainCanvas") as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
+		const globalWindow = window as any;
 
-		canvasContext.save(); // Take snapshot of the clean canvas
+		canvasContext.save();
 		try {
 			this.layout.draw(canvasContext, this.showResetConfirm);
 
 			if (this.showResetConfirm) {
-				const globalWindow = window as any;
+				// Dim the background
 				globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
+
+				// Draw the prompt box
 				globalWindow.DrawRect(700, 350, 600, 300, "#222222");
 				globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
 				canvasContext.textAlign = "center";
-
-				// Restore defaults
 				globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
 				globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
 				globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+
+				// Re-draw the Exit button brightly on top so it acts as an emergency escape
+				globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
+
+				// Re-draw the other two buttons cleanly greyed out
+				const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+				globalWindow.DrawButton(1710, 75, 90, 90, "", "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+				globalWindow.DrawButton(1605, 75, 90, 90, "", "#888888", "Icons/Reset.png", "Restore Defaults");
 			}
 		} finally {
-			// Guarantee the clip is cleared, even if an error occurs!
 			canvasContext.restore();
 		}
 	}
