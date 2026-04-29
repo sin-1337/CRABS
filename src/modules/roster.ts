@@ -837,9 +837,7 @@ export class Roster extends CRABS_Base {
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
-
-		// Bumped size up by 10% (0.6 -> 0.66)
-		const scale = 0.66;
+		const scale = 0.66; // Locked base size (10% larger than normal room indicator)
 
 		const range = globalWindow.ChatRoomMapViewPerceptionRange;
 		const tileW = 1000 / ((range * 2) + 1);
@@ -847,17 +845,12 @@ export class Roster extends CRABS_Base {
 		const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
 		if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-			angle = Math.PI / 2; // Point down at the tile
+			angle = Math.PI / 2; // Point down
 
-			const tileCenterX = (deltaX + range) * tileW + (tileW / 2);
-			const tileCenterY = (deltaY + range) * tileW + (tileW / 2);
+			// Using the exact coordinate math from your original working code!
+			arrowX = (deltaX + range) * tileW + (tileW / 2);
+			arrowY = (deltaY + range) * tileW - (tileW * 0.85);
 
-			arrowX = tileCenterX;
-
-			// (tileW / 2) finds the top edge of the map tile.
-			// (20 * scale) accounts for the height of the arrow itself.
-			// The extra 15 (or 25, if you need more room) pushes it into the air above her head.
-			arrowY = tileCenterY - (tileW / 2) - (20 * scale) - 15;
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
 			arrowX = 500 + Math.cos(angle) * 450;
@@ -868,7 +861,7 @@ export class Roster extends CRABS_Base {
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
-		// Call the unified drawer
+		// Call our unified 3D drawer
 		this.drawIndicator(canvasContext, arrowX, arrowY, angle, scale, playerColor, isDark);
 	}
 
