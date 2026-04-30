@@ -233,13 +233,14 @@ export class WhisperPlus extends CRABS_Base {
 			addChatMessage(formattedMsg);
 			return true;
 		} else {
-			// Add parentheses if needed for range checking
+			// Prepare the message with the +: prefix FIRST
+			formattedMsg = `+: ${formattedMsg}`;
+
+			// Add parentheses if needed for range checking AFTER prefixing
+			// We check formattedMsg[0] to ensure we don't double-wrap if the player typed "(/whisper+)"
 			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && formattedMsg[0] !== "(") {
 				formattedMsg = `(${formattedMsg})`;
 			}
-
-			// Prepare the message with the +: prefix
-			formattedMsg = `+: ${formattedMsg}`;
 
 			// Build data payload
 			const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
@@ -340,6 +341,29 @@ export class WhisperPlus extends CRABS_Base {
 		const target = ChatRoomCharacter.find(
 			(character: any) => character.MemberNumber == memberNumber
 		);
+
+		// Auto-Beep Fallback: If player isn't in the room anymore
+		if (!target) {
+			if (Settings.instance.data.autoBeepOnLeave) {
+				const playerWindow = (window as any).Player;
+
+				// Only friends can receive beeps
+				if (playerWindow.FriendList && playerWindow.FriendList.includes(memberNumber)) {
+					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
+
+					if (typeof ToastManager !== "undefined") {
+						Notification.send({ message: `Whisper sent as beep. Player left the room.`, title: "Whisper+" });
+					} else {
+						ChatRoomSendLocal(`Player left the room. Whisper sent as beep.`, 10_000);
+					}
+					return 0; // Success
+				}
+			}
+
+			// If fallback fails or is disabled, show standard error
+			ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${memberNumber}.`, 30_000);
+			return 1; // Error
+		}
 
 		// Send the whisper message
 		const success = this.sendWhisperMessage(target || memberNumber, message);
