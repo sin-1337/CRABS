@@ -877,8 +877,6 @@ export class Roster extends CRABS_Base {
 	 * @returns {void}
 	 */
 	private drawFocusGlow(character: any, drawX: number, drawY: number, zoom: number): void {
-
-		// bail out if user turns the halo off
 		if (!Settings.instance.data.enableFocusHalo) return;
 
 		const globalWindow = window as any;
@@ -890,19 +888,39 @@ export class Roster extends CRABS_Base {
 		const pulseSpeed = 250;
 		const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
 
+		// Determine height modifiers based on current pose
+		const activePoses = character.ActivePose || character.Pose || [];
+		const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
+
+		let scaleY = 1.0;
+		if (poseStr.includes("Lay") || poseStr.includes("Sleep") || poseStr.includes("Hogtied")) {
+			scaleY = 0.35;
+		} else if (poseStr.includes("AllFours")) {
+			scaleY = 0.50;
+		} else if (poseStr.includes("Kneel")) {
+			scaleY = 0.65;
+		}
+
+		// Apply character's natural height ratio if available, fallback to standard 1.0
+		const heightRatio = typeof character.HeightRatio === "number" ? character.HeightRatio : 1.0;
+
+		// Calculate dynamic radii
+		const radiusX = 250 * zoom * heightRatio;
+		const radiusY = 500 * zoom * heightRatio * scaleY;
+
+		// X is centered. Y is anchored to the floor so the aura shrinks downward, not toward the middle.
+		const centerX = drawX + (250 * zoom);
+		const floorY = drawY + (1000 * zoom);
+		const centerY = floorY - radiusY;
+
 		context.save();
 		try {
 			context.globalAlpha = pulseAlpha;
 			context.fillStyle = playerColor;
-			context.filter = 'blur(25px)'; // Extra blur for a massive aura
-
-			// Character canvas is standard 500x1000
-			const centerX = drawX + (250 * zoom);
-			const centerY = drawY + (500 * zoom);
+			context.filter = 'blur(25px)';
 
 			context.beginPath();
-			// Draw an ellipse filling the entire 500x1000 character boundary
-			context.ellipse(centerX, centerY, 250 * zoom, 500 * zoom, 0, 0, Math.PI * 2);
+			context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
 			context.fill();
 		} finally {
 			context.restore();
