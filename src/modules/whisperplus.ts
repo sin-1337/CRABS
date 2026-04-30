@@ -168,29 +168,35 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {{ memberNumber: number, message: string }} Parsed member number and message.
 	 */
 	private parseArguments(commandArguments: string, command: string): { memberNumber: number, message: string } {
-		// Extract member number (first part of the commandArguments)
-		const firstSpaceIndex = commandArguments.indexOf(" ");
-		let memberNumber: number;
-		let message: string;
+		let memberNumber: number = NaN;
+		let message: string = "";
 
-		if (firstSpaceIndex !== -1) {
-			// If there's a space, parse the member number from the beginning
-			const memberNumberStr = commandArguments.slice(0, firstSpaceIndex);
-			memberNumber = parseInt(memberNumberStr);
-			message = commandArguments.slice(firstSpaceIndex + 1);
-		} else {
-			// If no space, try to parse the entire commandArguments string
-			memberNumber = parseInt(commandArguments);
-			message = "";
-		}
-
-		// If parsing failed, try alternative approach using command string
-		if (isNaN(memberNumber) && command) {
+		// The raw command string retains the pristine case and spacing.
+		if (command) {
 			const commandParts = command.trim().split(/\s+/);
 			if (commandParts.length >= 2) {
 				memberNumber = parseInt(commandParts[1]);
-				message = commandParts.slice(2).join(" ");
+
+				if (!isNaN(memberNumber)) {
+					// Extract exactly what comes after the member number to preserve casing
+					const prefix = `${commandParts[0]} ${commandParts[1]} `;
+					const prefixIndex = command.indexOf(prefix);
+
+					if (prefixIndex !== -1) {
+						message = command.substring(prefixIndex + prefix.length);
+						return { memberNumber, message };
+					}
+				}
 			}
+		}
+
+		// Fallback to original logic if the raw command string is missing or malformed
+		const firstSpaceIndex = commandArguments.indexOf(" ");
+		if (firstSpaceIndex !== -1) {
+			memberNumber = parseInt(commandArguments.slice(0, firstSpaceIndex));
+			message = commandArguments.slice(firstSpaceIndex + 1);
+		} else {
+			memberNumber = parseInt(commandArguments);
 		}
 
 		return { memberNumber, message };
