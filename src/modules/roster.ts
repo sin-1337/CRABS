@@ -214,6 +214,52 @@ export class Roster extends CRABS_Base {
 				this.deferredIndicator = null;
 			}
 			this.drawCompass();
+
+			// Map hover detection
+			const globalWindow = window as any;
+			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
+
+			if (isMap) {
+				const mouseX = globalWindow.MouseX;
+				const mouseY = globalWindow.MouseY;
+				const range = globalWindow.ChatRoomMapViewPerceptionRange;
+				const player = globalWindow.Player;
+
+				if (typeof mouseX === "number" && typeof mouseY === "number" && typeof range === "number" && player?.MapData?.Pos) {
+					const tileW = 1000 / ((range * 2) + 1);
+
+					// Convert absolute mouse pixels to grid coordinates
+					const hoverGridX = Math.floor(mouseX / tileW);
+					const hoverGridY = Math.floor(mouseY / tileW);
+
+					// Iterate backwards so the top-most overlapping player wins
+					const characters = globalWindow.ChatRoomCharacter || [];
+					for (let i = characters.length - 1; i >= 0; i--) {
+						const c = characters[i];
+						if (c?.MapData?.Pos) {
+							const dX = c.MapData.Pos.X - player.MapData.Pos.X;
+							const dY = c.MapData.Pos.Y - player.MapData.Pos.Y;
+
+							const charScreenX = dX + range;
+							const charScreenY = dY + range;
+
+							// If the mouse grid matches the character's screen grid
+							if (hoverGridX === charScreenX && hoverGridY === charScreenY) {
+								// Ensure the tile is actually visible to the player (not in fog of war)
+								const tileIndex = c.MapData.Pos.X + (c.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth);
+								const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
+
+								if (isVisible) {
+									this.currentFrameHoveredPlayer = c.MemberNumber;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			// --
+
 			if (this.canvasHoveredPlayer !== this.currentFrameHoveredPlayer) {
 				this.canvasHoveredPlayer = this.currentFrameHoveredPlayer;
 				this.syncCanvasHoverToDOM(this.canvasHoveredPlayer);
