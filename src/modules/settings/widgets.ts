@@ -117,20 +117,16 @@ export class ButtonWidget extends UIWidget {
 		// This is a canvas-only widget, so no HTML DOM updates are needed.
 	}
 
-	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
+	draw(_ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
 		const globalWindow = window as any;
 		const disabled = this.getIsDisabled();
 
-		// 1. Draw an empty button box. We use the exact same dimensions as your CheckboxWidget 
-		// (y - 32, height: 64) so it aligns perfectly with the layout tree line.
-		globalWindow.DrawButton(bounds.x, bounds.y - 32, 320, 64, "", disabled ? "#888" : "White", "");
+		// Shrink the width from 320 down to 200. This pulls the text leftward,
+		// centering it beautifully underneath the text of the parent checkbox!
+		globalWindow.DrawButton(bounds.x, bounds.y - 32, 200, 64, this.label, disabled ? "#888" : "White", "");
 
-		// 2. Draw the text manually, left-aligned, perfectly matching the checkboxes above it
-		ctx.textAlign = "left";
-		globalWindow.DrawText(this.label, bounds.x + 90, bounds.y, disabled ? "#888888" : "Black", "");
-
-		// Tooltip hover check 
-		if (globalWindow.MouseIn(bounds.x, bounds.y - 32, 320, 64)) {
+		// Tooltip hover check (hitbox updated to match the 200 width)
+		if (globalWindow.MouseIn(bounds.x, bounds.y - 32, 200, 64)) {
 			setTooltip(this.hint);
 		}
 	}
@@ -138,8 +134,8 @@ export class ButtonWidget extends UIWidget {
 	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
 		const globalWindow = window as any;
 
-		// Ensure the click hitbox matches the exact dimensions of our button
-		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 32, 320, 64)) {
+		// Ensure the click hitbox matches the new 200px bounds
+		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 32, 200, 64)) {
 			this.onClick();
 			return true;
 		}
