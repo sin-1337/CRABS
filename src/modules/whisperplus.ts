@@ -233,13 +233,14 @@ export class WhisperPlus extends CRABS_Base {
 			addChatMessage(formattedMsg);
 			return true;
 		} else {
-			// Add parentheses if needed for range checking
+			// Prepare the message with the +: prefix FIRST
+			formattedMsg = `+: ${formattedMsg}`;
+
+			// Add parentheses if needed for range checking AFTER prefixing
+			// We check formattedMsg[0] to ensure we don't double-wrap if the player typed "(/whisper+)"
 			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && formattedMsg[0] !== "(") {
 				formattedMsg = `(${formattedMsg})`;
 			}
-
-			// Prepare the message with the +: prefix
-			formattedMsg = `+: ${formattedMsg}`;
 
 			// Build data payload
 			const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
@@ -340,6 +341,49 @@ export class WhisperPlus extends CRABS_Base {
 		const target = ChatRoomCharacter.find(
 			(character: any) => character.MemberNumber == memberNumber
 		);
+
+		// Auto-Beep Fallback: If player isn't in the room
+		if (!target) {
+			let beepFailed = false;
+
+			if (Settings.instance.data.autoBeepOnLeave) {
+				const playerWindow = (window as any).Player;
+
+				// Use a loose equality check (==) to prevent String vs Number strict mismatch failures
+				const isFriend = playerWindow.FriendList?.some((id: any) => id == memberNumber);
+				const isBestFriend = CrossMod.detectMod("BCTweaks") && playerWindow.BCT?.bctSettings?.bestFriendsList?.some((id: any) => id == memberNumber);
+
+				// If they are in either list, send the beep!
+				if (isFriend || isBestFriend) {
+					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
+
+					// Try to pull their cached name from the FriendList map, fallback to "Member" if not found
+					const targetName = playerWindow.FriendNames?.get?.(memberNumber) || "Member";
+
+					if (typeof ToastManager !== "undefined") {
+						Notification.send({ message: `Whisper+ sent as beep.`, title: "Whisper+" });
+					}
+					ChatRoomSendLocal(`Beep to ${targetName} (${memberNumber}): ${message}`);
+
+					return 0; // Success
+				} else {
+					beepFailed = true; // They had the setting on, but the target wasn't a friend
+				}
+			}
+
+			// If fallback fails or is disabled, show detailed error
+			let errorMsg = "Player left or became unavailable";
+			if (beepFailed) {
+				errorMsg += " (Auto-beep failed: Target is not on your friend list.)";
+			}
+
+			if (typeof ToastManager !== "undefined") {
+				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
+			}
+			ChatRoomSendLocal(errorMsg, 50_000);
+
+			return 1; // Error
+		}
 
 		// Send the whisper message
 		const success = this.sendWhisperMessage(target || memberNumber, message);

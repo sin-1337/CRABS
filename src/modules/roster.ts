@@ -109,12 +109,6 @@ export class Roster extends CRABS_Base {
 		this.loadFriendList();
 		this.setupEventHooks();
 
-		this.safeHook("ChatRoomMapViewDraw", 10, (functionArguments: any, next: Function) => {
-			const result = next(functionArguments);
-			this.drawCompass();
-			return result;
-		});
-
 		// Capture the math during the character drawing phase
 		this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
 			const globalWindow = window as any;
@@ -167,6 +161,8 @@ export class Roster extends CRABS_Base {
 				);
 				this.deferredIndicator = null;
 			}
+			this.drawCompass();
+
 
 			return result;
 		});
@@ -831,8 +827,7 @@ export class Roster extends CRABS_Base {
 
 		// REMOVED: if (deltaX === 0 && deltaY === 0) return;
 
-		const canvasElement = document.getElementById("MainCanvas") as HTMLCanvasElement;
-		const canvasContext = canvasElement?.getContext("2d");
+		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
 
 		let arrowX, arrowY, angle;
