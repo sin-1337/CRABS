@@ -118,6 +118,26 @@ export class WhisperPlus extends CRABS_Base {
 
 			return div;
 		});
+
+		// Global delegated listener for Whisper+ clicks
+		document.addEventListener("click", (event) => {
+			const target = event.target as HTMLElement;
+			const nameElement = target.closest(".CRABS_player-name") as HTMLElement;
+
+			if (nameElement) {
+				const memberNumStr = nameElement.getAttribute("data-player-number");
+				if (memberNumStr) {
+					// Kill the event here so the Roster card doesn't jump!
+					event.stopPropagation();
+					event.preventDefault();
+
+					const memberNumber = parseInt(memberNumStr, 10);
+					if (!isNaN(memberNumber)) {
+						this.sendWhisper(memberNumber);
+					}
+				}
+			}
+		}, { capture: true });
 	}
 
 	/**
@@ -398,7 +418,7 @@ export class WhisperPlus extends CRABS_Base {
 	 * @param {HTMLElement} [root] - Optional root element for event attachment.
 	 * @returns {void}
 	 */
-	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
-		this.attachEvent("CRABS_player-name", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
-	}
+	// public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
+	// 	this.attachEvent("CRABS_player-name", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
+	// }
 }
