@@ -1078,18 +1078,23 @@ export class Roster extends CRABS_Base {
 		const isDark = brightness < 128;
 
 		const scale = 0.6;
-		const angle = 0; // Point Right (>)
-
-		// Removed the zoom multiplier entirely. The UI text doesn't scale!
 		const textWidth = cachedData.width;
-
-		// Bumped padding from 35 up to 55 to give it an extra character's width of space.
 		const padding = 10;
 		const arrowWidth = 40 * scale;
 
-		// Calculate exact left-edge position
-		const tipX = x - (textWidth / 2) - padding;
-		const finalArrowX = tipX - (arrowWidth / 2);
+		// Assume default positioning (Left side, pointing Right)
+		let angle = 0;
+		let tipX = x - (textWidth / 2) - padding;
+		let finalArrowX = tipX - (arrowWidth / 2);
+
+		// Is the back of the arrow going to clip past the left edge of the screen (0)?
+		// We use 10px as a safe margin so it doesn't scrape the absolute edge.
+		if (finalArrowX - (arrowWidth / 2) < 10) {
+			// Flip to the Right side, pointing Left (<)
+			angle = Math.PI;
+			tipX = x + (textWidth / 2) + padding;
+			finalArrowX = tipX + (arrowWidth / 2);
+		}
 
 		this.drawIndicator(canvasContext, finalArrowX, y, angle, scale, playerColor, isDark);
 	}
