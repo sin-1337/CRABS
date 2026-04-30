@@ -356,10 +356,10 @@ export class WhisperPlus extends CRABS_Base {
 					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
 
 					if (typeof ToastManager !== "undefined") {
-						Notification.send({ message: `Whisper sent as beep. Player left the room.`, title: "Whisper+" });
-					} else {
-						ChatRoomSendLocal(`Player left the room. Whisper sent as beep.`, 10_000);
+						Notification.send({ message: `Whisper+ sent as beep.`, title: "Whisper+" });
 					}
+					ChatRoomSendLocal(`Beep to ${target}: ${message}`, 10_000);
+
 					return 0; // Success
 				} else {
 					beepFailed = true; // They had the setting on, but the target wasn't a friend
@@ -367,16 +367,16 @@ export class WhisperPlus extends CRABS_Base {
 			}
 
 			// If fallback fails or is disabled, show detailed error
-			let errorMsg = "Player left or became unavailable before Whisper+ could be completed.";
+			let errorMsg = "Player left or became unavailable";
 			if (beepFailed) {
 				errorMsg += " (Auto-beep failed: Target is not on your friend list.)";
 			}
 
 			if (typeof ToastManager !== "undefined") {
 				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
-			} else {
-				ChatRoomSendLocal(errorMsg, 30_000);
 			}
+			ChatRoomSendLocal(errorMsg, 30_000);
+
 
 			return 1; // Error
 		}
