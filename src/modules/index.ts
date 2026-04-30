@@ -5,6 +5,7 @@
  * exporting them for easy access throughout the mod.
  */
 
+export * from "./privacy";
 export * from "./assets";
 export * from "./banner";
 export * from "./base";
