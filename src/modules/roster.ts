@@ -243,9 +243,12 @@ export class Roster extends CRABS_Base {
 							const charScreenX = dX + range;
 							const charScreenY = dY + range;
 
-							// If the mouse grid matches the character's screen grid
-							if (hoverGridX === charScreenX && hoverGridY === charScreenY) {
-								// Ensure the tile is actually visible to the player (not in fog of war)
+							// Check both the base tile (feet) and the tile directly above it (head/torso)
+							const isHoveringCharacter = hoverGridX === charScreenX &&
+								(hoverGridY === charScreenY || hoverGridY === charScreenY - 1);
+
+							if (isHoveringCharacter) {
+								// Ensure the base tile is actually visible to the player (not in fog of war)
 								const tileIndex = c.MapData.Pos.X + (c.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth);
 								const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
