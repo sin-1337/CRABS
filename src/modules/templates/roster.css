@@ -105,7 +105,8 @@
     box-shadow 0.2s ease;
 }
 
-.CRABS_card:hover {
+.CRABS_card:hover,
+.CRABS_card.CRABS_simulated-hover {
   z-index: 99;
   transform: translateY(-2px); /* Lifts the card up */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */

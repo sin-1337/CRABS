@@ -55,6 +55,43 @@ export class Roster extends CRABS_Base {
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 	private deferredIndicator: { character: any, x: number, y: number, zoom: number } | null = null;
 
+	/** The player currently hovered on the main canvas (to sync to DOM) */
+	private canvasHoveredPlayer: number | null = null;
+
+	/** Temporary variable to calculate the top-most hovered player per frame */
+	private currentFrameHoveredPlayer: number | null = null;
+
+	/** Timeout to prevent scroll jittering */
+	private scrollTimeout: number | null = null;
+
+	/**
+	 * Applies a simulated CSS hover state to a player's roster card and scrolls it into view.
+	 * @param memberNumber - The ID of the hovered player, or null to clear.
+	 */
+	private syncCanvasHoverToDOM(memberNumber: number | null): void {
+		// Clear existing simulated hovers
+		document.querySelectorAll('.CRABS_card.CRABS_simulated-hover').forEach(el => {
+			el.classList.remove('CRABS_simulated-hover');
+		});
+
+		if (this.scrollTimeout) {
+			window.clearTimeout(this.scrollTimeout);
+			this.scrollTimeout = null;
+		}
+
+		if (memberNumber !== null) {
+			const card = document.querySelector(`#CRABS_card_${memberNumber}`);
+			if (card) {
+				card.classList.add('CRABS_simulated-hover');
+
+				// Wait 150ms before scrolling to prevent rapid-wiggle spam
+				this.scrollTimeout = window.setTimeout(() => {
+					card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				}, 150);
+			}
+		}
+	}
+
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
 	 * @param {string} playerId - The ID of the hovered player.
@@ -113,7 +150,12 @@ export class Roster extends CRABS_Base {
 		this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
 			const globalWindow = window as any;
 			let isTarget = false;
-			let drawX: number = 0, drawY: number = 0, zoom: number = 1, character: any = null;
+
+			// Unconditionally capture coordinates for hover hit-testing
+			const character = args[0];
+			const drawX = args[1] || 0;
+			const drawY = args[2] || 0;
+			const zoom = args[3] || 1;
 
 			if (globalWindow.CurrentScreen === "ChatRoom" &&
 				globalWindow.ChatRoomHideIconState < 3 &&
@@ -121,14 +163,23 @@ export class Roster extends CRABS_Base {
 
 				const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 				const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
-				character = args[0];
+
+				// Canvas hover detection 
+				const mouseX = globalWindow.MouseX;
+				const mouseY = globalWindow.MouseY;
+
+				if (typeof mouseX === "number" && typeof mouseY === "number") {
+					// Standard room bounding box check
+					if (!isMap && mouseX >= drawX && mouseX <= drawX + (500 * zoom) &&
+						mouseY >= drawY && mouseY <= drawY + (1000 * zoom)) {
+						// Characters draw back-to-front. Last one passing this check is on top.
+						this.currentFrameHoveredPlayer = character.MemberNumber;
+					}
+				}
+				// --
 
 				if (!isMap && targetId && character.MemberNumber === targetId) {
 					isTarget = true;
-					drawX = args[1];
-					drawY = args[2];
-					zoom = args[3];
-
 					this.drawFocusGlow(character, drawX, drawY, zoom);
 				}
 			}
@@ -138,14 +189,15 @@ export class Roster extends CRABS_Base {
 			if (isTarget) {
 				const centerX = drawX + (250 * zoom);
 				const nameY = drawY + (975 * zoom);
-				// Included zoom here to clear TS(6133)
 				this.deferredIndicator = { character, x: centerX, y: nameY, zoom };
 			}
 
 			return result;
 		});
 
+
 		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
+			this.currentFrameHoveredPlayer = null;
 			this.deferredIndicator = null;
 
 			const result = next(args);
@@ -162,6 +214,59 @@ export class Roster extends CRABS_Base {
 				this.deferredIndicator = null;
 			}
 			this.drawCompass();
+
+			// Map hover detection
+			const globalWindow = window as any;
+			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
+
+			if (isMap) {
+				const mouseX = globalWindow.MouseX;
+				const mouseY = globalWindow.MouseY;
+				const range = globalWindow.ChatRoomMapViewPerceptionRange;
+				const player = globalWindow.Player;
+
+				if (typeof mouseX === "number" && typeof mouseY === "number" && typeof range === "number" && player?.MapData?.Pos) {
+					const tileW = 1000 / ((range * 2) + 1);
+
+					// Convert absolute mouse pixels to grid coordinates
+					const hoverGridX = Math.floor(mouseX / tileW);
+					const hoverGridY = Math.floor(mouseY / tileW);
+
+					// Iterate backwards so the top-most overlapping player wins
+					const characters = globalWindow.ChatRoomCharacter || [];
+					for (let i = characters.length - 1; i >= 0; i--) {
+						const c = characters[i];
+						if (c?.MapData?.Pos) {
+							const dX = c.MapData.Pos.X - player.MapData.Pos.X;
+							const dY = c.MapData.Pos.Y - player.MapData.Pos.Y;
+
+							const charScreenX = dX + range;
+							const charScreenY = dY + range;
+
+							// Check both the base tile (feet) and the tile directly above it (head/torso)
+							const isHoveringCharacter = hoverGridX === charScreenX &&
+								(hoverGridY === charScreenY || hoverGridY === charScreenY - 1);
+
+							if (isHoveringCharacter) {
+								// Ensure the base tile is actually visible to the player (not in fog of war)
+								const tileIndex = c.MapData.Pos.X + (c.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth);
+								const isVisible = globalWindow.ChatRoomMapViewVisibilityMask && globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
+
+								if (isVisible) {
+									this.currentFrameHoveredPlayer = c.MemberNumber;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			// --
+
+			if (this.canvasHoveredPlayer !== this.currentFrameHoveredPlayer) {
+				this.canvasHoveredPlayer = this.currentFrameHoveredPlayer;
+				this.syncCanvasHoverToDOM(this.canvasHoveredPlayer);
+			}
 
 
 			return result;
@@ -952,10 +1057,10 @@ export class Roster extends CRABS_Base {
 		const scale = 0.6;
 		const angle = 0; // Point Right (>)
 
-		// 1. Removed the zoom multiplier entirely. The UI text doesn't scale!
+		// Removed the zoom multiplier entirely. The UI text doesn't scale!
 		const textWidth = cachedData.width;
 
-		// 2. Bumped padding from 35 up to 55 to give it an extra character's width of space.
+		// Bumped padding from 35 up to 55 to give it an extra character's width of space.
 		const padding = 10;
 		const arrowWidth = 40 * scale;
 
