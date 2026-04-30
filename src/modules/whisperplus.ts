@@ -344,6 +344,8 @@ export class WhisperPlus extends CRABS_Base {
 
 		// Auto-Beep Fallback: If player isn't in the room anymore
 		if (!target) {
+			let beepFailed = false;
+
 			if (Settings.instance.data.autoBeepOnLeave) {
 				const playerWindow = (window as any).Player;
 
@@ -357,11 +359,22 @@ export class WhisperPlus extends CRABS_Base {
 						ChatRoomSendLocal(`Player left the room. Whisper sent as beep.`, 10_000);
 					}
 					return 0; // Success
+				} else {
+					beepFailed = true; // They had the setting on, but the target wasn't a friend
 				}
 			}
 
-			// If fallback fails or is disabled, show standard error
-			ChatRoomSendLocal(`${TextGet("CommandNoWhisperTarget")} ${memberNumber}.`, 30_000);
+			// If fallback fails or is disabled, show detailed error
+			let errorMsg = "Player left or became unavailable before Whisper+ could be completed.";
+			if (beepFailed) {
+				errorMsg += " (Whisper failed: Target is not in the room and not on your friend list.)";
+			}
+
+			if (typeof ToastManager !== "undefined") {
+				Notification.send({ message: errorMsg, title: "Whisper+" });
+			} else {
+				ChatRoomSendLocal(errorMsg, 30_000);
+			}
 			return 1; // Error
 		}
 
