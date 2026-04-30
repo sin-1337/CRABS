@@ -109,7 +109,6 @@ export class ButtonWidget extends UIWidget {
 		onClick: () => void,
 		isDisabled: () => boolean = () => false
 	) {
-		// Pass the shared properties up to the UIWidget base class
 		super(label, hint, isDisabled);
 		this.onClick = onClick;
 	}
@@ -118,21 +117,15 @@ export class ButtonWidget extends UIWidget {
 		// This is a canvas-only widget, so no HTML DOM updates are needed.
 	}
 
-	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
+	draw(_ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
 		const globalWindow = window as any;
 		const disabled = this.getIsDisabled();
 
-		// Draw the base game button. We offset Y slightly to center it in the row.
-		globalWindow.DrawButton(bounds.x, bounds.y - 30, 220, 60, this.label, disabled ? "#888" : "White", "");
+		// Indent the button +90 on the X axis so it perfectly aligns with the checkbox labels
+		globalWindow.DrawButton(bounds.x + 90, bounds.y - 30, 220, 60, this.label, disabled ? "#888" : "White", "");
 
-		// Draw the hint text to the right of the button
-		ctx.fillStyle = disabled ? "gray" : "Black";
-		ctx.textAlign = "left";
-		ctx.font = "36px sans-serif";
-		ctx.fillText(this.hint, bounds.x + 250, bounds.y + 10);
-
-		// Tooltip hover check
-		if (globalWindow.MouseIn(bounds.x, bounds.y - 30, 600, 60)) {
+		// Use the proper tooltip system instead of drawing ugly text over the UI
+		if (globalWindow.MouseIn(bounds.x + 90, bounds.y - 30, 220, 60)) {
 			setTooltip(this.hint);
 		}
 	}
@@ -140,8 +133,8 @@ export class ButtonWidget extends UIWidget {
 	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
 		const globalWindow = window as any;
 
-		// Check if the user clicked inside our 220x60 button boundaries
-		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 30, 220, 60)) {
+		// Ensure the click hitbox matches the new indented drawing coordinates
+		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x + 90, bounds.y - 30, 220, 60)) {
 			this.onClick();
 			return true;
 		}

@@ -24,36 +24,37 @@ export class PrivacyMode {
 	private registerNativeKeybind() {
 		const globalWindow = window as any;
 
-		// The KeyManager exists immediately, but it loads its contexts asynchronously!
-		// We must wait until the 'always' context is registered before we can use it.
 		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
 			setTimeout(() => this.registerNativeKeybind(), 500);
 			return;
 		}
 
-		// Register a custom category for your mod in the Keybindings menu!
 		if (!globalWindow.KeyManager.getCategory('crabs')) {
 			globalWindow.KeyManager.registerCategory({
 				id: 'crabs',
-				name: { EN: 'CRABS Mod' } // Shows up as a header in the menu
+				name: { EN: 'CRABS Mod' }
 			});
 		}
 
-		// Register the actual keybinding
+		// Define the action function separately so we can modify it
+		const toggleAction = () => {
+			const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
+			this.toggle(mode);
+			return true;
+		};
+
+		// HACK: Trick the base game into reading our custom name by overriding the function's name property
+		Object.defineProperty(toggleAction, "name", { value: { EN: "Toggle Privacy Mode" } });
+
 		globalWindow.KeyManager.registerKeybinding({
 			id: 'crabs_privacy_toggle',
-			action: () => {
-				// Read the mode preference from your settings when the key is pressed
-				const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
-				this.toggle(mode);
+			action: toggleAction,
+			description: { EN: "Instantly blanks out the chat room based on your CRABS settings." },
 
-				return true; // Returns true to tell the game engine we handled this input
-			},
-			contextIds: ['always'], // The base game context that allows it to fire on any screen
-			categoryId: 'crabs',    // Puts it under your custom category header
-			readonly: false,        // Lets the user change the keybind in the UI
-
-			// The default fallback (Ctrl + Shift + Alt + B)
+			// FIX: An empty array means NO prerequisites. It will fire globally, even when typing in chat!
+			contextIds: [],
+			categoryId: 'crabs',
+			readonly: false,
 			defaultKeyCombo: {
 				key: 'KeyB',
 				modifiers: new Set(['Ctrl', 'Shift', 'Alt'])
