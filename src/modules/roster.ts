@@ -991,13 +991,17 @@ export class Roster extends CRABS_Base {
 
 		const playerColor = character.LabelColor || "cyan";
 
-		// LOW (15-30 FPS). Static gradient, no pulse math.
-		let currentAlpha = 0.25;
+		// PERFORMANCE TIER 2: LOW (15-30 FPS). Static gradient, solid visibility.
+		let currentAlpha = 0.5;
 
-		// NORMAL (> 30 FPS). Full pulsating math.
-		if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+		if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
+			// PERFORMANCE TIER 3: CRITICAL (< 15 FPS). Keep the glow for consistency, 
+			// but make it dimmer and static to save maximum processing power.
+			currentAlpha = 0.25;
+		} else if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+			// PERFORMANCE TIER 1: NORMAL (> 30 FPS). Full pulsating math.
 			const pulseSpeed = 250;
-			currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
+			currentAlpha = (((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.5) + 0.3;
 		}
 
 		const activePoses = character.ActivePose || character.Pose || [];
@@ -1028,9 +1032,9 @@ export class Roster extends CRABS_Base {
 			context.translate(centerX, centerY);
 			context.scale(1, radiusY / radiusX);
 
-			const gradient = context.createRadialGradient(0, 0, radiusX * 0.2, 0, 0, radiusX);
+			const gradient = context.createRadialGradient(0, 0, radiusX * 0.4, 0, 0, radiusX);
 			gradient.addColorStop(0, playerColor);
-			gradient.addColorStop(1, 'transparent');
+			gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
 			context.fillStyle = gradient;
 			context.beginPath();
