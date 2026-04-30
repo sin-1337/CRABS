@@ -121,11 +121,11 @@ export class ButtonWidget extends UIWidget {
 		const globalWindow = window as any;
 		const disabled = this.getIsDisabled();
 
-		// Indent the button +90 on the X axis so it perfectly aligns with the checkbox labels
-		globalWindow.DrawButton(bounds.x + 90, bounds.y - 30, 220, 60, this.label, disabled ? "#888" : "White", "");
+		// Draw exactly at bounds.x (the LayoutEngine already handled the indent shift!)
+		globalWindow.DrawButton(bounds.x, bounds.y - 30, 220, 60, this.label, disabled ? "#888" : "White", "");
 
-		// Use the proper tooltip system instead of drawing ugly text over the UI
-		if (globalWindow.MouseIn(bounds.x + 90, bounds.y - 30, 220, 60)) {
+		// Tooltip hover check
+		if (globalWindow.MouseIn(bounds.x, bounds.y - 30, 220, 60)) {
 			setTooltip(this.hint);
 		}
 	}
@@ -133,8 +133,8 @@ export class ButtonWidget extends UIWidget {
 	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
 		const globalWindow = window as any;
 
-		// Ensure the click hitbox matches the new indented drawing coordinates
-		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x + 90, bounds.y - 30, 220, 60)) {
+		// Ensure the click hitbox matches the exact bounds
+		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 30, 220, 60)) {
 			this.onClick();
 			return true;
 		}
