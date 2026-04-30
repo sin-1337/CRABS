@@ -121,14 +121,11 @@ export class ButtonWidget extends UIWidget {
 		const globalWindow = window as any;
 		const disabled = this.getIsDisabled();
 
-		// 1. Draw an empty button box. We make it 320px wide so the shifted text fits inside.
-		globalWindow.DrawButton(bounds.x, bounds.y - 30, 320, 60, "", disabled ? "#888" : "White", "");
+		// Pass 'this.label' back into DrawButton. The base game will perfectly center 
+		// the text inside our 320px wide box for us!
+		globalWindow.DrawButton(bounds.x, bounds.y - 30, 320, 60, this.label, disabled ? "#888" : "White", "");
 
-		// 2. Draw the text manually, left-aligned, perfectly matching the checkboxes above it
-		_ctx.textAlign = "left";
-		globalWindow.DrawText(this.label, bounds.x + 90, bounds.y, disabled ? "#888888" : "Black", "");
-
-		// Tooltip hover check (updated to match the 320 width)
+		// Tooltip hover check
 		if (globalWindow.MouseIn(bounds.x, bounds.y - 30, 320, 60)) {
 			setTooltip(this.hint);
 		}
@@ -137,7 +134,7 @@ export class ButtonWidget extends UIWidget {
 	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
 		const globalWindow = window as any;
 
-		// Ensure the click hitbox matches the new 320px bounds
+		// Ensure the click hitbox matches the 320px bounds
 		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 30, 320, 60)) {
 			this.onClick();
 			return true;
