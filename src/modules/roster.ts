@@ -991,17 +991,16 @@ export class Roster extends CRABS_Base {
 
 		const playerColor = character.LabelColor || "cyan";
 
-		// PERFORMANCE TIER 2: LOW (15-30 FPS). Static gradient, solid visibility.
+		// Default to the static, higher-visibility alpha for LOW performance
 		let currentAlpha = 0.5;
 
 		if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
-			// PERFORMANCE TIER 3: CRITICAL (< 15 FPS). Keep the glow for consistency, 
-			// but make it dimmer and static to save maximum processing power.
+			// Dimmer static alpha to save maximum processing power
 			currentAlpha = 0.25;
 		} else if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
-			// PERFORMANCE TIER 1: NORMAL (> 30 FPS). Full pulsating math.
+			// Full pulsating math for high-performance mode
 			const pulseSpeed = 250;
-			currentAlpha = (((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.5) + 0.3;
+			currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
 		}
 
 		const activePoses = character.ActivePose || character.Pose || [];
@@ -1029,17 +1028,28 @@ export class Roster extends CRABS_Base {
 		try {
 			context.globalAlpha = currentAlpha;
 
-			context.translate(centerX, centerY);
-			context.scale(1, radiusY / radiusX);
+			if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+				// --- THE ORIGINAL HEAVY BLUR EFFECT ---
+				context.fillStyle = playerColor;
+				context.filter = 'blur(25px)';
 
-			const gradient = context.createRadialGradient(0, 0, radiusX * 0.4, 0, 0, radiusX);
-			gradient.addColorStop(0, playerColor);
-			gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+				context.beginPath();
+				context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+				context.fill();
+			} else {
+				// --- THE LIGHTWEIGHT GRADIENT FALLBACK ---
+				context.translate(centerX, centerY);
+				context.scale(1, radiusY / radiusX);
 
-			context.fillStyle = gradient;
-			context.beginPath();
-			context.arc(0, 0, radiusX, 0, Math.PI * 2);
-			context.fill();
+				const gradient = context.createRadialGradient(0, 0, radiusX * 0.4, 0, 0, radiusX);
+				gradient.addColorStop(0, playerColor);
+				gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+				context.fillStyle = gradient;
+				context.beginPath();
+				context.arc(0, 0, radiusX, 0, Math.PI * 2);
+				context.fill();
+			}
 		} finally {
 			context.restore();
 		}
