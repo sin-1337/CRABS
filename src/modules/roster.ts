@@ -11,7 +11,7 @@
  *
  */
 
-import { CRABS_Base } from "./base";
+import { CRABS_Base, PerformanceLevel } from "./base";
 import { Assets } from "./assets";
 import { CrossMod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -197,6 +197,7 @@ export class Roster extends CRABS_Base {
 
 
 		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
+			this.updatePerformanceState();
 			this.currentFrameHoveredPlayer = null;
 			this.deferredIndicator = null;
 
@@ -988,12 +989,20 @@ export class Roster extends CRABS_Base {
 		const context = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!context) return;
 
-		const now = Date.now();
 		const playerColor = character.LabelColor || "cyan";
-		const pulseSpeed = 250;
-		const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
 
-		// Determine height modifiers based on current pose
+		// Default to the static, higher-visibility alpha for LOW performance
+		let currentAlpha = 0.5;
+
+		if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
+			// Dimmer static alpha to save maximum processing power
+			currentAlpha = 0.25;
+		} else if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+			// Full pulsating math for high-performance mode
+			const pulseSpeed = 250;
+			currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
+		}
+
 		const activePoses = character.ActivePose || character.Pose || [];
 		const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
 
@@ -1006,27 +1015,41 @@ export class Roster extends CRABS_Base {
 			scaleY = 0.65;
 		}
 
-		// Apply character's natural height ratio if available, fallback to standard 1.0
 		const heightRatio = typeof character.HeightRatio === "number" ? character.HeightRatio : 1.0;
 
-		// Calculate dynamic radii
 		const radiusX = 250 * zoom * heightRatio;
 		const radiusY = 500 * zoom * heightRatio * scaleY;
 
-		// X is centered. Y is anchored to the floor so the aura shrinks downward, not toward the middle.
 		const centerX = drawX + (250 * zoom);
 		const floorY = drawY + (1000 * zoom);
 		const centerY = floorY - radiusY;
 
 		context.save();
 		try {
-			context.globalAlpha = pulseAlpha;
-			context.fillStyle = playerColor;
-			context.filter = 'blur(25px)';
+			context.globalAlpha = currentAlpha;
 
-			context.beginPath();
-			context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-			context.fill();
+			if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+				// --- THE ORIGINAL HEAVY BLUR EFFECT ---
+				context.fillStyle = playerColor;
+				context.filter = 'blur(25px)';
+
+				context.beginPath();
+				context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+				context.fill();
+			} else {
+				// --- THE LIGHTWEIGHT GRADIENT FALLBACK ---
+				context.translate(centerX, centerY);
+				context.scale(1, radiusY / radiusX);
+
+				const gradient = context.createRadialGradient(0, 0, radiusX * 0.4, 0, 0, radiusX);
+				gradient.addColorStop(0, playerColor);
+				gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+				context.fillStyle = gradient;
+				context.beginPath();
+				context.arc(0, 0, radiusX, 0, Math.PI * 2);
+				context.fill();
+			}
 		} finally {
 			context.restore();
 		}
@@ -1055,18 +1078,23 @@ export class Roster extends CRABS_Base {
 		const isDark = brightness < 128;
 
 		const scale = 0.6;
-		const angle = 0; // Point Right (>)
-
-		// Removed the zoom multiplier entirely. The UI text doesn't scale!
 		const textWidth = cachedData.width;
-
-		// Bumped padding from 35 up to 55 to give it an extra character's width of space.
 		const padding = 10;
 		const arrowWidth = 40 * scale;
 
-		// Calculate exact left-edge position
-		const tipX = x - (textWidth / 2) - padding;
-		const finalArrowX = tipX - (arrowWidth / 2);
+		// Assume default positioning (Left side, pointing Right)
+		let angle = 0;
+		let tipX = x - (textWidth / 2) - padding;
+		let finalArrowX = tipX - (arrowWidth / 2);
+
+		// Is the back of the arrow going to clip past the left edge of the screen (0)?
+		// We use 10px as a safe margin so it doesn't scrape the absolute edge.
+		if (finalArrowX - (arrowWidth / 2) < 10) {
+			// Flip to the Right side, pointing Left (<)
+			angle = Math.PI;
+			tipX = x + (textWidth / 2) + padding;
+			finalArrowX = tipX + (arrowWidth / 2);
+		}
 
 		this.drawIndicator(canvasContext, finalArrowX, y, angle, scale, playerColor, isDark);
 	}
