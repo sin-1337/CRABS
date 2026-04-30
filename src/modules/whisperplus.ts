@@ -347,18 +347,23 @@ export class WhisperPlus extends CRABS_Base {
 			let beepFailed = false;
 
 			if (Settings.instance.data.autoBeepOnLeave) {
+				const playerWindow = (window as any).Player;
+
 				// Use a loose equality check (==) to prevent String vs Number strict mismatch failures
-				const isFriend = Player.FriendList?.some((id: any) => id == memberNumber);
-				const isBestFriend = CrossMod.detectMod("BCTweaks") && Player.BCT?.bctSettings?.bestFriendsList?.some((id: any) => id == memberNumber);
+				const isFriend = playerWindow.FriendList?.some((id: any) => id == memberNumber);
+				const isBestFriend = CrossMod.detectMod("BCTweaks") && playerWindow.BCT?.bctSettings?.bestFriendsList?.some((id: any) => id == memberNumber);
 
 				// If they are in either list, send the beep!
 				if (isFriend || isBestFriend) {
 					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
 
+					// Try to pull their cached name from the FriendList map, fallback to "Member" if not found
+					const targetName = playerWindow.FriendNames?.get?.(memberNumber) || "Member";
+
 					if (typeof ToastManager !== "undefined") {
 						Notification.send({ message: `Whisper+ sent as beep.`, title: "Whisper+" });
 					}
-					ChatRoomSendLocal(`Beep to ${target}: ${message}`, 10_000);
+					ChatRoomSendLocal(`Beep to ${targetName} (${memberNumber}): ${message}`, 10_000);
 
 					return 0; // Success
 				} else {
@@ -376,7 +381,6 @@ export class WhisperPlus extends CRABS_Base {
 				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
 			}
 			ChatRoomSendLocal(errorMsg, 30_000);
-
 
 			return 1; // Error
 		}
