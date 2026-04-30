@@ -363,7 +363,7 @@ export class WhisperPlus extends CRABS_Base {
 					if (typeof ToastManager !== "undefined") {
 						Notification.send({ message: `Whisper+ sent as beep.`, title: "Whisper+" });
 					}
-					ChatRoomSendLocal(`Beep to ${targetName} (${memberNumber}): ${message}`, 10_000);
+					ChatRoomSendLocal(`Beep to ${targetName} (${memberNumber}): ${message}`);
 
 					return 0; // Success
 				} else {
@@ -380,7 +380,7 @@ export class WhisperPlus extends CRABS_Base {
 			if (typeof ToastManager !== "undefined") {
 				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
 			}
-			ChatRoomSendLocal(errorMsg, 30_000);
+			ChatRoomSendLocal(errorMsg, 50_000);
 
 			return 1; // Error
 		}
