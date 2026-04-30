@@ -342,15 +342,17 @@ export class WhisperPlus extends CRABS_Base {
 			(character: any) => character.MemberNumber == memberNumber
 		);
 
-		// Auto-Beep Fallback: If player isn't in the room anymore
+		// Auto-Beep Fallback: If player isn't in the room
 		if (!target) {
 			let beepFailed = false;
 
 			if (Settings.instance.data.autoBeepOnLeave) {
-				const playerWindow = (window as any).Player;
+				// Use a loose equality check (==) to prevent String vs Number strict mismatch failures
+				const isFriend = Player.FriendList?.some((id: any) => id == memberNumber);
+				const isBestFriend = CrossMod.detectMod("BCTweaks") && Player.BCT?.bctSettings?.bestFriendsList?.some((id: any) => id == memberNumber);
 
-				// Only friends can receive beeps
-				if (playerWindow.FriendList && playerWindow.FriendList.includes(memberNumber)) {
+				// If they are in either list, send the beep!
+				if (isFriend || isBestFriend) {
 					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
 
 					if (typeof ToastManager !== "undefined") {
@@ -367,14 +369,15 @@ export class WhisperPlus extends CRABS_Base {
 			// If fallback fails or is disabled, show detailed error
 			let errorMsg = "Player left or became unavailable before Whisper+ could be completed.";
 			if (beepFailed) {
-				errorMsg += " (Whisper failed: Target is not in the room and not on your friend list.)";
+				errorMsg += " (Auto-beep failed: Target is not on your friend list.)";
 			}
 
 			if (typeof ToastManager !== "undefined") {
-				Notification.send({ message: errorMsg, title: "Whisper+" });
+				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
 			} else {
 				ChatRoomSendLocal(errorMsg, 30_000);
 			}
+
 			return 1; // Error
 		}
 
