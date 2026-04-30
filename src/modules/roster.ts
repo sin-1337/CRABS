@@ -11,7 +11,7 @@
  *
  */
 
-import { CRABS_Base } from "./base";
+import { CRABS_Base, PerformanceLevel } from "./base";
 import { Assets } from "./assets";
 import { CrossMod } from "./crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -197,6 +197,7 @@ export class Roster extends CRABS_Base {
 
 
 		this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
+			this.updatePerformanceState();
 			this.currentFrameHoveredPlayer = null;
 			this.deferredIndicator = null;
 
@@ -988,12 +989,17 @@ export class Roster extends CRABS_Base {
 		const context = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!context) return;
 
-		const now = Date.now();
 		const playerColor = character.LabelColor || "cyan";
-		const pulseSpeed = 250;
-		const pulseAlpha = ((Math.sin(now / pulseSpeed) + 1) / 2) * 0.4;
 
-		// Determine height modifiers based on current pose
+		// LOW (15-30 FPS). Static gradient, no pulse math.
+		let currentAlpha = 0.25;
+
+		// NORMAL (> 30 FPS). Full pulsating math.
+		if (this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+			const pulseSpeed = 250;
+			currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
+		}
+
 		const activePoses = character.ActivePose || character.Pose || [];
 		const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
 
@@ -1006,26 +1012,29 @@ export class Roster extends CRABS_Base {
 			scaleY = 0.65;
 		}
 
-		// Apply character's natural height ratio if available, fallback to standard 1.0
 		const heightRatio = typeof character.HeightRatio === "number" ? character.HeightRatio : 1.0;
 
-		// Calculate dynamic radii
 		const radiusX = 250 * zoom * heightRatio;
 		const radiusY = 500 * zoom * heightRatio * scaleY;
 
-		// X is centered. Y is anchored to the floor so the aura shrinks downward, not toward the middle.
 		const centerX = drawX + (250 * zoom);
 		const floorY = drawY + (1000 * zoom);
 		const centerY = floorY - radiusY;
 
 		context.save();
 		try {
-			context.globalAlpha = pulseAlpha;
-			context.fillStyle = playerColor;
-			context.filter = 'blur(25px)';
+			context.globalAlpha = currentAlpha;
 
+			context.translate(centerX, centerY);
+			context.scale(1, radiusY / radiusX);
+
+			const gradient = context.createRadialGradient(0, 0, radiusX * 0.2, 0, 0, radiusX);
+			gradient.addColorStop(0, playerColor);
+			gradient.addColorStop(1, 'transparent');
+
+			context.fillStyle = gradient;
 			context.beginPath();
-			context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+			context.arc(0, 0, radiusX, 0, Math.PI * 2);
 			context.fill();
 		} finally {
 			context.restore();

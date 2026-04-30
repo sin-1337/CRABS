@@ -112,15 +112,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */
 }
 
-/* --- PERFORMANCE MODE --- */
-/* If the Drawer instance has the low-perf class, kill transitions on ALL cards */
-.drawer-open.CRABS_perf_low .CRABS_card,
-.drawer-open.CRABS_perf_low .CRABS_card:hover {
-  transition: none !important;
-  transform: none !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important; /* Force standard shadow */
-}
-
 .CRABS_card::after {
   content: "";
   position: absolute;
