@@ -24,9 +24,9 @@ export class PrivacyMode {
 	private registerNativeKeybind() {
 		const globalWindow = window as any;
 
-		// The KeyManager might take a split second to initialize on game load.
-		// If it isn't ready, wait 500ms and try again.
-		if (!globalWindow.KeyManager) {
+		// The KeyManager exists immediately, but it loads its contexts asynchronously!
+		// We must wait until the 'always' context is registered before we can use it.
+		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
 			setTimeout(() => this.registerNativeKeybind(), 500);
 			return;
 		}
