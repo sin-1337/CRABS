@@ -3,6 +3,7 @@ import { Settings } from "./settings";
 export class PrivacyMode {
 	private isVisible: boolean = false;
 	private overlay: HTMLDivElement;
+	private monitorTimer: number | null = null; // Track our screen watcher
 
 	constructor() {
 		// Create the blackout element once on initialization
@@ -36,22 +37,18 @@ export class PrivacyMode {
 			});
 		}
 
-		// Define the action function separately so we can modify it
 		const toggleAction = () => {
 			const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
 			this.toggle(mode);
 			return true;
 		};
 
-		// HACK: Trick the base game into reading our custom name by overriding the function's name property
 		Object.defineProperty(toggleAction, "name", { value: { EN: "Toggle Privacy Mode" } });
 
 		globalWindow.KeyManager.registerKeybinding({
 			id: 'crabs_privacy_toggle',
 			action: toggleAction,
 			description: { EN: "Instantly blanks out the chat room based on your CRABS settings." },
-
-			// FIX: An empty array means NO prerequisites. It will fire globally, even when typing in chat!
 			contextIds: [],
 			categoryId: 'crabs',
 			readonly: false,
@@ -72,13 +69,42 @@ export class PrivacyMode {
 			// Context-Aware Sizing:
 			if (currentScreen === "ChatRoom" && userPreferredMode === "left") {
 				this.overlay.style.width = "50vw";
+				this.startMonitoring(); // Start watching for screen changes
 			} else {
 				this.overlay.style.width = "100vw";
+				this.stopMonitoring(); // Ensure it doesn't auto-close if full-screen mode is used
 			}
 
 			this.overlay.style.display = "block";
 		} else {
 			this.overlay.style.display = "none";
+			this.stopMonitoring(); // Clean up the timer
+		}
+	}
+
+	// --- SCREEN TRACKING ---
+
+	private startMonitoring(): void {
+		this.stopMonitoring(); // Clear any existing timer
+
+		// Check the game state 5 times a second while the overlay is active
+		this.monitorTimer = window.setInterval(() => {
+			const globalWindow = window as any;
+
+			// If they leave the main chat room view OR open a character dialog (Wardrobe, Profile, Settings)
+			if (globalWindow.CurrentScreen !== "ChatRoom" || globalWindow.CurrentCharacter !== null) {
+				// Force the privacy block to close
+				this.isVisible = false;
+				this.overlay.style.display = "none";
+				this.stopMonitoring();
+			}
+		}, 200);
+	}
+
+	private stopMonitoring(): void {
+		if (this.monitorTimer !== null) {
+			window.clearInterval(this.monitorTimer);
+			this.monitorTimer = null;
 		}
 	}
 }

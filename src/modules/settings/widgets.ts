@@ -119,7 +119,7 @@ export class ButtonWidget extends UIWidget {
 		const globalWindow = window as any;
 		const disabled = this.getIsDisabled();
 
-		// THE FIX: Override the leaked state from the previous widgets
+		// Override the state from the previous widgets
 		ctx.textAlign = "center";
 
 		globalWindow.DrawButton(bounds.x, bounds.y - 32, 200, 64, this.label, disabled ? "#888" : "White", "");
