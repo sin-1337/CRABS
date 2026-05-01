@@ -170,8 +170,10 @@ export class Roster extends CRABS_Base {
 
 				if (typeof mouseX === "number" && typeof mouseY === "number") {
 					// Standard room bounding box check
-					if (!isMap && mouseX >= drawX && mouseX <= drawX + (500 * zoom) &&
+					if (!isMap && mouseX < 1000 && this.hoveredMapPlayer === null &&
+						mouseX >= drawX && mouseX <= drawX + (500 * zoom) &&
 						mouseY >= drawY && mouseY <= drawY + (1000 * zoom)) {
+
 						// Characters draw back-to-front. Last one passing this check is on top.
 						this.currentFrameHoveredPlayer = character.MemberNumber;
 					}
