@@ -2,11 +2,11 @@ import { Settings } from "./settings";
 
 export class PrivacyMode {
 	private isVisible: boolean = false;
+	private isSuspended: boolean = false;
 	private overlay: HTMLDivElement;
-	private monitorTimer: number | null = null; // Track our screen watcher
+	private monitorTimer: number | null = null;
 
 	constructor() {
-		// Create the blackout element once on initialization
 		this.overlay = document.createElement("div");
 		this.overlay.id = "CRABS-privacy-overlay";
 		this.overlay.style.display = "none";
@@ -18,7 +18,6 @@ export class PrivacyMode {
 		this.overlay.style.zIndex = "999999";
 		document.body.appendChild(this.overlay);
 
-		// Hook into the base game's key manager
 		this.registerNativeKeybind();
 	}
 
@@ -60,43 +59,60 @@ export class PrivacyMode {
 	}
 
 	public toggle(userPreferredMode: "left" | "full"): void {
-		this.isVisible = !this.isVisible;
+		// If it is on OR temporarily suspended, turn it completely off
+		if (this.isVisible || this.isSuspended) {
+			this.isVisible = false;
+			this.isSuspended = false;
+			this.overlay.style.display = "none";
+			this.stopMonitoring();
+			return;
+		}
 
-		if (this.isVisible) {
-			const globalWindow = window as any;
-			const currentScreen = globalWindow.CurrentScreen;
+		// Turning it on
+		const globalWindow = window as any;
+		const inMainChat = globalWindow.CurrentScreen === "ChatRoom" && globalWindow.CurrentCharacter === null;
 
-			// Context-Aware Sizing:
-			if (currentScreen === "ChatRoom" && userPreferredMode === "left") {
-				this.overlay.style.width = "50vw";
-				this.startMonitoring(); // Start watching for screen changes
+		if (userPreferredMode === "left") {
+			this.overlay.style.width = "50vw";
+
+			// If they trigger it while already inside a menu, suspend it immediately
+			if (!inMainChat) {
+				this.isSuspended = true;
 			} else {
-				this.overlay.style.width = "100vw";
-				this.stopMonitoring(); // Ensure it doesn't auto-close if full-screen mode is used
+				this.isVisible = true;
+				this.overlay.style.display = "block";
 			}
 
-			this.overlay.style.display = "block";
+			this.startMonitoring();
 		} else {
-			this.overlay.style.display = "none";
-			this.stopMonitoring(); // Clean up the timer
+			// Full screen mode ignores menus
+			this.isVisible = true;
+			this.overlay.style.width = "100vw";
+			this.overlay.style.display = "block";
+			this.stopMonitoring();
 		}
 	}
 
 	// --- SCREEN TRACKING ---
 
 	private startMonitoring(): void {
-		this.stopMonitoring(); // Clear any existing timer
+		this.stopMonitoring();
 
-		// Check the game state 5 times a second while the overlay is active
 		this.monitorTimer = window.setInterval(() => {
 			const globalWindow = window as any;
+			const inMainChat = globalWindow.CurrentScreen === "ChatRoom" && globalWindow.CurrentCharacter === null;
 
-			// If they leave the main chat room view OR open a character dialog (Wardrobe, Profile, Settings)
-			if (globalWindow.CurrentScreen !== "ChatRoom" || globalWindow.CurrentCharacter !== null) {
-				// Force the privacy block to close
+			// Suspend the overlay if we leave the main chat
+			if (!inMainChat && this.isVisible) {
 				this.isVisible = false;
+				this.isSuspended = true;
 				this.overlay.style.display = "none";
-				this.stopMonitoring();
+			}
+			// Restore the overlay if we return to the main chat
+			else if (inMainChat && this.isSuspended) {
+				this.isSuspended = false;
+				this.isVisible = true;
+				this.overlay.style.display = "block";
 			}
 		}, 200);
 	}
