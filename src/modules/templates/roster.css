@@ -150,10 +150,34 @@
   margin-right: 6px;
 }
 
+/* Add smooth transitions to the image itself */
 .CRABS_card_badge img {
   width: 38px;
   height: 38px;
   object-fit: contain;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+/* Trigger the animation when the card is hovered */
+.CRABS_card:hover .CRABS_card_badge img,
+.CRABS_card.CRABS_simulated-hover .CRABS_card_badge img {
+  animation: crabs-badge-glow 1.2s infinite alternate ease-in-out;
+}
+
+/* The keyframes that perfectly trace the PNG shape */
+@keyframes crabs-badge-glow {
+  0% {
+    /* Slight brightness increase, soft conforming shadow, slight pop in size */
+    filter: brightness(1.2) drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+    transform: scale(1.05);
+  }
+  100% {
+    /* High brightness, wider conforming shadow, bigger pop */
+    filter: brightness(1.7) drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+    transform: scale(1.15);
+  }
 }
 
 .CRABS_card_info {

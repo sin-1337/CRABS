@@ -55,6 +55,9 @@ export class Roster extends CRABS_Base {
 	/** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 	private deferredIndicator: { character: any, x: number, y: number, zoom: number } | null = null;
 
+	/** Tracks if the mouse is physically over the game canvas (not an HTML UI overlay or off-screen) */
+	private isMouseOverCanvas: boolean = false;
+
 	/** The player currently hovered on the main canvas (to sync to DOM) */
 	private canvasHoveredPlayer: number | null = null;
 
@@ -146,6 +149,15 @@ export class Roster extends CRABS_Base {
 		this.loadFriendList();
 		this.setupEventHooks();
 
+		// Track when the mouse enters/leaves the canvas to prevent stuck hovers
+		window.addEventListener("mousemove", (e) => {
+			const target = e.target as HTMLElement;
+			this.isMouseOverCanvas = !!target && target.id === "MainCanvas";
+		});
+		window.addEventListener("mouseleave", () => {
+			this.isMouseOverCanvas = false;
+		});
+
 		// Capture the math during the character drawing phase
 		this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
 			const globalWindow = window as any;
@@ -168,10 +180,11 @@ export class Roster extends CRABS_Base {
 				const mouseX = globalWindow.MouseX;
 				const mouseY = globalWindow.MouseY;
 
-				if (typeof mouseX === "number" && typeof mouseY === "number") {
-					// Standard room bounding box check
-					if (!isMap && mouseX >= drawX && mouseX <= drawX + (500 * zoom) &&
+				if (this.isMouseOverCanvas && typeof mouseX === "number" && typeof mouseY === "number") {
+					if (!isMap && mouseX < 1000 && this.hoveredMapPlayer === null &&
+						mouseX >= drawX && mouseX <= drawX + (500 * zoom) &&
 						mouseY >= drawY && mouseY <= drawY + (1000 * zoom)) {
+
 						// Characters draw back-to-front. Last one passing this check is on top.
 						this.currentFrameHoveredPlayer = character.MemberNumber;
 					}
@@ -220,7 +233,7 @@ export class Roster extends CRABS_Base {
 			const globalWindow = window as any;
 			const isMap = globalWindow.ChatRoomMapViewIsActive && globalWindow.ChatRoomMapViewIsActive();
 
-			if (isMap) {
+			if (isMap && this.isMouseOverCanvas) {
 				const mouseX = globalWindow.MouseX;
 				const mouseY = globalWindow.MouseY;
 				const range = globalWindow.ChatRoomMapViewPerceptionRange;
