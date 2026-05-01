@@ -153,6 +153,11 @@ export class Settings extends CRABS_Base {
 
 	private handleWheel(event: WheelEvent): void {
 		if (!this.isMenuOpen) return;
+
+		// Ignore the wheel event if the mouse is over an HTML overlay (like the messenger)
+		const target = event.target as HTMLElement;
+		if (!target || target.id !== "MainCanvas") return;
+
 		const globalWindow = window as any;
 		if (globalWindow.MouseX >= 500 && globalWindow.MouseX <= 1780 && globalWindow.MouseY >= 180 && globalWindow.MouseY <= 900) {
 			if (event.cancelable) event.preventDefault();
