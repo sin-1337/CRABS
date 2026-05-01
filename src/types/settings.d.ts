@@ -61,5 +61,6 @@ interface CRABS_Settings {
 	customHighlightWords: string;
 	highlightColor: string;
 	enableFocusHalo: boolean;
-	autoBeepOnLeave: boolean,
+	autoBeepOnLeave: boolean;
+	privacyModeFull: boolean;
 }

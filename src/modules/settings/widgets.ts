@@ -99,3 +99,43 @@ export class InputWidget extends UIWidget {
 
 	click() { return false; /* Handled by HTML DOM */ }
 }
+
+export class ButtonWidget extends UIWidget {
+	public onClick: () => void;
+
+	constructor(
+		label: string,
+		hint: string,
+		onClick: () => void,
+		isDisabled: () => boolean = () => false
+	) {
+		super(label, hint, isDisabled);
+		this.onClick = onClick;
+	}
+
+	updateDOM(_bounds: Bounds, _isVisible: boolean): void { }
+
+	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
+		const globalWindow = window as any;
+		const disabled = this.getIsDisabled();
+
+		// Override the state from the previous widgets
+		ctx.textAlign = "center";
+
+		globalWindow.DrawButton(bounds.x, bounds.y - 32, 200, 64, this.label, disabled ? "#888" : "White", "");
+
+		if (globalWindow.MouseIn(bounds.x, bounds.y - 32, 200, 64)) {
+			setTooltip(this.hint);
+		}
+	}
+
+	click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
+		const globalWindow = window as any;
+
+		if (!this.getIsDisabled() && globalWindow.MouseIn(bounds.x, bounds.y - 32, 200, 64)) {
+			this.onClick();
+			return true;
+		}
+		return false;
+	}
+}

@@ -1,7 +1,7 @@
 // src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CheckboxWidget, InputWidget } from "./widgets";
+import { CheckboxWidget, InputWidget, ButtonWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
 const DEFAULT_SETTINGS: any = {
@@ -26,6 +26,7 @@ const DEFAULT_SETTINGS: any = {
 	highlightColor: "#FFFF00",
 	enableFocusHalo: true,
 	autoBeepOnLeave: true,
+	privacyModeFull: false
 };
 
 export class Settings extends CRABS_Base {
@@ -96,9 +97,19 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
+		// Helper for standard buttons
+		const createButton = (cat: ComponentCategory, label: string, hint: string, onClick: () => void, indent = 0) => {
+			this.registry.push({
+				category: cat, indent,
+				widget: new ButtonWidget(label, hint, onClick)
+			});
+		};
+
 		// --- GENERAL ---
 		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "checkForUpdates", "Notify me about updates", "Periodically check for CRABS updates, and notify me.");
+		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.", 0);
+		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings(), 1);
 
 		// --- DRAWER ---
 		createCheck("Drawer", "enableDrawer", "Enable Drawer UI", "Enable the sliding drawer interface on the edge of the screen.", 0, undefined, (enabled) => {
@@ -315,6 +326,32 @@ export class Settings extends CRABS_Base {
 			}
 		};
 		registerHook();
+	}
+
+	/**
+	 * Safely closes the CRABS settings menu and opens the base game's Keybindings menu.
+	 */
+	public openNativeKeybindings(): void {
+		const globalWindow = window as any;
+
+		// Clean up our custom HTML inputs so they don't float on screen
+		this.isMenuOpen = false;
+		this.layout.updateDOM(false);
+		for (const key of Object.keys(this.data)) {
+			globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+		}
+
+		// Clear the extension screen state
+		globalWindow.PreferenceMessage = "";
+		globalWindow.PreferenceSubscreenExtensionsClear?.();
+
+		// Force the game to the Keybindings subscreen
+		globalWindow.PreferenceSubscreen = "Keybindings";
+
+		// The base game uses an initialization function to set up the keybinds list
+		if (typeof globalWindow.PreferenceSubscreenKeybindingsLoad === "function") {
+			globalWindow.PreferenceSubscreenKeybindingsLoad();
+		}
 	}
 }
 
