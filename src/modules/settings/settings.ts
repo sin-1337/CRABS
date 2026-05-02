@@ -117,13 +117,21 @@ export class Settings extends CRABS_Base {
 
 			let keyText = "";
 
-			// Natively edited keybinds are saved as a numerical keyCode
-			if (typeof bind.keyCombo.keyCode === "number") {
-				keyText = String.fromCharCode(bind.keyCombo.keyCode).toUpperCase();
+			// Check if the game stored a strict browser code (e.g., 'KeyD', 'Space')
+			if (bind.keyCombo.key) {
+				// Translate it using the game's native dictionary so things like 'Space' format correctly
+				if (globalWindow.KeybindingManager && globalWindow.KeybindingManager.ASCIIKeyboardMap) {
+					keyText = globalWindow.KeybindingManager.ASCIIKeyboardMap[bind.keyCombo.key];
+				}
+
+				// Failsafe string cleanup if the map is ever unavailable
+				if (!keyText) {
+					keyText = bind.keyCombo.key.replace('Key', '').replace('Digit', '');
+				}
 			}
-			// Unedited default keybinds use your original string (e.g., 'KeyB')
-			else if (typeof bind.keyCombo.key === "string") {
-				keyText = bind.keyCombo.key.replace('Key', '').toUpperCase();
+			// Check if the game fell back to storing a raw character (e.g., 'd')
+			else if (bind.keyCombo.char) {
+				keyText = bind.keyCombo.char.toUpperCase();
 			}
 
 			if (!keyText && !mods) return "Unbound";
