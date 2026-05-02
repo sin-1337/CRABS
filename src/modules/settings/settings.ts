@@ -110,11 +110,21 @@ export class Settings extends CRABS_Base {
 		const getBindString = (bindId: string) => {
 			const globalWindow = window as any;
 			const bind = globalWindow.KeyManager?.getKeybinding(bindId);
-			if (!bind || !bind.keyCombo) return "None";
+
+			// Fallback if the bind doesn't exist or has been completely cleared
+			if (!bind || !bind.keyCombo) return "Unbound";
 
 			const mods = Array.from(bind.keyCombo.modifiers || []).join('+');
-			const key = bind.keyCombo.key.replace('Key', '');
-			return mods ? `${mods}+${key}` : key;
+
+			// Safely grab the key, defaulting to an empty string if it's undefined
+			let key = bind.keyCombo.key || "";
+			key = key.replace('Key', '');
+
+			// If there is no key and no modifiers, it's unbound
+			if (!key && !mods) return "Unbound";
+
+			// Format the final string
+			return mods && key ? `${mods}+${key}` : (mods || key);
 		};
 
 		// Helper for labels
