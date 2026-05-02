@@ -173,7 +173,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Drawer", "closeDrawerOnWhisper", "Auto-stow on Whisper+", "Close drawer after sending a whisper+ message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "closeDrawerOnChat", "Auto-stow on Chat", "Close drawer after sending a message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "pageFocusHover", "Focus follows mouse", "When you mouse over a player's card, change the page they are on.", 1, isDrawerDisabled);
-		createCheck("Drawer", "autoScrollRoster", "Auto-Scroll to Hover", "Automatically scroll the drawer roster to the character your mouse is over.", 1, isDrawerDisabled);
+		createCheck("Drawer", "autoScrollRoster", "Auto-Scroll drawer", "Automatically scroll the drawer roster to the character matching the avatar your mouse is over.", 1, isDrawerDisabled);
 
 		// --- IMMERSION ---
 		createCheck("Immersion", "lockImmersive", "Hardcore Lock", "Locks settings ON while bound.");

@@ -6,46 +6,23 @@ import "./templates/chat.css";
 
 /**
  * CRABS Chat Manager Module
- * Handles all modifications, parsing, and enhancements to the base game's 
+ * Handles all modifications, parsing, and enhancements to the base game's 
  * chat log and message rendering pipeline.
  */
 export class ChatManager extends CRABS_Base {
 	private roster: Roster;
-	private chatLogHoveredPlayer: number | null = null;
+	public chatLogHoveredPlayer: number | null = null;
 
 	constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
 		super(CRABS);
 		this.roster = rosterInstance;
-		this.injectCSS();
+
 		this.setupMessageHooks();
 		this.setupChatLogHover();
 	}
 
 	/**
-	 * Injects layout-only CSS. Colors are now handled dynamically via inline styles
-	 * to respect user settings and alpha transparency requirements.
-	 */
-	private injectCSS(): void {
-		if (document.getElementById("CRABS-chat-styles")) return;
-
-		const style = document.createElement("style");
-		style.id = "CRABS-chat-styles";
-		style.innerHTML = `
-            .CRABS_mention_highlight {
-                border-left-style: solid !important;
-                border-left-width: 4px !important;
-                border-radius: 4px;
-                padding-left: 6px;
-                margin-top: 2px;
-                margin-bottom: 2px;
-            }
-        `;
-		document.head.appendChild(style);
-	}
-
-	/**
-	 * Hooks into the base game's chat log to trigger roster card highlights 
-	 * when mousing over player names.
+	 * Hooks into the base game's chat log to pass hover states to the roster.
 	 */
 	private setupChatLogHover(): void {
 		document.addEventListener("mouseover", (e) => {
@@ -58,7 +35,12 @@ export class ChatManager extends CRABS_Base {
 					const memberNumber = parseInt(messageEl.dataset.sender, 10);
 					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
 						this.chatLogHoveredPlayer = memberNumber;
-						this.roster.syncCanvasHoverToDOM(memberNumber);
+
+						// Pass the state to the roster instead of forcing the DOM
+						if (this.roster) {
+							this.roster.chatLogHoveredPlayer = memberNumber;
+							this.roster.hoveredMapPlayer = memberNumber;
+						}
 					}
 				}
 			}
@@ -68,9 +50,10 @@ export class ChatManager extends CRABS_Base {
 			const target = e.target as HTMLElement;
 			if (target.closest(".ChatMessageName")) {
 				this.chatLogHoveredPlayer = null;
-				// Only clear the DOM if the canvas hook isn't currently highlighting someone
-				if (this.roster.canvasHoveredPlayer === null) {
-					this.roster.syncCanvasHoverToDOM(null);
+
+				if (this.roster) {
+					this.roster.chatLogHoveredPlayer = null;
+					this.roster.hoveredMapPlayer = null;
 				}
 			}
 		});
@@ -94,9 +77,9 @@ export class ChatManager extends CRABS_Base {
 			namesToMatch.push(escapeRegExp(player.Nickname.trim()));
 		}
 
-		const customWordsSetting = Settings.instance.data.customHighlightWords;
+		const customWordsSetting = Settings.instance?.data?.customHighlightWords;
 		if (customWordsSetting && customWordsSetting.trim() !== "") {
-			const customWords = String(customWordsSetting || "")
+			const customWords = String(customWordsSetting)
 				.split(',')
 				.map((w: string) => w.trim())
 				.filter((w: string) => w !== "");
@@ -115,45 +98,44 @@ export class ChatManager extends CRABS_Base {
 	 * Intercepts chat messages and applies dynamic highlighting based on user preferences.
 	 */
 	private setupMessageHooks(): void {
-
 		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
 			const data = args[0];
 			const msg = args[1];
 			const sender = args[2];
 
-			const globalWindow = window as any;
-			const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
-				? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
-				: true;
-
 			const div = next(args);
 
-			if (!div || !(div instanceof HTMLElement)) return div;
-			if (!Settings.instance.data.highlightMentions) return div;
+			// Wrap in try/catch so safeHook doesn't double-print on failure
+			try {
+				if (!div || !(div instanceof HTMLElement)) return div;
+				if (Settings.instance?.data?.highlightMentions === false) return div;
 
-			if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
-			if (sender && sender.MemberNumber === globalWindow.Player.MemberNumber) return div;
+				const globalWindow = window as any;
+				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
+				if (sender && sender.MemberNumber === globalWindow.Player?.MemberNumber) return div;
 
-			if (msg && this.isPlayerMentioned(String(msg))) {
-				div.classList.add("CRABS_mention_highlight");
+				if (msg && this.isPlayerMentioned(String(msg))) {
+					div.classList.add("CRABS_mention_highlight");
 
-				// --- DYNAMIC COLOR APPLICATION ---
-				// Grabs the user's hex choice and converts it using the base class helper
-				const userHex = Settings.instance.data.highlightColor || "#FFFF00";
+					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
+					div.style.borderLeftColor = this.convertColor(userHex, 0.8);
+					div.style.backgroundColor = this.convertColor(userHex, 0.01);
 
-				// Set the border to 0.8 alpha and background to 0.01 alpha as requested
-				div.style.borderLeftColor = this.convertColor(userHex, 0.8);
-				div.style.backgroundColor = this.convertColor(userHex, 0.01);
+					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+						: true;
 
-				if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
-					setTimeout(() => {
-						globalWindow.ElementScrollToEnd("TextAreaChatLog");
-					}, 0);
+					if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+						setTimeout(() => {
+							globalWindow.ElementScrollToEnd("TextAreaChatLog");
+						}, 0);
+					}
 				}
+			} catch (err) {
+				console.error("[CRABS] Error in chat highlight hook", err);
 			}
 
 			return div;
 		});
 	}
 }
-

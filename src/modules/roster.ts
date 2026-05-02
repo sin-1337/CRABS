@@ -41,7 +41,7 @@ export class Roster extends CRABS_Base {
 	private currentSortMode: string = localStorage.getItem("CRABS_SortMode") || "role";
 
 	/** The member number of the player currently hovered on the map. */
-	private hoveredMapPlayer: number | null = null;
+	public hoveredMapPlayer: number | null = null;
 
 	/** The member number of the player currently locked via tap/click (Mobile Friendly). */
 	private trackedMapPlayer: number | null = null;
@@ -66,6 +66,9 @@ export class Roster extends CRABS_Base {
 
 	/** Timeout to prevent scroll jittering */
 	private scrollTimeout: number | null = null;
+
+	/** Which player are we hovering over in the chat log */
+	public chatLogHoveredPlayer: number | null = null;
 
 	/**
 	 * Applies a simulated CSS hover state to a player's roster card and scrolls it into view.
@@ -282,11 +285,13 @@ export class Roster extends CRABS_Base {
 			}
 			// --
 
-			if (this.canvasHoveredPlayer !== this.currentFrameHoveredPlayer) {
-				this.canvasHoveredPlayer = this.currentFrameHoveredPlayer;
+			// Combine the canvas hit-detection with the chat log hover state
+			const combinedHover = this.currentFrameHoveredPlayer || this.chatLogHoveredPlayer;
+
+			if (this.canvasHoveredPlayer !== combinedHover) {
+				this.canvasHoveredPlayer = combinedHover;
 				this.syncCanvasHoverToDOM(this.canvasHoveredPlayer);
 			}
-
 
 			return result;
 		});
