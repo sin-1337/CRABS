@@ -64,6 +64,18 @@ export class Drawer extends CRABS_Base {
 		this.rosterModule = roster;
 		this.helpModule = help;
 		this.whisperPlusModule = whisperPlus;
+
+		CRABS_Base.registerKeybind(
+			'crabs_drawer_toggle',
+			'Toggle Drawer',
+			'Opens or closes the CRABS side drawer.',
+			'KeyD',
+			() => {
+				this.toggle();
+				return true;
+			}
+		);
+
 		this.init();
 	}
 

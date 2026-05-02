@@ -1,4 +1,5 @@
 import { Settings } from "./settings";
+import { CRABS_BAse } from "./base";
 
 export class PrivacyMode {
 	private isVisible: boolean = false;
@@ -18,7 +19,17 @@ export class PrivacyMode {
 		this.overlay.style.zIndex = "999999";
 		document.body.appendChild(this.overlay);
 
-		this.registerNativeKeybind();
+		CRABS_Base.registerKeybind(
+			'crabs_privacy_toggle',
+			'Toggle Privacy Mode',
+			'Instantly blanks out the chat room based on your CRABS settings.',
+			'KeyB',
+			() => {
+				const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
+				this.toggle(mode);
+				return true;
+			}
+		);
 	}
 
 	private registerNativeKeybind() {

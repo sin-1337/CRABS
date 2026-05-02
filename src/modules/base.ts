@@ -93,6 +93,60 @@ export abstract class CRABS_Base {
 	}
 
 	/**
+	 * Registers a new keybinding with the global KeyManager. 
+	 * * If the KeyManager or the required 'always' context is not yet initialized, 
+	 * the method will retry registration every 500ms. It automatically handles 
+	 * the creation of the 'crabs' category if it does not exist.
+	 *
+	 * @param id - A unique identifier for the keybinding.
+	 * @param actionName - The display name of the action (English).
+	 * @param description - A brief description of what the keybind does (English).
+	 * @param key - The primary key for the shortcut (e.g., 'A', 'Enter').
+	 * @param actionCallback - The function to execute when the keybind is triggered. 
+	 * Should return a boolean indicating success/handled state.
+	 * @param modifiers - A set of modifier keys. Defaults to ['Ctrl', 'Alt'].
+	 * * @returns void
+	 */
+	public static registerKeybind(
+		id: string,
+		actionName: string,
+		description: string,
+		key: string,
+		actionCallback: () => boolean,
+		modifiers: Set<string> = new Set(['Ctrl', 'Alt'])
+	): void {
+		const globalWindow = window as any;
+
+		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
+			// Pass the arguments back into the timeout if it needs to wait!
+			setTimeout(() => this.registerKeybind(id, actionName, description, key, actionCallback, modifiers), 500);
+			return;
+		}
+
+		if (!globalWindow.KeyManager.getCategory('crabs')) {
+			globalWindow.KeyManager.registerCategory({
+				id: 'crabs',
+				name: { EN: 'CRABS Mod' }
+			});
+		}
+
+		Object.defineProperty(actionCallback, "name", { value: { EN: actionName } });
+
+		globalWindow.KeyManager.registerKeybinding({
+			id: id,
+			action: actionCallback,
+			description: { EN: description },
+			contextIds: [],
+			categoryId: 'crabs',
+			readonly: false,
+			defaultKeyCombo: {
+				key: key,
+				modifiers: modifiers
+			}
+		});
+	}
+
+	/**
 	 * Fakes a roster command as if the user ran the command themselves.
 	 *
 	 * @param {string} action - String that determines what the roster should print.
