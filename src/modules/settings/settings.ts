@@ -111,20 +111,24 @@ export class Settings extends CRABS_Base {
 			const globalWindow = window as any;
 			const bind = globalWindow.KeyManager?.getKeybinding(bindId);
 
-			// Fallback if the bind doesn't exist or has been completely cleared
 			if (!bind || !bind.keyCombo) return "Unbound";
 
 			const mods = Array.from(bind.keyCombo.modifiers || []).join('+');
 
-			// Safely grab the key, defaulting to an empty string if it's undefined
-			let key = bind.keyCombo.key || "";
-			key = key.replace('Key', '');
+			let keyText = "";
 
-			// If there is no key and no modifiers, it's unbound
-			if (!key && !mods) return "Unbound";
+			// Natively edited keybinds are saved as a numerical keyCode
+			if (typeof bind.keyCombo.keyCode === "number") {
+				keyText = String.fromCharCode(bind.keyCombo.keyCode).toUpperCase();
+			}
+			// Unedited default keybinds use your original string (e.g., 'KeyB')
+			else if (typeof bind.keyCombo.key === "string") {
+				keyText = bind.keyCombo.key.replace('Key', '').toUpperCase();
+			}
 
-			// Format the final string
-			return mods && key ? `${mods}+${key}` : (mods || key);
+			if (!keyText && !mods) return "Unbound";
+
+			return mods && keyText ? `${mods}+${keyText}` : (mods || keyText);
 		};
 
 		// Helper for labels
