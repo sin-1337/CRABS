@@ -23,7 +23,7 @@ const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 new PrivacyMode(CRABS);
-new ChatManager(CRABS);
+new ChatManager(CRABS, ROSTER);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
 // Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking

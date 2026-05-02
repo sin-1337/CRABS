@@ -64,4 +64,5 @@ interface CRABS_Settings {
 	autoBeepOnLeave: boolean;
 	privacyModeFull: boolean;
 	autoScrollRoster: boolean;
+	chatLogHover: boolean;
 }

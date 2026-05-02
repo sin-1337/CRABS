@@ -138,9 +138,10 @@ export class ButtonWidget extends UIWidget {
 		}
 		return false;
 	}
+}
 
 
-	export class TextLabelWidget extends UIWidget {
+export class TextLabelWidget extends UIWidget {
 	private textContent: string | (() => string);
 
 	constructor(
@@ -175,4 +176,4 @@ export class ButtonWidget extends UIWidget {
 
 	click(): boolean { return false; /* Labels aren't clickable */ }
 }
-}
+

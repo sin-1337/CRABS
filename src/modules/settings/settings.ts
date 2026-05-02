@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: any = {
 	autoBeepOnLeave: true,
 	privacyModeFull: false,
 	autoScrollRoster: true,
+	chatLogHover: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -173,7 +174,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Drawer", "closeDrawerOnWhisper", "Auto-stow on Whisper+", "Close drawer after sending a whisper+ message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "closeDrawerOnChat", "Auto-stow on Chat", "Close drawer after sending a message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "pageFocusHover", "Focus follows mouse", "When you mouse over a player's card, change the page they are on.", 1, isDrawerDisabled);
-		createCheck("Drawer", "autoScrollRoster", "Auto-Scroll to Hover", "Automatically scroll the drawer roster to the character your mouse is over.", 1, isDrawerDisabled);
+		createCheck("Drawer", "autoScrollRoster", "Auto-Scroll drawer", "Automatically scroll the drawer roster to the character matching the avatar your mouse is over.", 1, isDrawerDisabled);
 
 		// --- IMMERSION ---
 		createCheck("Immersion", "lockImmersive", "Hardcore Lock", "Locks settings ON while bound.");
@@ -192,6 +193,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
+		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");
 		createCheck("Chat", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when mousing over players in the roster.");
 		createCheck("Chat", "autoBeepOnLeave", "Whisper+ Autoelevate to Beep", "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.");
 	}
