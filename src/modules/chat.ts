@@ -26,6 +26,9 @@ export class ChatManager extends CRABS_Base {
 	 */
 	private setupChatLogHover(): void {
 		document.addEventListener("mouseover", (e) => {
+			// bail out if user turned this off
+			if (Settings.instance?.data?.chatLogHover === false) return;
+
 			const target = e.target as HTMLElement;
 			const nameEl = target.closest(".ChatMessageName");
 
@@ -47,6 +50,10 @@ export class ChatManager extends CRABS_Base {
 		});
 
 		document.addEventListener("mouseout", (e) => {
+
+			//bail out if user turned this off
+			if (Settings.instance?.data?.chatLogHover === false) return;
+
 			const target = e.target as HTMLElement;
 			if (target.closest(".ChatMessageName")) {
 				this.chatLogHoveredPlayer = null;

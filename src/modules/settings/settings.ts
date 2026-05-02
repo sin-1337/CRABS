@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: any = {
 	autoBeepOnLeave: true,
 	privacyModeFull: false,
 	autoScrollRoster: true,
+	chatLogHover: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -192,6 +193,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
+		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");
 		createCheck("Chat", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when mousing over players in the roster.");
 		createCheck("Chat", "autoBeepOnLeave", "Whisper+ Autoelevate to Beep", "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.");
 	}
