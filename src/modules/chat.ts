@@ -1,18 +1,23 @@
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "./settings";
+import type { Roster } from "./roster";
 
 /**
  * CRABS Chat Manager Module
- * Handles all modifications, parsing, and enhancements to the base game's 
+ * Handles all modifications, parsing, and enhancements to the base game's 
  * chat log and message rendering pipeline.
  */
 export class ChatManager extends CRABS_Base {
+	private roster: Roster;
+	private chatLogHoveredPlayer: number | null = null;
 
-	constructor(CRABS: ModSDKModAPI) {
+	constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
 		super(CRABS);
+		this.roster = rosterInstance;
 		this.injectCSS();
 		this.setupMessageHooks();
+		this.setupChatLogHover();
 	}
 
 	/**
@@ -25,16 +30,49 @@ export class ChatManager extends CRABS_Base {
 		const style = document.createElement("style");
 		style.id = "CRABS-chat-styles";
 		style.innerHTML = `
-            .CRABS_mention_highlight {
-                border-left-style: solid !important;
-                border-left-width: 4px !important;
-                border-radius: 4px;
-                padding-left: 6px;
-                margin-top: 2px;
-                margin-bottom: 2px;
-            }
-        `;
+            .CRABS_mention_highlight {
+                border-left-style: solid !important;
+                border-left-width: 4px !important;
+                border-radius: 4px;
+                padding-left: 6px;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+        `;
 		document.head.appendChild(style);
+	}
+
+	/**
+	 * Hooks into the base game's chat log to trigger roster card highlights 
+	 * when mousing over player names.
+	 */
+	private setupChatLogHover(): void {
+		document.addEventListener("mouseover", (e) => {
+			const target = e.target as HTMLElement;
+			const nameEl = target.closest(".ChatMessageName");
+
+			if (nameEl) {
+				const messageEl = nameEl.closest(".ChatMessage") as HTMLElement;
+				if (messageEl && messageEl.dataset.sender) {
+					const memberNumber = parseInt(messageEl.dataset.sender, 10);
+					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
+						this.chatLogHoveredPlayer = memberNumber;
+						this.roster.syncCanvasHoverToDOM(memberNumber);
+					}
+				}
+			}
+		});
+
+		document.addEventListener("mouseout", (e) => {
+			const target = e.target as HTMLElement;
+			if (target.closest(".ChatMessageName")) {
+				this.chatLogHoveredPlayer = null;
+				// Only clear the DOM if the canvas hook isn't currently highlighting someone
+				if (this.roster.canvasHoveredPlayer === null) {
+					this.roster.syncCanvasHoverToDOM(null);
+				}
+			}
+		});
 	}
 
 	/**

@@ -1,4 +1,4 @@
-/*/**
+/**
  * CRABS Roster Module
  *
  * This module implements the enhanced roster functionality for the CRABS mod.
@@ -59,7 +59,7 @@ export class Roster extends CRABS_Base {
 	private isMouseOverCanvas: boolean = false;
 
 	/** The player currently hovered on the main canvas (to sync to DOM) */
-	private canvasHoveredPlayer: number | null = null;
+	public canvasHoveredPlayer: number | null = null;
 
 	/** Temporary variable to calculate the top-most hovered player per frame */
 	private currentFrameHoveredPlayer: number | null = null;
@@ -71,7 +71,7 @@ export class Roster extends CRABS_Base {
 	 * Applies a simulated CSS hover state to a player's roster card and scrolls it into view.
 	 * @param memberNumber - The ID of the hovered player, or null to clear.
 	 */
-	private syncCanvasHoverToDOM(memberNumber: number | null): void {
+	public syncCanvasHoverToDOM(memberNumber: number | null): void {
 		// Clear existing simulated hovers
 		document.querySelectorAll('.CRABS_card.CRABS_simulated-hover').forEach(el => {
 			el.classList.remove('CRABS_simulated-hover');
