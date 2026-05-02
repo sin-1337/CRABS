@@ -2,6 +2,7 @@ import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "./settings";
 import type { Roster } from "./roster";
+import "./templates/chat.css";
 
 /**
  * CRABS Chat Manager Module
@@ -155,3 +156,4 @@ export class ChatManager extends CRABS_Base {
 		});
 	}
 }
+
