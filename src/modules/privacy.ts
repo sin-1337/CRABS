@@ -1,12 +1,15 @@
 import { Settings } from "./settings";
+import { CRABS_Base } from "./base";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
-export class PrivacyMode {
+export class PrivacyMode extends CRABS_Base {
 	private isVisible: boolean = false;
 	private isSuspended: boolean = false;
 	private overlay: HTMLDivElement;
 	private monitorTimer: number | null = null;
 
-	constructor() {
+	constructor(CRABS: ModSDKModAPI) {
+		super(CRABS);
 		this.overlay = document.createElement("div");
 		this.overlay.id = "CRABS-privacy-overlay";
 		this.overlay.style.display = "none";
@@ -18,7 +21,17 @@ export class PrivacyMode {
 		this.overlay.style.zIndex = "999999";
 		document.body.appendChild(this.overlay);
 
-		this.registerNativeKeybind();
+		CRABS_Base.registerKeybind(
+			'crabs_privacy_toggle',
+			'Toggle Privacy Mode',
+			'Instantly blanks out the chat room based on your CRABS settings.',
+			'KeyB',
+			() => {
+				const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
+				this.toggle(mode);
+				return true;
+			}
+		);
 	}
 
 	private registerNativeKeybind() {

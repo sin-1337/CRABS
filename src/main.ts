@@ -22,7 +22,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
-new PrivacyMode();
+new PrivacyMode(CRABS);
 new ChatManager(CRABS);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 

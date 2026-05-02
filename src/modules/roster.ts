@@ -87,10 +87,15 @@ export class Roster extends CRABS_Base {
 			if (card) {
 				card.classList.add('CRABS_simulated-hover');
 
-				// Wait 150ms before scrolling to prevent rapid-wiggle spam
-				this.scrollTimeout = window.setTimeout(() => {
-					card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-				}, 150);
+				// Only scroll if the setting is enabled AND the card is inside the Drawer
+				const isInsideDrawer = card.closest('#CRABS_Drawer_Roster') !== null;
+
+				if (isInsideDrawer && Settings.instance.data.autoScrollRoster) {
+					// Wait 150ms before scrolling to prevent rapid-wiggle spam
+					this.scrollTimeout = window.setTimeout(() => {
+						card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					}, 150);
+				}
 			}
 		}
 	}

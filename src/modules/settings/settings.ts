@@ -1,7 +1,7 @@
 // src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CheckboxWidget, InputWidget, ButtonWidget } from "./widgets";
+import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
 const DEFAULT_SETTINGS: any = {
@@ -26,7 +26,8 @@ const DEFAULT_SETTINGS: any = {
 	highlightColor: "#FFFF00",
 	enableFocusHalo: true,
 	autoBeepOnLeave: true,
-	privacyModeFull: false
+	privacyModeFull: false,
+	autoScrollRoster: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -105,11 +106,54 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
+		// Helper to fetch the current keybind string safely
+		const getBindString = (bindId: string) => {
+			const globalWindow = window as any;
+			const bind = globalWindow.KeyManager?.getKeybinding(bindId);
+
+			if (!bind || !bind.keyCombo) return "Unbound";
+
+			const mods = Array.from(bind.keyCombo.modifiers || []).join('+');
+
+			let keyText = "";
+
+			// Check if the game stored a strict browser code (e.g., 'KeyD', 'Space')
+			if (bind.keyCombo.key) {
+				// Translate it using the game's native dictionary so things like 'Space' format correctly
+				if (globalWindow.KeybindingManager && globalWindow.KeybindingManager.ASCIIKeyboardMap) {
+					keyText = globalWindow.KeybindingManager.ASCIIKeyboardMap[bind.keyCombo.key];
+				}
+
+				// Failsafe string cleanup if the map is ever unavailable
+				if (!keyText) {
+					keyText = bind.keyCombo.key.replace('Key', '').replace('Digit', '');
+				}
+			}
+			// Check if the game fell back to storing a raw character (e.g., 'd')
+			else if (bind.keyCombo.char) {
+				keyText = bind.keyCombo.char.toUpperCase();
+			}
+
+			if (!keyText && !mods) return "Unbound";
+
+			return mods && keyText ? `${mods}+${keyText}` : (mods || keyText);
+		};
+
+		// Helper for labels
+		const createLabel = (cat: ComponentCategory, text: string | (() => string), hint: string = "", indent = 0) => {
+			this.registry.push({
+				category: cat, indent,
+				widget: new TextLabelWidget(text, hint)
+			});
+		};
+
 		// --- GENERAL ---
 		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "checkForUpdates", "Notify me about updates", "Periodically check for CRABS updates, and notify me.");
-		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.", 0);
-		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings(), 1);
+		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.");
+		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings());
+		createLabel("General", () => `Crabs drawer toggle: ${getBindString("crabs_drawer_toggle")}`, "", 1);
+		createLabel("General", () => `Privacy mode: ${getBindString("crabs_privacy_toggle")}`, "", 1);
 
 		// --- DRAWER ---
 		createCheck("Drawer", "enableDrawer", "Enable Drawer UI", "Enable the sliding drawer interface on the edge of the screen.", 0, undefined, (enabled) => {
@@ -129,6 +173,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Drawer", "closeDrawerOnWhisper", "Auto-stow on Whisper+", "Close drawer after sending a whisper+ message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "closeDrawerOnChat", "Auto-stow on Chat", "Close drawer after sending a message.", 1, isDrawerDisabled);
 		createCheck("Drawer", "pageFocusHover", "Focus follows mouse", "When you mouse over a player's card, change the page they are on.", 1, isDrawerDisabled);
+		createCheck("Drawer", "autoScrollRoster", "Auto-Scroll to Hover", "Automatically scroll the drawer roster to the character your mouse is over.", 1, isDrawerDisabled);
 
 		// --- IMMERSION ---
 		createCheck("Immersion", "lockImmersive", "Hardcore Lock", "Locks settings ON while bound.");

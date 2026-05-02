@@ -63,4 +63,5 @@ interface CRABS_Settings {
 	enableFocusHalo: boolean;
 	autoBeepOnLeave: boolean;
 	privacyModeFull: boolean;
+	autoScrollRoster: boolean;
 }

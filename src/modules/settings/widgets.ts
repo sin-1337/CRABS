@@ -138,4 +138,41 @@ export class ButtonWidget extends UIWidget {
 		}
 		return false;
 	}
+
+
+	export class TextLabelWidget extends UIWidget {
+	private textContent: string | (() => string);
+
+	constructor(
+		textContent: string | (() => string),
+		hint: string = "",
+		getIsDisabled: () => boolean = () => false
+	) {
+		// Pass a fallback string to the base UIWidget constructor
+		super(typeof textContent === 'string' ? textContent : "Dynamic Label", hint, getIsDisabled);
+		this.textContent = textContent;
+	}
+
+	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
+		const globalWindow = window as any;
+		const disabled = this.getIsDisabled();
+
+		// Evaluate the text if it's a function, otherwise use the string
+		const textToDraw = typeof this.textContent === 'function' ? this.textContent() : this.textContent;
+
+		ctx.textAlign = "left";
+
+		// Draw the text left-aligned to the bounds.x (which includes the layout engine's indent)
+		globalWindow.DrawText(textToDraw, bounds.x, bounds.y, disabled ? "#888888" : "Black", "");
+
+		// Add a hover zone for the hint if one is provided
+		if (this.hint && globalWindow.MouseIn(bounds.x, bounds.y - 18, 500, 36)) {
+			setTooltip(this.hint);
+		}
+	}
+
+	updateDOM(): void { /* No DOM elements needed */ }
+
+	click(): boolean { return false; /* Labels aren't clickable */ }
+}
 }
