@@ -1,13 +1,15 @@
 import { Settings } from "./settings";
-import { CRABS_BAse } from "./base";
+import { CRABS_Base } from "./base";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
-export class PrivacyMode {
+export class PrivacyMode extends CRABS_Base {
 	private isVisible: boolean = false;
 	private isSuspended: boolean = false;
 	private overlay: HTMLDivElement;
 	private monitorTimer: number | null = null;
 
-	constructor() {
+	constructor(CRABS: ModSDKModAPI) {
+		super(CRABS);
 		this.overlay = document.createElement("div");
 		this.overlay.id = "CRABS-privacy-overlay";
 		this.overlay.style.display = "none";

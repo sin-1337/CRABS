@@ -1,7 +1,7 @@
 // src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CheckboxWidget, InputWidget, ButtonWidget } from "./widgets";
+import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
 const DEFAULT_SETTINGS: any = {
@@ -106,11 +106,32 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
+		// Helper to fetch the current keybind string safely
+		const getBindString = (bindId: string) => {
+			const globalWindow = window as any;
+			const bind = globalWindow.KeyManager?.getKeybinding(bindId);
+			if (!bind || !bind.keyCombo) return "None";
+
+			const mods = Array.from(bind.keyCombo.modifiers || []).join('+');
+			const key = bind.keyCombo.key.replace('Key', '');
+			return mods ? `${mods}+${key}` : key;
+		};
+
+		// Helper for labels
+		const createLabel = (cat: ComponentCategory, text: string | (() => string), hint: string = "", indent = 0) => {
+			this.registry.push({
+				category: cat, indent,
+				widget: new TextLabelWidget(text, hint)
+			});
+		};
+
 		// --- GENERAL ---
 		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "checkForUpdates", "Notify me about updates", "Periodically check for CRABS updates, and notify me.");
-		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.", 0);
-		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings(), 1);
+		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.");
+		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings());
+		createLabel("General", () => `Crabs drawer toggle: ${getBindString("crabs_drawer_toggle")}`, "", 1);
+		createLabel("General", () => `Privacy mode: ${getBindString("crabs_privacy_toggle")}`, "", 1);
 
 		// --- DRAWER ---
 		createCheck("Drawer", "enableDrawer", "Enable Drawer UI", "Enable the sliding drawer interface on the edge of the screen.", 0, undefined, (enabled) => {
