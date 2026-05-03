@@ -386,26 +386,30 @@ export class Settings extends CRABS_Base {
 	public openNativeKeybindings(): void {
 		const globalWindow = window as any;
 
-		// Clean up our custom HTML inputs
+		// Standard CRABS cleanup
 		this.isMenuOpen = false;
 		this.layout.updateDOM(false);
 		for (const key of Object.keys(this.data)) {
 			globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 		}
 
-		// Clear the Extensions-specific subscreen state
-		// This tells the game "Stop trying to render the Extensions list/extension UI"
+		// Remove the native search bar and clear the extension view state
+		globalWindow.ElementRemove?.("InputSearch");
+		globalWindow.PreferenceMessage = "";
 		if (typeof globalWindow.PreferenceSubscreenExtensionsClear === "function") {
 			globalWindow.PreferenceSubscreenExtensionsClear();
 		}
 
-		// Set the subscreen to Keybindings
-		globalWindow.PreferenceSubscreen = "Keybindings";
-		globalWindow.PreferenceMessage = "";
-
-		// Trigger the native load function
-		if (typeof globalWindow.PreferenceSubscreenKeybindingsLoad === "function") {
-			globalWindow.PreferenceSubscreenKeybindingsLoad();
+		// Instead of manually setting the subscreen, use the native opener.
+		// This tells the game to switch contexts properly.
+		if (typeof globalWindow.PreferenceOpenSubscreen === "function") {
+			globalWindow.PreferenceOpenSubscreen("Keybindings");
+		} else {
+			// Fallback for older versions or if the function is missing
+			globalWindow.PreferenceSubscreen = "Keybindings";
+			if (typeof globalWindow.PreferenceSubscreenKeybindingsLoad === "function") {
+				globalWindow.PreferenceSubscreenKeybindingsLoad();
+			}
 		}
 	}
 }
