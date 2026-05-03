@@ -72,20 +72,15 @@ export class ChatManager extends CRABS_Base {
 
 				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
 
-				// Ignore Server Messages and Entry/Leave/Disconnect notifications
 				if (data && data.Type === "ServerMessage") return div;
 				if (div.classList.contains("ChatMessageEnterLeave")) return div;
-
-				// Ignore messages sent by the player themselves
 				if (sender && sender.MemberNumber === player.MemberNumber) return div;
 
-				// Extract the FINAL translated text exactly as the player sees it
 				const contentSpan = div.querySelector('.chat-room-message-content') as HTMLElement;
 				if (!contentSpan) return div;
 
 				const originalText = contentSpan.innerHTML;
 
-				// Build the list of names
 				const wordsToMatch = [
 					player.Name,
 					player.Nickname,
@@ -96,31 +91,41 @@ export class ChatManager extends CRABS_Base {
 
 				wordsToMatch.sort((a, b) => b.length - a.length);
 				const escapedWords = wordsToMatch.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-
-				// \b handles boundaries like spaces, punctuation, AND the apostrophe in Rose's!
 				const mentionRegex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
 
 				const playerColor = player.LabelColor || "#FF00FF";
-
-				// Do the replacement FIRST to avoid any regex state bugs
 				const newText = originalText.replace(mentionRegex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
-
-				// If the text changed, your name was mentioned!
 				const isMentioned = originalText !== newText;
 
+				// ==========================================
+				// DEBUG LOGGING BLOCK
+				// ==========================================
+				if (data && (data.Type === "Action" || data.Type === "Activity")) {
+					console.log("=== CRABS ACTION MESSAGE DEBUG ===");
+					console.log("1. Message Type:", data.Type);
+					console.log("2. Raw HTML in span:", originalText);
+					console.log("3. Words we are searching for:", wordsToMatch);
+					console.log("4. Did Regex find the name?:", isMentioned);
+					if (isMentioned) {
+						console.log("5. New HTML generated:", newText);
+					}
+					console.log("==================================");
+				}
+				// ==========================================
+
 				if (isMentioned) {
-					// --- INLINE NAME COLORING ---
 					if (Settings.instance?.data?.colorMatchNames) {
 						contentSpan.innerHTML = newText;
 					}
 
-					// --- BACKGROUND HIGHLIGHTING ---
 					if (Settings.instance?.data?.highlightMentions !== false) {
 						div.classList.add("CRABS_mention_highlight");
 
 						const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
 						div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
 						div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
+
+						console.log("-> 6. Action Styles Applied to Div!");
 
 						const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
 							? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
