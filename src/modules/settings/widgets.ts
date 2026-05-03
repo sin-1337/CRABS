@@ -190,7 +190,7 @@ export class TextAreaWidget extends UIWidget {
 		private setValue: (val: string) => void
 	) {
 		super(label, hint, getIsDisabled);
-		this.rowHeight = 120; // Override the base layout height!
+		this.rowHeight = 170;
 	}
 
 	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
@@ -198,7 +198,6 @@ export class TextAreaWidget extends UIWidget {
 		const locked = this.getIsDisabled();
 
 		ctx.textAlign = "left";
-		// Shift the text up slightly so it aligns with the top of the tall input box
 		globalWindow.DrawText(this.label, bounds.x, bounds.y - 20, locked ? "#888888" : "Black", "");
 
 		if (globalWindow.MouseIn(bounds.x, bounds.y - 40, 500, this.rowHeight)) setTooltip(this.hint);
@@ -210,7 +209,6 @@ export class TextAreaWidget extends UIWidget {
 		let el = document.getElementById(this.domID) as HTMLTextAreaElement;
 
 		if (!el && isVisible) {
-			// BC Engine natively supports TextAreas, but we fall back just in case
 			if (typeof globalWindow.ElementCreateTextArea === "function") {
 				globalWindow.ElementCreateTextArea(this.domID);
 			} else {
@@ -222,8 +220,8 @@ export class TextAreaWidget extends UIWidget {
 
 			el = document.getElementById(this.domID) as HTMLTextAreaElement;
 			if (el) {
-				el.value = this.getValue();
-				el.style.resize = "vertical"; // Let the player drag to resize!
+				el.value = this.getValue() || "";
+				el.style.resize = "vertical";
 				el.addEventListener("input", (e) => {
 					this.setValue((e.target as HTMLTextAreaElement).value);
 				});
@@ -231,12 +229,12 @@ export class TextAreaWidget extends UIWidget {
 		}
 
 		if (!locked && isVisible) {
-			const inputWidth = 260;
+			// FIX 1: Increased width from 260 to 350, and height from 90 to 120
+			const inputWidth = 350;
 			const inputStartX = bounds.x + 320;
 			const centerX = inputStartX + (inputWidth / 2);
 
-			// Draw it 90px tall, which fits perfectly inside our 120px rowHeight constraint
-			globalWindow.ElementPosition(this.domID, centerX, bounds.y + 10, inputWidth, 90);
+			globalWindow.ElementPosition(this.domID, centerX, bounds.y + 15, inputWidth, 120);
 		} else if (document.getElementById(this.domID)) {
 			globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
 		}

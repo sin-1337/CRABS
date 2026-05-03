@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: any = {
 	chatLogHover: true,
 	colorMatchNames: true,
 	capitalizeNames: true,
+	ignorePhrases: "",
 };
 
 export class Settings extends CRABS_Base {
