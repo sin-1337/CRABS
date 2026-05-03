@@ -120,14 +120,22 @@ export class ChatManager extends CRABS_Base {
 				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
 
 				const globalWindow = window as any;
+
+				// Ignore Server Messages, Activities, and Entry/Leave/Disconnect notifications
 				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
+				if (div.classList.contains("ChatMessageEnterLeave")) return div;
+
+				// Ignore messages sent by the player themselves
 				if (sender && sender.MemberNumber === globalWindow.Player?.MemberNumber) return div;
 
 				const msgString = String(msg);
 				const isMentioned = this.isPlayerMentioned(msgString);
 
-				// --- NEW: Inline Name Coloring ---
-				if (Settings.instance?.data?.colorMatchNames && isMentioned) {
+				// Inline Name Coloring
+				// Target the message content so we don't break the native UI elements
+				const contentSpan = div.querySelector('.chat-room-message-content');
+
+				if (contentSpan && Settings.instance?.data?.colorMatchNames && isMentioned) {
 					const playerColor = globalWindow.Player?.LabelColor || "#FFFFFF";
 
 					const words = [
@@ -140,17 +148,20 @@ export class ChatManager extends CRABS_Base {
 						const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 						const escapedWords = words.map(escapeRegExp);
 
-						const regex = new RegExp(`(?<!<[^>]*)\\b(${escapedWords.join('|')})\\b`, 'gi');
-						div.innerHTML = div.innerHTML.replace(regex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
+						const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+						contentSpan.innerHTML = contentSpan.innerHTML.replace(regex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
 					}
 				}
-
-				// --- EXISTING: Background Highlight ---
+				// Background Highlight 
 				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-					div.style.borderLeftColor = this.convertColor(userHex, 0.8);
+
+					// Force the border to show up on Action messages using important
+					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
+
+					// Kept your low opacity design
 					div.style.backgroundColor = this.convertColor(userHex, 0.01);
 
 					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
