@@ -76,7 +76,7 @@ export class ChatManager extends CRABS_Base {
 				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
 
 				// Ignore Server Messages, Activities, and Entry/Leave/Disconnect notifications
-				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
+				if (data && (data.Type === "ServerMessage")) return div;
 				if (div.classList.contains("ChatMessageEnterLeave")) return div;
 
 				// Ignore messages sent by the player themselves
