@@ -190,7 +190,7 @@ export class TextAreaWidget extends UIWidget {
 		private setValue: (val: string) => void
 	) {
 		super(label, hint, getIsDisabled);
-		this.rowHeight = 135;
+		this.rowHeight = 120;
 	}
 
 	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
