@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS: any = {
 	privacyModeFull: false,
 	autoScrollRoster: true,
 	chatLogHover: true,
+	colorMatchNames: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -191,6 +192,7 @@ export class Settings extends CRABS_Base {
 
 		// --- CHAT ---
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
+		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");

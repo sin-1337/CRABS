@@ -125,7 +125,7 @@ export class ChatManager extends CRABS_Base {
 						const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
 
 						// We use !important to force the color through the native game CSS
-						div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
+						div.style.setProperty("background-color", this.convertColor(userHex, 0.02), "important");
 						div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
 
 						const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
