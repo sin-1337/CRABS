@@ -209,7 +209,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Chat", "capitalizeNames", "Auto-Capitalize Names", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
-		createTextArea("Chat", "ignorePhrases", "Ignore Phrases", "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').", 1, () => !this.data.highlightMentions);
+		createTextArea("Chat", "ignorePhrases", "Exclusion Phrases", "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");
 		createCheck("Chat", "autoBeepOnLeave", "Whisper+ Autoelevate to Beep", "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.");

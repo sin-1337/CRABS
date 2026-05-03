@@ -6,49 +6,30 @@ import "./templates/chat.css";
 
 /**
  * CRABS Chat Manager Module
- * Handles all modifications, parsing, and enhancements to the base game's 
- * chat log and message rendering pipeline. This includes hovering interactions
- * and dynamic message highlighting (background and inline name coloring).
  */
 export class ChatManager extends CRABS_Base {
-	/** Reference to the Roster instance to sync hover states. */
 	private roster: Roster;
-
-	/** Tracks the MemberNumber of the player currently being hovered over in the chat log. */
 	public chatLogHoveredPlayer: number | null = null;
 
-	/**
-	 * Initializes the Chat Manager, setting up UI event listeners and message rendering hooks.
-	 * @param CRABS - The Mod SDK API instance.
-	 * @param rosterInstance - The active Roster instance for cross-component state synchronization.
-	 */
 	constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
 		super(CRABS);
 		this.roster = rosterInstance;
-
 		this.setupMessageHooks();
 		this.setupChatLogHover();
 	}
 
-	/**
-	 * Injects event listeners into the document to track when a user hovers 
-	 * over a player's name in the chat log. Synchronizes this state with the 
-	 * Roster and Map views.
-	 */
 	private setupChatLogHover(): void {
-		document.addEventListener("mouseover", (e) => {
+		document.addEventListener("mouseover", (mouseEvent) => {
 			if (Settings.instance?.data?.chatLogHover === false) return;
+			const target = mouseEvent.target as HTMLElement;
+			const nameElement = target.closest(".ChatMessageName");
 
-			const target = e.target as HTMLElement;
-			const nameEl = target.closest(".ChatMessageName");
-
-			if (nameEl) {
-				const messageEl = nameEl.closest(".ChatMessage") as HTMLElement;
-				if (messageEl && messageEl.dataset.sender) {
-					const memberNumber = parseInt(messageEl.dataset.sender, 10);
+			if (nameElement) {
+				const messageElement = nameElement.closest(".ChatMessage") as HTMLElement;
+				if (messageElement && messageElement.dataset.sender) {
+					const memberNumber = parseInt(messageElement.dataset.sender, 10);
 					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
 						this.chatLogHoveredPlayer = memberNumber;
-
 						if (this.roster) {
 							this.roster.chatLogHoveredPlayer = memberNumber;
 							this.roster.hoveredMapPlayer = memberNumber;
@@ -58,13 +39,12 @@ export class ChatManager extends CRABS_Base {
 			}
 		});
 
-		document.addEventListener("mouseout", (e) => {
+		document.addEventListener("mouseout", (mouseEvent) => {
 			if (Settings.instance?.data?.chatLogHover === false) return;
+			const target = mouseEvent.target as HTMLElement;
 
-			const target = e.target as HTMLElement;
 			if (target.closest(".ChatMessageName")) {
 				this.chatLogHoveredPlayer = null;
-
 				if (this.roster) {
 					this.roster.chatLogHoveredPlayer = null;
 					this.roster.hoveredMapPlayer = null;
@@ -73,122 +53,141 @@ export class ChatManager extends CRABS_Base {
 		});
 	}
 
-	/**
-	 * Intercepts chat messages during the base game's rendering pipeline.
-	 * Applies dynamic highlighting based on user preferences, including inline 
-	 * coloring of the player's name and full-line background highlighting.
-	 */
 	private setupMessageHooks(): void {
-		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
-			const data = args[0];
-			const sender = args[2];
-
-			// 1. Let the base game generate the final HTML div first
-			const div = next(args);
+		this.safeHook("ChatRoomMessageDisplay", 10, (hookArguments: any, nextFunction: Function) => {
+			const messageData = hookArguments[0];
+			const senderData = hookArguments[2];
+			const messageDiv = nextFunction(hookArguments);
 
 			try {
-				if (!div || !(div instanceof HTMLElement)) return div;
+				if (!messageDiv || !(messageDiv instanceof HTMLElement)) return messageDiv;
 
 				const globalWindow = window as any;
 				const player = globalWindow.Player;
-				if (!player) return div;
+				if (!player) return messageDiv;
 
-				// Bail out early if both features are disabled to save processing time
-				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
+				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return messageDiv;
 
-				// Ignore Server Messages, Activities, and Entry/Leave/Disconnect notifications
-				if (data && (data.Type === "ServerMessage")) return div;
-				if (div.classList.contains("ChatMessageEnterLeave")) return div;
+				if (messageData && (messageData.Type === "ServerMessage")) return messageDiv;
+				if (messageDiv.classList.contains("ChatMessageEnterLeave")) return messageDiv;
+				if (senderData && senderData.MemberNumber === player.MemberNumber) return messageDiv;
 
-				// Ignore messages sent by the player themselves
-				if (sender && sender.MemberNumber === player.MemberNumber) return div;
+				// --- COMPILE IGNORE PHRASES ---
+				const rawIgnorePhrases = (Settings.instance?.data?.ignorePhrases || "")
+					.split('\n')
+					.map((rawString: string) => rawString ? String(rawString).trim() : "")
+					.filter((trimmedString: string) => trimmedString.length > 0);
 
-				// Build the list of names/words to trigger a highlight
+				let ignoreRegex: RegExp | null = null;
+				if (rawIgnorePhrases.length > 0) {
+					// Sort by length descending to prevent overlapping wildcard bugs
+					rawIgnorePhrases.sort((firstPhrase: string, secondPhrase: string) => secondPhrase.length - firstPhrase.length);
+
+					const escapeRegExp = (textToEscape: string) => textToEscape.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+					const ignorePatterns = rawIgnorePhrases.map((validPhrase: string) => escapeRegExp(validPhrase).replace(/\\\*/g, '.*?'));
+
+					// Capturing group ( ) is CRITICAL here so .split() preserves the phrase
+					ignoreRegex = new RegExp(`(${ignorePatterns.join('|')})`, 'gi');
+				}
+
+				// --- COMPILE MENTION REGEX ---
 				const wordsToMatch = [
 					player.Name,
 					player.Nickname,
 					...(Settings.instance?.data?.customHighlightWords || "").split(',')
-				].map(w => w ? String(w).trim() : "").filter(w => w.length > 0);
+				].map((rawInput: any) => rawInput ? String(rawInput).trim() : "")
+					.filter((validInput: string) => validInput.length > 0);
 
-				if (wordsToMatch.length === 0) return div;
+				if (wordsToMatch.length === 0) return messageDiv;
 
-				// Sort by length (descending) so complex names like "Rose Red" evaluate before "Rose"
-				wordsToMatch.sort((a, b) => b.length - a.length);
-
-				// Escape symbols and create a boundary-aware Regex
-				// \W handles boundaries like spaces, punctuation, AND apostrophes (e.g., Rose's)
-				const escapedWords = wordsToMatch.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+				wordsToMatch.sort((firstName: string, secondName: string) => secondName.length - firstName.length);
+				const escapedWords = wordsToMatch.map((nameToEscape: string) => nameToEscape.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 				const mentionRegex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
 
 				const playerColor = player.LabelColor || "#FF00FF";
 				const doInlineColor = !!Settings.instance?.data?.colorMatchNames;
 				const doCapitalize = !!Settings.instance?.data?.capitalizeNames;
-
 				let isMentioned = false;
 
-				/**
-				 * Safe DOM walker: Recursively traverses an element to find raw text nodes.
-				 * Replaces text matching the player's name with styled HTML spans, while 
-				 * explicitly avoiding native UI elements to prevent breaking the game interface.
-				 * @param node - The DOM node to evaluate.
-				 */
-				const searchAndHighlight = (node: Node) => {
-					// Convert childNodes to a static array to prevent infinite loops when injecting new elements
-					const childNodes = Array.from(node.childNodes);
-					for (const child of childNodes) {
-						if (child.nodeType === 3) { // TEXT_NODE
-							const text = child.nodeValue;
-							if (text && mentionRegex.test(text)) {
-								isMentioned = true;
-								if (doInlineColor || doCapitalize) {
-									mentionRegex.lastIndex = 0; // Reset regex state before replacement
-									const span = document.createElement("span");
+				const processTextChunk = (textChunk: string): string => {
+					mentionRegex.lastIndex = 0;
+					if (mentionRegex.test(textChunk)) isMentioned = true;
+					if (!doInlineColor && !doCapitalize) return textChunk;
 
-									span.innerHTML = text.replace(mentionRegex, (_match: string, p1: string, p2: string) => {
-										let nameText = p2;
+					mentionRegex.lastIndex = 0;
+					return textChunk.replace(mentionRegex, (_match: string, precedingBoundary: string, matchedName: string) => {
+						let formattedName = matchedName;
 
-										if (doCapitalize) {
-											nameText = nameText.replace(/\b\w/g, (char) => char.toUpperCase());
-										}
+						if (doCapitalize) {
+							formattedName = formattedName.replace(/\b\w/g, (firstLetter: string) => firstLetter.toUpperCase());
+						}
 
-										if (doInlineColor) {
-											return `${p1}<span style="color: ${playerColor} !important; font-weight: bold !important;">${nameText}</span>`;
-										} else {
-											// If color is off, just return the (capitalized) text cleanly
-											return `${p1}${nameText}`;
-										}
-									});
+						if (doInlineColor) {
+							return `${precedingBoundary}<span style="color: ${playerColor} !important; font-weight: bold !important;">${formattedName}</span>`;
+						}
 
-									child.parentNode?.replaceChild(span, child);
+						return `${precedingBoundary}${formattedName}`;
+					});
+				};
+
+				const searchAndHighlight = (domNode: Node) => {
+					const childNodesArray = Array.from(domNode.childNodes);
+					for (const childNode of childNodesArray) {
+
+						if (childNode.nodeType === 3) { // TEXT_NODE
+							const rawTextValue = childNode.nodeValue;
+							if (!rawTextValue) continue;
+
+							let newlyGeneratedHTML = "";
+							let hasModifications = false;
+
+							if (ignoreRegex) {
+								ignoreRegex.lastIndex = 0;
+								const textPartsArray = rawTextValue.split(ignoreRegex);
+
+								for (let partIndex = 0; partIndex < textPartsArray.length; partIndex++) {
+									if (partIndex % 2 === 0) { // Standard text
+										const processedText = processTextChunk(textPartsArray[partIndex]);
+										if (processedText !== textPartsArray[partIndex]) hasModifications = true;
+										newlyGeneratedHTML += processedText;
+									} else { // Ignored phrase (leave completely untouched)
+										newlyGeneratedHTML += textPartsArray[partIndex];
+									}
 								}
+							} else {
+								const processedText = processTextChunk(rawTextValue);
+								if (processedText !== rawTextValue) hasModifications = true;
+								newlyGeneratedHTML += processedText;
 							}
-						} else if (child.nodeType === 1) { // ELEMENT_NODE
-							const el = child as HTMLElement;
-							// Skip metadata and UI elements (sender names, reply buttons)
-							if (el.classList.contains("ChatMessageName") ||
-								el.classList.contains("chat-room-metadata") ||
-								el.classList.contains("chat-room-message-reply")) {
+
+							if (hasModifications) {
+								const replacementSpan = document.createElement("span");
+								replacementSpan.innerHTML = newlyGeneratedHTML;
+								childNode.parentNode?.replaceChild(replacementSpan, childNode);
+							}
+
+						} else if (childNode.nodeType === 1) { // ELEMENT_NODE
+							const htmlElement = childNode as HTMLElement;
+
+							if (htmlElement.classList.contains("ChatMessageName") ||
+								htmlElement.classList.contains("chat-room-metadata") ||
+								htmlElement.classList.contains("chat-room-message-reply")) {
 								continue;
 							}
-							searchAndHighlight(child);
+							searchAndHighlight(childNode);
 						}
 					}
 				};
 
-				// Execute the safe search on the generated message container
-				searchAndHighlight(div);
+				searchAndHighlight(messageDiv);
 
-				// Apply background and border highlighting if a mention was detected
 				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
-					div.classList.add("CRABS_mention_highlight");
+					messageDiv.classList.add("CRABS_mention_highlight");
+					const userHexColor = Settings.instance?.data?.highlightColor || "#FFFF00";
 
-					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
+					messageDiv.style.setProperty("background-color", this.convertColor(userHexColor, 0.02), "important");
+					messageDiv.style.setProperty("border-left", `4px solid ${this.convertColor(userHexColor, 0.8)}`, "important");
 
-					// !important overrides native base game CSS enforcing default chat colors
-					div.style.setProperty("background-color", this.convertColor(userHex, 0.02), "important");
-					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
-
-					// Ensure the chat log scrolls to the bottom if the player was already at the bottom
 					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
 						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
 						: true;
@@ -203,7 +202,7 @@ export class ChatManager extends CRABS_Base {
 				console.error("[CRABS] Error in chat highlight hook", err);
 			}
 
-			return div;
+			return messageDiv;
 		});
 	}
 }
