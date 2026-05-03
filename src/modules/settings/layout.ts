@@ -1,4 +1,5 @@
 // layout.ts
+
 import { UIWidget } from "./widgets";
 
 export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
@@ -12,7 +13,6 @@ export interface ConfiguredWidget {
 export class LayoutEngine {
 	private readonly BASE_X = 600;
 	private readonly INDENT_WIDTH = 50;
-	private readonly ROW_HEIGHT = 75;
 	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
 
 	public activeTab: ComponentCategory = "General";
@@ -29,6 +29,9 @@ export class LayoutEngine {
 	public updateDOM(isMenuOpen: boolean): void {
 		const visible = this.getVisibleWidgets();
 
+		// Use an accumulator to stack the widgets dynamically!
+		let currentY = 280 - this.scrollOffset;
+
 		for (const item of this.registry) {
 			const isVisibleOnTab = visible.includes(item);
 
@@ -37,11 +40,11 @@ export class LayoutEngine {
 			let isSafelyOnScreen = false;
 
 			if (isVisibleOnTab) {
-				const index = visible.indexOf(item);
-				const yPos = 280 + (index * this.ROW_HEIGHT) - this.scrollOffset;
-				bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: yPos, w: 500, h: this.ROW_HEIGHT };
+				bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
+				isSafelyOnScreen = isMenuOpen && currentY > 210 && currentY < 870;
 
-				isSafelyOnScreen = isMenuOpen && yPos > 210 && yPos < 870;
+				// Push the next widget down by this widget's specific height
+				currentY += item.widget.rowHeight;
 			}
 
 			item.widget.updateDOM(bounds, isSafelyOnScreen);
@@ -53,7 +56,11 @@ export class LayoutEngine {
 		this.currentTooltip = "";
 
 		const visible = this.getVisibleWidgets();
-		this.maxScroll = Math.max(0, (visible.length * this.ROW_HEIGHT) - 500);
+
+		// Calculate Max Scroll dynamically by summing all widget heights
+		let totalHeight = 0;
+		for (const item of visible) totalHeight += item.widget.rowHeight;
+		this.maxScroll = Math.max(0, totalHeight - 500);
 
 		// Background
 		globalWindow.DrawRect(40, 40, 420, 920, "#222222aa");
@@ -76,7 +83,6 @@ export class LayoutEngine {
 		let tabX = 500;
 		for (const tab of this.TABS) {
 			const isActive = this.activeTab === tab;
-			// Grey out the tab if the modal is open OR if it's currently active
 			const tabColor = isModalOpen || isActive ? "#888888" : "White";
 			globalWindow.DrawButton(tabX, 130, 160, 45, tab, tabColor, "", "");
 			tabX += 175;
@@ -90,45 +96,46 @@ export class LayoutEngine {
 
 		// PASS 1: Draw the tree hierarchy lines
 		context.beginPath();
-		context.strokeStyle = "#666666"; // A subtle grey color
+		context.strokeStyle = "#666666";
 		context.lineWidth = 3;
 
 		let currentY = 280 - this.scrollOffset;
 		for (let i = 0; i < visible.length; i++) {
 			const item = visible[i];
 
-			// Only calculate lines for indented children
 			if (item.indent > 0) {
-				// Look backwards to find the immediate parent
 				let parentY = null;
-				for (let j = i - 1; j >= 0; j--) {
+				let parentScanY = 280 - this.scrollOffset;
+
+				// Scan forward from the top to find the most recent parent's Y coordinate
+				for (let j = 0; j < i; j++) {
 					if (visible[j].indent === item.indent - 1) {
-						parentY = 280 + (j * this.ROW_HEIGHT) - this.scrollOffset;
-						break;
+						parentY = parentScanY;
 					}
+					parentScanY += visible[j].widget.rowHeight;
 				}
 
 				if (parentY !== null) {
 					const spineX = this.BASE_X + ((item.indent - 1) * this.INDENT_WIDTH) + 32;
 					const childX = this.BASE_X + (item.indent * this.INDENT_WIDTH);
 
-					context.moveTo(spineX, parentY + 32);  // Start spine at the bottom edge of parent checkbox
-					context.lineTo(spineX, currentY);      // Drop down to the child's level
-					context.lineTo(childX - 10, currentY); // Branch right to touch the child
+					context.moveTo(spineX, parentY + 32);
+					context.lineTo(spineX, currentY);
+					context.lineTo(childX - 10, currentY);
 				}
 			}
-			currentY += this.ROW_HEIGHT;
+			currentY += item.widget.rowHeight;
 		}
-		context.stroke(); // Draw all lines at once!
+		context.stroke();
 
 		// PASS 2: Draw the actual Widgets
 		currentY = 280 - this.scrollOffset;
 		for (const item of visible) {
 			if (currentY > 180 && currentY < 900) {
-				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: this.ROW_HEIGHT };
+				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
 				item.widget.draw(context, bounds, (hint) => { this.currentTooltip = hint; });
 			}
-			currentY += this.ROW_HEIGHT;
+			currentY += item.widget.rowHeight;
 		}
 		context.restore();
 
@@ -143,7 +150,6 @@ export class LayoutEngine {
 		let tabX = 500;
 		for (const tab of this.TABS) {
 			if (globalWindow.MouseIn(tabX, 130, 160, 45)) {
-				// Only process the click if they clicked a DIFFERENT tab
 				if (this.activeTab !== tab) {
 					this.activeTab = tab;
 					this.scrollOffset = 0;
@@ -158,10 +164,10 @@ export class LayoutEngine {
 		let currentY = 280 - this.scrollOffset;
 		for (const item of visible) {
 			if (currentY > 180 && currentY < 900) {
-				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: this.ROW_HEIGHT };
+				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
 				if (item.widget.click(bounds, mouseX, mouseY)) return true;
 			}
-			currentY += this.ROW_HEIGHT;
+			currentY += item.widget.rowHeight;
 		}
 		return false;
 	}

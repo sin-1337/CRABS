@@ -207,7 +207,7 @@ export class Settings extends CRABS_Base {
 
 		// --- CHAT ---
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
-		createCheck("Chat", "capitalizeNames", "Auto-Capitalize Names", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
+		createCheck("Chat", "capitalizeNames", "Auto-Capitalize My Name", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createTextArea("Chat", "ignorePhrases", "Exclusion Phrases", "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').", 1, () => !this.data.highlightMentions);
