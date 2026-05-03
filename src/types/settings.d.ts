@@ -65,4 +65,5 @@ interface CRABS_Settings {
 	privacyModeFull: boolean;
 	autoScrollRoster: boolean;
 	chatLogHover: boolean;
+	colorMatchNames: boolean,
 }

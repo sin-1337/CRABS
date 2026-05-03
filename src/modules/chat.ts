@@ -6,8 +6,6 @@ import "./templates/chat.css";
 
 /**
  * CRABS Chat Manager Module
- * Handles all modifications, parsing, and enhancements to the base game's 
- * chat log and message rendering pipeline.
  */
 export class ChatManager extends CRABS_Base {
 	private roster: Roster;
@@ -21,12 +19,8 @@ export class ChatManager extends CRABS_Base {
 		this.setupChatLogHover();
 	}
 
-	/**
-	 * Hooks into the base game's chat log to pass hover states to the roster.
-	 */
 	private setupChatLogHover(): void {
 		document.addEventListener("mouseover", (e) => {
-			// bail out if user turned this off
 			if (Settings.instance?.data?.chatLogHover === false) return;
 
 			const target = e.target as HTMLElement;
@@ -39,7 +33,6 @@ export class ChatManager extends CRABS_Base {
 					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
 						this.chatLogHoveredPlayer = memberNumber;
 
-						// Pass the state to the roster instead of forcing the DOM
 						if (this.roster) {
 							this.roster.chatLogHoveredPlayer = memberNumber;
 							this.roster.hoveredMapPlayer = memberNumber;
@@ -50,8 +43,6 @@ export class ChatManager extends CRABS_Base {
 		});
 
 		document.addEventListener("mouseout", (e) => {
-
-			//bail out if user turned this off
 			if (Settings.instance?.data?.chatLogHover === false) return;
 
 			const target = e.target as HTMLElement;
@@ -66,67 +57,79 @@ export class ChatManager extends CRABS_Base {
 		});
 	}
 
-	/**
-	 * Custom mention detector that handles both Name, Nickname,
-	 * and a user-defined list of custom words.
-	 */
-	private isPlayerMentioned(msg: string): boolean {
-		const player = (window as any).Player;
-		if (!player || !msg) return false;
-
-		const namesToMatch: string[] = [];
-		const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-		if (player.Name && player.Name.trim() !== "") {
-			namesToMatch.push(escapeRegExp(player.Name.trim()));
-		}
-		if (player.Nickname && player.Nickname.trim() !== "") {
-			namesToMatch.push(escapeRegExp(player.Nickname.trim()));
-		}
-
-		const customWordsSetting = Settings.instance?.data?.customHighlightWords;
-		if (customWordsSetting && customWordsSetting.trim() !== "") {
-			const customWords = String(customWordsSetting)
-				.split(',')
-				.map((w: string) => w.trim())
-				.filter((w: string) => w !== "");
-			for (const word of customWords) {
-				namesToMatch.push(escapeRegExp(word));
-			}
-		}
-
-		if (namesToMatch.length === 0) return false;
-
-		const regex = new RegExp(`(?:^|\\W)(${namesToMatch.join('|')})(?:$|\\W)`, 'i');
-		return regex.test(msg);
-	}
-
-	/**
-	 * Intercepts chat messages and applies dynamic highlighting based on user preferences.
-	 */
 	private setupMessageHooks(): void {
 		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
 			const data = args[0];
-			const msg = args[1];
 			const sender = args[2];
-
 			const div = next(args);
 
-			// Wrap in try/catch so safeHook doesn't double-print on failure
 			try {
 				if (!div || !(div instanceof HTMLElement)) return div;
-				if (Settings.instance?.data?.highlightMentions === false) return div;
 
 				const globalWindow = window as any;
-				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
-				if (sender && sender.MemberNumber === globalWindow.Player?.MemberNumber) return div;
+				const player = globalWindow.Player;
+				if (!player) return div;
 
-				if (msg && this.isPlayerMentioned(String(msg))) {
+				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
+
+				if (data && data.Type === "ServerMessage") return div;
+				if (div.classList.contains("ChatMessageEnterLeave")) return div;
+				if (sender && sender.MemberNumber === player.MemberNumber) return div;
+
+				const wordsToMatch = [
+					player.Name,
+					player.Nickname,
+					...(Settings.instance?.data?.customHighlightWords || "").split(',')
+				].map(w => w ? String(w).trim() : "").filter(w => w.length > 0);
+
+				if (wordsToMatch.length === 0) return div;
+
+				wordsToMatch.sort((a, b) => b.length - a.length);
+				const escapedWords = wordsToMatch.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+				const mentionRegex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
+
+				const playerColor = player.LabelColor || "#FF00FF";
+				const doInlineColor = !!Settings.instance?.data?.colorMatchNames;
+
+				let isMentioned = false;
+
+				// Safe DOM walker: Finds raw text without breaking BC's UI
+				const searchAndHighlight = (node: Node) => {
+					const childNodes = Array.from(node.childNodes);
+					for (const child of childNodes) {
+						if (child.nodeType === 3) { // 3 = TEXT_NODE
+							const text = child.nodeValue;
+							if (text && mentionRegex.test(text)) {
+								isMentioned = true;
+								if (doInlineColor) {
+									mentionRegex.lastIndex = 0; // Reset regex state
+									const span = document.createElement("span");
+									span.innerHTML = text.replace(mentionRegex, `$1<span style="color: ${playerColor} !important; font-weight: bold !important;">$2</span>`);
+									child.parentNode?.replaceChild(span, child);
+								}
+							}
+						} else if (child.nodeType === 1) { // 1 = ELEMENT_NODE
+							const el = child as HTMLElement;
+							// Skip metadata and UI elements so we don't break the game
+							if (el.classList.contains("ChatMessageName") ||
+								el.classList.contains("chat-room-metadata") ||
+								el.classList.contains("chat-room-message-reply")) {
+								continue;
+							}
+							searchAndHighlight(child);
+						}
+					}
+				};
+
+				// Start the search on the main div
+				searchAndHighlight(div);
+
+				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-					div.style.borderLeftColor = this.convertColor(userHex, 0.8);
-					div.style.backgroundColor = this.convertColor(userHex, 0.01);
+					div.style.setProperty("background-color", this.convertColor(userHex, 0.02), "important");
+					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
 
 					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
 						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
@@ -146,3 +149,4 @@ export class ChatManager extends CRABS_Base {
 		});
 	}
 }
+
