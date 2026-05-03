@@ -3,6 +3,9 @@
 export interface Bounds { x: number; y: number; w: number; h: number; }
 
 export abstract class UIWidget {
+	// Defines how much vertical space this widget consumes in the layout engine
+	public rowHeight: number = 75;
+
 	constructor(
 		public label: string,
 		public hint: string,
@@ -177,3 +180,67 @@ export class TextLabelWidget extends UIWidget {
 	click(): boolean { return false; /* Labels aren't clickable */ }
 }
 
+export class TextAreaWidget extends UIWidget {
+	constructor(
+		label: string,
+		hint: string,
+		getIsDisabled: () => boolean,
+		private domID: string,
+		private getValue: () => string,
+		private setValue: (val: string) => void
+	) {
+		super(label, hint, getIsDisabled);
+		this.rowHeight = 120; // Override the base layout height!
+	}
+
+	draw(ctx: CanvasRenderingContext2D, bounds: Bounds, setTooltip: (hint: string) => void): void {
+		const globalWindow = window as any;
+		const locked = this.getIsDisabled();
+
+		ctx.textAlign = "left";
+		// Shift the text up slightly so it aligns with the top of the tall input box
+		globalWindow.DrawText(this.label, bounds.x, bounds.y - 20, locked ? "#888888" : "Black", "");
+
+		if (globalWindow.MouseIn(bounds.x, bounds.y - 40, 500, this.rowHeight)) setTooltip(this.hint);
+	}
+
+	updateDOM(bounds: Bounds, isVisible: boolean): void {
+		const globalWindow = window as any;
+		const locked = this.getIsDisabled();
+		let el = document.getElementById(this.domID) as HTMLTextAreaElement;
+
+		if (!el && isVisible) {
+			// BC Engine natively supports TextAreas, but we fall back just in case
+			if (typeof globalWindow.ElementCreateTextArea === "function") {
+				globalWindow.ElementCreateTextArea(this.domID);
+			} else {
+				el = document.createElement("textarea");
+				el.id = this.domID;
+				el.className = "HideOnPopup";
+				document.body.appendChild(el);
+			}
+
+			el = document.getElementById(this.domID) as HTMLTextAreaElement;
+			if (el) {
+				el.value = this.getValue();
+				el.style.resize = "vertical"; // Let the player drag to resize!
+				el.addEventListener("input", (e) => {
+					this.setValue((e.target as HTMLTextAreaElement).value);
+				});
+			}
+		}
+
+		if (!locked && isVisible) {
+			const inputWidth = 260;
+			const inputStartX = bounds.x + 320;
+			const centerX = inputStartX + (inputWidth / 2);
+
+			// Draw it 90px tall, which fits perfectly inside our 120px rowHeight constraint
+			globalWindow.ElementPosition(this.domID, centerX, bounds.y + 10, inputWidth, 90);
+		} else if (document.getElementById(this.domID)) {
+			globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
+		}
+	}
+
+	click() { return false; /* Handled by HTML DOM */ }
+}
