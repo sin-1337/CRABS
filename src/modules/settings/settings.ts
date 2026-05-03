@@ -386,21 +386,24 @@ export class Settings extends CRABS_Base {
 	public openNativeKeybindings(): void {
 		const globalWindow = window as any;
 
-		// Clean up our custom HTML inputs so they don't float on screen
+		// Clean up our custom HTML inputs
 		this.isMenuOpen = false;
 		this.layout.updateDOM(false);
 		for (const key of Object.keys(this.data)) {
 			globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 		}
 
-		// Clear the extension screen state
-		globalWindow.PreferenceMessage = "";
-		globalWindow.PreferenceSubscreenExtensionsClear?.();
+		// Clear the Extensions-specific subscreen state
+		// This tells the game "Stop trying to render the Extensions list/extension UI"
+		if (typeof globalWindow.PreferenceSubscreenExtensionsClear === "function") {
+			globalWindow.PreferenceSubscreenExtensionsClear();
+		}
 
-		// Force the game to the Keybindings subscreen
+		// Set the subscreen to Keybindings
 		globalWindow.PreferenceSubscreen = "Keybindings";
+		globalWindow.PreferenceMessage = "";
 
-		// The base game uses an initialization function to set up the keybinds list
+		// Trigger the native load function
 		if (typeof globalWindow.PreferenceSubscreenKeybindingsLoad === "function") {
 			globalWindow.PreferenceSubscreenKeybindingsLoad();
 		}
