@@ -128,7 +128,7 @@ export class ChatManager extends CRABS_Base {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-					div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
+					div.style.setProperty("background-color", this.convertColor(userHex, 0.02), "important");
 					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
 
 					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
@@ -149,3 +149,4 @@ export class ChatManager extends CRABS_Base {
 		});
 	}
 }
+
