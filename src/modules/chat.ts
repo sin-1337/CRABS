@@ -22,48 +22,48 @@ export class ChatManager extends CRABS_Base {
 	}
 
 	/**
-	 * Hooks into the base game's chat log to pass hover states to the roster.
+	 * Safely walks through an HTML element and colors specific words.
 	 */
-	private setupChatLogHover(): void {
-		document.addEventListener("mouseover", (e) => {
-			// bail out if user turned this off
-			if (Settings.instance?.data?.chatLogHover === false) return;
+	private colorizeTextNodes(element: HTMLElement, names: string[], color: string) {
+		if (!names || names.length === 0) return;
 
-			const target = e.target as HTMLElement;
-			const nameEl = target.closest(".ChatMessageName");
+		// Sort names by length descending to match "Rose Red" before "Rose"
+		names.sort((a, b) => b.length - a.length);
 
-			if (nameEl) {
-				const messageEl = nameEl.closest(".ChatMessage") as HTMLElement;
-				if (messageEl && messageEl.dataset.sender) {
-					const memberNumber = parseInt(messageEl.dataset.sender, 10);
-					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
-						this.chatLogHoveredPlayer = memberNumber;
+		const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const escapedWords = names.map(escapeRegExp);
 
-						// Pass the state to the roster instead of forcing the DOM
-						if (this.roster) {
-							this.roster.chatLogHoveredPlayer = memberNumber;
-							this.roster.hoveredMapPlayer = memberNumber;
-						}
-					}
+		// \b ensures we match whole words and don't highlight "Rose" inside "Rosemary"
+		const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+
+		const walk = (node: Node) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const text = node.nodeValue;
+				if (text && regex.test(text)) {
+					regex.lastIndex = 0; // Reset regex state just in case
+
+					const span = document.createElement("span");
+					span.innerHTML = text.replace(regex, `<span style="color: ${color}; font-weight: bold;">$1</span>`);
+
+					// Safely swap the raw text node with our new HTML span
+					node.parentNode?.replaceChild(span, node);
 				}
-			}
-		});
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				const el = node as HTMLElement;
 
-		document.addEventListener("mouseout", (e) => {
-
-			//bail out if user turned this off
-			if (Settings.instance?.data?.chatLogHover === false) return;
-
-			const target = e.target as HTMLElement;
-			if (target.closest(".ChatMessageName")) {
-				this.chatLogHoveredPlayer = null;
-
-				if (this.roster) {
-					this.roster.chatLogHoveredPlayer = null;
-					this.roster.hoveredMapPlayer = null;
+				// CRITICAL: Ignore native UI elements that contain names so we don't break the game
+				if (el.classList.contains("ChatMessageName") ||
+					el.classList.contains("chat-room-message-reply") ||
+					el.classList.contains("chat-room-metadata")) {
+					return;
 				}
+
+				// Array.from freezes the list of children so our loop doesn't break when we inject new spans
+				Array.from(node.childNodes).forEach(child => walk(child));
 			}
-		});
+		};
+
+		walk(element);
 	}
 
 	/**
@@ -97,7 +97,7 @@ export class ChatManager extends CRABS_Base {
 
 		if (namesToMatch.length === 0) return false;
 
-		const regex = new RegExp(`(?:^|\\W)(${namesToMatch.join('|')})(?:$|\\W)`, 'i');
+		const regex = new RegExp(`\\b(${namesToMatch.join('|')})\\b`, 'i');
 		return regex.test(msg);
 	}
 
@@ -112,12 +112,8 @@ export class ChatManager extends CRABS_Base {
 
 			const div = next(args);
 
-			// Wrap in try/catch so safeHook doesn't double-print on failure
 			try {
 				if (!div || !(div instanceof HTMLElement)) return div;
-
-				// Bail out early if both features are disabled
-				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
 
 				const globalWindow = window as any;
 
@@ -131,38 +127,28 @@ export class ChatManager extends CRABS_Base {
 				const msgString = String(msg);
 				const isMentioned = this.isPlayerMentioned(msgString);
 
-				// Inline Name Coloring
-				// Target the message content so we don't break the native UI elements
-				const contentSpan = div.querySelector('.chat-room-message-content');
-
-				if (contentSpan && Settings.instance?.data?.colorMatchNames && isMentioned) {
+				// --- INLINE NAME COLORING ---
+				if (isMentioned && Settings.instance?.data?.colorMatchNames) {
 					const playerColor = globalWindow.Player?.LabelColor || "#FFFFFF";
-
 					const words = [
 						globalWindow.Player?.Name,
 						globalWindow.Player?.Nickname,
 						...(Settings.instance?.data?.customHighlightWords || "").split(',')
 					].map(w => w?.trim()).filter(Boolean);
 
-					if (words.length > 0) {
-						const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-						const escapedWords = words.map(escapeRegExp);
-
-						const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
-						contentSpan.innerHTML = contentSpan.innerHTML.replace(regex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
-					}
+					// Call our safe DOM walker
+					this.colorizeTextNodes(div, words, playerColor);
 				}
-				// Background Highlight 
+
+				// --- BACKGROUND HIGHLIGHTING ---
 				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
 
-					// Force the border to show up on Action messages using important
+					// Kept your background low opacity design, but added !important to ensure it applies
+					div.style.setProperty("background-color", this.convertColor(userHex, 0.01), "important");
 					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
-
-					// Kept your low opacity design
-					div.style.backgroundColor = this.convertColor(userHex, 0.01);
 
 					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
 						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
@@ -179,6 +165,47 @@ export class ChatManager extends CRABS_Base {
 			}
 
 			return div;
+		});
+	}
+
+	/**
+	 * Hooks into the base game's chat log to pass hover states to the roster.
+	 */
+	private setupChatLogHover(): void {
+		document.addEventListener("mouseover", (e) => {
+			if (Settings.instance?.data?.chatLogHover === false) return;
+
+			const target = e.target as HTMLElement;
+			const nameEl = target.closest(".ChatMessageName");
+
+			if (nameEl) {
+				const messageEl = nameEl.closest(".ChatMessage") as HTMLElement;
+				if (messageEl && messageEl.dataset.sender) {
+					const memberNumber = parseInt(messageEl.dataset.sender, 10);
+					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
+						this.chatLogHoveredPlayer = memberNumber;
+
+						if (this.roster) {
+							this.roster.chatLogHoveredPlayer = memberNumber;
+							this.roster.hoveredMapPlayer = memberNumber;
+						}
+					}
+				}
+			}
+		});
+
+		document.addEventListener("mouseout", (e) => {
+			if (Settings.instance?.data?.chatLogHover === false) return;
+
+			const target = e.target as HTMLElement;
+			if (target.closest(".ChatMessageName")) {
+				this.chatLogHoveredPlayer = null;
+
+				if (this.roster) {
+					this.roster.chatLogHoveredPlayer = null;
+					this.roster.hoveredMapPlayer = null;
+				}
+			}
 		});
 	}
 }
