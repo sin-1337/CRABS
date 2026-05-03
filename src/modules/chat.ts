@@ -76,11 +76,6 @@ export class ChatManager extends CRABS_Base {
 				if (div.classList.contains("ChatMessageEnterLeave")) return div;
 				if (sender && sender.MemberNumber === player.MemberNumber) return div;
 
-				const contentSpan = div.querySelector('.chat-room-message-content') as HTMLElement;
-				if (!contentSpan) return div;
-
-				const originalText = contentSpan.innerHTML;
-
 				const wordsToMatch = [
 					player.Name,
 					player.Nickname,
@@ -91,51 +86,59 @@ export class ChatManager extends CRABS_Base {
 
 				wordsToMatch.sort((a, b) => b.length - a.length);
 				const escapedWords = wordsToMatch.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-				const mentionRegex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+				const mentionRegex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
 
 				const playerColor = player.LabelColor || "#FF00FF";
-				const newText = originalText.replace(mentionRegex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
-				const isMentioned = originalText !== newText;
+				const doInlineColor = !!Settings.instance?.data?.colorMatchNames;
 
-				// ==========================================
-				// DEBUG LOGGING BLOCK
-				// ==========================================
-				if (data && (data.Type === "Action" || data.Type === "Activity")) {
-					console.log("=== CRABS ACTION MESSAGE DEBUG ===");
-					console.log("1. Message Type:", data.Type);
-					console.log("2. Raw HTML in span:", originalText);
-					console.log("3. Words we are searching for:", wordsToMatch);
-					console.log("4. Did Regex find the name?:", isMentioned);
-					if (isMentioned) {
-						console.log("5. New HTML generated:", newText);
-					}
-					console.log("==================================");
-				}
-				// ==========================================
+				let isMentioned = false;
 
-				if (isMentioned) {
-					if (Settings.instance?.data?.colorMatchNames) {
-						contentSpan.innerHTML = newText;
-					}
-
-					if (Settings.instance?.data?.highlightMentions !== false) {
-						div.classList.add("CRABS_mention_highlight");
-
-						const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-						div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
-						div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
-
-						console.log("-> 6. Action Styles Applied to Div!");
-
-						const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
-							? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
-							: true;
-
-						if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
-							setTimeout(() => {
-								globalWindow.ElementScrollToEnd("TextAreaChatLog");
-							}, 0);
+				// Safe DOM walker: Finds raw text without breaking BC's UI
+				const searchAndHighlight = (node: Node) => {
+					const childNodes = Array.from(node.childNodes);
+					for (const child of childNodes) {
+						if (child.nodeType === 3) { // 3 = TEXT_NODE
+							const text = child.nodeValue;
+							if (text && mentionRegex.test(text)) {
+								isMentioned = true;
+								if (doInlineColor) {
+									mentionRegex.lastIndex = 0; // Reset regex state
+									const span = document.createElement("span");
+									span.innerHTML = text.replace(mentionRegex, `$1<span style="color: ${playerColor} !important; font-weight: bold !important;">$2</span>`);
+									child.parentNode?.replaceChild(span, child);
+								}
+							}
+						} else if (child.nodeType === 1) { // 1 = ELEMENT_NODE
+							const el = child as HTMLElement;
+							// Skip metadata and UI elements so we don't break the game
+							if (el.classList.contains("ChatMessageName") ||
+								el.classList.contains("chat-room-metadata") ||
+								el.classList.contains("chat-room-message-reply")) {
+								continue;
+							}
+							searchAndHighlight(child);
 						}
+					}
+				};
+
+				// Start the search on the main div
+				searchAndHighlight(div);
+
+				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
+					div.classList.add("CRABS_mention_highlight");
+
+					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
+					div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
+					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
+
+					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+						: true;
+
+					if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+						setTimeout(() => {
+							globalWindow.ElementScrollToEnd("TextAreaChatLog");
+						}, 0);
 					}
 				}
 			} catch (err) {
