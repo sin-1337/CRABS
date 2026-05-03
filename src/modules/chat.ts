@@ -115,13 +115,38 @@ export class ChatManager extends CRABS_Base {
 			// Wrap in try/catch so safeHook doesn't double-print on failure
 			try {
 				if (!div || !(div instanceof HTMLElement)) return div;
-				if (Settings.instance?.data?.highlightMentions === false) return div;
+
+				// Bail out early if both features are disabled
+				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
 
 				const globalWindow = window as any;
 				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
 				if (sender && sender.MemberNumber === globalWindow.Player?.MemberNumber) return div;
 
-				if (msg && this.isPlayerMentioned(String(msg))) {
+				const msgString = String(msg);
+				const isMentioned = this.isPlayerMentioned(msgString);
+
+				// --- NEW: Inline Name Coloring ---
+				if (Settings.instance?.data?.colorMatchNames && isMentioned) {
+					const playerColor = globalWindow.Player?.LabelColor || "#FFFFFF";
+
+					const words = [
+						globalWindow.Player?.Name,
+						globalWindow.Player?.Nickname,
+						...(Settings.instance?.data?.customHighlightWords || "").split(',')
+					].map(w => w?.trim()).filter(Boolean);
+
+					if (words.length > 0) {
+						const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+						const escapedWords = words.map(escapeRegExp);
+
+						const regex = new RegExp(`(?<!<[^>]*)\\b(${escapedWords.join('|')})\\b`, 'gi');
+						div.innerHTML = div.innerHTML.replace(regex, `<span style="color: ${playerColor}; font-weight: bold;">$1</span>`);
+					}
+				}
+
+				// --- EXISTING: Background Highlight ---
+				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
