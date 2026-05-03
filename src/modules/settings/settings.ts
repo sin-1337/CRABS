@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS: any = {
 	autoScrollRoster: true,
 	chatLogHover: true,
 	colorMatchNames: true,
+	capitalizeNames: true,
 };
 
 export class Settings extends CRABS_Base {
@@ -192,6 +193,7 @@ export class Settings extends CRABS_Base {
 
 		// --- CHAT ---
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
+		createCheck("Chat", "capitalizeNames", "Auto-Capitalize Names", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
