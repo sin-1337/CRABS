@@ -1,7 +1,7 @@
 // src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget } from "./widgets";
+import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget, TextAreaWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
 
 const DEFAULT_SETTINGS: any = {
@@ -30,6 +30,8 @@ const DEFAULT_SETTINGS: any = {
 	autoScrollRoster: true,
 	chatLogHover: true,
 	colorMatchNames: true,
+	capitalizeNames: true,
+	ignorePhrases: "",
 };
 
 export class Settings extends CRABS_Base {
@@ -100,6 +102,18 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
+		// helper for textArea input
+		const createTextArea = (cat: ComponentCategory, setting: string, label: string, hint: string, indent = 0, extraDisable?: () => boolean) => {
+			const isDisabled = () => extraDisable ? extraDisable() : false;
+			const getVal = () => this.data[setting];
+			const setVal = (val: string) => { this.data[setting] = val; this.save(); };
+
+			this.registry.push({
+				category: cat, indent,
+				widget: new TextAreaWidget(label, hint, isDisabled, `CRABS_Input_${setting}`, getVal, setVal)
+			});
+		};
+
 		// Helper for standard buttons
 		const createButton = (cat: ComponentCategory, label: string, hint: string, onClick: () => void, indent = 0) => {
 			this.registry.push({
@@ -150,9 +164,10 @@ export class Settings extends CRABS_Base {
 		};
 
 		// --- GENERAL ---
-		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "checkForUpdates", "Notify me about updates", "Periodically check for CRABS updates, and notify me.");
+		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.");
+		createCheck("General", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when you mouse over them in the roster or chat.");
 		createButton("General", "Edit Keybinds", "Open the game's Keybindings menu to change the Privacy Mode hotkey.", () => this.openNativeKeybindings());
 		createLabel("General", () => `Crabs drawer toggle: ${getBindString("crabs_drawer_toggle")}`, "", 1);
 		createLabel("General", () => `Privacy mode: ${getBindString("crabs_privacy_toggle")}`, "", 1);
@@ -192,11 +207,12 @@ export class Settings extends CRABS_Base {
 
 		// --- CHAT ---
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
+		createCheck("Chat", "capitalizeNames", "Auto-Capitalize My Name", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);
+		createTextArea("Chat", "ignorePhrases", "Exclusion Phrases", "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");
-		createCheck("Chat", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when mousing over players in the roster.");
 		createCheck("Chat", "autoBeepOnLeave", "Whisper+ Autoelevate to Beep", "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.");
 	}
 

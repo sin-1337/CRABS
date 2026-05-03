@@ -66,4 +66,5 @@ interface CRABS_Settings {
 	autoScrollRoster: boolean;
 	chatLogHover: boolean;
 	colorMatchNames: boolean,
+	ignorePhrases: string,
 }
