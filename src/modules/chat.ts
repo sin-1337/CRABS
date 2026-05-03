@@ -22,51 +22,6 @@ export class ChatManager extends CRABS_Base {
 	}
 
 	/**
-	 * Safely walks through an HTML element and colors specific words.
-	 */
-	private colorizeTextNodes(element: HTMLElement, names: string[], color: string) {
-		if (!names || names.length === 0) return;
-
-		// Sort names by length descending to match "Rose Red" before "Rose"
-		names.sort((a, b) => b.length - a.length);
-
-		const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-		const escapedWords = names.map(escapeRegExp);
-
-		// \b ensures we match whole words and don't highlight "Rose" inside "Rosemary"
-		const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
-
-		const walk = (node: Node) => {
-			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.nodeValue;
-				if (text && regex.test(text)) {
-					regex.lastIndex = 0; // Reset regex state just in case
-
-					const span = document.createElement("span");
-					span.innerHTML = text.replace(regex, `<span style="color: ${color}; font-weight: bold;">$1</span>`);
-
-					// Safely swap the raw text node with our new HTML span
-					node.parentNode?.replaceChild(span, node);
-				}
-			} else if (node.nodeType === Node.ELEMENT_NODE) {
-				const el = node as HTMLElement;
-
-				// CRITICAL: Ignore native UI elements that contain names so we don't break the game
-				if (el.classList.contains("ChatMessageName") ||
-					el.classList.contains("chat-room-message-reply") ||
-					el.classList.contains("chat-room-metadata")) {
-					return;
-				}
-
-				// Array.from freezes the list of children so our loop doesn't break when we inject new spans
-				Array.from(node.childNodes).forEach(child => walk(child));
-			}
-		};
-
-		walk(element);
-	}
-
-	/**
 	 * Custom mention detector that handles both Name, Nickname,
 	 * and a user-defined list of custom words.
 	 */
@@ -106,10 +61,7 @@ export class ChatManager extends CRABS_Base {
 	 */
 	private setupMessageHooks(): void {
 		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
-			const data = args[0];
 			const msg = args[1];
-			const sender = args[2];
-
 			const div = next(args);
 
 			try {
@@ -117,36 +69,47 @@ export class ChatManager extends CRABS_Base {
 
 				const globalWindow = window as any;
 
-				// Ignore Server Messages, Activities, and Entry/Leave/Disconnect notifications
-				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
-				if (div.classList.contains("ChatMessageEnterLeave")) return div;
+				// ==========================================
+				// 1. INLINE NAME COLORING (Focusing on this!)
+				// ==========================================
+				const contentSpan = div.querySelector('.chat-room-message-content');
 
-				// Ignore messages sent by the player themselves
-				if (sender && sender.MemberNumber === globalWindow.Player?.MemberNumber) return div;
+				if (contentSpan && Settings.instance?.data?.colorMatchNames) {
 
-				const msgString = String(msg);
-				const isMentioned = this.isPlayerMentioned(msgString);
+					// Fallback to bright pink if LabelColor is undefined. 
+					// This proves the code is working and not just painting the text white.
+					const playerColor = globalWindow.Player?.LabelColor || "#FF00FF";
 
-				// --- INLINE NAME COLORING ---
-				if (isMentioned && Settings.instance?.data?.colorMatchNames) {
-					const playerColor = globalWindow.Player?.LabelColor || "#FFFFFF";
 					const words = [
 						globalWindow.Player?.Name,
 						globalWindow.Player?.Nickname,
 						...(Settings.instance?.data?.customHighlightWords || "").split(',')
-					].map(w => w?.trim()).filter(Boolean);
+					].map(w => w ? String(w).trim() : "").filter(w => w.length > 0);
 
-					// Call our safe DOM walker
-					this.colorizeTextNodes(div, words, playerColor);
+					// Sort by length so "Rose Red" evaluates before "Rose"
+					words.sort((a, b) => b.length - a.length);
+
+					if (words.length > 0) {
+						const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+						const escapedWords = words.map(escapeRegExp);
+
+						// Ultra-safe Regex supported by all browsers
+						// Captures the preceding space/symbol ($1) and the name ($2)
+						const regex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
+
+						contentSpan.innerHTML = contentSpan.innerHTML.replace(regex, `$1<span style="color: ${playerColor}; font-weight: bold;">$2</span>`);
+					}
 				}
 
-				// --- BACKGROUND HIGHLIGHTING ---
+				// ==========================================
+				// 2. BACKGROUND MENTION HIGHLIGHT
+				// ==========================================
+				const isMentioned = this.isPlayerMentioned(String(msg));
+
 				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
 					div.classList.add("CRABS_mention_highlight");
 
 					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-
-					// Kept your background low opacity design, but added !important to ensure it applies
 					div.style.setProperty("background-color", this.convertColor(userHex, 0.01), "important");
 					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
 
