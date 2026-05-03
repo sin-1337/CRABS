@@ -6,8 +6,6 @@ import "./templates/chat.css";
 
 /**
  * CRABS Chat Manager Module
- * Handles all modifications, parsing, and enhancements to the base game's 
- * chat log and message rendering pipeline.
  */
 export class ChatManager extends CRABS_Base {
 	private roster: Roster;
@@ -21,119 +19,6 @@ export class ChatManager extends CRABS_Base {
 		this.setupChatLogHover();
 	}
 
-	/**
-	 * Custom mention detector that handles both Name, Nickname,
-	 * and a user-defined list of custom words.
-	 */
-	private isPlayerMentioned(msg: string): boolean {
-		const player = (window as any).Player;
-		if (!player || !msg) return false;
-
-		const namesToMatch: string[] = [];
-		const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-		if (player.Name && player.Name.trim() !== "") {
-			namesToMatch.push(escapeRegExp(player.Name.trim()));
-		}
-		if (player.Nickname && player.Nickname.trim() !== "") {
-			namesToMatch.push(escapeRegExp(player.Nickname.trim()));
-		}
-
-		const customWordsSetting = Settings.instance?.data?.customHighlightWords;
-		if (customWordsSetting && customWordsSetting.trim() !== "") {
-			const customWords = String(customWordsSetting)
-				.split(',')
-				.map((w: string) => w.trim())
-				.filter((w: string) => w !== "");
-			for (const word of customWords) {
-				namesToMatch.push(escapeRegExp(word));
-			}
-		}
-
-		if (namesToMatch.length === 0) return false;
-
-		const regex = new RegExp(`\\b(${namesToMatch.join('|')})\\b`, 'i');
-		return regex.test(msg);
-	}
-
-	/**
-	 * Intercepts chat messages and applies dynamic highlighting based on user preferences.
-	 */
-	private setupMessageHooks(): void {
-		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
-			const msg = args[1];
-			const div = next(args);
-
-			try {
-				if (!div || !(div instanceof HTMLElement)) return div;
-
-				const globalWindow = window as any;
-
-				// ==========================================
-				// 1. INLINE NAME COLORING (Focusing on this!)
-				// ==========================================
-				const contentSpan = div.querySelector('.chat-room-message-content');
-
-				if (contentSpan && Settings.instance?.data?.colorMatchNames) {
-
-					// Fallback to bright pink if LabelColor is undefined. 
-					// This proves the code is working and not just painting the text white.
-					const playerColor = globalWindow.Player?.LabelColor || "#FF00FF";
-
-					const words = [
-						globalWindow.Player?.Name,
-						globalWindow.Player?.Nickname,
-						...(Settings.instance?.data?.customHighlightWords || "").split(',')
-					].map(w => w ? String(w).trim() : "").filter(w => w.length > 0);
-
-					// Sort by length so "Rose Red" evaluates before "Rose"
-					words.sort((a, b) => b.length - a.length);
-
-					if (words.length > 0) {
-						const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-						const escapedWords = words.map(escapeRegExp);
-
-						// Ultra-safe Regex supported by all browsers
-						// Captures the preceding space/symbol ($1) and the name ($2)
-						const regex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
-
-						contentSpan.innerHTML = contentSpan.innerHTML.replace(regex, `$1<span style="color: ${playerColor}; font-weight: bold;">$2</span>`);
-					}
-				}
-
-				// ==========================================
-				// 2. BACKGROUND MENTION HIGHLIGHT
-				// ==========================================
-				const isMentioned = this.isPlayerMentioned(String(msg));
-
-				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
-					div.classList.add("CRABS_mention_highlight");
-
-					const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
-					div.style.setProperty("background-color", this.convertColor(userHex, 0.01), "important");
-					div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
-
-					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
-						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
-						: true;
-
-					if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
-						setTimeout(() => {
-							globalWindow.ElementScrollToEnd("TextAreaChatLog");
-						}, 0);
-					}
-				}
-			} catch (err) {
-				console.error("[CRABS] Error in chat highlight hook", err);
-			}
-
-			return div;
-		});
-	}
-
-	/**
-	 * Hooks into the base game's chat log to pass hover states to the roster.
-	 */
 	private setupChatLogHover(): void {
 		document.addEventListener("mouseover", (e) => {
 			if (Settings.instance?.data?.chatLogHover === false) return;
@@ -169,6 +54,96 @@ export class ChatManager extends CRABS_Base {
 					this.roster.hoveredMapPlayer = null;
 				}
 			}
+		});
+	}
+
+	private setupMessageHooks(): void {
+		this.safeHook("ChatRoomMessageDisplay", 10, (args: any, next: Function) => {
+			const data = args[0];
+			const sender = args[2];
+
+			// 1. Let the base game generate the final HTML div
+			const div = next(args);
+
+			try {
+				if (!div || !(div instanceof HTMLElement)) return div;
+
+				const globalWindow = window as any;
+				const player = globalWindow.Player;
+				if (!player) return div;
+
+				// Bail out early if both features are disabled
+				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return div;
+
+				// Ignore Server Messages, Activities, and Entry/Leave/Disconnect notifications
+				if (data && (data.Type === "ServerMessage" || data.Type === "Activity")) return div;
+				if (div.classList.contains("ChatMessageEnterLeave")) return div;
+
+				// Ignore messages sent by the player themselves
+				if (sender && sender.MemberNumber === player.MemberNumber) return div;
+
+				// 2. Extract the FINAL translated text exactly as the player sees it
+				const contentSpan = div.querySelector('.chat-room-message-content') as HTMLElement;
+				if (!contentSpan) return div;
+
+				const finalText = contentSpan.innerHTML;
+
+				// Build the list of names
+				const wordsToMatch = [
+					player.Name,
+					player.Nickname,
+					...(Settings.instance?.data?.customHighlightWords || "").split(',')
+				].map(w => w ? String(w).trim() : "").filter(w => w.length > 0);
+
+				if (wordsToMatch.length === 0) return div;
+
+				// Sort by length so "Rose Red" evaluates before "Rose"
+				wordsToMatch.sort((a, b) => b.length - a.length);
+
+				// Escape symbols and create the Regex
+				const escapedWords = wordsToMatch.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+				const mentionRegex = new RegExp(`(^|\\W)(${escapedWords.join('|')})(?=\\W|$)`, 'gi');
+
+				// 3. Test if the player's name exists in the final translated text
+				const isMentioned = mentionRegex.test(finalText);
+
+				if (isMentioned) {
+					// --- INLINE NAME COLORING ---
+					if (Settings.instance?.data?.colorMatchNames) {
+						// Fallback to hot pink if the player hasn't picked a label color
+						const playerColor = player.LabelColor || "#FF00FF";
+
+						// Reset regex state before replacing
+						mentionRegex.lastIndex = 0;
+						contentSpan.innerHTML = finalText.replace(mentionRegex, `$1<span style="color: ${playerColor} !important; font-weight: bold !important;">$2</span>`);
+					}
+
+					// --- BACKGROUND HIGHLIGHTING ---
+					if (Settings.instance?.data?.highlightMentions !== false) {
+						div.classList.add("CRABS_mention_highlight");
+
+						const userHex = Settings.instance?.data?.highlightColor || "#FFFF00";
+
+						// We use !important to force the color through the native game CSS
+						div.style.setProperty("background-color", this.convertColor(userHex, 0.15), "important");
+						div.style.setProperty("border-left", `4px solid ${this.convertColor(userHex, 0.8)}`, "important");
+
+						const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+							? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+							: true;
+
+						if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+							setTimeout(() => {
+								globalWindow.ElementScrollToEnd("TextAreaChatLog");
+							}, 0);
+						}
+					}
+				}
+			} catch (err) {
+				console.error("[CRABS] Error in chat highlight hook", err);
+			}
+
+			return div;
 		});
 	}
 }
