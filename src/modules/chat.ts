@@ -59,12 +59,20 @@ export class ChatManager extends CRABS_Base {
 			const senderData = hookArguments[2];
 			const messageDiv = nextFunction(hookArguments);
 
+			const globalWindow = window as any;
+			let wasAtBottom = true;
+
 			try {
 				if (!messageDiv || !(messageDiv instanceof HTMLElement)) return messageDiv;
 
 				const globalWindow = window as any;
 				const player = globalWindow.Player;
 				if (!player) return messageDiv;
+
+				// Check scroll state right after the base game appended the message
+				wasAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+					? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+					: true;
 
 				if (Settings.instance?.data?.highlightMentions === false && !Settings.instance?.data?.colorMatchNames) return messageDiv;
 
@@ -200,6 +208,13 @@ export class ChatManager extends CRABS_Base {
 				}
 			} catch (err) {
 				console.error("[CRABS] Error in chat highlight hook", err);
+			} finally {
+				// Apply the scroll fix if we were at the bottom
+				if (wasAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+					setTimeout(() => {
+						globalWindow.ElementScrollToEnd("TextAreaChatLog");
+					}, 0);
+				}
 			}
 
 			return messageDiv;
