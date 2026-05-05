@@ -154,13 +154,15 @@ export class Settings extends CRABS_Base {
 	}
 
 	private deleteServerData(): void {
+		const globalWindow = window as any; // <-- Moved outside the try block
+
 		try {
-			const globalWindow = window as any;
 			const player = globalWindow.Player;
 
-			// Remove CRABS data from the game's memory and push to server
-			if (player && player.ExtensionSettings && player.ExtensionSettings.CRABS) {
-				delete player.ExtensionSettings.CRABS;
+			if (player && player.ExtensionSettings) {
+				// Set to an empty string instead of using 'delete'
+				// This clears the data without triggering WCE's data-loss protection
+				player.ExtensionSettings.CRABS = "";
 
 				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
 					globalWindow.ServerAccountUpdate.QueueData({
@@ -179,7 +181,8 @@ export class Settings extends CRABS_Base {
 			globalWindow.PreferenceMessage = "Server save deleted!";
 		} catch (e) {
 			console.error("Failed to delete server data", e);
-			(window as any).PreferenceMessage = "Error deleting server data.";
+			// Now this works perfectly!
+			globalWindow.PreferenceMessage = "Error deleting server data.";
 		}
 	}
 
@@ -246,7 +249,9 @@ export class Settings extends CRABS_Base {
 		};
 
 		const createCheck = (cat: ComponentCategory, setting: string, label: string, hint: string, indent = 0, extraDisable?: () => boolean, onChange?: (val: boolean) => void) => {
-			const isDisabled = () => hardcoreLock(setting) || (extraDisable ? extraDisable() : false);
+			// Only apply the hardcore lock to settings in the Immersion tab
+			const isDisabled = () => (cat === "Immersion" && hardcoreLock(setting)) || (extraDisable ? extraDisable() : false);
+
 			const getVal = () => this.data[setting];
 			const setVal = (val: boolean) => {
 				this.data[setting] = val;
