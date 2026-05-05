@@ -17,7 +17,7 @@ export abstract class Notification {
 		type = "General"
 	}: NotificationParams & { type?: string }): void {
 		// We prefix everything with CRABS_ to keep our namespace clean
-		ToastManager.custom(message, `CRABS_${type}`, {
+		ToastManager.custom(message, `CRABS_Notification_${type}`, {
 			title: title,
 			icon: Assets.getimage(image),
 			iconColor: "default",
@@ -30,6 +30,6 @@ export abstract class Notification {
 	 * If no type is provided, it clears the default general notifications.
 	 */
 	public static dismiss(type: string = "General"): void {
-		ToastManager.dismissByCategory(`CRABS_${type}`);
+		ToastManager.dismissByCategory(`CRABS_Notification_${type}`);
 	}
 }
