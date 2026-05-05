@@ -2,7 +2,7 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget, TextAreaWidget } from "./widgets";
-import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout"; // <-- Added ComponentCategory here
+import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
 
 const DEFAULT_SETTINGS: any = {
 	showBanner: true,
@@ -32,11 +32,13 @@ const DEFAULT_SETTINGS: any = {
 	colorMatchNames: true,
 	capitalizeNames: true,
 	ignorePhrases: "",
+	localOnlyMode: false,
+	lastSaved: 0,
 };
 
 export class Settings extends CRABS_Base {
 	public static instance: Settings;
-	public data: any; // Type as CRABS_Settings
+	public data: any;
 
 	private layout: LayoutEngine;
 	private registry: ConfiguredWidget[] = [];
@@ -47,7 +49,12 @@ export class Settings extends CRABS_Base {
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		Settings.instance = this;
-		this.data = this.load();
+
+		// 1. Load local synchronously so the UI has immediate data
+		this.data = this.loadLocal();
+
+		// 2. Kick off the background server sync
+		this.syncFromServer();
 
 		this.buildRegistry();
 		this.layout = new LayoutEngine(this.registry);
@@ -56,22 +63,88 @@ export class Settings extends CRABS_Base {
 		window.addEventListener("wheel", this.handleWheel.bind(this), { passive: false });
 	}
 
-	private getCharacterStorageKey(): string {
+	private getStorageKey(): string {
 		const memberNumber = (window as any).Player?.MemberNumber;
-		// Fallback to the global key if not logged in, 
-		// otherwise scope it to the member number
-		return memberNumber ? `CRABS_Settings_${memberNumber}` : "CRABS_Settings";
+		return memberNumber ? `${this.STORAGE_KEY}_${memberNumber}` : this.STORAGE_KEY;
 	}
 
-	private load(): any {
-		const key = this.getCharacterStorageKey();
-		const saved = localStorage.getItem(key);
+	private loadLocal(): any {
+		const saved = localStorage.getItem(this.getStorageKey());
 		return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : { ...DEFAULT_SETTINGS };
 	}
 
+	private async syncFromServer(): Promise<void> {
+		// Abort sync if user opted out
+		if (this.data.localOnlyMode) return;
+
+		try {
+			const sdk = this.CRABS as any;
+			const serverData = await sdk.loadData();
+
+			if (serverData) {
+				const serverTime = serverData.lastSaved || 0;
+				const localTime = this.data.lastSaved || 0;
+
+				// Compare timestamps: Only overwrite if server is newer
+				if (serverTime > localTime) {
+					this.data = { ...this.data, ...serverData };
+
+					// Backup the newer server data to local storage
+					localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
+
+					// Refresh the UI if it happens to be open
+					if (this.layout) this.layout.updateDOM(this.isMenuOpen);
+				}
+			}
+		} catch (e) {
+			console.warn("CRABS: Failed to sync settings from server", e);
+		}
+	}
+
 	public save(): void {
-		const key = this.getCharacterStorageKey();
-		localStorage.setItem(key, JSON.stringify(this.data));
+		// Stamp the data with current time before saving
+		this.data.lastSaved = Date.now();
+
+		// Always save to local storage (Fast & Reliable)
+		localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
+
+		// Save to BC server if not opted out
+		if (!this.data.localOnlyMode) {
+			const sdk = this.CRABS as any;
+			sdk.saveData(this.data);
+		}
+	}
+
+	private exportConfig(): void {
+		try {
+			const str = JSON.stringify(this.data);
+			const encoded = btoa(str);
+			navigator.clipboard.writeText(encoded);
+			(window as any).PreferenceMessage = "Config copied to clipboard!";
+		} catch (e) {
+			console.error("Export failed", e);
+		}
+	}
+
+	private async importConfig(): Promise<void> {
+		try {
+			const text = await navigator.clipboard.readText();
+			const decoded = atob(text);
+			const imported = JSON.parse(decoded);
+
+			if (typeof imported === 'object' && 'showBanner' in imported) {
+				// Ensure the imported config gets a fresh timestamp
+				imported.lastSaved = Date.now();
+
+				this.data = { ...DEFAULT_SETTINGS, ...imported };
+				this.save();
+				this.layout.updateDOM(this.isMenuOpen);
+				(window as any).PreferenceMessage = "Config imported successfully!";
+			}
+		} catch (e) {
+			(window as any).PreferenceMessage = "Import failed. Invalid format.";
+			console.error("Import failed", e);
+		}
 	}
 
 	private isRestricted(): boolean { return (window as any).Player?.IsRestrained?.() || false; }
@@ -83,7 +156,6 @@ export class Settings extends CRABS_Base {
 			return this.isRestricted() && this.data.lockImmersive && (settingName === "lockImmersive" || this.data[settingName]);
 		};
 
-		// Helper for checkboxes (now includes onChange support)
 		const createCheck = (cat: ComponentCategory, setting: string, label: string, hint: string, indent = 0, extraDisable?: () => boolean, onChange?: (val: boolean) => void) => {
 			const isDisabled = () => hardcoreLock(setting) || (extraDisable ? extraDisable() : false);
 			const getVal = () => this.data[setting];
@@ -99,7 +171,6 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
-		// Helper for text/color inputs
 		const createInput = (cat: ComponentCategory, setting: string, label: string, hint: string, inputType: "text" | "color", indent = 0, extraDisable?: () => boolean) => {
 			const isDisabled = () => extraDisable ? extraDisable() : false;
 			const getVal = () => this.data[setting];
@@ -111,7 +182,6 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
-		// helper for textArea input
 		const createTextArea = (cat: ComponentCategory, setting: string, label: string, hint: string, indent = 0, extraDisable?: () => boolean) => {
 			const isDisabled = () => extraDisable ? extraDisable() : false;
 			const getVal = () => this.data[setting];
@@ -123,7 +193,6 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
-		// Helper for standard buttons
 		const createButton = (cat: ComponentCategory, label: string, hint: string, onClick: () => void, indent = 0) => {
 			this.registry.push({
 				category: cat, indent,
@@ -131,7 +200,6 @@ export class Settings extends CRABS_Base {
 			});
 		};
 
-		// Helper to fetch the current keybind string safely
 		const getBindString = (bindId: string) => {
 			const globalWindow = window as any;
 			const bind = globalWindow.KeyManager?.getKeybinding(bindId);
@@ -139,32 +207,24 @@ export class Settings extends CRABS_Base {
 			if (!bind || !bind.keyCombo) return "Unbound";
 
 			const mods = Array.from(bind.keyCombo.modifiers || []).join('+');
-
 			let keyText = "";
 
-			// Check if the game stored a strict browser code (e.g., 'KeyD', 'Space')
 			if (bind.keyCombo.key) {
-				// Translate it using the game's native dictionary so things like 'Space' format correctly
 				if (globalWindow.KeybindingManager && globalWindow.KeybindingManager.ASCIIKeyboardMap) {
 					keyText = globalWindow.KeybindingManager.ASCIIKeyboardMap[bind.keyCombo.key];
 				}
-
-				// Failsafe string cleanup if the map is ever unavailable
 				if (!keyText) {
 					keyText = bind.keyCombo.key.replace('Key', '').replace('Digit', '');
 				}
 			}
-			// Check if the game fell back to storing a raw character (e.g., 'd')
 			else if (bind.keyCombo.char) {
 				keyText = bind.keyCombo.char.toUpperCase();
 			}
 
 			if (!keyText && !mods) return "Unbound";
-
 			return mods && keyText ? `${mods}+${keyText}` : (mods || keyText);
 		};
 
-		// Helper for labels
 		const createLabel = (cat: ComponentCategory, text: string | (() => string), hint: string = "", indent = 0) => {
 			this.registry.push({
 				category: cat, indent,
@@ -223,12 +283,16 @@ export class Settings extends CRABS_Base {
 		createInput("Chat", "highlightColor", "Highlight Color", "Pick a custom color for chat highlights.", "color", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "chatLogHover", "Chat Log Hover Links", "Mousing over names in the chat log triggers the roster focus halo and map compass.");
 		createCheck("Chat", "autoBeepOnLeave", "Whisper+ Autoelevate to Beep", "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.");
+
+		// --- CONFIG MANAGEMENT ---
+		createCheck("Config", "localOnlyMode", "Disable Cloud Sync", "If checked, settings are only saved to this browser and will not sync across your devices.");
+		createButton("Config", "Export to Clipboard", "Copy your settings string to share or backup.", () => this.exportConfig());
+		createButton("Config", "Import from Clipboard", "Paste a settings string to overwrite current config.", () => this.importConfig());
 	}
 
 	private handleWheel(event: WheelEvent): void {
 		if (!this.isMenuOpen) return;
 
-		// Ignore the wheel event if the mouse is over an HTML overlay (like the messenger)
 		const target = event.target as HTMLElement;
 		if (!target || target.id !== "MainCanvas") return;
 
@@ -251,25 +315,17 @@ export class Settings extends CRABS_Base {
 			this.layout.draw(canvasContext, this.showResetConfirm);
 
 			if (this.showResetConfirm) {
-				// Dim the background
 				globalWindow.DrawRect(0, 0, 2000, 1000, "#000000AA");
-
-				// Draw the prompt box
 				globalWindow.DrawRect(700, 350, 600, 300, "#222222");
 				globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
 				canvasContext.textAlign = "center";
 				globalWindow.DrawText("Restore Default Settings?", 1000, 430, "White", "");
 				globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
 				globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
-
-				// Re-draw the Exit button brightly on top
 				globalWindow.DrawButton(1815, 75, 90, 90, "", "White", "Icons/Exit.png", "Back");
 
-				// Re-draw the Back to Chat button brightly (if they are in a room)
 				const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 				globalWindow.DrawButton(1710, 75, 90, 90, "", isInChat ? "White" : "#888888", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
-
-				// Leave the Reset button greyed out
 				globalWindow.DrawButton(1605, 75, 90, 90, "", "#888888", "Icons/Reset.png", "Restore Defaults");
 			}
 		} finally {
@@ -280,10 +336,8 @@ export class Settings extends CRABS_Base {
 	public click(): void {
 		const globalWindow = window as any;
 
-		// Trap all clicks if the confirmation dialog is open
 		if (this.showResetConfirm) {
 			if (globalWindow.MouseIn(750, 500, 200, 60)) {
-				// User confirmed: Reset everything
 				this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 				this.save();
 				this.syncGameState();
@@ -296,11 +350,9 @@ export class Settings extends CRABS_Base {
 				this.showResetConfirm = false;
 				this.layout.updateDOM(this.isMenuOpen);
 			} else if (globalWindow.MouseIn(1050, 500, 200, 60)) {
-				// User canceled
 				this.showResetConfirm = false;
 				this.layout.updateDOM(this.isMenuOpen);
 			} else if (globalWindow.MouseIn(1815, 75, 90, 90)) {
-				// Back to Extensions settings selection
 				this.showResetConfirm = false;
 				this.isMenuOpen = false;
 				this.layout.updateDOM(false);
@@ -313,7 +365,6 @@ export class Settings extends CRABS_Base {
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 				globalWindow.PreferenceOpenSubscreen?.("Extensions");
 			} else if (globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null) {
-				// Back to Chat Room directly
 				this.showResetConfirm = false;
 				this.isMenuOpen = false;
 				this.layout.updateDOM(false);
@@ -322,26 +373,23 @@ export class Settings extends CRABS_Base {
 					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 				}
 
-				// Route them to the chat room BEFORE clearing the extensions state
 				globalWindow.CommonSetScreen("Online", "ChatRoom");
 				globalWindow.PreferenceMessage = "";
 				globalWindow.PreferenceSubscreenExtensionsClear?.();
 			}
-			return; // Stop processing other clicks while modal is open		
+			return;
 		}
 
 		const clickedExit = globalWindow.MouseIn(1815, 75, 90, 90);
 		const clickedChat = globalWindow.MouseIn(1710, 75, 90, 90) && typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 		const clickedReset = globalWindow.MouseIn(1605, 75, 90, 90);
 
-		// Open Restore Defaults confirmation
 		if (clickedReset) {
 			this.showResetConfirm = true;
-			this.layout.updateDOM(false); // Hide text inputs so they don't bleed through the dark overlay
+			this.layout.updateDOM(false);
 			return;
 		}
 
-		// Handle native window exit and chat buttons
 		if (clickedExit || clickedChat) {
 			this.isMenuOpen = false;
 			this.layout.updateDOM(false);
@@ -354,9 +402,8 @@ export class Settings extends CRABS_Base {
 			return;
 		}
 
-		// Pass everything else to the Layout engine
 		if (this.layout.click(globalWindow.MouseX, globalWindow.MouseY)) {
-			this.layout.updateDOM(this.isMenuOpen); // Refresh DOM in case tabs changed
+			this.layout.updateDOM(this.isMenuOpen);
 		}
 	}
 
@@ -384,7 +431,6 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = false;
 				this.layout.updateDOM(false);
 
-				// Destroy all HTML inputs so they don't float over other screens
 				for (const key of Object.keys(this.data)) {
 					globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 				}
@@ -396,7 +442,6 @@ export class Settings extends CRABS_Base {
 			}
 		};
 
-		// Attempt to register the mod settings tab, retry if the game isn't ready
 		const registerHook = () => {
 			if (globalWindow.PreferenceRegisterExtensionSetting) {
 				globalWindow.PreferenceRegisterExtensionSetting(CRABS_Base.subscreenDef);
@@ -407,32 +452,24 @@ export class Settings extends CRABS_Base {
 		registerHook();
 	}
 
-	/**
-	 * Safely closes the CRABS settings menu and opens the base game's Keybindings menu.
-	 */
 	public openNativeKeybindings(): void {
 		const globalWindow = window as any;
 
-		// Standard CRABS cleanup
 		this.isMenuOpen = false;
 		this.layout.updateDOM(false);
 		for (const key of Object.keys(this.data)) {
 			globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
 		}
 
-		// Remove the native search bar and clear the extension view state
 		globalWindow.ElementRemove?.("InputSearch");
 		globalWindow.PreferenceMessage = "";
 		if (typeof globalWindow.PreferenceSubscreenExtensionsClear === "function") {
 			globalWindow.PreferenceSubscreenExtensionsClear();
 		}
 
-		// Instead of manually setting the subscreen, use the native opener.
-		// This tells the game to switch contexts properly.
 		if (typeof globalWindow.PreferenceOpenSubscreen === "function") {
 			globalWindow.PreferenceOpenSubscreen("Keybindings");
 		} else {
-			// Fallback for older versions or if the function is missing
 			globalWindow.PreferenceSubscreen = "Keybindings";
 			if (typeof globalWindow.PreferenceSubscreenKeybindingsLoad === "function") {
 				globalWindow.PreferenceSubscreenKeybindingsLoad();
@@ -440,4 +477,3 @@ export class Settings extends CRABS_Base {
 		}
 	}
 }
-

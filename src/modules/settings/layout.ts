@@ -2,7 +2,7 @@
 
 import { UIWidget } from "./widgets";
 
-export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
+export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat" | "Config";
 
 export interface ConfiguredWidget {
 	category: ComponentCategory;
