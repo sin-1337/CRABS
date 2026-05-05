@@ -157,13 +157,23 @@ export class Settings extends CRABS_Base {
 		try {
 			const player = globalWindow.Player;
 
-			if (player && player.ExtensionSettings) {
-				// We can safely delete the key now!
-				delete player.ExtensionSettings.CRABS;
+			if (player) {
+				// Ensure the object exists so we don't throw a null reference error
+				if (!player.ExtensionSettings) player.ExtensionSettings = {};
 
-				// Sync the deletion using the native modern function
+				// Set to an empty string instead of using 'delete'. 
+				// This clears the data on the server without triggering the 'undefined' crash.
+				player.ExtensionSettings.CRABS = "";
+
+				// Sync the cleared data using the native modern function
 				if (typeof globalWindow.ServerPlayerExtensionSettingsSync === "function") {
 					globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
+				}
+				// Fallback for older BC versions just in case
+				else if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
+					globalWindow.ServerAccountUpdate.QueueData({
+						ExtensionSettings: player.ExtensionSettings
+					}, true);
 				}
 			}
 
@@ -174,10 +184,14 @@ export class Settings extends CRABS_Base {
 			// Refresh the UI to show the checkbox state change
 			this.layout.updateDOM(this.isMenuOpen);
 
-			globalWindow.PreferenceMessage = "Server save deleted!";
-		} catch (e) {
+			// Success notification
+			globalWindow.PreferenceMessage = "Server save successfully cleared!";
+		} catch (e: any) {
 			console.error("Failed to delete server data", e);
-			globalWindow.PreferenceMessage = "Error deleting server data.";
+
+			// Print the specific error message to the game's notification system
+			const errorMessage = e instanceof Error ? e.message : "Unknown error";
+			globalWindow.PreferenceMessage = `Clear failed: ${errorMessage}`;
 		}
 	}
 
