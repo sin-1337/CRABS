@@ -13,7 +13,7 @@ export interface ConfiguredWidget {
 export class LayoutEngine {
 	private readonly BASE_X = 600;
 	private readonly INDENT_WIDTH = 50;
-	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
+	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat", "Config"];
 
 	public activeTab: ComponentCategory = "General";
 	public scrollOffset: number = 0;
