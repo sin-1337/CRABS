@@ -143,31 +143,30 @@ export class Settings extends CRABS_Base {
 				// Attach our minimized payload as a JSON string
 				player.ExtensionSettings.CRABS = JSON.stringify(serverPayload);
 
-				// Tell the Bondage Club server to sync the player's account data
+				// Tell the Bondage Club server to sync the player's account data IMMEDIATELY
 				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
 					globalWindow.ServerAccountUpdate.QueueData({
 						ExtensionSettings: player.ExtensionSettings
-					});
+					}, true);
 				}
 			}
 		}
 	}
 
 	private deleteServerData(): void {
-		const globalWindow = window as any; // <-- Moved outside the try block
+		const globalWindow = window as any;
 
 		try {
 			const player = globalWindow.Player;
 
 			if (player && player.ExtensionSettings) {
-				// Set to an empty string instead of using 'delete'
-				// This clears the data without triggering WCE's data-loss protection
 				player.ExtensionSettings.CRABS = "";
 
+				// Force the sync immediately here as well
 				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
 					globalWindow.ServerAccountUpdate.QueueData({
 						ExtensionSettings: player.ExtensionSettings
-					});
+					}, true);
 				}
 			}
 
@@ -181,7 +180,6 @@ export class Settings extends CRABS_Base {
 			globalWindow.PreferenceMessage = "Server save deleted!";
 		} catch (e) {
 			console.error("Failed to delete server data", e);
-			// Now this works perfectly!
 			globalWindow.PreferenceMessage = "Error deleting server data.";
 		}
 	}
