@@ -2,7 +2,7 @@
 
 import { UIWidget } from "./widgets";
 
-export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat";
+export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat" | "Config";
 
 export interface ConfiguredWidget {
 	category: ComponentCategory;
@@ -13,7 +13,7 @@ export interface ConfiguredWidget {
 export class LayoutEngine {
 	private readonly BASE_X = 600;
 	private readonly INDENT_WIDTH = 50;
-	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat"];
+	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat", "Config"];
 
 	public activeTab: ComponentCategory = "General";
 	public scrollOffset: number = 0;
@@ -94,7 +94,7 @@ export class LayoutEngine {
 		context.rect(500, 200, 1280, 680);
 		context.clip();
 
-		// PASS 1: Draw the tree hierarchy lines
+		// Draw the tree hierarchy lines
 		context.beginPath();
 		context.strokeStyle = "#666666";
 		context.lineWidth = 3;
@@ -128,7 +128,7 @@ export class LayoutEngine {
 		}
 		context.stroke();
 
-		// PASS 2: Draw the actual Widgets
+		// Draw the actual Widgets
 		currentY = 280 - this.scrollOffset;
 		for (const item of visible) {
 			if (currentY > 180 && currentY < 900) {

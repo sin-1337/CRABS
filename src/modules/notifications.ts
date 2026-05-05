@@ -7,21 +7,17 @@ import "./templates/notifications.css";
 export abstract class Notification {
 
 	/**
-	 * Triggers a custom toast notification on screen.
-	 * * @param {NotificationParams} params - Object containing notification configuration.
-	 * @param {string} params.message - The main body text to display.
-	 * @param {string} [params.title="CRABS"] - The header text.
-	 * @param {string} [params.image="logo"] - The asset name for the icon.
-	 * @param {number} [params.duration=3000] - Visibility duration in milliseconds.
-	 * @returns {void}
+	 * @param {string} [params.type="General"] - Sub-category (e.g., "Update", "Alert").
 	 */
 	public static send({
 		message,
 		title = "CRABS",
 		image = "logo",
 		duration = 3000,
-	}: NotificationParams): void {
-		ToastManager.custom(message, "CRABS_Notification", {
+		type = "General"
+	}: NotificationParams & { type?: string }): void {
+		// We prefix everything with CRABS_ to keep our namespace clean
+		ToastManager.custom(message, `CRABS_Notification_${type}`, {
 			title: title,
 			icon: Assets.getimage(image),
 			iconColor: "default",
@@ -30,10 +26,10 @@ export abstract class Notification {
 	}
 
 	/**
-	 * Instantly removes all active CRABS notifications from the screen.
-	 * * @returns {void}
+	 * Removes notifications. 
+	 * If no type is provided, it clears the default general notifications.
 	 */
-	public static dismissAll(): void {
-		ToastManager.dismissByCategory("CRABS_Notification");
+	public static dismiss(type: string = "General"): void {
+		ToastManager.dismissByCategory(`CRABS_Notification_${type}`);
 	}
 }
