@@ -143,11 +143,9 @@ export class Settings extends CRABS_Base {
 				// Attach our minimized payload as a JSON string
 				player.ExtensionSettings.CRABS = JSON.stringify(serverPayload);
 
-				// Tell the Bondage Club server to sync the player's account data IMMEDIATELY
-				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
-					globalWindow.ServerAccountUpdate.QueueData({
-						ExtensionSettings: player.ExtensionSettings
-					}, true);
+				// Use the modern, WCE-approved function to sync the extension settings
+				if (typeof globalWindow.ServerPlayerExtensionSettingsSync === "function") {
+					globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
 				}
 			}
 		}
@@ -160,13 +158,12 @@ export class Settings extends CRABS_Base {
 			const player = globalWindow.Player;
 
 			if (player && player.ExtensionSettings) {
-				player.ExtensionSettings.CRABS = "";
+				// We can safely delete the key now!
+				delete player.ExtensionSettings.CRABS;
 
-				// Force the sync immediately here as well
-				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
-					globalWindow.ServerAccountUpdate.QueueData({
-						ExtensionSettings: player.ExtensionSettings
-					}, true);
+				// Sync the deletion using the native modern function
+				if (typeof globalWindow.ServerPlayerExtensionSettingsSync === "function") {
+					globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
 				}
 			}
 
