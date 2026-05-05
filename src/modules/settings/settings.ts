@@ -74,12 +74,26 @@ export class Settings extends CRABS_Base {
 	}
 
 	private async syncFromServer(): Promise<void> {
-		// Abort sync if user opted out
 		if (this.data.localOnlyMode) return;
 
 		try {
-			const sdk = this.CRABS as any;
-			const serverData = await sdk.loadData();
+			const globalWindow = window as any;
+			const player = globalWindow.Player;
+
+			// If the player or their extension settings don't exist yet, abort
+			if (!player || !player.ExtensionSettings || !player.ExtensionSettings.CRABS) {
+				return;
+			}
+
+			// Extract and parse our specific CRABS data from the global BC object
+			const rawServerData = player.ExtensionSettings.CRABS;
+			let serverData = null;
+
+			if (typeof rawServerData === "string") {
+				serverData = JSON.parse(rawServerData);
+			} else if (typeof rawServerData === "object") {
+				serverData = rawServerData; // Just in case another mod parsed it already
+			}
 
 			if (serverData) {
 				const serverTime = serverData.lastSaved || 0;
@@ -97,7 +111,7 @@ export class Settings extends CRABS_Base {
 				}
 			}
 		} catch (e) {
-			console.warn("CRABS: Failed to sync settings from server", e);
+			console.warn("CRABS: Failed to parse sync settings from server", e);
 		}
 	}
 
@@ -105,38 +119,55 @@ export class Settings extends CRABS_Base {
 		// Stamp the data with current time before saving
 		this.data.lastSaved = Date.now();
 
-		// Always save the full object to local storage for fast loading
+		// Always save the full object to local storage
 		localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
 		// Save to BC server if not opted out
 		if (!this.data.localOnlyMode) {
-			const sdk = this.CRABS as any;
-
-			// --- PAYLOAD OPTIMIZATION ---
-			// Create an empty payload and give it the current timestamp
 			const serverPayload: any = { lastSaved: this.data.lastSaved };
 
-			// Loop through current data
 			for (const key of Object.keys(this.data)) {
 				if (key === 'lastSaved') continue;
-
-				// If the setting is different from the default, add it to the payload
 				if (this.data[key] !== DEFAULT_SETTINGS[key]) {
 					serverPayload[key] = this.data[key];
 				}
 			}
 
-			// Send the minimized payload to the server
-			sdk.saveData(serverPayload);
+			const globalWindow = window as any;
+			const player = globalWindow.Player;
+
+			if (player) {
+				// Ensure the extension settings object exists
+				if (!player.ExtensionSettings) player.ExtensionSettings = {};
+
+				// Attach our minimized payload as a JSON string
+				player.ExtensionSettings.CRABS = JSON.stringify(serverPayload);
+
+				// Tell the Bondage Club server to sync the player's account data
+				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
+					globalWindow.ServerAccountUpdate.QueueData({
+						ExtensionSettings: player.ExtensionSettings
+					});
+				}
+			}
 		}
 	}
 
 	private deleteServerData(): void {
 		try {
-			const sdk = this.CRABS as any;
+			const globalWindow = window as any;
+			const player = globalWindow.Player;
 
-			// Pushing an empty object effectively clears the mod's server data
-			sdk.saveData({});
+			// Remove CRABS data from the game's memory and push to server
+			if (player && player.ExtensionSettings && player.ExtensionSettings.CRABS) {
+				delete player.ExtensionSettings.CRABS;
+
+				if (typeof globalWindow.ServerAccountUpdate?.QueueData === "function") {
+					globalWindow.ServerAccountUpdate.QueueData({
+						ExtensionSettings: player.ExtensionSettings
+					});
+				}
+			}
 
 			// Toggle Local Only mode on so it doesn't instantly resync
 			this.data.localOnlyMode = true;
@@ -145,7 +176,7 @@ export class Settings extends CRABS_Base {
 			// Refresh the UI to show the checkbox state change
 			this.layout.updateDOM(this.isMenuOpen);
 
-			(window as any).PreferenceMessage = "Server save deleted!";
+			globalWindow.PreferenceMessage = "Server save deleted!";
 		} catch (e) {
 			console.error("Failed to delete server data", e);
 			(window as any).PreferenceMessage = "Error deleting server data.";
