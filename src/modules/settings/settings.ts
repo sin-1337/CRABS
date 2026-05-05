@@ -70,7 +70,7 @@ export class Settings extends CRABS_Base {
 
 	private loadLocal(): any {
 		const saved = localStorage.getItem(this.getStorageKey());
-		return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : { ...DEFAULT_SETTINGS };
+		return saved ? this.sanitizeData(JSON.parse(saved)) : { ...DEFAULT_SETTINGS };
 	}
 
 	private async syncFromServer(): Promise<void> {
@@ -87,7 +87,7 @@ export class Settings extends CRABS_Base {
 
 				// Compare timestamps: Only overwrite if server is newer
 				if (serverTime > localTime) {
-					this.data = { ...this.data, ...serverData };
+					this.data = this.sanitizeData({ ...this.data, ...serverData });
 
 					// Backup the newer server data to local storage
 					localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
@@ -105,14 +105,72 @@ export class Settings extends CRABS_Base {
 		// Stamp the data with current time before saving
 		this.data.lastSaved = Date.now();
 
-		// Always save to local storage (Fast & Reliable)
+		// Always save the full object to local storage for fast loading
 		localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
 		// Save to BC server if not opted out
 		if (!this.data.localOnlyMode) {
 			const sdk = this.CRABS as any;
-			sdk.saveData(this.data);
+
+			// --- PAYLOAD OPTIMIZATION ---
+			// Create an empty payload and give it the current timestamp
+			const serverPayload: any = { lastSaved: this.data.lastSaved };
+
+			// Loop through current data
+			for (const key of Object.keys(this.data)) {
+				if (key === 'lastSaved') continue;
+
+				// If the setting is different from the default, add it to the payload
+				if (this.data[key] !== DEFAULT_SETTINGS[key]) {
+					serverPayload[key] = this.data[key];
+				}
+			}
+
+			// Send the minimized payload to the server
+			sdk.saveData(serverPayload);
 		}
+	}
+
+	private deleteServerData(): void {
+		try {
+			const sdk = this.CRABS as any;
+
+			// Pushing an empty object effectively clears the mod's server data
+			sdk.saveData({});
+
+			// Toggle Local Only mode on so it doesn't instantly resync
+			this.data.localOnlyMode = true;
+			localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
+
+			// Refresh the UI to show the checkbox state change
+			this.layout.updateDOM(this.isMenuOpen);
+
+			(window as any).PreferenceMessage = "Server save deleted!";
+		} catch (e) {
+			console.error("Failed to delete server data", e);
+			(window as any).PreferenceMessage = "Error deleting server data.";
+		}
+	}
+
+	/**
+	 * Strips out any ghost data from old or renamed variables
+	 */
+	private sanitizeData(loadedData: any): any {
+		const cleanData: any = { ...DEFAULT_SETTINGS };
+
+		// Only copy over keys that actually exist in the current DEFAULT_SETTINGS
+		for (const key of Object.keys(DEFAULT_SETTINGS)) {
+			if (loadedData.hasOwnProperty(key)) {
+				cleanData[key] = loadedData[key];
+			}
+		}
+
+		// Preserve the timestamp
+		if (loadedData.lastSaved) {
+			cleanData.lastSaved = loadedData.lastSaved;
+		}
+
+		return cleanData;
 	}
 
 	private exportConfig(): void {
@@ -136,7 +194,7 @@ export class Settings extends CRABS_Base {
 				// Ensure the imported config gets a fresh timestamp
 				imported.lastSaved = Date.now();
 
-				this.data = { ...DEFAULT_SETTINGS, ...imported };
+				this.data = this.sanitizeData(imported);
 				this.save();
 				this.layout.updateDOM(this.isMenuOpen);
 				(window as any).PreferenceMessage = "Config imported successfully!";
@@ -286,6 +344,7 @@ export class Settings extends CRABS_Base {
 
 		// --- CONFIG MANAGEMENT ---
 		createCheck("Config", "localOnlyMode", "Disable Cloud Sync", "If checked, settings are only saved to this browser and will not sync across your devices.");
+		createButton("Config", "Delete Server Save", "Wipes your CRABS settings from the game server.", () => this.deleteServerData());
 		createButton("Config", "Export to Clipboard", "Copy your settings string to share or backup.", () => this.exportConfig());
 		createButton("Config", "Import from Clipboard", "Paste a settings string to overwrite current config.", () => this.importConfig());
 	}
