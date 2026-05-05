@@ -1,5 +1,6 @@
 // src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
+import { Notification } from "../notifications";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { CheckboxWidget, InputWidget, ButtonWidget, TextLabelWidget, TextAreaWidget } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
@@ -162,7 +163,7 @@ export class Settings extends CRABS_Base {
 				if (!player.ExtensionSettings) player.ExtensionSettings = {};
 
 				// Set to an empty string instead of using 'delete'. 
-				// This clears the data on the server without triggering the 'undefined' crash.
+				// This clears the data on the server without triggering the WCE 'undefined' crash.
 				player.ExtensionSettings.CRABS = "";
 
 				// Sync the cleared data using the native modern function
@@ -185,13 +186,13 @@ export class Settings extends CRABS_Base {
 			this.layout.updateDOM(this.isMenuOpen);
 
 			// Success notification
-			globalWindow.PreferenceMessage = "Server save successfully cleared!";
+			Notification.send({ message: "Server save successfully cleared!" });
 		} catch (e: any) {
 			console.error("Failed to delete server data", e);
 
 			// Print the specific error message to the game's notification system
 			const errorMessage = e instanceof Error ? e.message : "Unknown error";
-			globalWindow.PreferenceMessage = `Clear failed: ${errorMessage}`;
+			Notification.send({ message: `Clear failed: ${errorMessage}`, title: "CRABS Error" });
 		}
 	}
 
@@ -221,30 +222,43 @@ export class Settings extends CRABS_Base {
 			const str = JSON.stringify(this.data);
 			const encoded = btoa(str);
 			navigator.clipboard.writeText(encoded);
-			(window as any).PreferenceMessage = "Config copied to clipboard!";
+
+			Notification.send({ message: "Config copied to clipboard!" });
 		} catch (e) {
 			console.error("Export failed", e);
+			Notification.send({ message: "Failed to copy config to clipboard.", title: "CRABS Error" });
 		}
 	}
 
-	private async importConfig(): Promise<void> {
+	private importConfig(): void {
+		const globalWindow = window as any;
+
 		try {
-			const text = await navigator.clipboard.readText();
+			// Ask the user to paste the string manually to bypass browser clipboard blocks
+			const text = globalWindow.prompt("Paste your CRABS settings string here:", "");
+
+			// If they clicked Cancel or left it empty, abort gracefully
+			if (!text) return;
+
 			const decoded = atob(text);
 			const imported = JSON.parse(decoded);
 
 			if (typeof imported === 'object' && 'showBanner' in imported) {
-				// Ensure the imported config gets a fresh timestamp
+				// Ensure the imported config gets a fresh timestamp so the server accepts it
 				imported.lastSaved = Date.now();
 
+				// Sanitize to strip any ghost data before applying
 				this.data = this.sanitizeData(imported);
 				this.save();
 				this.layout.updateDOM(this.isMenuOpen);
-				(window as any).PreferenceMessage = "Config imported successfully!";
+
+				Notification.send({ message: "Config imported successfully!" });
+			} else {
+				Notification.send({ message: "Import failed. Unrecognized settings format.", title: "CRABS Error" });
 			}
 		} catch (e) {
-			(window as any).PreferenceMessage = "Import failed. Invalid format.";
 			console.error("Import failed", e);
+			Notification.send({ message: "Import failed. Invalid or corrupted string.", title: "CRABS Error" });
 		}
 	}
 

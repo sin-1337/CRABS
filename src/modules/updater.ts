@@ -54,7 +54,6 @@ export class Updater extends CRABS_Base {
 
 	/**
 	 * Fetches the remote package.json and prompts the user if a newer version exists.
-	 * Aborts silently if the user has disabled update checking or already saw the notification.
 	 */
 	private async checkForUpdates(): Promise<void> {
 		// Obey user preferences
@@ -64,32 +63,33 @@ export class Updater extends CRABS_Base {
 		}
 
 		try {
-			// Append a timestamp query to bust the browser cache
 			const response = await fetch(`${this.versionUrl}?t=${Date.now()}`);
 			if (!response.ok) return;
 
 			const data = await response.json();
 			const remoteVersion = data.version;
 
-			// If we've already notified the user about this exact version, stay silent and stop checking
-			if (localStorage.getItem(this.STORAGE_KEY) === remoteVersion) {
-				this.stopPolling();
-				return;
-			}
-
+			// If the remote version is newer than our CURRENT local version
 			if (this.isNewerVersion(this.currentVersion, remoteVersion)) {
-				// Save this version to storage so we never bother them about it again
-				localStorage.setItem(this.STORAGE_KEY, remoteVersion);
 
-				this.promptUserToUpdate(remoteVersion);
-				this.stopPolling();
+				// Only notify if we haven't already warned them about THIS specific remote version
+				if (localStorage.getItem(this.STORAGE_KEY) !== remoteVersion) {
+					localStorage.setItem(this.STORAGE_KEY, remoteVersion);
+
+					// Clear any old update notifications before showing the new one
+					Notification.dismiss("Update");
+					this.promptUserToUpdate(remoteVersion);
+				}
+
+				// Note: We no longer call stopPolling() here. 
+				// We keep the interval alive to catch "hotfixes" (e.g., v1.0.1 -> v1.0.2)
 			} else {
-				// Clean up the storage key if they are fully up-to-date
+				// If they updated or the remote is older/same, clean up
 				localStorage.removeItem(this.STORAGE_KEY);
 			}
 
 		} catch (error) {
-			if (CRABS_Base.debugMode) console.error(`CRABS Updater failed to fetch from ${this.branch}:`, error);
+			if (CRABS_Base.debugMode) console.error(`CRABS Updater failed:`, error);
 		}
 	}
 
@@ -130,7 +130,8 @@ export class Updater extends CRABS_Base {
 		Notification.send({
 			title: `🦀 CRABS Update Available!`,
 			message: `Version ${newVersion} (${this.branch}) is out! (You are on ${this.currentVersion}). Refresh your page to apply the update.`,
-			duration: 86400000 // 24 hours: Effectively indefinite until the user dismisses it
+			duration: 86400000, // 24 hours: Effectively indefinite until the user dismisses it
+			type: "Update"
 		});
 
 		if (typeof ChatRoomSendLocal === "function") {
