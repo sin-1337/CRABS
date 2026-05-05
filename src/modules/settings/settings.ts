@@ -56,13 +56,22 @@ export class Settings extends CRABS_Base {
 		window.addEventListener("wheel", this.handleWheel.bind(this), { passive: false });
 	}
 
+	private getCharacterStorageKey(): string {
+		const memberNumber = (window as any).Player?.MemberNumber;
+		// Fallback to the global key if not logged in, 
+		// otherwise scope it to the member number
+		return memberNumber ? `CRABS_Settings_${memberNumber}` : "CRABS_Settings";
+	}
+
 	private load(): any {
-		const saved = localStorage.getItem(this.STORAGE_KEY);
+		const key = this.getCharacterStorageKey();
+		const saved = localStorage.getItem(key);
 		return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : { ...DEFAULT_SETTINGS };
 	}
 
 	public save(): void {
-		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
+		const key = this.getCharacterStorageKey();
+		localStorage.setItem(key, JSON.stringify(this.data));
 	}
 
 	private isRestricted(): boolean { return (window as any).Player?.IsRestrained?.() || false; }
