@@ -26,8 +26,20 @@ export class ChatManager extends CRABS_Base {
 
 			if (nameElement) {
 				const messageElement = nameElement.closest(".ChatMessage") as HTMLElement;
-				if (messageElement && messageElement.dataset.sender) {
-					const memberNumber = parseInt(messageElement.dataset.sender, 10);
+				if (messageElement) {
+					// Determine the correct ID to highlight
+					const senderID = parseInt(messageElement.dataset.sender || "", 10);
+					const targetID = parseInt(messageElement.dataset.target || "", 10);
+					const isWhisper = messageElement.classList.contains("ChatMessageWhisper");
+
+					const player = (window as any).Player;
+					let memberNumber = senderID;
+
+					// Logic Fix: If it's a whisper and WE sent it, highlight the target instead
+					if (isWhisper && senderID === player.MemberNumber && !isNaN(targetID)) {
+						memberNumber = targetID;
+					}
+
 					if (!isNaN(memberNumber) && this.chatLogHoveredPlayer !== memberNumber) {
 						this.chatLogHoveredPlayer = memberNumber;
 						if (this.roster) {
