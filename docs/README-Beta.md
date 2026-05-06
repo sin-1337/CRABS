@@ -25,9 +25,9 @@
 
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:
-` ` `javascript
+```javascript
 javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Beta/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
-` ` `
+```
 *(Note: Remove spaces between backticks when copying)*
 Click the bookmark while on the Bondage Club page to load the mod.
 
