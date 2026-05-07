@@ -61,33 +61,42 @@ export abstract class CRABS_Base {
 	 * Applies temporary fixes for future base-game updates.
 	 * Automatically alerts the developer when the fix is no longer needed.
 	 */
-	private applyTemporaryPolyfills(targetFunction: string): void {
+	private applyTemporaryPolyfills(targetFunction: string, args: any[]): void {
 		const globalWindow = window as any;
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-			case "ChatRoomCharacterViewDraw":
-				if (globalWindow.ChatRoomData) {
+				if (globalWindow.ChatRoomData && typeof globalWindow.ChatRoomData.Display === "undefined") {
+					globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
 
-					// IF MISSING: The game/SDK is still broken. Apply the temporary shield.
-					if (typeof globalWindow.ChatRoomData.Display === "undefined") {
-						globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
-					}
-
-					// IF PRESENT: The game/SDK has updated! Our shield is obsolete.
-					else if (!this.obsoletePolyfills.has("ChatRoomData_Display")) {
+					if (!this.obsoletePolyfills.has("ChatRoomData_Display")) {
 						this.obsoletePolyfills.add("ChatRoomData_Display");
-
-						// Print a loud, neon-green console warning so you don't miss it
-						console.warn(
-							"%c[CRABS MAINTENANCE] The polyfill for 'ChatRoomData.Display' is no longer needed! The upstream mod SDK has updated. You can safely delete this code block.",
-							"color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;"
-						);
+						console.warn("%c[CRABS MAINTENANCE] Polyfill for 'ChatRoomData.Display' is obsolete.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
 					}
 				}
 				break;
 
-			// Future temporary patches go here...
+			case "ChatRoomCharacterViewDraw":
+				// If another mod stripped the arguments, args[0] will be undefined.
+				if (args.length === 0 || typeof args[0] === "undefined") {
+					// Grab the safely polyfilled global data, or a hard fallback
+					const fallback = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
+						? globalWindow.ChatRoomData.Display
+						: { SizeMode: "stretch" };
+
+					// Inject the missing argument back into the pipeline
+					if (args.length === 0) {
+						args.push(fallback);
+					} else {
+						args[0] = fallback;
+					}
+
+					if (!this.obsoletePolyfills.has("ChatRoomCharacterViewDraw_Args")) {
+						this.obsoletePolyfills.add("ChatRoomCharacterViewDraw_Args");
+						console.warn("%c[CRABS MAINTENANCE] Polyfill for 'ChatRoomCharacterViewDraw' args is obsolete.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
+					}
+				}
+				break;
 		}
 	}
 
@@ -108,7 +117,7 @@ export abstract class CRABS_Base {
 			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
 
 				// Apply temporary shields. If they are obsolete, it will yell at you in the console.
-				this.applyTemporaryPolyfills(targetFunction);
+				this.applyTemporaryPolyfills(targetFunction, args);
 
 				// Check Circuit Breaker
 				if (this.disabledHooks.has(targetFunction)) {
