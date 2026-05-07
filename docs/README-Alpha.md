@@ -26,7 +26,7 @@
 ### Bookmarklet
 Alternatively, you may add the following as a bookmark URL:
 ```javascript
-javascript:(()=>{fetch('https://sin-1337.github.io/CRABS/Alpha/bundle.js').then(r=>r.text()).then(r=>eval(r));})();
+javascript:(()=>{fetch('[https://sin-1337.github.io/CRABS/Alpha/bundle.js](https://sin-1337.github.io/CRABS/Alpha/bundle.js)').then(r=>r.text()).then(r=>eval(r));})();
 ```
 *(Note: Remove spaces between backticks when copying)*
 Click the bookmark while on the Bondage Club page to load the mod.
@@ -37,17 +37,26 @@ Click the bookmark while on the Bondage Club page to load the mod.
 
 ### 🗄️ Interactive Side Drawer
 A sleek, stowable roster interface that provides rapid access to mod features without obstructing your main view. 
+* Fully event-driven backend for real-time status updates without lagging your game.
 * Automatically adjusts roster content seamlessly when moving between map and non-map areas in hybrid rooms.
-* Auto-hides when focusing on characters or typing in chat (configurable).
 * **Live Sorting:** Use the dropdown to instantly sort players by Room Role, D/s Family Tree, Lovers, or Friends.
 
-### 🧭 Map Compass
-Easily locate players in large map rooms.
-* **Hover:** Hover over a player's Name or ID to display a temporary directional arrow on the map.
-* **Sticky Tracking:** Mobile/Drawer users can tap the Compass Icon on a player's card to lock the compass to them! Tracking is mutually exclusive and auto-clears when the drawer is stowed.
+### 🧭 Universal Compass & Focus
+Easily locate players in large map rooms *and* standard chat rooms!
+* Hovering over a player's card, chat log name, or their actual character reveals a spinning 3D indicator and a pulsing halo glow.
+* **Sticky Tracking:** Mobile/Drawer users can tap the Compass Icon on a player's card to lock the compass to them! Auto-clears when the drawer is stowed.
+
+### 🔔 Chat Highlighting
+Get alerted when you're spoken to. Highlights messages containing your name or custom words. Includes dynamic color matching, auto-capitalization, and custom exclusion phrases to prevent false positives.
+
+### 🛡️ Privacy Mode
+A customizable "boss key" that instantly blanks the character screen or the full game window. Toggle via a dedicated keybind (Default: `CTRL + ALT + B`).
+
+### ☁️ Cloud Sync
+Safely backup and sync your CRABS settings across devices via the game server, or toggle "local-only" mode to keep your data strictly on your current browser.
 
 ### ⚡ Smart Performance Scaling
-CRABS actively monitors your game's true frame delta (ignoring manual FPS caps) to detect lag. If performance dips consistently, it dynamically disables the animated logo, reduces blur quality, and lowers update rates to keep your game running smoothly.
+CRABS actively monitors your game's true frame delta. If performance dips consistently, it dynamically disables the animated logo, reduces blur quality, and lowers update rates to save your FPS during lag spikes.
 
 ### 👁️ Immersive Blindness & Gags
 Dynamic interface adjustments that reflect your character's sensory state.
@@ -60,7 +69,7 @@ Dynamic interface adjustments that reflect your character's sensory state.
 Automatically detects dark or muddy player name colors and applies a high-contrast pastel outline to ensure readability on dark backgrounds.
 
 ### 📝 Whisper+
-Send a Whisper across the map at any distance!
+Send a Whisper across the map at any distance! Automatically attempts to elevate to a standard "beep" if a friend leaves the room before you hit send.
 
 ### 🤝 Cross-Mod Compatibility
 CRABS is designed to work seamlessly with other popular Bondage Club enhancements:
@@ -85,49 +94,77 @@ CRABS is designed to work seamlessly with other popular Bondage Club enhancement
 
 ## 🖱️ Interactions & Navigation
 
+* **Keyboard Shortcuts:** Use `CTRL + ALT + D` to toggle the drawer, and `CTRL + ALT + B` to toggle Privacy Mode.
 * **Click Badge or Name:** Opens the character's focus screen / Whisper+.
 * **Click Number (ID):** Copies the player's member number to your clipboard.
-* **Hover Name or ID:** Activates the temporary Map Compass to show the player's relative direction.
-* **Fast "Back to Chat":** Inside the CRABS settings menu, use the **Chat Bubble Icon** to instantly return to the game without spamming the back button!
+* **Reverse Hover:** Hovering a character in the game world highlights their card in the roster and applies a focus halo.
+* **Fast "Back to Chat":** Inside the CRABS settings menu, use the **Chat Bubble Icon** in the top right to instantly return to the game!
 
 ---
 
 ## ⚙️ Settings Overview
 
-Access settings via the Settings Icon in the drawer. 
+Access settings via the Settings Icon in the drawer, featuring a fully tabbed interface. 
 
 <details>
-<summary><b>Banner Settings</b> <i>(Click to expand)</i></summary>
+<summary><b>General</b> <i>(Click to expand)</i></summary>
 
-* **Show Banner on Entry:** Displays a brief information summary when joining a new room.
+* **Update Notifications:** Alerts you when to refresh for a new version.
+* **Show Banner on Entry:** Displays an info banner when joining a room.
+* **Full-Screen Privacy Mode:** Blanks the entire screen instead of just the chat side when the hotkey is used.
+* **Enable Focus Halo:** Shows a pulsing halo effect on hovered avatars.
+* **Edit Keybinds:** Shortcut to the game's keybinding menu to change your hotkeys.
 
 </details>
 
 <details>
-<summary><b>Drawer Settings</b> <i>(Click to expand)</i></summary>
+<summary><b>Drawer</b> <i>(Click to expand)</i></summary>
 
-* **Disable Drawer UI:** Turns off the sliding drawer entirely. The roster will only print directly in the chat log.
-* **/roster toggles drawer:** Typing `/roster` or `/crabs` opens the drawer instead of printing to the chat window.
-* **Hide Drawer Tab:** Removes the persistent visual tab on the side of the screen.
-* **Compact Height:** Limits the drawer to 77% of the chat window height, ensuring the chat input box remains uncovered.
-* **Auto-stow on Whisper+ / Chat:** Automatically closes the drawer after you send a message.
+* **Enable Drawer UI:** Turns the sliding drawer interface on or off.
+* **/roster toggles drawer:** Typing `/roster` or `/crabs` opens the drawer instead of printing in chat.
+* **Show Drawer Tab:** Toggles the persistent visual tab on the screen edge.
+* **Animated Tab Logo:** Toggle the drawer logo animation to save performance.
+* **Compact Height:** Limits the drawer to 77% height, keeping the chat input visible.
+* **Auto-stow Options:** Close the drawer automatically after sending a standard chat or Whisper+.
+* **Focus Follows Mouse:** Automatically switch to a player's page when hovering their card.
+* **Auto-Scroll Drawer:** The roster automatically scrolls to the character you are mousing over in the game world.
 
 </details>
 
 <details>
-<summary><b>Immersion Settings</b> <i>(Click to expand)</i></summary>
+<summary><b>Immersion</b> <i>(Click to expand)</i></summary>
 
-* **Hardcore Lock:** Prevents you from disabling active immersion settings while your character is restrained.
+* **Hardcore Lock:** Locks immersion settings ON while your character is bound.
 * **Respect Blindness / Gags:** Blurs the roster UI based on blindness and disables Whisper+ if gagged.
 * **Respect BCX Rules:** Enforces BCX rules within the CRABS interface.
 
 </details>
 
 <details>
-<summary><b>Map Settings</b> <i>(Click to expand)</i></summary>
+<summary><b>Maps</b> <i>(Click to expand)</i></summary>
 
 * **Show Map Compass:** Toggles the directional arrow feature.
-* **SuperZoom:** Unlocks the game's default map zoom limitations (CRABS will yield this feature if it detects another mod tampering with zoom limits).
+* **SuperZoom:** Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).
+
+</details>
+
+<details>
+<summary><b>Chat</b> <i>(Click to expand)</i></summary>
+
+* **Highlight Mentions:** Alerts you when specific words or your name are spoken. Customize the highlight color.
+* **Auto-Capitalize & Color Match:** Capitalizes your name and matches it to your character's label color in highlights.
+* **Custom Words & Exclusions:** Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.
+* **Chat Log Hover Links:** Hovering names in the chat log triggers the focus halo and map compass.
+* **Whisper+ Auto-elevate:** Attempts to send a Whisper+ as a standard beep if a friend leaves the room.
+
+</details>
+
+<details>
+<summary><b>Config</b> <i>(Click to expand)</i></summary>
+
+* **Disable Cloud Sync:** Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.
+* **Delete Server Save:** Wipes your CRABS settings from the game server.
+* **Export / Import:** Copy or paste your settings string to backup or share.
 
 </details>
 
