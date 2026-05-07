@@ -7,14 +7,14 @@ import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Not
 
 // register the mod
 const CRABS = bcModSDK.registerMod({
-	name: NICKNAME,
-	fullName: NAME,
-	version: VERSION,
+	name: __NICKNAME__,
+	fullName: __NAME__,
+	version: __VERSION__,
 	repository: "https://github.com/sin-1337/CRABS",
 });
 
 // print version early, so you know what version is running even if it fails.
-console.log(`CRABS v${VERSION} Loading`); // do not remove
+console.log(`CRABS v${__VERSION__} Loading`); // do not remove
 
 // Initialize all core modules
 const SETTINGS = new Settings(CRABS);
@@ -28,13 +28,13 @@ new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
 // Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
 const SETUP = new Setup(CRABS, ROSTER, BANNER);
-new Updater(CRABS, VERSION);
+new Updater(CRABS, __VERSION__);
 
 WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
 
 // print version and confirm load success in console
-console.log(`CRABS v${VERSION} Loaded`); // do not remove
+console.log(`CRABS v${__VERSION__} Loaded`); // do not remove
 
 /**
  * Validates and processes basic mod commands.
@@ -52,7 +52,7 @@ function argcheck(commandArguments: string): boolean {
 		if (HELPBUTTON) HELPBUTTON.style.display = "none";
 		return false;
 	} else if (arg === "version") {
-		ChatRoomSendLocal(`${NAME} (${NICKNAME}) <br>Version: ${VERSION}`);
+		ChatRoomSendLocal(`${__NAME__} (${__NICKNAME__}) <br>Version: ${__VERSION__}`);
 		return false;
 	} else if (arg === "banner") {
 		SETUP.drawbanner();

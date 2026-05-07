@@ -1,8 +1,9 @@
 // globals.d.ts
 declare global {
-	const NAME: string;
-	const NICKNAME: string;
-	const VERSION: string;
+	const __NAME__: string;
+	const __NICKNAME__: string;
+	const __VERSION__: string;
+	const __BRANCH__: string;
 
 	// Upgraded using the new ambient types!
 	var ChatRoomCharacter: Character[];
