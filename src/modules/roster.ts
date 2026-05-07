@@ -891,8 +891,13 @@ export class Roster extends CRABS_Base {
 			context.rotate(angle);
 
 			const rollFactor = Math.sin(now / 500);
+			const absRoll = Math.abs(rollFactor);
+			const sign = Math.sign(rollFactor) || 1;
 
-			context.scale(scale, scale * rollFactor);
+			// 1. Prevent absolute zero scale so it snaps through the middle
+			const renderScaleY = Math.max(absRoll, 0.1) * sign;
+
+			context.scale(scale, scale * renderScaleY);
 
 			context.beginPath();
 			context.moveTo(20, 0);
@@ -920,13 +925,14 @@ export class Roster extends CRABS_Base {
 
 				context.restore();
 			} else {
-				const shadowAlpha = Math.abs(rollFactor) * 0.4;
+				const shadowAlpha = absRoll * 0.4;
 				context.fillStyle = `rgba(0, 0, 0, ${shadowAlpha})`;
 				context.fill();
 			}
 
 			context.strokeStyle = isDark ? "white" : "black";
-			context.lineWidth = 1.5 / scale;
+			// 2. Thicken the outline dynamically as it flattens to create a "bulge"
+			context.lineWidth = (1.5 / scale) + ((1 - absRoll) * 2.5);
 			context.stroke();
 
 		} finally {
