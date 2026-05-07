@@ -51,9 +51,12 @@ window.CRABS_Loaded = false;
 	plugins: [
 		replace({
 			preventAssignment: true,
-			NAME: JSON.stringify("Crazy Roster Add-on By Sin"),
-			NICKNAME: JSON.stringify("CRABS"),
-			VERSION: JSON.stringify("2.1.0.237 Alpha"),
+			values: {
+				__NAME__: JSON.stringify("Crazy Roster Add-on By Sin"),
+				__NICKNAME__: JSON.stringify("CRABS"),
+				__VERSION__: JSON.stringify(BUILD_VERSION),
+				__BRANCH__: JSON.stringify(BUILD_BRANCH),
+			}
 		}),
 		progress({ clearLine: true }),
 		resolve({ browser: true }),
