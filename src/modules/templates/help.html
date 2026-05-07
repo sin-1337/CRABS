@@ -8,15 +8,23 @@
     <div class="CRABS_feature_grid">
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">🗄️ Interactive Drawer</div>
-        <div class="CRABS_help_description">A sleek, stowable roster interface. Auto-adjusts in hybrid rooms and hides when focusing characters.</div>
+        <div class="CRABS_help_description">A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">🧭 Sticky Map Compass</div>
-        <div class="CRABS_help_description">Hover names to find players, or click the {{Icon_Compass}} to track them persistently! Auto-clears when stowed.</div>
+        <div class="CRABS_feature_title">🧭 Universal Compass & Focus</div>
+        <div class="CRABS_help_description">Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">🔔 Chat Highlighting</div>
+        <div class="CRABS_help_description">Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">🛡️ Privacy Mode</div>
+        <div class="CRABS_help_description">A customizable "boss key" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).</div>
       </div>
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">⚡ Smart Performance</div>
-        <div class="CRABS_help_description">Monitors true frame delta to detect lag. Dynamically lowers visual quality and update rates to save your FPS.</div>
+        <div class="CRABS_help_description">Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.</div>
       </div>
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">👁️ Immersive Blindness</div>
@@ -28,7 +36,7 @@
       </div>
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">💬 Whisper+</div>
-        <div class="CRABS_help_description">Allows you to send a whisper in map rooms at any distance, bypassing default range restrictions.</div>
+        <div class="CRABS_help_description">Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send.</div>
       </div>
     </div>
   </div>
@@ -68,6 +76,8 @@
       <li><b>Click Player's Name:</b> Start a Whisper+ message.</li>
       <li><b>Click Number (ID):</b> Copies the player's member number to your clipboard.</li>
       <li><b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.</li>
+      <li><b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.</li>
+      <li><b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode.</li>
     </ul>
   </div>
   <div class="CRABS_help_section">
@@ -100,32 +110,35 @@
   <div class="CRABS_help_section" style="border-bottom: none;">
     <div class="CRABS_help_header">⚙️ Settings Detailed Overview</div>
     <div class="CRABS_help_description" style="margin-bottom: 1rem;">
-      Access settings via the {{Icon_Settings}} icon in the drawer. <b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right of the settings screen to instantly return to the game.
+      Access settings via the {{Icon_Settings}} icon in the drawer, now featuring a fully <b>tabbed interface</b>. <br>
+      <b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right to instantly return to the game.
     </div>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Banner</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Config & Sync</div>
     <ul class="CRABS_help_list">
-      <li><b>Show Banner on Entry:</b> Displays a brief information summary when joining a new room.</li>
+      <li><b>Cloud Sync:</b> Push your CRABS settings to the server to share across devices, or keep them strictly local.</li>
+      <li><b>Export/Import:</b> Easily copy your settings to the clipboard to back them up or share them.</li>
+      <li><b>Restore Defaults:</b> Reset all settings to their original state (includes a confirmation prompt).</li>
+      <li><b>Update Notifications:</b> Toggle alerts that let you know when to refresh for a new version.</li>
     </ul>
     <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Drawer</div>
     <ul class="CRABS_help_list">
       <li><b>Disable Drawer UI:</b> Turns off the sliding drawer entirely. The roster will only print directly in the chat log.</li>
       <li><b>/roster toggles drawer:</b> Typing <span class="CRABS_help_command">/roster</span> or <span class="CRABS_help_command">/crabs</span> opens the drawer instead of printing to the chat window.</li>
-      <li><b>Hide Drawer Tab:</b> Removes the persistent visual tab on the side of the screen. (Requires commands to open the drawer).</li>
-      <li><b>Compact Height:</b> Limits the drawer to 77% of the chat window height, ensuring the chat input box remains uncovered.</li>
-      <li><b>Auto-stow on Whisper+:</b> Automatically closes the drawer after you send a Whisper+ message.</li>
-      <li><b>Auto-stow on Chat:</b> Automatically closes the drawer when you send a standard chat message.</li>
+      <li><b>Hide Drawer Tab:</b> Removes the persistent visual tab on the side of the screen.</li>
+      <li><b>Static Logo:</b> Disables the animated logo in the drawer to save performance.</li>
+      <li><b>Auto-stow Options:</b> Automatically close the drawer after sending a chat or Whisper+ message.</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Immersion</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Chat & Highlights</div>
     <ul class="CRABS_help_list">
-      <li><b>Hardcore Lock:</b> Prevents you from disabling active immersion settings while your character is restrained.</li>
-      <li><b>Respect Blindness:</b> Blurs the roster UI based on your character's current blindness level.</li>
-      <li><b>Respect Gags:</b> Disables the Whisper+ system if your character is gagged.</li>
-      <li><b>Respect BCX Rules:</b> Enforces BCX rules (such as "Full Blind" or specific whisper restrictions) within the CRABS interface.</li>
+      <li><b>Name/Word Highlights:</b> Get alerted when specific words are spoken. Customize the highlight color.</li>
+      <li><b>Exclusion Phrases:</b> Set specific phrases (e.g., "pick* a rose") to prevent false positive highlights.</li>
+      <li><b>Auto-Capitalize:</b> Automatically capitalizes your name when detected in chat.</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Maps</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Immersion & Maps</div>
     <ul class="CRABS_help_list">
-      <li><b>Show Map Compass:</b> Toggle the Compass feature which displays a directional arrow on the map pointing toward tracked player.</li>
-      <li><b>SuperZoom:</b> Unlocks the game's default map zoom limitations. CRABS will disable this feature if we detect that another mod or script is tampering with it.</li>
+      <li><b>Hardcore Lock & Respect BCX:</b> Prevents UI cheating by enforcing blindness, gags, and BCX rules.</li>
+      <li><b>Compass & Focus Follows Mouse:</b> Automatically switch to a player's page when clicking their card. Enable the 3D spinning indicator in standard rooms.</li>
+      <li><b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).</li>
     </ul>
   </div>
 </div>

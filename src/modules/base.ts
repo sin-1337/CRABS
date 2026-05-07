@@ -60,12 +60,12 @@ export abstract class CRABS_Base {
 	/**
 	 * Applies temporary fixes for future base-game updates.
 	 */
-	private applyTemporaryPolyfills(targetFunction: string, args: any[]): void {
+	private applyTemporaryPolyfills(targetFunction: string, _args: any[]): void {
 		const globalWindow = window as any;
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-				// FIX: Base game expects ChatRoomData.Custom to exist.
+				// Base game expects ChatRoomData.Custom to exist.
 				// Outdated mods strip it, so we rebuild it before the engine reads it.
 				if (globalWindow.ChatRoomData && !globalWindow.ChatRoomData.Custom) {
 					globalWindow.ChatRoomData.Custom = { SizeMode: 0 };
