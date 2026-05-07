@@ -2,23 +2,31 @@
 
 All notable changes to the Crazy Roster Add-on By Sin (CRABS) will be documented in this file.
 
-## [2.1] - Feature release!
-### Added
-- **Improved Drawer**: CRABS Drawer is now more reactive to change, Status icons, Room name, Player name, relationships all dynamically update now!
-The backend switched from a polling strategy to an event driven one! This should allow CRABS to be more performant!
-- **Update Notifications**: CRABS can now notify you if there is an update and let you know to refresh, you can turn this off in settings.
-- **Optional Static Logo**: You can disable the animated logo on the drawer now, making it static.
-- **Player Focus Indicators**: The compass feature comes to normal rooms! Now you can mouse over a player card, and you'll get an indicator in the room for which player you are on. You can also click the card or turn on focus follows mouse to switch to the page the player is on automatically!
-- **Animations**: Player cards have been given a new animation to indicate the one with focus!
-- **Performance Throttle Enhancments**: CRABS performance throttling has been enhanced to disable some animations when frame delta lag is detected.
-- **Settings Page Updated**: Settings page has been overhauled to add scrolling for more options, and it arranges them by hierarchy! Hopefully this makes the options less confusing!
+## [2.1] - Event-Driven & Immersion Overhaul
+This version introduces a completely rewritten event-driven backend, robust chat highlighting, cloud settings synchronization, and major quality-of-life enhancements for normal rooms.
 
-## [2.0.1] - Clean up and Bug Fix
+### Added
+- **Chat Highlighting**: Get alerted when your name or custom words are spoken, featuring color matching, auto-capitalization, and custom exclusion phrases to prevent false positives.
+- **Privacy Mode**: A customizable "boss key" (Default: CTRL + ALT + B) to instantly blank the character screen or the full game window.
+- **Cloud Sync & Config Management**: Push settings to the server to share across devices, export/import configs via clipboard, or toggle a strictly "local-only" mode.
+- **Universal Compass & Focus**: The 3D spinning map indicator and card focusing now fully function in standard rooms by hovering over cards or chat log names.
+- **Focus Halo & Reverse Hover**: Hovering characters in the game world highlights their roster card (and vice versa) with a new pulsing halo effect that tracks character height and pose.
+- **Tabbed Settings UI**: Completely redesigned the settings page to use an intuitive tabbed layout, including a new "Restore Defaults" button.
+- **Whisper+ Auto-Elevate**: Automatically attempts to send a standard beep if a target friend leaves the room before you finish typing a Whisper+.
+- **Update Notifications**: Optional alerts that notify you when it is time to refresh for a new version of CRABS.
+
+### Changed
+- **Event-Driven Backend**: Switched from a polling strategy to a highly performant event-driven architecture.
+- **Dynamic Roster**: The drawer now reacts instantly to status icons, room names, player names, and relationship updates without lagging the game.
+- **Drawer Customization**: Added options to auto-stow the drawer after chatting, disable the roster's auto-scroll, and disable the animated tab logo to save performance.
+- **Dependency Update**: Pruned deprecated dependencies and updated core libraries to ensure best security practices and a leaner footprint.
+
 ### Fixed
-- Fixed bug where Gag, Deaf, Blind, didn't update in the drawer when those status changed.,
-- Fixed the same bug for the relationship icons.,
-- Fixed bug where if the settings were accessed outside of a chatroom the "back to chat" button would cause a crash.,
-- Fixed bug where the banner would reprint if the room name was updated.
+- **BC R128 Compatibility**: Proactively patched to bridge compatibility with major underlying game engine changes in upcoming Bondage Club releases.
+- **Scroll Hijacking**: Resolved a major bug where the inline roster would cause erratic scrolling behavior in the main chat log.
+- **Map Compass Reliability**: Fixed edge cases where the compass failed to draw on maps, specifically for FUSAM-loaded accounts.
+- **Storage Safety Limits**: Implemented safety checks and truncation logic to prevent server storage bloat if custom highlight lists exceed 8KB.
+- **Superzoom toggle**: Resolved a bug that required you to refresh before Superzoom would take effect.
 
 ## [2.0] - Rave
 This version introduces significant architectural improvements, dynamic performance scaling, and a brand new stowable UI.
