@@ -70,23 +70,48 @@ export abstract class CRABS_Base {
 		try {
 			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
 
-				// THE BAILOUT: If it crashed before, skip CRABS and run the base game instantly
+				// Check Circuit Breaker
 				if (this.disabledHooks.has(targetFunction)) {
 					return next(args);
 				}
 
+				let nextWasCalled = false;
+				let baseGameCrashed = false;
+
+				// Create a tracked wrapper for the 'next' function
+				const trackedNext = (nextArgs: any[]) => {
+					nextWasCalled = true;
+					try {
+						return next(nextArgs);
+					} catch (baseGameError) {
+						baseGameCrashed = true;
+						throw baseGameError; // Rethrow so the browser logs the REAL base game error
+					}
+				};
+
+				// Execute the mod logic
 				try {
-					return callback(args, next);
-				} catch (execError) {
-					// TRIP THE CIRCUIT BREAKER
+					return callback(args, trackedNext);
+				} catch (crabsError) {
+					// Did the error originate inside next()?
+					if (baseGameCrashed) {
+						// The base game (or another mod) crashed. Not our fault.
+						throw crabsError;
+					}
+
+					// If we reach here, CRABS logic crashed BEFORE or AFTER next() safely executed.
 					this.disabledHooks.add(targetFunction);
+					console.error(`[CRABS] Internal crash in '${targetFunction}'. Feature disabled to protect the game.`, crabsError);
 
-					console.error(`[CRABS] Hook '${targetFunction}' crashed. Disabling this feature to protect the game.`, execError);
-					// Note: Assuming 'Notification' is available in scope
-					Notification.send({ message: `CRABS feature disabled: ${targetFunction} failed.`, title: "Crabs Error", duration: 5000 });
+					if (typeof Notification !== "undefined") {
+						Notification.send({ message: `CRABS Feature disabled: ${targetFunction} failed.`, title: "Crabs Error" });
+					}
 
-					// Let the base game survive this current frame
-					return next(args);
+					// If CRABS crashed before calling next(), 
+					// we MUST call it now so the rest of the game continues to run.
+					if (!nextWasCalled) {
+						return next(args);
+					}
 				}
 			});
 		} catch (regError) {
