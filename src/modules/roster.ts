@@ -887,6 +887,7 @@ export class Roster extends CRABS_Base {
 
 		context.save();
 		try {
+			// 1. Base positioning (Translate & Rotate)
 			context.translate(x, y);
 			context.rotate(angle);
 
@@ -894,35 +895,37 @@ export class Roster extends CRABS_Base {
 			const absRoll = Math.abs(rollFactor);
 			const sign = Math.sign(rollFactor) || 1;
 
-			// 1. Prevent absolute zero scale so it snaps through the middle
-			const renderScaleY = Math.max(absRoll, 0.1) * sign;
+			// Prevent absolute zero so it doesn't blink out of existence
+			const renderScaleY = Math.max(absRoll, 0.15) * sign;
 
+			// 2. SAVE STATE BEFORE SQUISHING
+			context.save();
+
+			// 3. Apply the 3D squish effect
 			context.scale(scale, scale * renderScaleY);
 
+			// 4. Define the path (points are locked in with the squish)
 			context.beginPath();
 			context.moveTo(20, 0);
 			context.lineTo(-20, 15);
 			context.lineTo(-20, -15);
 			context.closePath();
 
+			// 5. Fill and apply the shine/shadow to the squished face
 			context.fillStyle = color;
 			context.fill();
 
 			if (rollFactor > 0) {
 				context.save();
 				context.clip();
-
 				const sweepX = Math.cos(now / 500) * 30;
 				context.translate(sweepX, 0);
-
 				const shineGrad = context.createLinearGradient(-10, 0, 10, 0);
 				shineGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
 				shineGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
 				shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-
 				context.fillStyle = shineGrad;
 				context.fillRect(-40, -20, 80, 40);
-
 				context.restore();
 			} else {
 				const shadowAlpha = absRoll * 0.4;
@@ -930,13 +933,21 @@ export class Roster extends CRABS_Base {
 				context.fill();
 			}
 
+			// 6. RESTORE STATE (REMOVES THE SQUISH)
+			// The canvas is back to normal proportions, but it still remembers our path!
+			context.restore();
+
+			// 7. Draw the stroke uniformly
 			context.strokeStyle = isDark ? "white" : "black";
-			// 2. Thicken the outline dynamically as it flattens to create a "bulge"
-			context.lineWidth = (1.5 / scale) + ((1 - absRoll) * 2.5);
+
+			// As absRoll approaches 0 (flat), the stroke gets thicker (bulges)
+			context.lineWidth = (1.5 * scale) + ((1 - absRoll) * 3 * scale);
+
+			// Because we un-squished the canvas, this stroke is perfectly thick on all sides
 			context.stroke();
 
 		} finally {
-			context.restore();
+			context.restore(); // Clean up base translation
 		}
 	}
 
