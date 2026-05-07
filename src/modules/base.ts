@@ -65,42 +65,15 @@ export abstract class CRABS_Base {
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-				// 1. Try to fix the data object if accessible
-				if (globalWindow.ChatRoomData && typeof globalWindow.ChatRoomData.Display === "undefined") {
-					globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
-				}
+				// FIX: Base game expects ChatRoomData.Custom to exist.
+				// Outdated mods strip it, so we rebuild it before the engine reads it.
+				if (globalWindow.ChatRoomData && !globalWindow.ChatRoomData.Custom) {
+					globalWindow.ChatRoomData.Custom = { SizeMode: 0 };
 
-				// 2. THE DIRECT NATIVE MONKEY-PATCH
-				// We must bypass 'window' because 'const' and 'let' globals don't attach to it.
-				try {
-					// @ts-ignore
-					if (typeof ChatRoomCharacterView !== "undefined" && typeof ChatRoomCharacterView.Draw === "function") {
-						// @ts-ignore
-						if (!ChatRoomCharacterView._crabsPatched) {
-							// @ts-ignore
-							const originalDraw = ChatRoomCharacterView.Draw;
-
-							// @ts-ignore
-							ChatRoomCharacterView.Draw = function (customization: any, ...drawArgs: any[]) {
-								if (!customization) {
-									customization = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
-										? globalWindow.ChatRoomData.Display
-										: { SizeMode: "stretch" };
-								}
-								return originalDraw.apply(this, [customization, ...drawArgs]);
-							};
-
-							// @ts-ignore
-							ChatRoomCharacterView._crabsPatched = true;
-
-							if (!this.obsoletePolyfills.has("ChatRoomCharacterView_NativePatch")) {
-								this.obsoletePolyfills.add("ChatRoomCharacterView_NativePatch");
-								console.warn("%c[CRABS MAINTENANCE] Native Polyfill injected directly into ChatRoomCharacterView. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
-							}
-						}
+					if (!this.obsoletePolyfills.has("ChatRoomData_Custom")) {
+						this.obsoletePolyfills.add("ChatRoomData_Custom");
+						console.warn("%c[CRABS MAINTENANCE] Polyfill injected for ChatRoomData.Custom. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
 					}
-				} catch (e) {
-					// If the variable truly doesn't exist, ignore silently.
 				}
 				break;
 		}
