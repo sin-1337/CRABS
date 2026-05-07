@@ -17,7 +17,7 @@ const packageJson = require("./package.json");
 
 // 👇 THESE ARE THE LINES YOUR DEPLOY SCRIPT UPDATES! 👇
 const BUILD_VERSION = "2.1.0.241";
-const BUILD_BRANCH = "Alpha";
+const BUILD_BRANCH = "Beta";
 
 export default {
 	input: "src/main.ts",
