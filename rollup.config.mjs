@@ -16,7 +16,7 @@ const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
 // 👇 THESE ARE THE LINES YOUR DEPLOY SCRIPT UPDATES! 👇
-const BUILD_VERSION = "2.1.0.241";
+const BUILD_VERSION = "2.1.0.242";
 const BUILD_BRANCH = "Alpha";
 
 export default {
