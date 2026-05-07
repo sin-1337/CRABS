@@ -45,6 +45,9 @@ export abstract class CRABS_Base {
 	private failedHooks: Set<string> = new Set();
 	private disabledHooks: Set<string> = new Set();
 
+	// Tracks which obsolete polyfills we've already warned you about today
+	private obsoletePolyfills: Set<string> = new Set();
+
 	/**
 	 * Creates an instance of a CRABS module.
 	 * 
@@ -52,6 +55,40 @@ export abstract class CRABS_Base {
 	 */
 	constructor(CRABS: ModSDKModAPI) {
 		this.CRABS = CRABS;
+	}
+
+	/**
+	 * Applies temporary fixes for future base-game updates.
+	 * Automatically alerts the developer when the fix is no longer needed.
+	 */
+	private applyTemporaryPolyfills(targetFunction: string): void {
+		const globalWindow = window as any;
+
+		switch (targetFunction) {
+			case "ChatRoomRun":
+			case "ChatRoomCharacterViewDraw":
+				if (globalWindow.ChatRoomData) {
+
+					// IF MISSING: The game/SDK is still broken. Apply the temporary shield.
+					if (typeof globalWindow.ChatRoomData.Display === "undefined") {
+						globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
+					}
+
+					// IF PRESENT: The game/SDK has updated! Our shield is obsolete.
+					else if (!this.obsoletePolyfills.has("ChatRoomData_Display")) {
+						this.obsoletePolyfills.add("ChatRoomData_Display");
+
+						// Print a loud, neon-green console warning so you don't miss it
+						console.warn(
+							"%c[CRABS MAINTENANCE] The polyfill for 'ChatRoomData.Display' is no longer needed! The upstream mod SDK has updated. You can safely delete this code block.",
+							"color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;"
+						);
+					}
+				}
+				break;
+
+			// Future temporary patches go here...
+		}
 	}
 
 	/**
@@ -69,6 +106,9 @@ export abstract class CRABS_Base {
 	): void {
 		try {
 			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
+
+				// Apply temporary shields. If they are obsolete, it will yell at you in the console.
+				this.applyTemporaryPolyfills(targetFunction);
 
 				// Check Circuit Breaker
 				if (this.disabledHooks.has(targetFunction)) {
