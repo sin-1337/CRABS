@@ -40,6 +40,7 @@ const DEFAULT_SETTINGS: any = {
 export class Settings extends CRABS_Base {
 	public static instance: Settings;
 	public data: any;
+	private readonly MAX_SERVER_PAYLOAD = 8000; // Safe limit for BC ExtensionSettings
 
 	private layout: LayoutEngine;
 	private registry: ConfiguredWidget[] = [];
@@ -72,6 +73,24 @@ export class Settings extends CRABS_Base {
 	private loadLocal(): any {
 		const saved = localStorage.getItem(this.getStorageKey());
 		return saved ? this.sanitizeData(JSON.parse(saved)) : { ...DEFAULT_SETTINGS };
+	}
+
+	private getCloudPayloadSize(): number {
+		if (this.data.localOnlyMode) return 0;
+
+		const serverPayload: any = { lastSaved: this.data.lastSaved || Date.now() };
+
+		for (const key of Object.keys(this.data)) {
+			if (key === 'lastSaved') continue;
+
+			// Pack exactly as it would save
+			if (this.data[key] !== DEFAULT_SETTINGS[key] && this.data[key] !== "") {
+				serverPayload[key] = this.data[key];
+			}
+		}
+
+		// JSON.stringify length represents the exact byte size of the payload
+		return JSON.stringify(serverPayload).length;
 	}
 
 	private async syncFromServer(): Promise<void> {
@@ -116,39 +135,82 @@ export class Settings extends CRABS_Base {
 		}
 	}
 
+
 	public save(): void {
-		// Stamp the data with current time before saving
 		this.data.lastSaved = Date.now();
 
-		// Always save the full object to local storage
+		// Always save the FULL data to LocalStorage
 		localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
-		// Save to BC server if not opted out
-		if (!this.data.localOnlyMode) {
-			const serverPayload: any = { lastSaved: this.data.lastSaved };
+		if (this.data.localOnlyMode) return;
 
-			for (const key of Object.keys(this.data)) {
-				if (key === 'lastSaved') continue;
-				if (this.data[key] !== DEFAULT_SETTINGS[key]) {
-					serverPayload[key] = this.data[key];
-				}
+		const serverPayload: any = { lastSaved: this.data.lastSaved };
+
+		// Parse the lists into arrays so we can pop whole items off the end
+		let words = this.data.customHighlightWords ? this.data.customHighlightWords.split(',') : [];
+		let phrases = this.data.ignorePhrases ? this.data.ignorePhrases.split('\n') : [];
+
+		// Pack the small standard settings first
+		for (const key of Object.keys(this.data)) {
+			if (key === 'lastSaved' || key === 'customHighlightWords' || key === 'ignorePhrases') continue;
+			if (this.data[key] !== DEFAULT_SETTINGS[key] && this.data[key] !== "") {
+				serverPayload[key] = this.data[key];
+			}
+		}
+
+		let wasTruncated = false;
+
+		// Dynamically measure and trim until it fits
+		while (true) {
+			const testWords = words.join(',');
+			const testPhrases = phrases.join('\n');
+
+			if (testWords !== DEFAULT_SETTINGS.customHighlightWords) serverPayload.customHighlightWords = testWords;
+			else delete serverPayload.customHighlightWords;
+
+			if (testPhrases !== DEFAULT_SETTINGS.ignorePhrases) serverPayload.ignorePhrases = testPhrases;
+			else delete serverPayload.ignorePhrases;
+
+			// Measure the exact string length the server will receive
+			const payloadSize = JSON.stringify(serverPayload).length;
+
+			if (payloadSize <= this.MAX_SERVER_PAYLOAD) {
+				break; // It fits!
 			}
 
-			const globalWindow = window as any;
-			const player = globalWindow.Player;
+			wasTruncated = true;
 
-			if (player) {
-				// Ensure the extension settings object exists
-				if (!player.ExtensionSettings) player.ExtensionSettings = {};
-
-				// Attach our minimized payload as a JSON string
-				player.ExtensionSettings.CRABS = JSON.stringify(serverPayload);
-
-				// Use the modern, WCE-approved function to sync the extension settings
-				if (typeof globalWindow.ServerPlayerExtensionSettingsSync === "function") {
-					globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
-				}
+			// Over limit: Pop the last item off whichever list is currently taking up the most characters
+			if (words.length > 0 && phrases.length > 0) {
+				if (testWords.length > testPhrases.length) words.pop();
+				else phrases.pop();
+			} else if (words.length > 0) {
+				words.pop();
+			} else if (phrases.length > 0) {
+				phrases.pop();
+			} else {
+				break; // Failsafe: Both arrays empty but still over limit
 			}
+		}
+
+		// Sync the verified payload to the server
+		const globalWindow = window as any;
+		const player = globalWindow.Player;
+
+		if (player) {
+			if (!player.ExtensionSettings) player.ExtensionSettings = {};
+			player.ExtensionSettings.CRABS = JSON.stringify(serverPayload);
+
+			if (typeof globalWindow.ServerPlayerExtensionSettingsSync === "function") {
+				globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
+			}
+		}
+
+		if (wasTruncated) {
+			Notification.send({
+				message: "Cloud Sync capacity reached. Excess words/phrases kept local only.",
+				title: "CRABS Storage"
+			});
 		}
 	}
 
@@ -403,6 +465,19 @@ export class Settings extends CRABS_Base {
 
 		// --- CONFIG MANAGEMENT ---
 		createCheck("Config", "localOnlyMode", "Disable Cloud Sync", "If checked, settings are only saved to this browser and will not sync across your devices.");
+		createLabel("Config", () => {
+			if (this.data.localOnlyMode) return "Cloud Storage: Disabled (Local Only)";
+
+			const size = this.getCloudPayloadSize();
+			const limit = this.MAX_SERVER_PAYLOAD || 8000;
+			const percent = Math.max(0, Math.min(100, Math.round((size / limit) * 100)));
+
+			let status = "🟢";
+			if (size > limit) status = "🔴 (Will truncate on save)";
+			else if (percent > 85) status = "🟡 (Nearing capacity)";
+
+			return `Cloud Storage: ${size} / ${limit} bytes [${percent}%] ${status}`;
+		}, "Shows how much server allowance is used. Exceeding this truncates lists on other devices.", 1);
 		createButton("Config", "Delete Server Save", "Wipes your CRABS settings from the game server.", () => this.deleteServerData());
 		createButton("Config", "Export to Clipboard", "Copy your settings string to share or backup.", () => this.exportConfig());
 		createButton("Config", "Import from Clipboard", "Paste a settings string to overwrite current config.", () => this.importConfig());
