@@ -136,6 +136,24 @@ export class Settings extends CRABS_Base {
 	}
 
 
+	/**
+	 * Returns the sanitized array AND a boolean indicating if anything was dropped due to length.
+	 */
+	private sanitizeList(raw: string, delimiter: string, maxItemLength: number): { items: string[], dropped: boolean } {
+		if (!raw) return { items: [], dropped: false };
+
+		const original = raw.split(delimiter)
+			.map(item => item.trim())
+			.filter(item => item.length > 0);
+
+		const valid = original.filter(item => item.length <= maxItemLength);
+
+		return {
+			items: valid,
+			dropped: original.length > valid.length
+		};
+	}
+
 	public save(): void {
 		this.data.lastSaved = Date.now();
 
@@ -146,11 +164,17 @@ export class Settings extends CRABS_Base {
 
 		const serverPayload: any = { lastSaved: this.data.lastSaved };
 
-		// Parse the lists into arrays so we can pop whole items off the end
-		let words = this.data.customHighlightWords ? this.data.customHighlightWords.split(',') : [];
-		let phrases = this.data.ignorePhrases ? this.data.ignorePhrases.split('\n') : [];
+		// Sanitize and track if gibberish was dropped
+		const wordsData = this.sanitizeList(this.data.customHighlightWords, ',', 60);
+		const phrasesData = this.sanitizeList(this.data.ignorePhrases, '\n', 250);
 
-		// Pack the small standard settings first
+		let words = wordsData.items;
+		let phrases = phrasesData.items;
+		const hadInvalidItems = wordsData.dropped || phrasesData.dropped;
+
+		let hitCapacityLimit = false;
+
+		// Pack the standard settings first
 		for (const key of Object.keys(this.data)) {
 			if (key === 'lastSaved' || key === 'customHighlightWords' || key === 'ignorePhrases') continue;
 			if (this.data[key] !== DEFAULT_SETTINGS[key] && this.data[key] !== "") {
@@ -158,27 +182,27 @@ export class Settings extends CRABS_Base {
 			}
 		}
 
-		let wasTruncated = false;
-
 		// Dynamically measure and trim until it fits
 		while (true) {
 			const testWords = words.join(',');
 			const testPhrases = phrases.join('\n');
 
-			if (testWords !== DEFAULT_SETTINGS.customHighlightWords) serverPayload.customHighlightWords = testWords;
-			else delete serverPayload.customHighlightWords;
-
-			if (testPhrases !== DEFAULT_SETTINGS.ignorePhrases) serverPayload.ignorePhrases = testPhrases;
-			else delete serverPayload.ignorePhrases;
-
-			// Measure the exact string length the server will receive
-			const payloadSize = JSON.stringify(serverPayload).length;
-
-			if (payloadSize <= this.MAX_SERVER_PAYLOAD) {
-				break; // It fits!
+			if (testWords && testWords !== DEFAULT_SETTINGS.customHighlightWords) {
+				serverPayload.customHighlightWords = testWords;
+			} else {
+				delete serverPayload.customHighlightWords;
 			}
 
-			wasTruncated = true;
+			if (testPhrases && testPhrases !== DEFAULT_SETTINGS.ignorePhrases) {
+				serverPayload.ignorePhrases = testPhrases;
+			} else {
+				delete serverPayload.ignorePhrases;
+			}
+
+			const payloadSize = JSON.stringify(serverPayload).length;
+			if (payloadSize <= this.MAX_SERVER_PAYLOAD) break;
+
+			hitCapacityLimit = true;
 
 			// Over limit: Pop the last item off whichever list is currently taking up the most characters
 			if (words.length > 0 && phrases.length > 0) {
@@ -189,11 +213,11 @@ export class Settings extends CRABS_Base {
 			} else if (phrases.length > 0) {
 				phrases.pop();
 			} else {
-				break; // Failsafe: Both arrays empty but still over limit
+				break; // Failsafe
 			}
 		}
 
-		// Sync the verified payload to the server
+		// Sync to the server
 		const globalWindow = window as any;
 		const player = globalWindow.Player;
 
@@ -206,9 +230,20 @@ export class Settings extends CRABS_Base {
 			}
 		}
 
-		if (wasTruncated) {
+		// Context-Aware User Feedback
+		if (hitCapacityLimit && hadInvalidItems) {
 			Notification.send({
-				message: "Cloud Sync capacity reached. Excess words/phrases kept local only.",
+				message: "Cloud Sync: Dropped invalid long strings AND reached 8KB storage limit. Excess kept local.",
+				title: "CRABS Storage"
+			});
+		} else if (hitCapacityLimit) {
+			Notification.send({
+				message: "Cloud Sync capacity reached (8KB). Excess words/phrases kept local only.",
+				title: "CRABS Storage"
+			});
+		} else if (hadInvalidItems) {
+			Notification.send({
+				message: "Cloud Sync: Dropped individual words/phrases that exceeded character limits. Kept local.",
 				title: "CRABS Storage"
 			});
 		}
