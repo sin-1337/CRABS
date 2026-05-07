@@ -61,17 +61,17 @@ export abstract class CRABS_Base {
 	 * Applies temporary fixes for future base-game updates.
 	 * Automatically alerts the developer when the fix is no longer needed.
 	 */
-	private applyTemporaryPolyfills(targetFunction: string, _args: any[]): void {
+	private applyTemporaryPolyfills(targetFunction: string, args: any[]): void {
 		const globalWindow = window as any;
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-				// 1. Fix the global data just in case
-				if (globalWindow.ChatRoomData && !globalWindow.ChatRoomData.Display) {
+				// Fix the global data just in case
+				if (globalWindow.ChatRoomData && typeof globalWindow.ChatRoomData.Display === "undefined") {
 					globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
 				}
 
-				// 2. THE NATIVE MONKEY-PATCH (Bypassing ModSDK)
+				// THE NATIVE MONKEY-PATCH (Bypassing ModSDK)
 				// Because the base game moved this into a namespace, we patch the object directly.
 				if (globalWindow.ChatRoomCharacterView && typeof globalWindow.ChatRoomCharacterView.Draw === "function") {
 					if (!globalWindow.ChatRoomCharacterView._crabsPatched) {
