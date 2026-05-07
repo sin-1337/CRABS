@@ -1,5 +1,5 @@
 // @ts-nocheck
-// rollup.config.js
+// rollup.config.mjs
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import typescript from "@rollup/plugin-typescript";
@@ -15,14 +15,19 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
+// 👇 THESE ARE THE LINES YOUR DEPLOY SCRIPT UPDATES! 👇
+const BUILD_VERSION = "2.1.0.239";
+const BUILD_BRANCH = "Alpha";
+
 export default {
 	input: "src/main.ts",
 	output: {
 		name: "CRABS",
-		file: "../Live/CRABS/Alpha/bundle.js",
+		// Dynamically outputs to the correct folder!
+		file: `../Live/CRABS/${BUILD_BRANCH}/bundle.js`,
 		format: 'iife',
 		sourcemap: true,
-		banner: `// Crazy Roster Add-on By Sin
+		banner: `// Crazy Roster Add-on By Sin (v${BUILD_VERSION} ${BUILD_BRANCH})
 if (typeof window.ImportBondageCollege !== "function") {
   alert("Club not detected! Please only use this while you have Club open!");
   throw "Dependency not met";
@@ -33,14 +38,6 @@ if (window.CRABS_Loaded !== undefined) {
 }
 window.CRABS_Loaded = false;
 `,
-		intro: async () => {
-			let CRABS_VERSION = packageJson.version;
-			CRABS_VERSION =
-				CRABS_VERSION.length > 0 && CRABS_VERSION[0] == "v"
-					? CRABS_VERSION
-					: "v" + CRABS_VERSION;
-			return `const CRABS_VERSION="${CRABS_VERSION}";`;
-		},
 		plugins: [
 			terser({
 				mangle: false,
