@@ -19,6 +19,27 @@ export class Setup extends CRABS_Base {
 	}
 
 	private initHooks(): void {
+		// Runs at Priority -10000 to guarantee it fires AFTER FUSAM/BCX but BEFORE the Base Game.
+		// If an older mod strips the Custom object, this reconstructs it right before the render loop.
+		this.safeHook("ChatRoomRun", -10000, (args: any[], next: (args: any[]) => any) => {
+			try {
+				// @ts-ignore: We must bypass 'window' because 'let' globals do not attach to it
+				if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
+					// @ts-ignore
+					if (!ChatRoomData.Custom) {
+						// @ts-ignore
+						ChatRoomData.Custom = { SizeMode: 0 };
+						// @ts-ignore
+					} else if (typeof ChatRoomData.Custom.SizeMode === "undefined") {
+						// @ts-ignore
+						ChatRoomData.Custom.SizeMode = 0;
+					}
+				}
+			} catch (e) { } // Failsafe
+
+			return next(args);
+		});
+
 		// Auto-stow Drawer on Chat
 		this.safeHook("ChatRoomSendChat", 10, (args, next) => {
 			const chatInput = document.getElementById("InputChat") as HTMLTextAreaElement;
