@@ -59,41 +59,48 @@ export abstract class CRABS_Base {
 
 	/**
 	 * Applies temporary fixes for future base-game updates.
-	 * Automatically alerts the developer when the fix is no longer needed.
 	 */
 	private applyTemporaryPolyfills(targetFunction: string, args: any[]): void {
 		const globalWindow = window as any;
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-				// Fix the global data just in case
+				// 1. Try to fix the data object if accessible
 				if (globalWindow.ChatRoomData && typeof globalWindow.ChatRoomData.Display === "undefined") {
 					globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
 				}
 
-				// THE NATIVE MONKEY-PATCH (Bypassing ModSDK)
-				// Because the base game moved this into a namespace, we patch the object directly.
-				if (globalWindow.ChatRoomCharacterView && typeof globalWindow.ChatRoomCharacterView.Draw === "function") {
-					if (!globalWindow.ChatRoomCharacterView._crabsPatched) {
-						const originalDraw = globalWindow.ChatRoomCharacterView.Draw;
+				// 2. THE DIRECT NATIVE MONKEY-PATCH
+				// We must bypass 'window' because 'const' and 'let' globals don't attach to it.
+				try {
+					// @ts-ignore
+					if (typeof ChatRoomCharacterView !== "undefined" && typeof ChatRoomCharacterView.Draw === "function") {
+						// @ts-ignore
+						if (!ChatRoomCharacterView._crabsPatched) {
+							// @ts-ignore
+							const originalDraw = ChatRoomCharacterView.Draw;
 
-						globalWindow.ChatRoomCharacterView.Draw = function (customization: any, ...drawArgs: any[]) {
-							// If another mod stripped the customization object, inject the fallback natively
-							if (!customization) {
-								customization = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
-									? globalWindow.ChatRoomData.Display
-									: { SizeMode: "stretch" };
+							// @ts-ignore
+							ChatRoomCharacterView.Draw = function (customization: any, ...drawArgs: any[]) {
+								if (!customization) {
+									customization = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
+										? globalWindow.ChatRoomData.Display
+										: { SizeMode: "stretch" };
+								}
+								return originalDraw.apply(this, [customization, ...drawArgs]);
+							};
+
+							// @ts-ignore
+							ChatRoomCharacterView._crabsPatched = true;
+
+							if (!this.obsoletePolyfills.has("ChatRoomCharacterView_NativePatch")) {
+								this.obsoletePolyfills.add("ChatRoomCharacterView_NativePatch");
+								console.warn("%c[CRABS MAINTENANCE] Native Polyfill injected directly into ChatRoomCharacterView. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
 							}
-							return originalDraw.apply(this, [customization, ...drawArgs]);
-						};
-
-						globalWindow.ChatRoomCharacterView._crabsPatched = true;
-
-						if (!this.obsoletePolyfills.has("ChatRoomCharacterView_NativePatch")) {
-							this.obsoletePolyfills.add("ChatRoomCharacterView_NativePatch");
-							console.warn("%c[CRABS MAINTENANCE] Native Polyfill injected for ChatRoomCharacterView.Draw. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
 						}
 					}
+				} catch (e) {
+					// If the variable truly doesn't exist, ignore silently.
 				}
 				break;
 		}
