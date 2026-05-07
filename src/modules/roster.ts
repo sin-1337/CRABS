@@ -890,17 +890,13 @@ export class Roster extends CRABS_Base {
 			context.translate(x, y);
 			context.rotate(angle);
 
-			// FIX: Force rounded joints so the sharp tip doesn't trigger the miter-limit snap
-			context.lineJoin = "round";
-			context.lineCap = "round";
-
 			const rollFactor = Math.sin(now / 500);
 			const absRoll = Math.abs(rollFactor);
 			const sign = Math.sign(rollFactor) || 1;
 
-			const renderScaleY = Math.max(absRoll, 0.15) * sign;
+			// 1. Prevent absolute zero scale so it snaps through the middle
+			const renderScaleY = Math.max(absRoll, 0.1) * sign;
 
-			context.save();
 			context.scale(scale, scale * renderScaleY);
 
 			context.beginPath();
@@ -912,19 +908,21 @@ export class Roster extends CRABS_Base {
 			context.fillStyle = color;
 			context.fill();
 
-			// FIX: Multiply the alpha by absRoll so the lighting fades in/out smoothly 
-			// instead of hard-cutting at the 0 flip.
 			if (rollFactor > 0) {
 				context.save();
 				context.clip();
+
 				const sweepX = Math.cos(now / 500) * 30;
 				context.translate(sweepX, 0);
+
 				const shineGrad = context.createLinearGradient(-10, 0, 10, 0);
 				shineGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
-				shineGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.8 * absRoll})`);
+				shineGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
 				shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
 				context.fillStyle = shineGrad;
 				context.fillRect(-40, -20, 80, 40);
+
 				context.restore();
 			} else {
 				const shadowAlpha = absRoll * 0.4;
@@ -932,17 +930,15 @@ export class Roster extends CRABS_Base {
 				context.fill();
 			}
 
-			context.restore();
-
 			context.strokeStyle = isDark ? "white" : "black";
-			context.lineWidth = (1.5 * scale) + ((1 - absRoll) * 3 * scale);
+			// 2. Thicken the outline dynamically as it flattens to create a "bulge"
+			context.lineWidth = (1.5 / scale) + ((1 - absRoll) * 2.5);
 			context.stroke();
 
 		} finally {
 			context.restore();
 		}
 	}
-
 	/**
 	 * Draws a directional arrow pointing toward the hovered player on the map.
 	 * @returns {void}
