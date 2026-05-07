@@ -61,39 +61,38 @@ export abstract class CRABS_Base {
 	 * Applies temporary fixes for future base-game updates.
 	 * Automatically alerts the developer when the fix is no longer needed.
 	 */
-	private applyTemporaryPolyfills(targetFunction: string, args: any[]): void {
+	private applyTemporaryPolyfills(targetFunction: string, _args: any[]): void {
 		const globalWindow = window as any;
 
 		switch (targetFunction) {
 			case "ChatRoomRun":
-				if (globalWindow.ChatRoomData && typeof globalWindow.ChatRoomData.Display === "undefined") {
+				// 1. Fix the global data just in case
+				if (globalWindow.ChatRoomData && !globalWindow.ChatRoomData.Display) {
 					globalWindow.ChatRoomData.Display = { SizeMode: "stretch" };
-
-					if (!this.obsoletePolyfills.has("ChatRoomData_Display")) {
-						this.obsoletePolyfills.add("ChatRoomData_Display");
-						console.warn("%c[CRABS MAINTENANCE] Polyfill for 'ChatRoomData.Display' is obsolete.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
-					}
 				}
-				break;
 
-			case "ChatRoomCharacterViewDraw":
-				// If another mod stripped the arguments, args[0] will be undefined.
-				if (args.length === 0 || typeof args[0] === "undefined") {
-					// Grab the safely polyfilled global data, or a hard fallback
-					const fallback = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
-						? globalWindow.ChatRoomData.Display
-						: { SizeMode: "stretch" };
+				// 2. THE NATIVE MONKEY-PATCH (Bypassing ModSDK)
+				// Because the base game moved this into a namespace, we patch the object directly.
+				if (globalWindow.ChatRoomCharacterView && typeof globalWindow.ChatRoomCharacterView.Draw === "function") {
+					if (!globalWindow.ChatRoomCharacterView._crabsPatched) {
+						const originalDraw = globalWindow.ChatRoomCharacterView.Draw;
 
-					// Inject the missing argument back into the pipeline
-					if (args.length === 0) {
-						args.push(fallback);
-					} else {
-						args[0] = fallback;
-					}
+						globalWindow.ChatRoomCharacterView.Draw = function (customization: any, ...drawArgs: any[]) {
+							// If another mod stripped the customization object, inject the fallback natively
+							if (!customization) {
+								customization = (globalWindow.ChatRoomData && globalWindow.ChatRoomData.Display)
+									? globalWindow.ChatRoomData.Display
+									: { SizeMode: "stretch" };
+							}
+							return originalDraw.apply(this, [customization, ...drawArgs]);
+						};
 
-					if (!this.obsoletePolyfills.has("ChatRoomCharacterViewDraw_Args")) {
-						this.obsoletePolyfills.add("ChatRoomCharacterViewDraw_Args");
-						console.warn("%c[CRABS MAINTENANCE] Polyfill for 'ChatRoomCharacterViewDraw' args is obsolete.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
+						globalWindow.ChatRoomCharacterView._crabsPatched = true;
+
+						if (!this.obsoletePolyfills.has("ChatRoomCharacterView_NativePatch")) {
+							this.obsoletePolyfills.add("ChatRoomCharacterView_NativePatch");
+							console.warn("%c[CRABS MAINTENANCE] Native Polyfill injected for ChatRoomCharacterView.Draw. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
+						}
 					}
 				}
 				break;

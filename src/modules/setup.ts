@@ -19,14 +19,6 @@ export class Setup extends CRABS_Base {
 	}
 
 	private initHooks(): void {
-		// Compatibility:
-		// Register a dummy hook at the absolute lowest priority specifically to rescue arguments 
-		// destroyed by other outdated mods before they hit the base game.
-		this.safeHook("ChatRoomCharacterViewDraw", -9999, (args: any, next: Function) => {
-			return next(args);
-		});
-		//----------------------
-
 
 		// Auto-stow Drawer on Chat
 		this.safeHook("ChatRoomSendChat", 10, (args, next) => {
