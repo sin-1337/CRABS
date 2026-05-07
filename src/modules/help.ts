@@ -28,8 +28,16 @@ export class Help extends CRABS_Base {
 	}
 
 	public showHelp(wrapper: boolean = true): string {
+		// Defaults to Stable. If "Alpha" or "Beta" aren't in the version string, it stays Stable!
+		let branchName = "Stable";
+		const versionLower = VERSION.toLowerCase();
+
+		if (versionLower.includes("alpha")) branchName = "Alpha";
+		else if (versionLower.includes("beta")) branchName = "Beta";
+
 		const templateVariables: Record<string, string> = {
 			"Version": VERSION,
+			"Branch": branchName,
 			"Logo": Assets.printimage({ key: "logo" }),
 			"Icon_You": Assets.printimage({ key: "you", css_class_override: "CRABS_help_icon_small" }),
 			"Icon_Owner": Assets.printimage({ key: "owner", css_class_override: "CRABS_help_icon_small" }),

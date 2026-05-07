@@ -20,6 +20,7 @@ This version introduces a completely rewritten event-driven backend, robust chat
 - **Dynamic Roster**: The drawer now reacts instantly to status icons, room names, player names, and relationship updates without lagging the game.
 - **Drawer Customization**: Added options to auto-stow the drawer after chatting, disable the roster's auto-scroll, and disable the animated tab logo to save performance.
 - **Dependency Update**: Pruned deprecated dependencies and updated core libraries to ensure best security practices and a leaner footprint.
+- **Animated Logo**: CRABS animated logo can be disabled and made static.
 
 ### Fixed
 - **BC R128 Compatibility**: Proactively patched to bridge compatibility with major underlying game engine changes in upcoming Bondage Club releases.
