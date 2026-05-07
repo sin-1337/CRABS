@@ -43,6 +43,7 @@ export abstract class CRABS_Base {
 
 	/** Tracks hooks that have already failed to prevent log/toast spamming. */
 	private failedHooks: Set<string> = new Set();
+	private disabledHooks: Set<string> = new Set();
 
 	/**
 	 * Creates an instance of a CRABS module.
@@ -54,40 +55,44 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-		 * Safely hooks a base-game function. 
-		 * Catches registration errors if the function is missing, and wraps the execution 
-		 * in a try/catch so mod logic failures don't crash the base game.
-		 * * @param targetFunction The name of the global game function to hook.
-		 * @param priority ModSDK priority level.
-		 * @param callback Your hook logic.
-		 */
+	 * Safely hooks a base-game function. 
+	 * Catches registration errors if the function is missing, and wraps the execution 
+	 * in a try/catch so mod logic failures don't crash the base game.
+	 * * @param targetFunction The name of the global game function to hook.
+	 * @param priority ModSDK priority level.
+	 * @param callback Your hook logic.
+	 */
 	protected safeHook(
 		targetFunction: string,
 		priority: number,
 		callback: (args: any[], next: (args: any[]) => any) => any
 	): void {
 		try {
-			// We cast to 'any' here to bypass ModSDK's strict string-literal generic constraints
 			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
+
+				// THE BAILOUT: If it crashed before, skip CRABS and run the base game instantly
+				if (this.disabledHooks.has(targetFunction)) {
+					return next(args);
+				}
+
 				try {
-					// Attempt to run our mod's custom hook logic
 					return callback(args, next);
 				} catch (execError) {
-					// EXECUTION FAILED
-					if (!this.failedHooks.has(targetFunction)) {
-						this.failedHooks.add(targetFunction);
-						console.error(`[CRABS ERROR] Execution failed in hook: '${targetFunction}'. Mod feature degraded.`, execError);
-						Notification.send({ message: `Feature degraded: ${targetFunction} failed. Check console.`, title: "Crabs Error", duration: 5000 });
-					}
-					return next(args); // CRITICALLY, call next() so the game doesn't crash!
+					// TRIP THE CIRCUIT BREAKER
+					this.disabledHooks.add(targetFunction);
+
+					console.error(`[CRABS] Hook '${targetFunction}' crashed. Disabling this feature to protect the game.`, execError);
+					// Note: Assuming 'Notification' is available in scope
+					Notification.send({ message: `CRABS feature disabled: ${targetFunction} failed.`, title: "Crabs Error", duration: 5000 });
+
+					// Let the base game survive this current frame
+					return next(args);
 				}
 			});
 		} catch (regError) {
-			// REGISTRATION FAILED
 			if (!this.failedHooks.has(targetFunction)) {
 				this.failedHooks.add(targetFunction);
-				console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'. Base game API may have changed!`, regError);
-				Notification.send({ message: `Hook missing: ${targetFunction}. Mod feature degraded.`, title: "Crabs Error", duration: 5000 });
+				console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'.`, regError);
 			}
 		}
 	}
