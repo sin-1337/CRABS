@@ -515,7 +515,7 @@ export class Settings extends CRABS_Base {
 			else if (percent > 85) status = "🟡 (Nearing capacity)";
 
 			return `Cloud Storage: ${size} / ${limit} bytes [${percent}%] ${status}`;
-		}, "Shows how much server allowance is used. Exceeding this will cause it to truncate new items form the server sync.", 1);
+		}, "Shows how much server allowance is used. Exceeding this will truncate new items form the server sync.", 1);
 		createButton("Config", "Delete Server Save", "Wipes your CRABS settings from the game server.", () => this.deleteServerData());
 		createButton("Config", "Export to Clipboard", "Copy your settings string to share or backup.", () => this.exportConfig());
 		createButton("Config", "Import from Clipboard", "Paste a settings string to overwrite current config.", () => this.importConfig());
