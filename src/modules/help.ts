@@ -29,7 +29,8 @@ export class Help extends CRABS_Base {
 
 	public showHelp(wrapper: boolean = true): string {
 		const templateVariables: Record<string, string> = {
-			"Version": VERSION,
+			"Version": `${__VERSION__} ${__BRANCH__}`.trim(),
+			"Branch": __BRANCH__,
 			"Logo": Assets.printimage({ key: "logo" }),
 			"Icon_You": Assets.printimage({ key: "you", css_class_override: "CRABS_help_icon_small" }),
 			"Icon_Owner": Assets.printimage({ key: "owner", css_class_override: "CRABS_help_icon_small" }),

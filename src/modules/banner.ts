@@ -116,7 +116,7 @@ export class Banner extends CRABS_Base {
 		};
 
 		let wrappervars = {
-			TitleBar: `${NAME}:  ${VERSION}`,
+			TitleBar: `${__NAME__}:  ${__VERSION__}`,
 			Close: Assets.printimage({
 				key: "close",
 				data: [
@@ -133,7 +133,7 @@ export class Banner extends CRABS_Base {
 			"CRABS_Banner"
 		);
 	}
-	
+
 	/**
 	 * Handles the /roster link click, respecting the rosterOpensDrawer setting.
 	 * 

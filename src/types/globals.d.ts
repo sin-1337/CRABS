@@ -1,8 +1,9 @@
 // globals.d.ts
 declare global {
-	const NAME: string;
-	const NICKNAME: string;
-	const VERSION: string;
+	const __NAME__: string;
+	const __NICKNAME__: string;
+	const __VERSION__: string;
+	const __BRANCH__: string;
 
 	// Upgraded using the new ambient types!
 	var ChatRoomCharacter: Character[];
@@ -45,6 +46,18 @@ declare global {
 		tooltip_override?: string,
 		alt_override?: string,
 		data?: [string, string]
+	};
+
+	type NotificationParams = {
+		message: string;
+		title?: string;
+		image?: Extract<keyof typeof Assets.IMAGES.image, string>;
+		duration?: number;
+	};
+
+	type ErrorNotificationParams = {
+		message: string;
+		duration?: number;
 	};
 
 	type AudioStore = {
@@ -99,20 +112,6 @@ declare global {
 	}
 
 	export type UIElement = CheckboxElement | ButtonElement | InputElement | BackNextElement;
-
-	export interface CRABS_Settings {
-		showBanner: boolean;
-		rosterOpensDrawer: boolean;
-		hideDrawerTab: boolean;
-		immersiveBlind: boolean;
-		immersiveGag: boolean;
-		respectBcxRules: boolean;
-		compactDrawer: boolean;
-		closeDrawerOnWhisper: boolean;
-		closeDrawerOnChat: boolean;
-		disableDrawer: boolean;
-		lockImmersive: boolean;
-	}
 
 	// Because of Declaration Merging, this adds `BCT` to the base game's PlayerCharacter type!
 	interface PlayerCharacter {

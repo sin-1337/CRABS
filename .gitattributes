@@ -1,1 +1,4 @@
 README.md merge=ours
+rollup.config.mjs merge=ours
+package.json merge=ours
+crabsloader.user.js merge=ours

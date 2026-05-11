@@ -42,7 +42,7 @@ export abstract class CrossMod {
 	protected static getBcxApi(): BCX_ModAPI | null {
 		if (!window.bcx) return null;
 		if (!CrossMod.bcxModApi) {
-			CrossMod.bcxModApi = window.bcx.getModApi(NICKNAME);
+			CrossMod.bcxModApi = window.bcx.getModApi(__NICKNAME__);
 		}
 		return CrossMod.bcxModApi;
 	}

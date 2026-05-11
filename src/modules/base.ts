@@ -41,6 +41,13 @@ export abstract class CRABS_Base {
 	private perfStabilityCounter: number = 0;
 	private readonly STABILITY_THRESHOLD = 60;
 
+	/** Tracks hooks that have already failed to prevent log/toast spamming. */
+	private failedHooks: Set<string> = new Set();
+	private disabledHooks: Set<string> = new Set();
+
+	// Tracks which obsolete polyfills we've already warned you about today
+	private obsoletePolyfills: Set<string> = new Set();
+
 	/**
 	 * Creates an instance of a CRABS module.
 	 * 
@@ -48,6 +55,128 @@ export abstract class CRABS_Base {
 	 */
 	constructor(CRABS: ModSDKModAPI) {
 		this.CRABS = CRABS;
+	}
+
+	/**
+	 * Safely hooks a base-game function. 
+	 * Catches registration errors if the function is missing, and wraps the execution 
+	 * in a try/catch so mod logic failures don't crash the base game.
+	 * * @param targetFunction The name of the global game function to hook.
+	 * @param priority ModSDK priority level.
+	 * @param callback Your hook logic.
+	 */
+	protected safeHook(
+		targetFunction: string,
+		priority: number,
+		callback: (args: any[], next: (args: any[]) => any) => any
+	): void {
+		try {
+			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
+
+				// Check Circuit Breaker
+				if (this.disabledHooks.has(targetFunction)) {
+					return next(args);
+				}
+
+				let nextWasCalled = false;
+				let baseGameCrashed = false;
+
+				// Create a tracked wrapper for the 'next' function
+				const trackedNext = (nextArgs: any[]) => {
+					nextWasCalled = true;
+					try {
+						return next(nextArgs);
+					} catch (baseGameError) {
+						baseGameCrashed = true;
+						throw baseGameError; // Rethrow so the browser logs the REAL base game error
+					}
+				};
+
+				// Execute the mod logic
+				try {
+					return callback(args, trackedNext);
+				} catch (crabsError) {
+					// Did the error originate inside next()?
+					if (baseGameCrashed) {
+						// The base game (or another mod) crashed. Not our fault.
+						throw crabsError;
+					}
+
+					// If we reach here, CRABS logic crashed BEFORE or AFTER next() safely executed.
+					this.disabledHooks.add(targetFunction);
+					console.error(`[CRABS] Internal crash in '${targetFunction}'. Feature disabled to protect the game.`, crabsError);
+
+					if (typeof Notification !== "undefined") {
+						Notification.send({ message: `CRABS Feature disabled: ${targetFunction} failed.`, title: "Crabs Error" });
+					}
+
+					// If CRABS crashed before calling next(), 
+					// we MUST call it now so the rest of the game continues to run.
+					if (!nextWasCalled) {
+						return next(args);
+					}
+				}
+			});
+		} catch (regError) {
+			if (!this.failedHooks.has(targetFunction)) {
+				this.failedHooks.add(targetFunction);
+				console.error(`[CRABS ERROR] Failed to register hook: '${targetFunction}'.`, regError);
+			}
+		}
+	}
+
+	/**
+	 * Registers a new keybinding with the global KeyManager. 
+	 * * If the KeyManager or the required 'always' context is not yet initialized, 
+	 * the method will retry registration every 500ms. It automatically handles 
+	 * the creation of the 'crabs' category if it does not exist.
+	 *
+	 * @param id - A unique identifier for the keybinding.
+	 * @param actionName - The display name of the action (English).
+	 * @param description - A brief description of what the keybind does (English).
+	 * @param key - The primary key for the shortcut (e.g., 'A', 'Enter').
+	 * @param actionCallback - The function to execute when the keybind is triggered. 
+	 * Should return a boolean indicating success/handled state.
+	 * @param modifiers - A set of modifier keys. Defaults to ['Ctrl', 'Alt'].
+	 * * @returns void
+	 */
+	public static registerKeybind(
+		id: string,
+		actionName: string,
+		description: string,
+		key: string,
+		actionCallback: () => boolean,
+		modifiers: Set<string> = new Set(['Ctrl', 'Alt'])
+	): void {
+		const globalWindow = window as any;
+
+		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
+			// Pass the arguments back into the timeout if it needs to wait!
+			setTimeout(() => this.registerKeybind(id, actionName, description, key, actionCallback, modifiers), 500);
+			return;
+		}
+
+		if (!globalWindow.KeyManager.getCategory('crabs')) {
+			globalWindow.KeyManager.registerCategory({
+				id: 'crabs',
+				name: { EN: 'CRABS Mod' }
+			});
+		}
+
+		Object.defineProperty(actionCallback, "name", { value: { EN: actionName } });
+
+		globalWindow.KeyManager.registerKeybinding({
+			id: id,
+			action: actionCallback,
+			description: { EN: description },
+			contextIds: [],
+			categoryId: 'crabs',
+			readonly: false,
+			defaultKeyCombo: {
+				key: key,
+				modifiers: modifiers
+			}
+		});
 	}
 
 	/**
@@ -128,7 +257,7 @@ export abstract class CRABS_Base {
 	public async copyToClipboard(data: string): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(data);
-			Notification.send(`"${data}" copied to clipboard.`)
+			Notification.send({ message: `"${data}" copied to clipboard.` })
 			// console.log("DEBUG: Text copied to clipboard: ", data);
 			return;
 		} catch (error) {
@@ -411,29 +540,16 @@ export abstract class CRABS_Base {
 	 * Call this inside your main draw/run loop.
 	 */
 	protected updatePerformanceState(): void {
-		// Get the current game timing interval (ms per frame)
 		const interval = (window as any).TimerRunInterval;
 		if (!interval || interval <= 0) return;
 
-		// Calculate current FPS and the target (capped) FPS
-		// Using 1000ms / interval gives us the frames per second
 		const actualFps = 1000 / interval;
-
-		// We assume the game is 'Healthy' if it's hitting its own target.
-		// If the game is capped at 10fps, hitting 10fps is 100% performance.
 		let targetLevel = PerformanceLevel.NORMAL;
 
-		// Performance Ratio Logic
-		// This allows us to be 'Normal' at 10fps if that's what the user chose.
-		// We only degrade if the game is struggling to keep up with its own limit.
 		if (actualFps < 10) {
-			// Hard floor: Below 10 FPS is always critical for UI usability
 			targetLevel = PerformanceLevel.CRITICAL;
 		} else if (actualFps < 25) {
-			// If the game is naturally low (30 or 15 clamp), 
-			// we check if we are significantly missing the target.
-			// A 10% drop from the cap usually indicates the CPU is choking.
-			const targetFps = (window as any).TimerLimit || 60; // Assuming 60 is default if undefined
+			const targetFps = (window as any).TimerLimit || 60;
 			const perfRatio = actualFps / targetFps;
 
 			if (perfRatio < 0.6) {
@@ -443,11 +559,13 @@ export abstract class CRABS_Base {
 			}
 		}
 
-		// Stability Logic (Your existing counter system)
 		if (targetLevel !== this.currentPerformanceLevel) {
+			// NEW: Degrade fast (5 frames), Recover slow (60 frames)
+			const threshold = (targetLevel > this.currentPerformanceLevel) ? 5 : this.STABILITY_THRESHOLD;
+
 			this.perfStabilityCounter++;
 
-			if (this.perfStabilityCounter >= this.STABILITY_THRESHOLD) {
+			if (this.perfStabilityCounter >= threshold) {
 				this.currentPerformanceLevel = targetLevel;
 				this.perfStabilityCounter = 0;
 

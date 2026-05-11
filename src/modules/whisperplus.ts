@@ -118,6 +118,26 @@ export class WhisperPlus extends CRABS_Base {
 
 			return div;
 		});
+
+		// Global delegated listener for Whisper+ clicks
+		document.addEventListener("click", (event) => {
+			const target = event.target as HTMLElement;
+			const nameElement = target.closest(".CRABS_player-name") as HTMLElement;
+
+			if (nameElement) {
+				const memberNumStr = nameElement.getAttribute("data-player-number");
+				if (memberNumStr) {
+					// Kill the event here so the Roster card doesn't jump!
+					event.stopPropagation();
+					event.preventDefault();
+
+					const memberNumber = parseInt(memberNumStr, 10);
+					if (!isNaN(memberNumber)) {
+						this.sendWhisper(memberNumber);
+					}
+				}
+			}
+		}, { capture: true });
 	}
 
 	/**
@@ -148,29 +168,35 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {{ memberNumber: number, message: string }} Parsed member number and message.
 	 */
 	private parseArguments(commandArguments: string, command: string): { memberNumber: number, message: string } {
-		// Extract member number (first part of the commandArguments)
-		const firstSpaceIndex = commandArguments.indexOf(" ");
-		let memberNumber: number;
-		let message: string;
+		let memberNumber: number = NaN;
+		let message: string = "";
 
-		if (firstSpaceIndex !== -1) {
-			// If there's a space, parse the member number from the beginning
-			const memberNumberStr = commandArguments.slice(0, firstSpaceIndex);
-			memberNumber = parseInt(memberNumberStr);
-			message = commandArguments.slice(firstSpaceIndex + 1);
-		} else {
-			// If no space, try to parse the entire commandArguments string
-			memberNumber = parseInt(commandArguments);
-			message = "";
-		}
-
-		// If parsing failed, try alternative approach using command string
-		if (isNaN(memberNumber) && command) {
+		// The raw command string retains the pristine case and spacing.
+		if (command) {
 			const commandParts = command.trim().split(/\s+/);
 			if (commandParts.length >= 2) {
 				memberNumber = parseInt(commandParts[1]);
-				message = commandParts.slice(2).join(" ");
+
+				if (!isNaN(memberNumber)) {
+					// Extract exactly what comes after the member number to preserve casing
+					const prefix = `${commandParts[0]} ${commandParts[1]} `;
+					const prefixIndex = command.indexOf(prefix);
+
+					if (prefixIndex !== -1) {
+						message = command.substring(prefixIndex + prefix.length);
+						return { memberNumber, message };
+					}
+				}
 			}
+		}
+
+		// Fallback to original logic if the raw command string is missing or malformed
+		const firstSpaceIndex = commandArguments.indexOf(" ");
+		if (firstSpaceIndex !== -1) {
+			memberNumber = parseInt(commandArguments.slice(0, firstSpaceIndex));
+			message = commandArguments.slice(firstSpaceIndex + 1);
+		} else {
+			memberNumber = parseInt(commandArguments);
 		}
 
 		return { memberNumber, message };
@@ -233,13 +259,14 @@ export class WhisperPlus extends CRABS_Base {
 			addChatMessage(formattedMsg);
 			return true;
 		} else {
-			// Add parentheses if needed for range checking
+			// Prepare the message with the +: prefix FIRST
+			formattedMsg = `+: ${formattedMsg}`;
+
+			// Add parentheses if needed for range checking AFTER prefixing
+			// We check formattedMsg[0] to ensure we don't double-wrap if the player typed "(/whisper+)"
 			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && formattedMsg[0] !== "(") {
 				formattedMsg = `(${formattedMsg})`;
 			}
-
-			// Prepare the message with the +: prefix
-			formattedMsg = `+: ${formattedMsg}`;
 
 			// Build data payload
 			const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
@@ -300,17 +327,17 @@ export class WhisperPlus extends CRABS_Base {
 	 * @returns {number} 0 indicates success, 1 is an error.
 	 */
 	public whisperplus(commandArguments: string, command: string): number {
-		// 1. Immersive Gag Check
+		// Immersive Gag Check
 		if (Settings.instance.data.immersiveGag && this.getGagLevel() > 0) {
 			if (typeof ToastManager !== "undefined") {
-				Notification.send("You cannot use Whisper+ while gagged.", "Whisper+ Blocked");
+				Notification.send({ message: "You cannot use Whisper+ while gagged.", title: "Whisper+ Blocked" });
 			} else {
 				ChatRoomSendLocal("You cannot use Whisper+ while gagged.", 10_000);
 			}
 			return 1;
 		}
 
-		// 2. BCX Rule Check: speech_restrict_whisper_send
+		// BCX Rule Check: speech_restrict_whisper_send
 		if (Settings.instance.data.respectBcxRules) {
 			const ruleState = CrossMod.getBCXRuleState("speech_restrict_whisper_send");
 			if (ruleState?.isEnforced) {
@@ -341,6 +368,49 @@ export class WhisperPlus extends CRABS_Base {
 			(character: any) => character.MemberNumber == memberNumber
 		);
 
+		// Auto-Beep Fallback: If player isn't in the room
+		if (!target) {
+			let beepFailed = false;
+
+			if (Settings.instance.data.autoBeepOnLeave) {
+				const playerWindow = (window as any).Player;
+
+				// Use a loose equality check (==) to prevent String vs Number strict mismatch failures
+				const isFriend = playerWindow.FriendList?.some((id: any) => id == memberNumber);
+				const isBestFriend = CrossMod.detectMod("BCTweaks") && playerWindow.BCT?.bctSettings?.bestFriendsList?.some((id: any) => id == memberNumber);
+
+				// If they are in either list, send the beep!
+				if (isFriend || isBestFriend) {
+					ServerSend("AccountBeep", { MemberNumber: memberNumber, BeepType: "", Message: message });
+
+					// Try to pull their cached name from the FriendList map, fallback to "Member" if not found
+					const targetName = playerWindow.FriendNames?.get?.(memberNumber) || "Member";
+
+					if (typeof ToastManager !== "undefined") {
+						Notification.send({ message: `Whisper+ sent as beep.`, title: "Whisper+" });
+					}
+					ChatRoomSendLocal(`Beep to ${targetName} (${memberNumber}): ${message}`);
+
+					return 0; // Success
+				} else {
+					beepFailed = true; // They had the setting on, but the target wasn't a friend
+				}
+			}
+
+			// If fallback fails or is disabled, show detailed error
+			let errorMsg = "Player left or became unavailable";
+			if (beepFailed) {
+				errorMsg += " (Auto-beep failed: Target is not on your friend list.)";
+			}
+
+			if (typeof ToastManager !== "undefined") {
+				Notification.send({ message: errorMsg, title: "Whisper+ Failed" });
+			}
+			ChatRoomSendLocal(errorMsg, 50_000);
+
+			return 1; // Error
+		}
+
 		// Send the whisper message
 		const success = this.sendWhisperMessage(target || memberNumber, message);
 		return success ? 0 : 1;
@@ -354,7 +424,7 @@ export class WhisperPlus extends CRABS_Base {
 	 * @param {HTMLElement} [root] - Optional root element for event attachment.
 	 * @returns {void}
 	 */
-	public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
-		this.attachEvent("CRABS_player-name", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
-	}
+	// public override buildui(output?: string, elementId?: string, root?: HTMLElement): void {
+	// 	this.attachEvent("CRABS_player-name", this.sendWhisper, "playerNumber", undefined, "click", "class", root);
+	// }
 }
