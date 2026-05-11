@@ -58,28 +58,6 @@ export abstract class CRABS_Base {
 	}
 
 	/**
-	 * Applies temporary fixes for future base-game updates.
-	 */
-	private applyTemporaryPolyfills(targetFunction: string, _args: any[]): void {
-		const globalWindow = window as any;
-
-		switch (targetFunction) {
-			case "ChatRoomRun":
-				// Base game expects ChatRoomData.Custom to exist.
-				// Outdated mods strip it, so we rebuild it before the engine reads it.
-				if (globalWindow.ChatRoomData && !globalWindow.ChatRoomData.Custom) {
-					globalWindow.ChatRoomData.Custom = { SizeMode: 0 };
-
-					if (!this.obsoletePolyfills.has("ChatRoomData_Custom")) {
-						this.obsoletePolyfills.add("ChatRoomData_Custom");
-						console.warn("%c[CRABS MAINTENANCE] Polyfill injected for ChatRoomData.Custom. You can delete this when upstream mods update.", "color: #00FF00; font-weight: bold; background: #222; padding: 4px; border-radius: 4px;");
-					}
-				}
-				break;
-		}
-	}
-
-	/**
 	 * Safely hooks a base-game function. 
 	 * Catches registration errors if the function is missing, and wraps the execution 
 	 * in a try/catch so mod logic failures don't crash the base game.
@@ -94,9 +72,6 @@ export abstract class CRABS_Base {
 	): void {
 		try {
 			(this.CRABS.hookFunction as any)(targetFunction, priority, (args: any[], next: (args: any[]) => any) => {
-
-				// Apply temporary shields. If they are obsolete, it will yell at you in the console.
-				this.applyTemporaryPolyfills(targetFunction, args);
 
 				// Check Circuit Breaker
 				if (this.disabledHooks.has(targetFunction)) {
