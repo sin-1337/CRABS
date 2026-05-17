@@ -980,14 +980,23 @@ export class Roster extends CRABS_Base {
 			const activePoses = target.ActivePose || target.Pose || [];
 			const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
 
-			// 2. Determine scale multiplier based on pose
+			// 2. Determine scale multiplier based on pose and apply head height buffer
 			let poseScale = 1.0;
+			let headHeightBuffer = 0; // Proportional buffer
+
 			if (poseStr.includes("Lay") || poseStr.includes("Sleep") || poseStr.includes("Hogtied")) {
 				poseScale = 0.35;
 			} else if (poseStr.includes("AllFours")) {
 				poseScale = 0.50;
 			} else if (poseStr.includes("Kneel")) {
 				poseScale = 0.65;
+				// --- KNEELING BUFFER START ---
+				// Increase head height calculation to lift the arrow.
+				// A smaller poseScale lifts the headY.
+				poseScale -= 0.12;
+				// Alternatively, add a fixed pixel buffer.
+				// headHeightBuffer = -20; // Example pixel value (negative to raise arrow)
+				// --- KNEELING BUFFER END ---
 			}
 
 			// 3. Anchor calculation from the bottom (feet) of the tile instead of the top
@@ -997,7 +1006,8 @@ export class Roster extends CRABS_Base {
 			// Character sprites are ~1.67x the height of a tile. Scale that height by the pose.
 			const headY = tileBottom - (tileW * 1.67 * poseScale);
 
-			arrowY = headY - (20 * scale) - 5;
+			// Set final arrowY position
+			arrowY = headY + headHeightBuffer - (20 * scale) - 5;
 
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
