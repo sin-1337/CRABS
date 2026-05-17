@@ -939,10 +939,11 @@ export class Roster extends CRABS_Base {
 			context.restore();
 		}
 	}
+
 	/**
-	 * Draws a directional arrow pointing toward the hovered player on the map.
-	 * @returns {void}
-	 */
+		 * Draws a directional arrow pointing toward the hovered player on the map.
+		 * @returns {void}
+		 */
 	private drawCompass(): void {
 		const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
@@ -958,8 +959,6 @@ export class Roster extends CRABS_Base {
 
 		let deltaX = target.MapData.Pos.X - player.MapData.Pos.X;
 		let deltaY = target.MapData.Pos.Y - player.MapData.Pos.Y;
-
-		// REMOVED: if (deltaX === 0 && deltaY === 0) return;
 
 		const canvasContext = (globalWindow.MainCanvas as HTMLCanvasElement)?.getContext("2d");
 		if (!canvasContext) return;
@@ -977,13 +976,27 @@ export class Roster extends CRABS_Base {
 
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
 
-			// Find the absolute top edge of the grid tile
+			// 1. Fetch the target's current pose
+			const activePoses = target.ActivePose || target.Pose || [];
+			const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
+
+			// 2. Determine scale multiplier based on pose
+			let poseScale = 1.0;
+			if (poseStr.includes("Lay") || poseStr.includes("Sleep") || poseStr.includes("Hogtied")) {
+				poseScale = 0.35;
+			} else if (poseStr.includes("AllFours")) {
+				poseScale = 0.50;
+			} else if (poseStr.includes("Kneel")) {
+				poseScale = 0.65;
+			}
+
+			// 3. Anchor calculation from the bottom (feet) of the tile instead of the top
 			const tileTop = (deltaY + range) * tileW;
+			const tileBottom = tileTop + tileW;
 
-			// Calculate the dynamic height of the character sprite overhang (67% of tile width)
-			const headY = tileTop - (tileW * 0.67);
+			// Character sprites are ~1.67x the height of a tile. Scale that height by the pose.
+			const headY = tileBottom - (tileW * 1.67 * poseScale);
 
-			// Anchor the center of the fixed-size arrow exactly half its height above the head
 			arrowY = headY - (20 * scale) - 5;
 
 		} else {
@@ -996,7 +1009,6 @@ export class Roster extends CRABS_Base {
 		const brightness = this.getColorBrightness(playerColor);
 		const isDark = brightness < 128;
 
-		// Call our unified 3D drawer
 		this.drawIndicator(canvasContext, arrowX, arrowY, angle, scale, playerColor, isDark);
 	}
 
