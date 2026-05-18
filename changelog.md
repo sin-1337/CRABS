@@ -2,6 +2,14 @@
 
 All notable changes to the Crazy Roster Add-on By Sin (CRABS) will be documented in this file.
 
+## [2.1.1] - Bug Fix release 
+This version addresses 3 bugs in the prior release.
+
+### Fixed
+- **Map compass now respects player pose**: Now the compass will position the indicator arrow above the player's heads respective of their poses. 
+- **Scrolling in Settings pages**: There is now a scroll bar that gets drawn in Settings pages when needed and will make the fact that those pages can be scrolled more obvious.
+- **Whisper+ should now handle URLs better**: Previously Whisper+ was found to be breaking URLs, it has been adjusted in a very minor way to account for them and should no longer break URLs at all.
+
 ## [2.1] - Event-Driven & Immersion Overhaul
 This version introduces a completely rewritten event-driven backend, robust chat highlighting, cloud settings synchronization, and major quality-of-life enhancements for normal rooms.
 
