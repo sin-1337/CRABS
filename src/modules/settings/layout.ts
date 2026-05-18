@@ -139,6 +139,28 @@ export class LayoutEngine {
 		}
 		context.restore();
 
+		// Add scroll bar logic
+		if (this.maxScroll > 0) {
+			const trackX = 1760;
+			const trackY = 200;
+			const trackW = 20;
+			const trackH = 680;
+
+			// Draw track background
+			globalWindow.DrawRect(trackX, trackY, trackW, trackH, "#333333");
+
+			// Calculate proportional thumb size and current position
+			const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
+			const thumbH = Math.max(40, trackH * visibleRatio); // Minimum 40px height
+			const thumbY = trackY + (this.scrollOffset / this.maxScroll) * (trackH - thumbH);
+
+			// Highlight thumb if hovering over the track
+			const isHovering = globalWindow.MouseX >= trackX && globalWindow.MouseX <= trackX + trackW &&
+				globalWindow.MouseY >= trackY && globalWindow.MouseY <= trackY + trackH;
+
+			globalWindow.DrawRect(trackX, thumbY, trackW, thumbH, isHovering ? "#AAAAAA" : "#888888");
+		}
+
 		// footer
 		if (this.currentTooltip) globalWindow.DrawText(this.currentTooltip, 1140, 920, "Black", "Gray");
 	}
@@ -157,6 +179,27 @@ export class LayoutEngine {
 				}
 			}
 			tabX += 175;
+		}
+
+		// Scroll bar
+		if (this.maxScroll > 0) {
+			const trackX = 1760;
+			const trackY = 200;
+			const trackW = 20;
+			const trackH = 680;
+
+			// If the user clicks anywhere on the scroll track
+			if (mouseX >= trackX && mouseX <= trackX + trackW && mouseY >= trackY && mouseY <= trackY + trackH) {
+				const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
+				const thumbH = Math.max(40, trackH * visibleRatio);
+
+				// Calculate percentage based on where they clicked relative to the center of the thumb
+				const clickPercent = (mouseY - trackY - (thumbH / 2)) / (trackH - thumbH);
+
+				// Clamp the result and apply it
+				this.scrollOffset = Math.max(0, Math.min(this.maxScroll, clickPercent * this.maxScroll));
+				return true;
+			}
 		}
 
 		// Check widgets
