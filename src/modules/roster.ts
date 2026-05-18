@@ -991,7 +991,7 @@ export class Roster extends CRABS_Base {
 				// INCREASED from 0.65 to 0.85. 
 				// A larger scale subtracts more from the bottom Y coordinate, 
 				// pushing the arrow further UP the screen.
-				poseScale = 0.85;
+				poseScale = 0.75;
 			}
 
 			// Anchor calculation from the bottom (feet) of the tile instead of the top
