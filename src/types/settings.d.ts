@@ -60,6 +60,7 @@ interface CRABS_Settings {
 	highlightMentions: boolean;
 	customHighlightWords: string;
 	highlightColor: string;
+	browserNotifications: boolean;
 	enableFocusHalo: boolean;
 	autoBeepOnLeave: boolean;
 	privacyModeFull: boolean;

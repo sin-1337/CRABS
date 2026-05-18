@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS: any = {
 	chatLogHover: true,
 	colorMatchNames: true,
 	capitalizeNames: true,
+	browserNotifications: false,
 	ignorePhrases: "",
 	localOnlyMode: false,
 	lastSaved: 0,
@@ -486,13 +487,23 @@ export class Settings extends CRABS_Base {
 		createCheck("Maps", "mapSuperZoom", "SuperZoom", "Unlock map zoom limits.", 0, () => {
 			const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
 			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
-		}, (enabled) => {
+		}, (_enabled) => {
 			// Trigger the game state sync immediately when toggled
 			this.syncGameState();
 		});
 
 		// --- CHAT ---
 		createCheck("Chat", "highlightMentions", "Highlight Mentions", "Highlights chat messages containing your name or nickname.");
+		createCheck("Chat", "browserNotifications", "Desktop Notifications", "Get an OS alert when mentioned (only triggers if the game is tabbed out or minimized).", 1, () => !this.data.highlightMentions, (enabled) => {
+			if (enabled && "Notification" in window && window.Notification.permission !== "granted") {
+				window.Notification.requestPermission().then((permission: NotificationPermission) => {
+					if (permission !== "granted") {
+						this.data.browserNotifications = false;
+						this.save();
+					}
+				});
+			}
+		});
 		createCheck("Chat", "capitalizeNames", "Auto-Capitalize My Name", "Forces the first letter of your name(s) to be capitalized when highlighted.", 1, () => !this.data.highlightMentions);
 		createCheck("Chat", "colorMatchNames", "Inline Name Coloring", "Colors your name in highlighted messages to match your character's actual label color.", 1, () => !this.data.highlightMentions);
 		createInput("Chat", "customHighlightWords", "Custom Words", "Comma-separated list of extra words to trigger highlights.", "text", 1, () => !this.data.highlightMentions);

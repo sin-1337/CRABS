@@ -201,21 +201,34 @@ export class ChatManager extends CRABS_Base {
 
 				searchAndHighlight(messageDiv);
 
-				if (isMentioned && Settings.instance?.data?.highlightMentions !== false) {
-					messageDiv.classList.add("CRABS_mention_highlight");
-					const userHexColor = Settings.instance?.data?.highlightColor || "#FFFF00";
+				if (isMentioned) {
+					// Browser Notification
+					if (Settings.instance?.data?.browserNotifications && document.hidden) {
+						if ("Notification" in window && Notification.permission === "granted") {
+							const senderName = senderData?.Name || "Someone";
+							new Notification("Mentioned in Chat", {
+								body: `${senderName} mentioned you!`
+							});
+						}
+					}
 
-					messageDiv.style.setProperty("background-color", this.convertColor(userHexColor, 0.02), "important");
-					messageDiv.style.setProperty("border-left", `4px solid ${this.convertColor(userHexColor, 0.8)}`, "important");
+					// Highlight Logic
+					if (Settings.instance?.data?.highlightMentions !== false) {
+						messageDiv.classList.add("CRABS_mention_highlight");
+						const userHexColor = Settings.instance?.data?.highlightColor || "#FFFF00";
 
-					const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
-						? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
-						: true;
+						messageDiv.style.setProperty("background-color", this.convertColor(userHexColor, 0.02), "important");
+						messageDiv.style.setProperty("border-left", `4px solid ${this.convertColor(userHexColor, 0.8)}`, "important");
 
-					if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
-						setTimeout(() => {
-							globalWindow.ElementScrollToEnd("TextAreaChatLog");
-						}, 0);
+						const isAtBottom = typeof globalWindow.ElementIsScrolledToEnd === "function"
+							? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
+							: true;
+
+						if (isAtBottom && typeof globalWindow.ElementScrollToEnd === "function") {
+							setTimeout(() => {
+								globalWindow.ElementScrollToEnd("TextAreaChatLog");
+							}, 0);
+						}
 					}
 				}
 			} catch (err) {
