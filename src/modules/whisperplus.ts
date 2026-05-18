@@ -265,12 +265,16 @@ export class WhisperPlus extends CRABS_Base {
 			// Add parentheses if needed for range checking AFTER prefixing
 			// We check formattedMsg[0] to ensure we don't double-wrap if the player typed "(/whisper+)"
 			if (ChatRoomMapViewIsActive() && !ChatRoomMapViewCharacterOnWhisperRange(target) && formattedMsg[0] !== "(") {
-				formattedMsg = `(${formattedMsg})`;
+				// Check if the message contains a URL/link
+				const hasUrl = /https?:\/\/[^\s]+/.test(formattedMsg);
+				// If it has a URL, append a trailing space before the closing parenthesis to safeguard the link
+				formattedMsg = `(${formattedMsg}${hasUrl ? " " : ""})`;
 			}
 
 			// Build data payload
 			const data = ChatRoomGenerateChatRoomChatMessage("Whisper", formattedMsg);
 			if (!data) {
+				// Message was sent successfully
 				return false;
 			}
 
@@ -291,7 +295,7 @@ export class WhisperPlus extends CRABS_Base {
 			return true;
 		}
 	}
-
+	: when
 	/**
 	 * Sets up the /whisper+ command for a given member number.
 	 *
