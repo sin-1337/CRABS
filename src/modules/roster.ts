@@ -941,9 +941,9 @@ export class Roster extends CRABS_Base {
 	}
 
 	/**
-		 * Draws a directional arrow pointing toward the hovered player on the map.
-		 * @returns {void}
-		 */
+	 * Draws a directional arrow pointing toward the hovered player on the map.
+	 * @returns {void}
+	 */
 	private drawCompass(): void {
 		const targetId = this.trackedMapPlayer || this.hoveredMapPlayer;
 
@@ -976,30 +976,25 @@ export class Roster extends CRABS_Base {
 
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
 
-			// 1. Fetch the target's current pose
+			// Fetch the target's current pose
 			const activePoses = target.ActivePose || target.Pose || [];
 			const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
 
-			// 2. Determine scale multiplier based on pose and apply head height buffer
+			// Determine scale multiplier based on pose
 			let poseScale = 1.0;
-			let headHeightBuffer = 0; // Proportional buffer
 
 			if (poseStr.includes("Lay") || poseStr.includes("Sleep") || poseStr.includes("Hogtied")) {
 				poseScale = 0.35;
 			} else if (poseStr.includes("AllFours")) {
 				poseScale = 0.50;
 			} else if (poseStr.includes("Kneel")) {
-				poseScale = 0.65;
-				// --- KNEELING BUFFER START ---
-				// Increase head height calculation to lift the arrow.
-				// A smaller poseScale lifts the headY.
-				poseScale -= 0.12;
-				// Alternatively, add a fixed pixel buffer.
-				// headHeightBuffer = -20; // Example pixel value (negative to raise arrow)
-				// --- KNEELING BUFFER END ---
+				// INCREASED from 0.65 to 0.85. 
+				// A larger scale subtracts more from the bottom Y coordinate, 
+				// pushing the arrow further UP the screen.
+				poseScale = 0.85;
 			}
 
-			// 3. Anchor calculation from the bottom (feet) of the tile instead of the top
+			// Anchor calculation from the bottom (feet) of the tile instead of the top
 			const tileTop = (deltaY + range) * tileW;
 			const tileBottom = tileTop + tileW;
 
@@ -1007,7 +1002,7 @@ export class Roster extends CRABS_Base {
 			const headY = tileBottom - (tileW * 1.67 * poseScale);
 
 			// Set final arrowY position
-			arrowY = headY + headHeightBuffer - (20 * scale) - 5;
+			arrowY = headY - (20 * scale) - 5;
 
 		} else {
 			angle = Math.atan2(deltaY, deltaX); // Point toward the edge
