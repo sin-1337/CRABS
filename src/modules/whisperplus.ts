@@ -295,7 +295,7 @@ export class WhisperPlus extends CRABS_Base {
 			return true;
 		}
 	}
-	: when
+
 	/**
 	 * Sets up the /whisper+ command for a given member number.
 	 *
