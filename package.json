@@ -1,7 +1,7 @@
 {
   "name": "crabs",
   "description": "Crazy Roster Add-on By Sin",
-  "version": "2.1.0.249",
+  "version": "2.1.0.250",
   "main": "Alpha/bundle.js",
   "scripts": {
     "build": "rollup -c",
