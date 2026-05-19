@@ -486,7 +486,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Maps", "mapSuperZoom", "SuperZoom", "Unlock map zoom limits.", 0, () => {
 			const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
 			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
-		}, (enabled) => {
+		}, (_enabled) => {
 			// Trigger the game state sync immediately when toggled
 			this.syncGameState();
 		});

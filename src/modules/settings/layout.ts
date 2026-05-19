@@ -66,10 +66,6 @@ export class LayoutEngine {
 		globalWindow.DrawRect(40, 40, 420, 920, "#222222aa");
 		globalWindow.DrawCharacter(globalWindow.Player, 50, 50, 0.9);
 
-		// Erase the base game's "- Preferences -" header bleed-through
-		// Starts at X=500 to avoid clipping the character's right arm
-		context.clearRect(500, 40, 500, 80);
-
 		context.textAlign = "center";
 		context.textBaseline = "middle";
 		globalWindow.DrawText("- CRABS Mod Settings -", 1140, 80, "Black", "Gray");
