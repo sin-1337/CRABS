@@ -657,6 +657,9 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = true;
 				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
+
+				// Hide the native base game header
+				document.getElementById("preference-subscreen-hgroup")?.style.setProperty("display", "none", "important");
 			},
 			exit: () => {
 				this.isMenuOpen = false;
