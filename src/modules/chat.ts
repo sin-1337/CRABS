@@ -202,12 +202,16 @@ export class ChatManager extends CRABS_Base {
 				searchAndHighlight(messageDiv);
 
 				if (isMentioned) {
+
 					// Browser Notification
 					if (Settings.instance?.data?.browserNotifications && document.hidden) {
 						if ("Notification" in window && Notification.permission === "granted") {
-							const senderName = senderData?.Name || "Someone";
-							new Notification("Mentioned in Chat", {
-								body: `${senderName} mentioned you!`
+							const senderIdentity = senderData?.nickname && senderData?.playerNumber
+								? `${senderData.nickname}(${senderData.playerNumber})`
+								: (senderData?.Name || "Someone");
+
+							new Notification("Mentioned!", {
+								body: `${senderIdentity} mentioned you!`
 							});
 						}
 					}
