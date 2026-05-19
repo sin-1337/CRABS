@@ -2,6 +2,9 @@
 
 All notable changes to the Crazy Roster Add-on By Sin (CRABS) will be documented in this file.
 
+## [2.1.2] - Emergency Bug Fix release 
+This version fixes a bug introduced by the new R128 build of BC where an extra bit of text was inserted into the settings page and blocked access to the general tab.
+
 ## [2.1.1] - Bug Fix release 
 This version addresses 3 bugs in the prior release.
 
