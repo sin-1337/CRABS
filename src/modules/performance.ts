@@ -25,7 +25,7 @@ export class Performance extends CRABS_Base {
 	}
 
 	private initHooks(): void {
-		// 1. Calculate FPS and track stability every frame
+		// Calculate FPS and track stability every frame
 		this.safeHook("GameRun", 0, (args: any[], next: (args: any[]) => any) => {
 			if (Settings.instance.data.enablePerformanceMode) {
 				this.updatePerformanceState();
@@ -33,7 +33,7 @@ export class Performance extends CRABS_Base {
 			return next(args);
 		});
 
-		// 2. Throttle Base Game Dynamic Animations (stops CharacterRefresh from firing constantly)
+		// Throttle Base Game Dynamic Animations (stops CharacterRefresh from firing constantly)
 		this.safeHook("DrawCharacter", 0, (args: any[], next: (args: any[]) => any) => {
 			const C = args[0];
 			const globalWindow = window as any;
@@ -70,5 +70,27 @@ export class Performance extends CRABS_Base {
 			}
 			return next(args);
 		});
+
+		// Fix Base Game WebGL Crash Bug (Restores blank top-bar icons)
+		this.safeHook("GLDrawRebuildCharacters", 0, (args: any[], next: (args: any[]) => any) => {
+			// Let the base game rebuild the main characters first
+			const result = next(args);
+			const globalWindow = window as any;
+
+			// Now, catch the ones it forgot (the top bar icons)
+			if (globalWindow.ChatRoomCharacter && Array.isArray(globalWindow.ChatRoomCharacter)) {
+				for (const C of globalWindow.ChatRoomCharacter) {
+					// Check if the character was skipped by the base game's rebuild loop
+					if (C && globalWindow.DrawLastCharacters && !globalWindow.DrawLastCharacters.includes(C)) {
+						if (globalWindow.CharacterAppearanceBuildCanvas) {
+							globalWindow.CharacterAppearanceBuildCanvas(C);
+							C.MustDraw = false; // Prevent infinite draw loops
+						}
+					}
+				}
+			}
+			return result;
+		});
+
 	}
 }
