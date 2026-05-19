@@ -52,11 +52,23 @@ export class Settings extends CRABS_Base {
 		super(CRABS);
 		Settings.instance = this;
 
-		// 1. Load local synchronously so the UI has immediate data
+		// Initial load (will grab generic settings if not logged in yet)
 		this.data = this.loadLocal();
-
-		// 2. Kick off the background server sync
 		this.syncFromServer();
+
+		// RE-LOAD the correct file as soon as the game populates the Player object
+		this.CRABS.hookFunction('LoginResponse', 0, (args, next) => {
+			// Let the base game process the login FIRST to build the Player object
+			const result = next(args);
+
+			// Now Player.MemberNumber exists, so it loads the correct local file
+			this.data = this.loadLocal();
+
+			// Now Player.ExtensionSettings exists, so it syncs from the cloud
+			this.syncFromServer();
+
+			return result;
+		});
 
 		this.buildRegistry();
 		this.layout = new LayoutEngine(this.registry);
@@ -121,7 +133,11 @@ export class Settings extends CRABS_Base {
 
 				// Compare timestamps: Only overwrite if server is newer
 				if (serverTime > localTime) {
-					this.data = this.sanitizeData({ ...this.data, ...serverData });
+					// Start with defaults, apply server data, and retain local-only rules
+					const mergedData = { ...DEFAULT_SETTINGS, ...serverData };
+					mergedData.localOnlyMode = this.data.localOnlyMode;
+
+					this.data = this.sanitizeData(mergedData);
 
 					// Backup the newer server data to local storage
 					localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
