@@ -60,7 +60,7 @@ export class Settings extends CRABS_Base {
 		this.CRABS.hookFunction('LoginResponse', 0, (args, next) => {
 			this.data = this.loadLocal();
 			this.syncFromServer();
-			return next(args); // <-- Add 'return' here
+			return next(args);
 		});
 
 		this.buildRegistry();
