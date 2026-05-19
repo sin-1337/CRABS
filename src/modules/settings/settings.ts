@@ -486,7 +486,7 @@ export class Settings extends CRABS_Base {
 		createCheck("Maps", "mapSuperZoom", "SuperZoom", "Unlock map zoom limits.", 0, () => {
 			const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
 			return perceptionValue !== undefined && perceptionValue !== 7 && perceptionValue !== 50;
-		}, (enabled) => {
+		}, (_enabled) => {
 			// Trigger the game state sync immediately when toggled
 			this.syncGameState();
 		});
@@ -657,6 +657,9 @@ export class Settings extends CRABS_Base {
 				this.isMenuOpen = true;
 				this.showResetConfirm = false;
 				this.layout.updateDOM(true);
+
+				// Hide the native base game header
+				document.getElementById("preference-subscreen-hgroup")?.style.setProperty("display", "none", "important");
 			},
 			exit: () => {
 				this.isMenuOpen = false;
