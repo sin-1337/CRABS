@@ -34,17 +34,5 @@ export class Performance extends CRABS_Base {
 			return next(args);
 		});
 
-		// Optimize Text Measurement
-		const TextCache = new Map<string, any>();
-		this.safeHook("DrawingGetTextSize", 0, (args: any[], next: (args: any[]) => any) => {
-			const [Text, Width] = args;
-			const key = `${Text}:${Width}`;
-
-			if (TextCache.has(key)) return TextCache.get(key);
-
-			const result = next(args);
-			TextCache.set(key, result);
-			return result;
-		});
 	}
 }
