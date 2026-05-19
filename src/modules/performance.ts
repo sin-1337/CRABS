@@ -4,7 +4,7 @@ import { CRABS_Base, PerformanceLevel } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "./settings";
 
-export class PerformanceStabilizer extends CRABS_Base {
+export class Performance extends CRABS_Base {
 
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
