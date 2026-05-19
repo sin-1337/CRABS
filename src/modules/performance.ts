@@ -4,11 +4,13 @@ import { CRABS_Base, PerformanceLevel } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "./settings";
 
-export class Performance extends CRABS_Base {
+export class PerformanceStabilizer extends CRABS_Base {
+
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		this.initVFXCulling();
-		this.initHooks();
+		this.initPerformanceMonitor();
+		this.startBackgroundThrottler();
 	}
 
 	private initVFXCulling(): void {
@@ -24,73 +26,40 @@ export class Performance extends CRABS_Base {
 		}
 	}
 
-	private initHooks(): void {
-		// Calculate FPS and track stability every frame
+	private initPerformanceMonitor(): void {
+		// We still safely hook GameRun just to monitor the FPS interval
 		this.safeHook("GameRun", 0, (args: any[], next: (args: any[]) => any) => {
 			if (Settings.instance.data.enablePerformanceMode) {
 				this.updatePerformanceState();
 			}
 			return next(args);
 		});
+	}
 
-		// Throttle Base Game Dynamic Animations (stops CharacterRefresh from firing constantly)
-		this.safeHook("DrawCharacter", 0, (args: any[], next: (args: any[]) => any) => {
-			const C = args[0];
-			const globalWindow = window as any;
-
-			if (
-				Settings.instance.data.enablePerformanceMode &&
-				C && this.currentPerformanceLevel >= PerformanceLevel.LOW
-			) {
-				try {
-					const animStorage = globalWindow.AnimationPersistentStorage;
-					const animTypes = globalWindow.AnimationDataTypes;
-
-					if (animStorage && animTypes && globalWindow.AnimationGetDynamicDataName) {
-						const charKey = globalWindow.AnimationGetDynamicDataName(C);
-						const refreshRates = animStorage[animTypes.RefreshRate];
-
-						if (refreshRates && refreshRates[charKey]) {
-							const originalRate = refreshRates[charKey];
-
-							// Cap animations to 10 FPS on LOW lag, 2 FPS on CRITICAL lag
-							const minRate = this.currentPerformanceLevel === PerformanceLevel.CRITICAL ? 500 : 100;
-
-							if (originalRate < minRate) {
-								refreshRates[charKey] = minRate;
-								const result = next(args);
-								refreshRates[charKey] = originalRate; // Restore immediately after drawing
-								return result;
-							}
-						}
-					}
-				} catch (e) {
-					// Failsafe so the draw loop never crashes
-				}
+	private startBackgroundThrottler(): void {
+		// Instead of hooking DrawCharacter (which causes canvas race conditions),
+		// we asynchronously scan and clamp animation speeds in the background.
+		setInterval(() => {
+			if (!Settings.instance.data.enablePerformanceMode || this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+				return;
 			}
-			return next(args);
-		});
 
-		// Fix Base Game WebGL Crash Bug (Restores blank top-bar icons)
-		this.safeHook("GLDrawRebuildCharacters", 0, (args: any[], next: (args: any[]) => any) => {
-			// Let the base game rebuild the main characters first
-			const result = next(args);
 			const globalWindow = window as any;
+			const animStorage = globalWindow.AnimationPersistentStorage;
+			const animTypes = globalWindow.AnimationDataTypes;
 
-			// Now, catch the ones it forgot (the top bar icons)
-			if (globalWindow.ChatRoomCharacter && Array.isArray(globalWindow.ChatRoomCharacter)) {
-				for (const C of globalWindow.ChatRoomCharacter) {
-					// Check if the character was skipped by the base game's rebuild loop
-					if (C && globalWindow.DrawLastCharacters && !globalWindow.DrawLastCharacters.includes(C)) {
-						if (globalWindow.CharacterAppearanceBuildCanvas) {
-							globalWindow.CharacterAppearanceBuildCanvas(C);
-							C.MustDraw = false; // Prevent infinite draw loops
-						}
+			if (animStorage && animTypes && animStorage[animTypes.RefreshRate]) {
+				const refreshRates = animStorage[animTypes.RefreshRate];
+
+				// Cap animations to 10 FPS on LOW lag, 2 FPS on CRITICAL lag
+				const minRate = this.currentPerformanceLevel === PerformanceLevel.CRITICAL ? 500 : 100;
+
+				for (const charKey in refreshRates) {
+					if (refreshRates[charKey] < minRate) {
+						refreshRates[charKey] = minRate;
 					}
 				}
 			}
-			return result;
-		});
-
+		}, 2000); // Check every 2 seconds
 	}
 }
