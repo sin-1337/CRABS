@@ -1,3 +1,5 @@
+// setup.ts
+
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Drawer } from "./drawer";

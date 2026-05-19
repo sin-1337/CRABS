@@ -19,3 +19,4 @@ export * from "./setup";
 export * from "./notifications";
 export * from "./updater";
 export * from "./chat";
+export * from "./performance";
