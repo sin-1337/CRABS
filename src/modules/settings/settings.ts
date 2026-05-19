@@ -59,9 +59,16 @@ export class Settings extends CRABS_Base {
 
 		// RE-LOAD the correct file as soon as the game populates the Player object
 		this.CRABS.hookFunction('LoginResponse', 0, (args, next) => {
+			// Let the base game process the login FIRST to build the Player object
+			const result = next(args);
+
+			// Now Player.MemberNumber exists, so it loads the correct local file
 			this.data = this.loadLocal();
+
+			// Now Player.ExtensionSettings exists, so it syncs from the cloud
 			this.syncFromServer();
-			return next(args);
+
+			return result;
 		});
 
 		this.buildRegistry();
