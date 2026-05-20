@@ -58,6 +58,12 @@ export class Setup extends CRABS_Base {
 
 		// Handle Room Joins and UI Recovery
 		this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
+			// GUARD CLAUSE: If ChatRoomData is missing, do NOT run our room-tracking logic.
+			// This prevents the mod from forcing a screen change to ChatSearch.
+			if (typeof ChatRoomData === "undefined" || ChatRoomData === null) {
+				return next(args);
+			}
+
 			const result = next(args);
 
 			const inChatRoom = typeof ChatRoomData !== "undefined" && ChatRoomData !== null &&
