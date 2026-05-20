@@ -13,8 +13,6 @@ export class Performance extends CRABS_Base {
 		// Optimize Texture Mask Caching
 		this.safeHook("DrawApplyTextureAlphaMask", 0, (args: any[], next: (args: any[]) => any) => {
 			const destCanvas = args[0];
-			const _X = args[1]; // Prefixed with _ to ignore TS warning
-			const _Y = args[2]; // Prefixed with _ to ignore TS warning
 			const masks = args[3];
 
 			// Faster cache key: Just combine the URLs and lengths, avoid JSON.stringify

@@ -45,9 +45,6 @@ export abstract class CRABS_Base {
 	private failedHooks: Set<string> = new Set();
 	private disabledHooks: Set<string> = new Set();
 
-	// Tracks which obsolete polyfills we've already warned you about today
-	private obsoletePolyfills: Set<string> = new Set();
-
 	/**
 	 * Creates an instance of a CRABS module.
 	 * 
