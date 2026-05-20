@@ -5,6 +5,9 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "./settings";
 
 export class Performance extends CRABS_Base {
+	// Dictionary to backup the original animation speeds
+	private originalRefreshRates: Record<string, number> = {};
+
 	constructor(CRABS: ModSDKModAPI) {
 		super(CRABS);
 		this.initVFXRegistry();
@@ -41,20 +44,41 @@ export class Performance extends CRABS_Base {
 
 	private startAnimationClamper(): void {
 		setInterval(() => {
-			if (!Settings.instance.data.enablePerformanceMode || this.currentPerformanceLevel === PerformanceLevel.NORMAL) return;
-
 			const globalWindow = window as any;
 			const animStorage = globalWindow.AnimationPersistentStorage;
 			const animTypes = globalWindow.AnimationDataTypes;
 
-			if (animStorage && animTypes && animStorage[animTypes.RefreshRate]) {
-				const refreshRates = animStorage[animTypes.RefreshRate];
-				const minRate = this.currentPerformanceLevel === PerformanceLevel.CRITICAL ? 500 : 150;
+			if (!animStorage || !animTypes || !animStorage[animTypes.RefreshRate]) return;
 
-				for (const charKey in refreshRates) {
-					if (refreshRates[charKey] < minRate) {
-						refreshRates[charKey] = minRate;
+			const refreshRates = animStorage[animTypes.RefreshRate];
+
+			// Restore state: If performance mode is off, or lag is gone
+			if (!Settings.instance.data.enablePerformanceMode || this.currentPerformanceLevel === PerformanceLevel.NORMAL) {
+				// If we have backups, restore them!
+				if (Object.keys(this.originalRefreshRates).length > 0) {
+					for (const charKey in this.originalRefreshRates) {
+						// Ensure the character's animation data still exists in the room
+						if (refreshRates[charKey] !== undefined) {
+							refreshRates[charKey] = this.originalRefreshRates[charKey];
+						}
 					}
+					// Wipe the backups so we don't restore them again
+					this.originalRefreshRates = {};
+				}
+				return; // Bail out now that things are clean
+			}
+
+			// Clamp state: If we are lagging
+			const minRate = this.currentPerformanceLevel === PerformanceLevel.CRITICAL ? 500 : 150;
+
+			for (const charKey in refreshRates) {
+				if (refreshRates[charKey] < minRate) {
+					// Backup the original fast speed before we overwrite it (if not already backed up)
+					if (this.originalRefreshRates[charKey] === undefined) {
+						this.originalRefreshRates[charKey] = refreshRates[charKey];
+					}
+					// Apply the throttled speed
+					refreshRates[charKey] = minRate;
 				}
 			}
 		}, 3000);
