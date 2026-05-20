@@ -44,17 +44,20 @@ export class Performance extends CRABS_Base {
 				this.currentActualFps = 1000 / interval;
 				const targetFps = this.getTargetFps();
 
+				// Prioritize quality until it drops below 30 (or user's lower cap)
+				const activationThreshold = Math.min(targetFps, 30);
+
 				// Guard: If user intentionally capped game to <= 15fps, never flag as lagging
 				if (targetFps <= 15) {
 					this.currentPerformanceLevel = PerformanceLevel.NORMAL;
 					return;
 				}
 
-				// Relative Buckets for VFX dropping
-				if (this.currentActualFps < (targetFps * 0.3) || this.currentActualFps < 15) {
+				// Relative Buckets for VFX dropping based on our new 30 FPS target
+				if (this.currentActualFps < (activationThreshold * 0.5)) {
 					this.currentPerformanceLevel = PerformanceLevel.CRITICAL;
 					this.lastLagSpike = Date.now();
-				} else if (this.currentActualFps < (targetFps * 0.6)) {
+				} else if (this.currentActualFps < (activationThreshold * 0.8)) {
 					this.currentPerformanceLevel = PerformanceLevel.LOW;
 					this.lastLagSpike = Date.now();
 				} else {
@@ -77,10 +80,10 @@ export class Performance extends CRABS_Base {
 			const refreshRates = animStorage[animTypes.RefreshRate];
 			const targetFps = this.getTargetFps();
 
-			// Calculate activation threshold (50% of targeted performance, e.g., below 30fps out of 60)
-			const activationThreshold = targetFps * 0.5;
+			// Trigger point: 30 FPS, unless the user targeted something lower
+			const activationThreshold = Math.min(targetFps, 30);
 
-			// 1. RESTORE STATE: If mod is off, target is ultra-low, or FPS is healthy
+			// 1. RESTORE STATE: If mod is off, target is ultra-low, or FPS is 30+
 			if (
 				!Settings.instance.data.enablePerformanceMode ||
 				targetFps <= 15 ||
@@ -98,16 +101,16 @@ export class Performance extends CRABS_Base {
 			}
 
 			// 2. TARGETED SCALING MATH:
-			// Normalize where we sit between the threshold (start of lag) and absolute floor (10 FPS)
 			const floorFps = 10;
-			const totalRange = activationThreshold - floorFps;
+			const totalRange = Math.max(1, activationThreshold - floorFps);
 			const currentDeficit = activationThreshold - this.currentActualFps;
 
 			// Percentage of how close we are to rock-bottom (0.0 = just started lagging, 1.0 = dead)
-			const lagSeverity = Math.min(1, Math.max(0, currentDeficit / (totalRange || 1)));
+			const lagSeverity = Math.min(1, Math.max(0, currentDeficit / totalRange));
 
-			// Map linearly: 0% severity = 100ms cap (10 FPS). 100% severity = 5000ms cap (Frozen/Off)
-			const minRate = Math.floor(100 + (lagSeverity * 4900));
+			// Map linearly: 0% severity = 33ms (30 FPS). 100% severity = 100ms (10 FPS).
+			// This is drastically less aggressive than the old 5000ms cap.
+			const minRate = Math.floor(33 + (lagSeverity * 67));
 
 			for (const charKey in refreshRates) {
 				if (refreshRates[charKey] < minRate) {
