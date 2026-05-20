@@ -466,7 +466,7 @@ export class Settings extends CRABS_Base {
 
 		// --- GENERAL ---
 		createCheck("General", "checkForUpdates", "Notify me about updates", "Periodically check for CRABS updates, and notify me.");
-		createCheck("General", "enablePerformanceMode", "Performance Mode", "Automatically throttles base game animations and drops VFX when your framerate dips.");
+		createCheck("General", "enablePerformanceMode", "Performance Mode", "Applies performance optimizations to the base game.");
 		createCheck("General", "showBanner", "Show Banner on Entry", "Display info banner on room join.");
 		createCheck("General", "privacyModeFull", "Full-Screen Privacy Mode", "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.");
 		createCheck("General", "enableFocusHalo", "Enable Focus Halo", "Show a pulsing halo effect on character avatars when you mouse over them in the roster or chat.");
