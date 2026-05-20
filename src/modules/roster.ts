@@ -103,6 +103,34 @@ export class Roster extends CRABS_Base {
 		}
 	}
 
+	/**
+	 * Extracts a combined string of all active and forced poses for a character.
+	 */
+	private getCharacterPoseString(character: any): string {
+		const poses = new Set<string>();
+
+		if (Array.isArray(character.ActivePose)) character.ActivePose.forEach((p: string) => poses.add(p));
+		else if (character.ActivePose) poses.add(String(character.ActivePose));
+
+		if (Array.isArray(character.Pose)) character.Pose.forEach((p: string) => poses.add(p));
+		else if (character.Pose) poses.add(String(character.Pose));
+
+		// Scan appearance for furniture/items forcing a pose (e.g. Petbed)
+		if (Array.isArray(character.Appearance)) {
+			character.Appearance.forEach((item: any) => {
+				if (item.Property?.Type) poses.add(String(item.Property.Type));
+
+				if (Array.isArray(item.Property?.Pose)) item.Property.Pose.forEach((p: string) => poses.add(p));
+				else if (item.Property?.Pose) poses.add(String(item.Property.Pose));
+
+				if (Array.isArray(item.Asset?.SetPose)) item.Asset.SetPose.forEach((p: string) => poses.add(p));
+				else if (item.Asset?.SetPose) poses.add(String(item.Asset.SetPose));
+			});
+		}
+
+		return Array.from(poses).join(" ");
+	}
+
 	/** * Handler for when a player's entry is hovered in the roster UI. 
 	 * Evaluates the current pageShiftMode setting to determine the interaction response.
 	 * @param {string} playerId - The ID of the hovered player.
@@ -977,8 +1005,7 @@ export class Roster extends CRABS_Base {
 			arrowX = (deltaX + range) * tileW + (tileW / 2);
 
 			// Fetch the target's current pose
-			const activePoses = target.ActivePose || target.Pose || [];
-			const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
+			const poseStr = this.getCharacterPoseString(target);
 
 			// Determine scale multiplier based on pose
 			let poseScale = 1.0;
@@ -1048,8 +1075,7 @@ export class Roster extends CRABS_Base {
 			currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
 		}
 
-		const activePoses = character.ActivePose || character.Pose || [];
-		const poseStr = Array.isArray(activePoses) ? activePoses.join(" ") : String(activePoses);
+		const poseStr = this.getCharacterPoseString(character);
 
 		let scaleY = 1.0;
 		if (poseStr.includes("Lay") || poseStr.includes("Sleep") || poseStr.includes("Hogtied")) {
