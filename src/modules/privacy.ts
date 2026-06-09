@@ -34,43 +34,6 @@ export class PrivacyMode extends CRABS_Base {
 		);
 	}
 
-	private registerNativeKeybind() {
-		const globalWindow = window as any;
-
-		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
-			setTimeout(() => this.registerNativeKeybind(), 500);
-			return;
-		}
-
-		if (!globalWindow.KeyManager.getCategory('crabs')) {
-			globalWindow.KeyManager.registerCategory({
-				id: 'crabs',
-				name: { EN: 'CRABS Mod' }
-			});
-		}
-
-		const toggleAction = () => {
-			const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
-			this.toggle(mode);
-			return true;
-		};
-
-		Object.defineProperty(toggleAction, "name", { value: { EN: "Toggle Privacy Mode" } });
-
-		globalWindow.KeyManager.registerKeybinding({
-			id: 'crabs_privacy_toggle',
-			action: toggleAction,
-			description: { EN: "Instantly blanks out the chat room based on your CRABS settings." },
-			contextIds: [],
-			categoryId: 'crabs',
-			readonly: false,
-			defaultKeyCombo: {
-				key: 'KeyB',
-				modifiers: new Set(['Ctrl', 'Shift', 'Alt'])
-			}
-		});
-	}
-
 	public toggle(userPreferredMode: "left" | "full"): void {
 		// If it is on OR temporarily suspended, turn it completely off
 		if (this.isVisible || this.isSuspended) {

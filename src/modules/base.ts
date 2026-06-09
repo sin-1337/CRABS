@@ -58,6 +58,15 @@ export abstract class CRABS_Base {
 	}
 
 	/**
+	 * Create language map
+	 */
+	protected static buildTransDict(text: string): Record<string, string> {
+		// English, German, French, Russian, Simplified Chinese, Traditional Chinese, Ukrainian
+		const langs = ["EN", "GER", "DE", "FR", "RU", "CN", "TW", "UK", "UA"];
+		return Object.fromEntries(langs.map(lang => [lang, text]));
+	}
+
+	/**
 	 * Safely hooks a base-game function. 
 	 * Catches registration errors if the function is missing, and wraps the execution 
 	 * in a try/catch so mod logic failures don't crash the base game.
@@ -151,7 +160,6 @@ export abstract class CRABS_Base {
 		const globalWindow = window as any;
 
 		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
-			// Pass the arguments back into the timeout if it needs to wait!
 			setTimeout(() => this.registerKeybind(id, actionName, description, key, actionCallback, modifiers), 500);
 			return;
 		}
@@ -159,18 +167,18 @@ export abstract class CRABS_Base {
 		if (!globalWindow.KeyManager.getCategory('crabs')) {
 			globalWindow.KeyManager.registerCategory({
 				id: 'crabs',
-				name: 'CRABS Mod',
-				description: 'CRABS Mod',
+				name: this.buildTransDict('CRABS Mod'),
+				description: this.buildTransDict('CRABS Mod')
 			});
 		}
 
-		Object.defineProperty(actionCallback, "name", { value: { EN: actionName } });
+		Object.defineProperty(actionCallback, "name", { value: this.buildTransDict(actionName) });
 
 		globalWindow.KeyManager.registerKeybinding({
 			id: id,
-			name: 'CRABS Mod',
+			name: this.buildTransDict(actionName),
 			action: actionCallback,
-			description: { EN: description },
+			description: this.buildTransDict(description),
 			contextIds: [],
 			categoryId: 'crabs',
 			readonly: false,
