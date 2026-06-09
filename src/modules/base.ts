@@ -168,6 +168,7 @@ export abstract class CRABS_Base {
 
 		globalWindow.KeyManager.registerKeybinding({
 			id: id,
+			name: 'CRABS Mod',
 			action: actionCallback,
 			description: { EN: description },
 			contextIds: [],
