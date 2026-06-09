@@ -160,7 +160,6 @@ export abstract class CRABS_Base {
 		const globalWindow = window as any;
 
 		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
-			// Pass the arguments back into the timeout if it needs to wait!
 			setTimeout(() => this.registerKeybind(id, actionName, description, key, actionCallback, modifiers), 500);
 			return;
 		}
@@ -168,14 +167,18 @@ export abstract class CRABS_Base {
 		if (!globalWindow.KeyManager.getCategory('crabs')) {
 			globalWindow.KeyManager.registerCategory({
 				id: 'crabs',
-				name: { EN: 'CRABS Mod' }
+				name: this.buildTransDict('CRABS Mod'),
+				description: this.buildTransDict('CRABS Mod')
 			});
 		}
 
+		Object.defineProperty(actionCallback, "name", { value: this.buildTransDict(actionName) });
+
 		globalWindow.KeyManager.registerKeybinding({
 			id: id,
+			name: this.buildTransDict(actionName),
 			action: actionCallback,
-			description: { EN: description },
+			description: this.buildTransDict(description),
 			contextIds: [],
 			categoryId: 'crabs',
 			readonly: false,
