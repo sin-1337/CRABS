@@ -58,6 +58,15 @@ export abstract class CRABS_Base {
 	}
 
 	/**
+	 * Crates a language map
+	 */
+	protected static buildTransDict(text: string): Record<string, string> {
+		// English, German, French, Russian, Simplified Chinese, Traditional Chinese, Ukrainian
+		const langs = ["EN", "GER", "DE", "FR", "RU", "CN", "TW", "UK", "UA"];
+		return Object.fromEntries(langs.map(lang => [lang, text]));
+	}
+
+	/**
 	 * Safely hooks a base-game function. 
 	 * Catches registration errors if the function is missing, and wraps the execution 
 	 * in a try/catch so mod logic failures don't crash the base game.
@@ -162,8 +171,6 @@ export abstract class CRABS_Base {
 				name: { EN: 'CRABS Mod' }
 			});
 		}
-
-		Object.defineProperty(actionCallback, "name", { value: { EN: actionName } });
 
 		globalWindow.KeyManager.registerKeybinding({
 			id: id,
