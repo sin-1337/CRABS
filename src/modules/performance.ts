@@ -83,7 +83,7 @@ export class Performance extends CRABS_Base {
 			// Trigger point: 30 FPS, unless the user targeted something lower
 			const activationThreshold = Math.min(targetFps, 30);
 
-			// 1. RESTORE STATE: If mod is off, target is ultra-low, or FPS is 30+
+			// RESTORE STATE: If mod is off, target is ultra-low, or FPS is 30+
 			if (
 				!Settings.instance.data.enablePerformanceMode ||
 				targetFps <= 15 ||
@@ -100,7 +100,7 @@ export class Performance extends CRABS_Base {
 				return;
 			}
 
-			// 2. TARGETED SCALING MATH:
+			// TARGETED SCALING MATH:
 			const floorFps = 10;
 			const totalRange = Math.max(1, activationThreshold - floorFps);
 			const currentDeficit = activationThreshold - this.currentActualFps;
