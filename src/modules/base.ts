@@ -159,7 +159,8 @@ export abstract class CRABS_Base {
 		if (!globalWindow.KeyManager.getCategory('crabs')) {
 			globalWindow.KeyManager.registerCategory({
 				id: 'crabs',
-				name: { EN: 'CRABS Mod' }
+				name: 'CRABS Mod',
+				description: 'CRABS Mod',
 			});
 		}
 
