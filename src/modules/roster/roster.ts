@@ -72,7 +72,7 @@ export class Roster extends CRABS_Base {
 
   /** Tracks the user's selected sort order in the drawer. */
   private currentSortMode: string =
-    localStorage.getItem("CRABS_SortMode") || "role";
+    localStorage.getItem("CRABS_SortMode") || "natural";
 
   /**
    * Creates an instance of the Roster module and initializes map and state hooks.
@@ -652,7 +652,11 @@ export class Roster extends CRABS_Base {
       let playerIcons = Icons.setIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
-      const score = Sorting.calculateSortScore(character, effectiveSortMode);
+      const score = Sorting.calculateSortScore(
+        character,
+        effectiveSortMode,
+        parseInt(characterIndex, 10),
+      );
 
       rosterCards.push({
         html,

@@ -4,21 +4,28 @@ import { CrossMod } from "../crossmod";
  * Calculates a numerical score for sorting the roster. Lower score = higher on the list.
  * @param {any} character - The character to sort.
  * @param {string} mode - The sorting algorithm to apply.
+ * @param {number} [naturalIndex=0] - The original room array index of the character.
  * @returns {number} The computed order weight.
  */
-export function calculateSortScore(character: any, mode: string): number {
+export function calculateSortScore(
+  character: any,
+  mode: string,
+  naturalIndex: number = 0,
+): number {
+  if (character.IsPlayer && character.IsPlayer()) return 0;
+
   const globalWindow = window as any;
   const player = globalWindow.Player;
   const chatRoomData = globalWindow.ChatRoomData;
-
-  if (character.IsPlayer && character.IsPlayer()) return 0;
-
   const mNum = character.MemberNumber ?? -1;
   const isBestFriend =
     CrossMod.detectMod("BCTweaks") &&
     player?.BCT?.bctSettings?.bestFriendsList?.includes(mNum);
 
   switch (mode) {
+    case "none":
+    case "natural":
+      return naturalIndex;
     case "ds":
       if (player?.OwnerNumber && player.OwnerNumber() === mNum) return 1;
       if (
@@ -52,10 +59,11 @@ export function calculateSortScore(character: any, mode: string): number {
       if (player?.WhiteList && player.WhiteList.includes(mNum)) return 2;
       return 3;
     case "role":
-    default:
       if (chatRoomData?.Admin && chatRoomData.Admin.includes(mNum)) return 1;
       if (chatRoomData?.Whitelist && chatRoomData.Whitelist.includes(mNum))
         return 2;
       return 3;
+    default:
+      return naturalIndex;
   }
 }
