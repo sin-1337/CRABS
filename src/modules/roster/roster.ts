@@ -11,6 +11,7 @@
  *
  */
 
+// CRABS components
 import { CRABS_Base } from "../base";
 import { Assets } from "../assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -20,12 +21,66 @@ import "../templates/roster.css";
 import rostertemplate from "../templates/roster.html";
 import rostercardstemplate from "../templates/roster_cards.html";
 
-import { Compass, Icons, Immersion, Sorting } from "./index";
+// module components
+import * as Compass from "./compass";
+import * as Icons from "./icons";
+import * as Immersion from "./immersion";
+import * as Sorting from "./sorting";
 
 /**
  * Class representing the enhanced player roster and related map features.
  */
 export class Roster extends CRABS_Base {
+  /**
+   * The player currently hovered over in the chat log.
+   * Proxies directly to the internal Compass module state.
+   */
+  public get chatLogHoveredPlayer(): number | null {
+    return Compass.chatLogHoveredPlayer;
+  }
+  public set chatLogHoveredPlayer(val: number | null) {
+    Compass.setChatLogHoveredPlayer(val);
+  }
+
+  /**
+   * The member number of the player currently hovered on the room map or canvas.
+   * Proxies directly to the internal Compass module state.
+   */
+  public get hoveredMapPlayer(): number | null {
+    return Compass.hoveredMapPlayer;
+  }
+  public set hoveredMapPlayer(val: number | null) {
+    Compass.setHoveredMapPlayer(val);
+  }
+
+  /**
+   * The member number of the player currently locked via tap/click tracking.
+   * Proxies directly to the internal Compass module state.
+   */
+  public get trackedMapPlayer(): number | null {
+    return Compass.trackedMapPlayer;
+  }
+  public set trackedMapPlayer(val: number | null) {
+    Compass.setTrackedMapPlayer(val);
+  }
+
+  /**
+   * Clears the currently tracked map player and removes active styling from compass icons.
+   * Delegated to `Compass.clearTracking()`.
+   */
+  public clearTracking(): void {
+    Compass.clearTracking();
+  }
+
+  /**
+   * Reverse Compass: Switches the base game's ChatRoom pagination to the page containing the targeted player.
+   * Delegated to `Compass.autoPaginateToPlayer()`.
+   * @param {number} targetId - The MemberNumber of the player to locate and navigate to.
+   */
+  public autoPaginateToPlayer(targetId: number): void {
+    Compass.autoPaginateToPlayer(targetId);
+  }
+
   /** Cached count of online friends. */
   private onlineFriendsCache: number | string = "...";
 

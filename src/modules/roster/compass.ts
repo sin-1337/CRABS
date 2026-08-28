@@ -1,7 +1,23 @@
 import { PerformanceLevel } from "../base";
 import { Settings } from "../settings";
 
-// --- State Variables ---
+// --- State Variables/functions ---
+
+/**
+ * Updates the member number of the player currently hovered on the map or chat canvas.
+ * @param {number | null} id - The MemberNumber of the hovered character, or null to clear.
+ */
+export function setHoveredMapPlayer(id: number | null): void {
+  hoveredMapPlayer = id;
+}
+
+/**
+ * Updates the member number of the player locked via tap/click tracking.
+ * @param {number | null} id - The MemberNumber of the locked character, or null to clear.
+ */
+export function setTrackedMapPlayer(id: number | null): void {
+  trackedMapPlayer = id;
+}
 
 /** Tracks if the mouse is physically over the game canvas (not an HTML UI overlay or off-screen) */
 export let isMouseOverCanvas: boolean = false;
