@@ -12,7 +12,6 @@
 
 import { CRABS_Base } from "../base";
 import { Assets } from "../assets";
-import { CrossMod } from "../crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "../settings";
 import DOMPurify from "dompurify";
@@ -367,7 +366,7 @@ export class Roster extends CRABS_Base {
 
           if (statusContainer.dataset.lastEffects !== currentEffects) {
             statusContainer.innerHTML = DOMPurify.sanitize(
-              this.setStatusIcons(character),
+              Icons.setStatusIcons(character),
             );
             statusContainer.dataset.lastEffects = currentEffects;
           }
@@ -378,7 +377,7 @@ export class Roster extends CRABS_Base {
           ".CRABS_player-icons",
         ) as HTMLElement;
         if (iconContainer) {
-          const newIconHTML = this.setIcons(character);
+          const newIconHTML = Icons.setIcons(character);
 
           if (iconContainer.dataset.lastIcons !== newIconHTML) {
             iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
