@@ -516,6 +516,7 @@ export class Roster extends CRABS_Base {
     playerIcons: string,
     isDrawer: boolean = false,
   ): string {
+    const globalWindow = window as any;
     const labelColor = character.LabelColor || "#FFFFFF";
 
     let r = 255,
@@ -542,10 +543,17 @@ export class Roster extends CRABS_Base {
       : "text-shadow: none !important; -webkit-text-stroke: 0px;";
 
     let compassBlock = "";
+
+    // SAFE CALL: Check the window object first
+    const isMapActive =
+      typeof globalWindow.ChatRoomMapViewIsActive === "function"
+        ? globalWindow.ChatRoomMapViewIsActive()
+        : false;
+
     if (
       !character.IsPlayer() &&
       Settings.instance.data.showMapCompass &&
-      ChatRoomMapViewIsActive() &&
+      isMapActive &&
       isDrawer
     ) {
       const trackedClass =
@@ -563,13 +571,19 @@ export class Roster extends CRABS_Base {
             </div>`;
     }
 
+    // SAFE CALL: Check the window object first, fallback to basic name if unavailable
+    const safeName =
+      typeof globalWindow.CharacterNickname === "function"
+        ? globalWindow.CharacterNickname(character).normalize("NFKC")
+        : character.Name || "Unknown";
+
     let templatevars: Record<string, string> = {
       PlayerNumber: `${character.MemberNumber}`,
       Badge: badge,
       LabelColorBorder: `${this.convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
       LabelShadow: labelShadow,
-      PlayerName: CharacterNickname(character).normalize("NFKC"),
+      PlayerName: safeName,
       PlayerIcons: playerIcons,
       StatusIcons: `${Icons.setStatusIcons(character)}`,
       CompassBlock: compassBlock,
@@ -610,7 +624,11 @@ export class Roster extends CRABS_Base {
     if (now - this.lastSentTime >= 1 * 60 * 1000 && !this.isFetching) {
       this.isFetching = true;
       this.lastSentTime = now;
-      ServerSend("AccountQuery", { Query: "OnlineFriends" });
+
+      // SAFE CALL: Execute ServerSend safely through the window object
+      if (typeof (window as any).ServerSend === "function") {
+        (window as any).ServerSend("AccountQuery", { Query: "OnlineFriends" });
+      }
 
       setTimeout(() => {
         this.isFetching = false;
