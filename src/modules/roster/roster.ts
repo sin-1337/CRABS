@@ -627,7 +627,15 @@ export class Roster extends CRABS_Base {
     wrapper: boolean = true,
     forceFullRows: boolean = false,
   ): string {
-    if (typeof ChatRoomData === "undefined" || ChatRoomData === null) {
+    const globalWindow = window as any;
+    const chatRoomData = globalWindow.ChatRoomData;
+    const chatRoomCharacter = globalWindow.ChatRoomCharacter;
+
+    if (
+      !chatRoomData ||
+      !Array.isArray(chatRoomData.Character) ||
+      !Array.isArray(chatRoomCharacter)
+    ) {
       return "";
     }
 

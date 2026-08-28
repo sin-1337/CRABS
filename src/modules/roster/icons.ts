@@ -106,13 +106,21 @@ export function setbadge(character: any): string {
   const chatRoomData = (window as any).ChatRoomData;
   let badge = Assets.printimage({ key: "player" });
 
-  badge = chatRoomData.Whitelist.includes(memberNum)
-    ? Assets.printimage({ key: "vip" })
-    : badge;
+  if (!chatRoomData) {
+    return badge;
+  }
 
-  badge = chatRoomData.Admin.includes(memberNum)
-    ? Assets.printimage({ key: "admin" })
-    : badge;
+  const isVip =
+    Array.isArray(chatRoomData.Whitelist) &&
+    chatRoomData.Whitelist.includes(memberNum);
+  const isAdmin =
+    Array.isArray(chatRoomData.Admin) && chatRoomData.Admin.includes(memberNum);
+
+  if (isAdmin) {
+    badge = Assets.printimage({ key: "admin" });
+  } else if (isVip) {
+    badge = Assets.printimage({ key: "vip" });
+  }
 
   return badge;
 }
