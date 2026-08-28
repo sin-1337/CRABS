@@ -655,7 +655,7 @@ export class Roster extends CRABS_Base {
   ): string {
     const globalWindow = window as any;
     const chatRoomData = globalWindow.ChatRoomData;
-    const chatRoomCharacter = globalWindow.ChatRoomCharacter || [];
+    const chatRoomCharacter = globalWindow.ChatRoomCharacter;
 
     if (typeof chatRoomData === "undefined" || chatRoomData === null) {
       return "";
@@ -701,20 +701,10 @@ export class Roster extends CRABS_Base {
 
     const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-    const characters = Array.isArray(chatRoomData.Character)
-      ? chatRoomData.Character
-      : [];
-    const admins = Array.isArray(chatRoomData.Admin) ? chatRoomData.Admin : [];
-    const whitelist = Array.isArray(chatRoomData.Whitelist)
-      ? chatRoomData.Whitelist
-      : [];
-
-    characters.forEach((charData: any, idx: number) => {
-      const memberNumber = charData?.MemberNumber;
-      if (typeof memberNumber !== "number") return;
-
-      const character = chatRoomCharacter.find(
-        (c: any) => c.MemberNumber === memberNumber,
+    for (let characterIndex in chatRoomData.Character) {
+      const memberNumber = chatRoomData.Character[characterIndex].MemberNumber;
+      const character = (chatRoomCharacter || []).find(
+        (c: any) => c.MemberNumber == memberNumber,
       );
 
       if (!character) {
@@ -727,26 +717,24 @@ export class Roster extends CRABS_Base {
           isVIP: false,
           isStandard: true,
         });
-        return;
+        continue;
       }
 
-      const isMe =
-        typeof character.IsPlayer === "function" ? character.IsPlayer() : false;
-      const isAdmin = admins.includes(memberNumber);
-      const isVIP = whitelist.includes(memberNumber) && !isMe && !isAdmin;
+      const isMe = character.IsPlayer();
+      const isAdmin = (chatRoomData.Admin || []).includes(memberNumber);
+      const isVIP =
+        (chatRoomData.Whitelist || []).includes(memberNumber) &&
+        !isMe &&
+        !isAdmin;
       const isStandard = !isMe && !isAdmin && !isVIP;
 
       if (isAdmin) admin_count++;
 
       const badge = Icons.setbadge(character);
-      const playerIcons = Icons.setIcons(character);
+      let playerIcons = Icons.setIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
-      const score = Sorting.calculateSortScore(
-        character,
-        effectiveSortMode,
-        idx,
-      );
+      const score = Sorting.calculateSortScore(character, effectiveSortMode);
 
       rosterCards.push({
         html,
@@ -757,7 +745,7 @@ export class Roster extends CRABS_Base {
         isVIP,
         isStandard,
       });
-    });
+    }
 
     rosterCards.sort(
       (a, b) => a.score - b.score || a.memberNumber - b.memberNumber,
@@ -774,17 +762,16 @@ export class Roster extends CRABS_Base {
 
     const playerWindow = globalWindow.Player;
     const isMap =
-      typeof globalWindow.ChatRoomMapViewIsActive === "function"
-        ? globalWindow.ChatRoomMapViewIsActive()
-        : false;
+      typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
+      globalWindow.ChatRoomMapViewIsActive();
 
     let templatevars: Record<string, string> = {
       RosterStyle: rosterStyle,
       adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
       adminsInRoom: `${admin_count}`,
-      totalAdmins: `${admins.length}`,
+      totalAdmins: `${chatRoomData.Admin?.length || 0}`,
       playerIcon: `${Assets.printimage({ key: "player", tooltip_override: "Players", css_class_override: "CRABS_header_icons" })}`,
-      playersInRoom: `${chatRoomCharacter.length}`,
+      playersInRoom: `${chatRoomCharacter?.length || 0}`,
       totalPlayers: `${chatRoomData.Limit || 0}`,
       friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
       friendsOnline: `${this.onlineFriendsCache}`,
