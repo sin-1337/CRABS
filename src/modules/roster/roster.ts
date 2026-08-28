@@ -21,6 +21,8 @@ import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
 
+import * as Sorting from "./sorting";
+
 /**
  * Class representing the enhanced player roster and related map features.
  */
@@ -32,7 +34,7 @@ export class Roster extends CRABS_Base {
 	private lastSentTime: number = 0;
 
 	/** Prevents multiple requests from firing at the same time. */
-	private isFetching: boolean = false;
+private isFetching: boolean = false;
 
 	/** Flag indicating the roster data has changed and needs a redraw. */
 	public isDirty: boolean = true;
@@ -1167,52 +1169,6 @@ export class Roster extends CRABS_Base {
 		return 0;
 	}
 
-	/**
-	 * Calculates a numerical score for sorting the roster. Lower score = higher on the list.
-	 * @param {any} character - The character to sort.
-	 * @param {string} mode - The sorting algorithm to apply.
-	 * @returns {number} The computed order weight.
-	 */
-	private calculateSortScore(character: any, mode: string): number {
-		if (character.IsPlayer && character.IsPlayer()) return 0;
-
-		const mNum = character.MemberNumber ?? -1;
-		const player = (window as any).Player;
-		const isBestFriend = CrossMod.detectMod("BCTweaks") && player.BCT?.bctSettings?.bestFriendsList?.includes(mNum);
-
-		switch (mode) {
-			case "ds":
-				if (player.OwnerNumber && player.OwnerNumber() === mNum) return 1;
-				if (typeof character.IsOwnedByPlayer === "function" && character.IsOwnedByPlayer(player.MemberNumber ?? -1)) {
-					return character.Ownership?.Stage === 0 ? 3 : 2;
-				}
-				if (typeof player.IsInFamilyOfMemberNumber === "function" && player.IsInFamilyOfMemberNumber(mNum)) return 4;
-				return 5;
-			case "lovers":
-				if (player.GetLoversNumbers && player.GetLoversNumbers().includes(mNum)) return 1;
-				if (isBestFriend) return 2;
-				if (player.FriendList && player.FriendList.includes(mNum)) return 3;
-				return 4;
-			case "friends":
-				if (isBestFriend) return 1;
-				if (player.FriendList && player.FriendList.includes(mNum)) return 2;
-				return 3;
-			case "whitelist":
-				if (player.WhiteList && player.WhiteList.includes(mNum)) return 1;
-				if (player.BlackList && player.BlackList.includes(mNum)) return 3;
-				return 2;
-			case "blacklist":
-				if (player.BlackList && player.BlackList.includes(mNum)) return 1;
-				if (player.WhiteList && player.WhiteList.includes(mNum)) return 2;
-				return 3;
-			case "role":
-			default:
-				if (ChatRoomData.Admin && ChatRoomData.Admin.includes(mNum)) return 1;
-				if (ChatRoomData.Whitelist && ChatRoomData.Whitelist.includes(mNum)) return 2;
-				return 3;
-		}
-	}
-
 	/** * Generates the HTML for the player roster based on provided arguments.
 	 * @param {string} commandArguments - Command arguments determining which players to display.
 	 * @param {boolean} [wrapper=true] - Whether to include the standard UI wrapper.
@@ -1281,7 +1237,7 @@ export class Roster extends CRABS_Base {
 			let playerIcons = this.setIcons(character);
 
 			const html = this.buildCard(character, badge, playerIcons, !wrapper);
-			const score = this.calculateSortScore(character, effectiveSortMode);
+			const score = Sorting.calculateSortScore(character, effectiveSortMode);
 
 			rosterCards.push({ html, score, memberNumber, isMe, isAdmin, isVIP, isStandard });
 		}
