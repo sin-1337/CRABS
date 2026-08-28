@@ -1,55 +1,55 @@
 {
-  "name": "crabs",
-  "description": "Crazy Roster Add-on By Sin",
-  "version": "2.2.0.277",
-  "main": "Alpha/bundle.js",
-  "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "deploy": "cd ../Live && git checkout main && cd ../Dev && rollup -c && cd ../Live && git add * && git commit -m 'new build' && git push"
-  },
-  "keywords": [],
-  "author": "Sin",
-  "license": "GPL-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sin-1337/CRABS.git"
-  },
-  "dependencies": {
-    "@types/lz-string": "1.5.0",
-    "@types/socket.io-client": "^3.0.0",
-    "bondage-club-mod-sdk": "~1.2.0",
-    "dompurify": "^3.3.1",
-    "lz-string": "^1.5.0"
-  },
-  "devDependencies": {
-    "@eslint/css": "^0.14.1",
-    "@eslint/js": "^9.39.2",
-    "@eslint/json": "^0.14.0",
-    "@eslint/markdown": "^7.5.1",
-    "@rollup/plugin-commonjs": "^29.0.0",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-replace": "^6.0.3",
-    "@rollup/plugin-terser": "^1.0.0",
-    "@rollup/plugin-typescript": "^12.3.0",
-    "@types/node": "^25.0.6",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
-    "bc-stubs": "^127.0.0",
-    "eslint": "^9.39.2",
-    "globals": "^17.0.0",
-    "rollup": "^4.55.1",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-progress": "^1.1.2",
-    "rollup-plugin-serve": "^3.0.0",
-    "rollup-plugin-string": "^3.0.0",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.0"
-  },
-  "overrides": {
-    "ws": "^8.17.1"
-  }
+    "name": "crabs",
+    "description": "Crazy Roster Add-on By Sin",
+    "version": "2.2.0.278",
+    "main": "Alpha/bundle.js",
+    "scripts": {
+        "build": "rollup -c",
+        "dev": "rollup -c -w",
+        "deploy": "cd ../Live && git checkout main && cd ../Dev && rollup -c && cd ../Live && git add * && git commit -m 'new build' && git push"
+    },
+    "keywords": [],
+    "author": "Sin",
+    "license": "GPL-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sin-1337/CRABS.git"
+    },
+    "dependencies": {
+        "@types/lz-string": "1.5.0",
+        "@types/socket.io-client": "^3.0.0",
+        "bondage-club-mod-sdk": "~1.2.0",
+        "dompurify": "^3.4.14",
+        "lz-string": "^1.5.0"
+    },
+    "devDependencies": {
+        "@eslint/css": "^1.4.0",
+        "@eslint/js": "^10.0.1",
+        "@eslint/json": "^2.0.1",
+        "@eslint/markdown": "^8.0.3",
+        "@rollup/plugin-commonjs": "^29.0.3",
+        "@rollup/plugin-json": "^6.1.0",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-replace": "^6.0.3",
+        "@rollup/plugin-terser": "^1.0.0",
+        "@rollup/plugin-typescript": "^12.3.0",
+        "@types/node": "^26.4.0",
+        "@typescript-eslint/eslint-plugin": "^8.68.0",
+        "@typescript-eslint/parser": "^8.68.0",
+        "bc-stubs": "^131.0.0",
+        "eslint": "^10.9.1",
+        "globals": "^17.11.0",
+        "rollup": "^4.63.1",
+        "rollup-plugin-copy": "^3.5.0",
+        "rollup-plugin-postcss": "^4.0.2",
+        "rollup-plugin-progress": "^1.1.2",
+        "rollup-plugin-serve": "^3.0.0",
+        "rollup-plugin-string": "^3.0.0",
+        "tslib": "^2.8.1",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.68.0"
+    },
+    "overrides": {
+        "ws": "^8.17.1"
+    }
 }
