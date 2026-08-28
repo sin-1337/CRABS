@@ -17,9 +17,9 @@ import { Assets } from "../assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "../settings";
 import DOMPurify from "dompurify";
-import "../templates/roster.css";
-import rostertemplate from "../templates/roster.html";
-import rostercardstemplate from "../templates/roster_cards.html";
+import "./templates/roster.css";
+import rostertemplate from "./templates/roster.html";
+import rostercardstemplate from "./templates/roster_cards.html";
 
 // module components
 import * as Compass from "./compass";
