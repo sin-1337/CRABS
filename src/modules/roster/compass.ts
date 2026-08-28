@@ -1,53 +1,43 @@
 import { PerformanceLevel } from "../base";
 import { Settings } from "../settings";
 
-// --- State Variables/functions ---
-
-/**
- * Updates the member number of the player currently hovered on the map or chat canvas.
- * @param {number | null} id - The MemberNumber of the hovered character, or null to clear.
- */
-export function setHoveredMapPlayer(id: number | null): void {
-  hoveredMapPlayer = id;
-}
-
-/**
- * Updates the member number of the player locked via tap/click tracking.
- * @param {number | null} id - The MemberNumber of the locked character, or null to clear.
- */
-export function setTrackedMapPlayer(id: number | null): void {
-  trackedMapPlayer = id;
-}
+// --- State Variables ---
 
 /** Tracks if the mouse is physically over the game canvas (not an HTML UI overlay or off-screen) */
 export let isMouseOverCanvas: boolean = false;
-export function setIsMouseOverCanvas(value: boolean) {
+export function setIsMouseOverCanvas(value: boolean): void {
   isMouseOverCanvas = value;
 }
 
 /** The player currently hovered on the main canvas (to sync to DOM) */
 export let canvasHoveredPlayer: number | null = null;
-export function setCanvasHoveredPlayer(id: number | null) {
+export function setCanvasHoveredPlayer(id: number | null): void {
   canvasHoveredPlayer = id;
 }
 
 /** Temporary variable to calculate the top-most hovered player per frame */
 export let currentFrameHoveredPlayer: number | null = null;
-export function setCurrentFrameHoveredPlayer(id: number | null) {
+export function setCurrentFrameHoveredPlayer(id: number | null): void {
   currentFrameHoveredPlayer = id;
 }
 
 /** Which player are we hovering over in the chat log */
 export let chatLogHoveredPlayer: number | null = null;
-export function setChatLogHoveredPlayer(id: number | null) {
+export function setChatLogHoveredPlayer(id: number | null): void {
   chatLogHoveredPlayer = id;
 }
 
 /** The member number of the player currently hovered on the map. */
 export let hoveredMapPlayer: number | null = null;
+export function setHoveredMapPlayer(id: number | null): void {
+  hoveredMapPlayer = id;
+}
 
 /** The member number of the player currently locked via tap/click (Mobile Friendly). */
 export let trackedMapPlayer: number | null = null;
+export function setTrackedMapPlayer(id: number | null): void {
+  trackedMapPlayer = id;
+}
 
 /** Timer for the hover delay mode to prevent accidental pagination. */
 let hoverTimeout: number | null = null;
@@ -65,12 +55,13 @@ export let deferredIndicator: {
   y: number;
   zoom: number;
 } | null = null;
-
-export function setDeferredIndicator(indicator: typeof deferredIndicator) {
+export function setDeferredIndicator(
+  indicator: typeof deferredIndicator,
+): void {
   deferredIndicator = indicator;
 }
 
-// --- Tracking Handlers ---
+// --- Handlers & DOM Sync ---
 
 /**
  * Handler for tapping/clicking the compass icon.
@@ -110,11 +101,8 @@ export function clearTracking(): void {
   });
 }
 
-// --- Roster Card Hover Handlers ---
-
 /**
  * Handler for when a player's entry is hovered in the roster UI.
- * Evaluates the current pageShiftMode setting to determine the interaction response.
  * @param {string} playerId - The ID of the hovered player.
  */
 export function onPlayerHover(playerId: string): void {
@@ -124,14 +112,12 @@ export function onPlayerHover(playerId: string): void {
   if (!isNaN(id)) {
     hoveredMapPlayer = id;
 
-    // ONLY return early here so we don't start the pagination timer
     if (!Settings.instance.data.pageFocusHover) return;
 
     if (hoverTimeout) {
       window.clearTimeout(hoverTimeout);
     }
 
-    // Enforce the 500ms delay for auto-pagination
     hoverTimeout = window.setTimeout(() => {
       autoPaginateToPlayer(id);
     }, 500);
@@ -140,7 +126,6 @@ export function onPlayerHover(playerId: string): void {
 
 /**
  * Handler for when a player's entry is no longer hovered.
- * Clears active hover states and cancels any pending delayed shifts.
  */
 export function onPlayerLeave(): void {
   hoveredMapPlayer = null;
@@ -155,21 +140,17 @@ export function onPlayerLeave(): void {
  * @param {string} playerId - The ID of the clicked player.
  */
 export function onPlayerCardClick(playerId: string): void {
-  // Clicks should always work instantly, overriding any hover delays
   const id = parseInt(playerId, 10);
   if (!isNaN(id)) {
     autoPaginateToPlayer(id);
   }
 }
 
-// --- DOM Sync ---
-
 /**
  * Applies a simulated CSS hover state to a player's roster card and scrolls it into view.
- * @param memberNumber - The ID of the hovered player, or null to clear.
+ * @param {number | null} memberNumber - The ID of the hovered player, or null to clear.
  */
 export function syncCanvasHoverToDOM(memberNumber: number | null): void {
-  // Clear existing simulated hovers
   document
     .querySelectorAll(".CRABS_card.CRABS_simulated-hover")
     .forEach((el) => {
@@ -186,11 +167,9 @@ export function syncCanvasHoverToDOM(memberNumber: number | null): void {
     if (card) {
       card.classList.add("CRABS_simulated-hover");
 
-      // Only scroll if the setting is enabled AND the card is inside the Drawer
       const isInsideDrawer = card.closest("#CRABS_Drawer_Roster") !== null;
 
       if (isInsideDrawer && Settings.instance.data.autoScrollRoster) {
-        // Wait 150ms before scrolling to prevent rapid-wiggle spam
         scrollTimeout = window.setTimeout(() => {
           card.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }, 150);
@@ -199,13 +178,9 @@ export function syncCanvasHoverToDOM(memberNumber: number | null): void {
   }
 }
 
-// --- Pagination ---
-
 /**
- * Reverse Compass
- * Automatically switches the base game's ChatRoom pagination to the page
- * containing the targeted player, accounting for mods that alter visual order.
- * @param targetId The MemberNumber of the player to locate.
+ * Automatically switches the base game's ChatRoom pagination to the page containing the targeted player.
+ * @param {number} targetId - The MemberNumber of the player to locate.
  */
 export function autoPaginateToPlayer(targetId: number): void {
   const globalWindow = window as any;
@@ -276,52 +251,20 @@ export function autoPaginateToPlayer(targetId: number): void {
   }
 }
 
-// --- Rendering / Visual Math ---
+// --- Visual Math & Canvas Rendering ---
 
 /**
- * Extracts a combined string of all active and forced poses for a character.
+ * Extracts a combined string of active poses for a character.
  */
-export function getCharacterPoseString(character: any): string {
-  const poses = new Set<string>();
-
-  if (Array.isArray(character.ActivePose))
-    character.ActivePose.forEach((p: string) => poses.add(p));
-  else if (character.ActivePose) poses.add(String(character.ActivePose));
-
-  if (Array.isArray(character.Pose))
-    character.Pose.forEach((p: string) => poses.add(p));
-  else if (character.Pose) poses.add(String(character.Pose));
-
-  // Scan appearance for furniture/items forcing a pose (e.g. Petbed)
-  if (Array.isArray(character.Appearance)) {
-    character.Appearance.forEach((item: any) => {
-      if (item.Property?.Type) poses.add(String(item.Property.Type));
-
-      if (Array.isArray(item.Property?.Pose))
-        item.Property.Pose.forEach((p: string) => poses.add(p));
-      else if (item.Property?.Pose) poses.add(String(item.Property.Pose));
-
-      if (Array.isArray(item.Asset?.SetPose))
-        item.Asset.SetPose.forEach((p: string) => poses.add(p));
-      else if (item.Asset?.SetPose) poses.add(String(item.Asset.SetPose));
-    });
-  }
-
-  return Array.from(poses).join(" ");
+function getCharacterPoseString(character: any): string {
+  const activePoses = character.ActivePose || character.Pose || [];
+  return Array.isArray(activePoses)
+    ? activePoses.join(" ")
+    : String(activePoses);
 }
 
 /**
  * Renders a 3D-spinning directional arrow indicator on the canvas.
- * The arrow is natively drawn pointing right (0 radians); use the angle parameter to reorient.
- * Applies a continuous Y-axis squish to simulate a barrel roll, complete with dynamic specular highlights and shadows.
- * @param {CanvasRenderingContext2D} context - The 2D rendering context of the target canvas.
- * @param {number} x - The absolute X coordinate on the canvas to place the center of the indicator.
- * @param {number} y - The absolute Y coordinate on the canvas to place the center of the indicator.
- * @param {number} angle - The rotation angle in radians (e.g., Math.PI / 2 points it downwards).
- * @param {number} scale - The uniform scaling multiplier for the indicator's size.
- * @param {string} color - The CSS color string used to fill the base of the arrow.
- * @param {boolean} isDark - True if the base color is dark; toggles the outline stroke to white for contrast.
- * @returns {void}
  */
 export function drawIndicator(
   context: CanvasRenderingContext2D,
@@ -343,7 +286,6 @@ export function drawIndicator(
     const absRoll = Math.abs(rollFactor);
     const sign = Math.sign(rollFactor) || 1;
 
-    // 1. Prevent absolute zero scale so it snaps through the middle
     const renderScaleY = Math.max(absRoll, 0.1) * sign;
 
     context.scale(scale, scale * renderScaleY);
@@ -380,7 +322,6 @@ export function drawIndicator(
     }
 
     context.strokeStyle = isDark ? "white" : "black";
-    // 2. Thicken the outline dynamically as it flattens to create a "bulge"
     context.lineWidth = 1.5 / scale + (1 - absRoll) * 2.5;
     context.stroke();
   } finally {
@@ -390,8 +331,7 @@ export function drawIndicator(
 
 /**
  * Draws a directional arrow pointing toward the hovered player on the map.
- * @param {Function} getColorBrightness - Helper callback to calculate perceived brightness.
- * @returns {void}
+ * @param {Function} getColorBrightness - Callback from CRABS_Base to calculate brightness.
  */
 export function drawCompass(
   getColorBrightness: (color: string) => number,
@@ -423,7 +363,7 @@ export function drawCompass(
   if (!canvasContext) return;
 
   let arrowX, arrowY, angle;
-  const scale = 0.66; // Locked base size
+  const scale = 0.66;
 
   const range = globalWindow.ChatRoomMapViewPerceptionRange;
   const tileW = 1000 / (range * 2 + 1);
@@ -435,14 +375,10 @@ export function drawCompass(
     globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
 
   if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
-    angle = Math.PI / 2; // Point down
-
+    angle = Math.PI / 2;
     arrowX = (deltaX + range) * tileW + tileW / 2;
 
-    // Fetch the target's current pose
     const poseStr = getCharacterPoseString(target);
-
-    // Determine scale multiplier based on pose
     let poseScale = 1.0;
 
     if (
@@ -454,23 +390,16 @@ export function drawCompass(
     } else if (poseStr.includes("AllFours")) {
       poseScale = 0.5;
     } else if (poseStr.includes("Kneel")) {
-      // INCREASED from 0.65 to 0.85.
-      // A larger scale subtracts more from the bottom Y coordinate,
-      // pushing the arrow further UP the screen.
       poseScale = 0.75;
     }
 
-    // Anchor calculation from the bottom (feet) of the tile instead of the top
     const tileTop = (deltaY + range) * tileW;
     const tileBottom = tileTop + tileW;
-
-    // Character sprites are ~1.67x the height of a tile. Scale that height by the pose.
     const headY = tileBottom - tileW * 1.67 * poseScale;
 
-    // Set final arrowY position
     arrowY = headY - 20 * scale - 5;
   } else {
-    angle = Math.atan2(deltaY, deltaX); // Point toward the edge
+    angle = Math.atan2(deltaY, deltaX);
     arrowX = 500 + Math.cos(angle) * 450;
     arrowY = 500 + Math.sin(angle) * 450;
   }
@@ -491,11 +420,7 @@ export function drawCompass(
 }
 
 /**
- * Renders the custom indicator arrow to the left of the character's nameplate in normal rooms.
- * @param {any} character - The character to draw next to.
- * @param {number} x - Target screen X coordinate.
- * @param {number} y - Target screen Y coordinate.
- * @param {Function} getColorBrightness - Helper callback to calculate perceived brightness.
+ * Renders the custom indicator arrow to the left of the character's nameplate.
  */
 export function drawNameIndicator(
   character: any,
@@ -509,9 +434,11 @@ export function drawNameIndicator(
   )?.getContext("2d");
   if (!canvasContext) return;
 
-  const currentName = (window as any)
-    .CharacterNickname(character)
-    .normalize("NFKC");
+  const currentName =
+    typeof globalWindow.CharacterNickname === "function"
+      ? globalWindow.CharacterNickname(character).normalize("NFKC")
+      : character.Name || "";
+
   let cachedData = nameWidthCache.get(character.MemberNumber);
 
   if (!cachedData || cachedData.name !== currentName) {
@@ -532,15 +459,11 @@ export function drawNameIndicator(
   const padding = 10;
   const arrowWidth = 40 * scale;
 
-  // Assume default positioning (Left side, pointing Right)
   let angle = 0;
   let tipX = x - textWidth / 2 - padding;
   let finalArrowX = tipX - arrowWidth / 2;
 
-  // Is the back of the arrow going to clip past the left edge of the screen (0)?
-  // We use 10px as a safe margin so it doesn't scrape the absolute edge.
   if (finalArrowX - arrowWidth / 2 < 10) {
-    // Flip to the Right side, pointing Left (<)
     angle = Math.PI;
     tipX = x + textWidth / 2 + padding;
     finalArrowX = tipX + arrowWidth / 2;
@@ -558,14 +481,7 @@ export function drawNameIndicator(
 }
 
 /**
- * Renders a continuous, pulsating aura behind a targeted character on the main screen.
- * This effect is drawn before the character model to ensure it appears behind them.
- * @param {any} character - The character object to reference for colors.
- * @param {number} drawX - The base X coordinate where the character is being drawn.
- * @param {number} drawY - The base Y coordinate where the character is being drawn.
- * @param {number} zoom - The current zoom/scaling factor of the room.
- * @param {PerformanceLevel} performanceLevel - The active performance throttling profile.
- * @returns {void}
+ * Renders a pulsating aura behind a targeted character.
  */
 export function drawFocusGlow(
   character: any,
@@ -584,14 +500,11 @@ export function drawFocusGlow(
 
   const playerColor = character.LabelColor || "cyan";
 
-  // Default to the static, higher-visibility alpha for LOW performance
   let currentAlpha = 0.5;
 
   if (performanceLevel === PerformanceLevel.CRITICAL) {
-    // Dimmer static alpha to save maximum processing power
     currentAlpha = 0.25;
   } else if (performanceLevel === PerformanceLevel.NORMAL) {
-    // Full pulsating math for high-performance mode
     const pulseSpeed = 250;
     currentAlpha = ((Math.sin(Date.now() / pulseSpeed) + 1) / 2) * 0.4;
   }
@@ -626,7 +539,6 @@ export function drawFocusGlow(
     context.globalAlpha = currentAlpha;
 
     if (performanceLevel === PerformanceLevel.NORMAL) {
-      // --- The original heavy blur effect ---
       context.fillStyle = playerColor;
       context.filter = "blur(25px)";
 
@@ -634,7 +546,6 @@ export function drawFocusGlow(
       context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
       context.fill();
     } else {
-      // --- The lightweight gradient fallback ---
       context.translate(centerX, centerY);
       context.scale(1, radiusY / radiusX);
 
