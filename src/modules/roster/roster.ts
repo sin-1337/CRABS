@@ -657,7 +657,6 @@ export class Roster extends CRABS_Base {
     const chatRoomData = globalWindow.ChatRoomData;
     const chatRoomCharacter = globalWindow.ChatRoomCharacter || [];
 
-    // Revert to original check: ensures the outer HTML shell renders even if arrays are still loading.
     if (typeof chatRoomData === "undefined" || chatRoomData === null) {
       return "";
     }
@@ -702,15 +701,20 @@ export class Roster extends CRABS_Base {
 
     const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-    // Safely default to empty arrays to prevent mapping errors during transitions
-    const characters = chatRoomData.Character || [];
-    const admins = chatRoomData.Admin || [];
-    const whitelist = chatRoomData.Whitelist || [];
+    const characters = Array.isArray(chatRoomData.Character)
+      ? chatRoomData.Character
+      : [];
+    const admins = Array.isArray(chatRoomData.Admin) ? chatRoomData.Admin : [];
+    const whitelist = Array.isArray(chatRoomData.Whitelist)
+      ? chatRoomData.Whitelist
+      : [];
 
-    for (let characterIndex in characters) {
-      const memberNumber = characters[characterIndex].MemberNumber;
+    characters.forEach((charData: any, idx: number) => {
+      const memberNumber = charData?.MemberNumber;
+      if (typeof memberNumber !== "number") return;
+
       const character = chatRoomCharacter.find(
-        (c: any) => c.MemberNumber == memberNumber,
+        (c: any) => c.MemberNumber === memberNumber,
       );
 
       if (!character) {
@@ -723,10 +727,11 @@ export class Roster extends CRABS_Base {
           isVIP: false,
           isStandard: true,
         });
-        continue;
+        return;
       }
 
-      const isMe = character.IsPlayer();
+      const isMe =
+        typeof character.IsPlayer === "function" ? character.IsPlayer() : false;
       const isAdmin = admins.includes(memberNumber);
       const isVIP = whitelist.includes(memberNumber) && !isMe && !isAdmin;
       const isStandard = !isMe && !isAdmin && !isVIP;
@@ -734,10 +739,14 @@ export class Roster extends CRABS_Base {
       if (isAdmin) admin_count++;
 
       const badge = Icons.setbadge(character);
-      let playerIcons = Icons.setIcons(character);
+      const playerIcons = Icons.setIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
-      const score = Sorting.calculateSortScore(character, effectiveSortMode);
+      const score = Sorting.calculateSortScore(
+        character,
+        effectiveSortMode,
+        idx,
+      );
 
       rosterCards.push({
         html,
@@ -748,7 +757,7 @@ export class Roster extends CRABS_Base {
         isVIP,
         isStandard,
       });
-    }
+    });
 
     rosterCards.sort(
       (a, b) => a.score - b.score || a.memberNumber - b.memberNumber,

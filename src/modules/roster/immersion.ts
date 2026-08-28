@@ -48,11 +48,26 @@ export function getBlindnessLevel(): number {
     }
   }
 
-  const playerWindow = (window as any).Player;
+  const globalWindow = window as any;
+  const playerWindow = globalWindow.Player;
+  if (!playerWindow) return 0;
 
-  if (playerWindow.HasEffect("BlindTotal")) return 4;
-  if (playerWindow.HasEffect("BlindHeavy")) return 3;
-  if (playerWindow.HasEffect("BlindNormal")) return 2;
-  if (playerWindow.HasEffect("BlindLight")) return 1;
+  const hasEffect = (effect: string): boolean => {
+    if (typeof playerWindow.HasEffect === "function") {
+      return playerWindow.HasEffect(effect);
+    }
+    if (typeof globalWindow.CharacterHasEffect === "function") {
+      return globalWindow.CharacterHasEffect(playerWindow, effect);
+    }
+    if (Array.isArray(playerWindow.Effect)) {
+      return playerWindow.Effect.includes(effect);
+    }
+    return false;
+  };
+
+  if (hasEffect("BlindTotal")) return 4;
+  if (hasEffect("BlindHeavy")) return 3;
+  if (hasEffect("BlindNormal")) return 2;
+  if (hasEffect("BlindLight")) return 1;
   return 0;
 }
