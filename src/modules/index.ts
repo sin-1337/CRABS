@@ -1,22 +1,25 @@
 /**
  * CRABS Modules Index
- * 
+ *
  * This file serves as the central entry point for all CRABS modules,
  * exporting them for easy access throughout the mod.
  */
 
-export * from "./privacy";
-export * from "./assets";
-export * from "./banner";
-export * from "./base";
-export * from "./crossmod";
-export * from "./drawer";
-export * from "./help";
-export * from "./roster";
-export * from "./whisperplus";
-export * from "./settings/index";
-export * from "./setup";
-export * from "./notifications";
-export * from "./updater";
-export * from "./chat";
-export * from "./performance";
+// Sub-folders
+export { Roster } from "./roster";
+export { Settings } from "./settings";
+
+// Root modules
+export { Assets } from "./assets";
+export { Banner } from "./banner";
+export { CRABS_Base, PerformanceLevel } from "./base";
+export { ChatManager } from "./chat"; // Note: file is chat.ts
+export { CrossMod } from "./crossmod";
+export { Drawer } from "./drawer";
+export { Help } from "./help";
+export { Notification } from "./notifications";
+export { Performance } from "./performance";
+export { PrivacyMode } from "./privacy"; // Note: file is privacy.ts
+export { Setup } from "./setup";
+export { Updater } from "./updater";
+export { WhisperPlus } from "./whisperplus";
