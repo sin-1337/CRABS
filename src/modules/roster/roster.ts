@@ -22,6 +22,7 @@ import rostercardstemplate from "./templates/roster_cards.html";
 
 import * as Compass from "./compass";
 import * as Sorting from "./sorting";
+import * as Immersion from "./immersion";
 
 /**
  * Class representing the enhanced player roster and related map features.
@@ -737,59 +738,6 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Checks if the player's eyes are currently closed.
-   */
-  private isEyesClosed(): boolean {
-    const playerWindow = (window as any).Player;
-
-    const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
-    if (typeof characterIsEyesClosed === "function") {
-      return characterIsEyesClosed(playerWindow);
-    }
-
-    if (typeof (playerWindow as any).IsEyesClosed === "function") {
-      return (playerWindow as any).IsEyesClosed();
-    }
-
-    if (Array.isArray(playerWindow.Appearance)) {
-      const eyesItem = playerWindow.Appearance.find(
-        (item: any) =>
-          item.Asset && item.Asset.Group && item.Asset.Group.Name === "Eyes",
-      );
-
-      if (eyesItem) {
-        return eyesItem.Property?.Expression === "Closed";
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Determines the current blindness level of the player (0 to 4).
-   */
-  private getBlindnessLevel(): number {
-    if (!Settings.instance.data.immersiveBlind) return 0;
-
-    if (
-      Settings.instance.data.respectBcxRules &&
-      CrossMod.isBCXRuleEnforced("alt_eyes_fullblind")
-    ) {
-      if (this.isEyesClosed()) {
-        return 4;
-      }
-    }
-
-    const playerWindow = (window as any).Player;
-
-    if (playerWindow.HasEffect("BlindTotal")) return 4;
-    if (playerWindow.HasEffect("BlindHeavy")) return 3;
-    if (playerWindow.HasEffect("BlindNormal")) return 2;
-    if (playerWindow.HasEffect("BlindLight")) return 1;
-    return 0;
-  }
-
-  /**
    * Generates the HTML for the player roster based on provided arguments.
    */
   public buildroster(
@@ -805,7 +753,7 @@ export class Roster extends CRABS_Base {
 
     let rosterStyle = "";
     if (Settings.instance.data.immersiveBlind) {
-      const blindLevel = this.getBlindnessLevel();
+      const blindLevel = Immersion.getBlindnessLevel();
       if (blindLevel > 0) {
         const blurAmount = blindLevel * 5;
         rosterStyle = `filter: blur(${blurAmount}px); pointer-events: none; user-select: none; transition: filter 0.5s ease;`;

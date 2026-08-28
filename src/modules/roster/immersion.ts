@@ -6,15 +6,17 @@ import { Settings } from "../settings";
  * @returns {boolean} True if eyes are closed, false otherwise.
  */
 export function isEyesClosed(): boolean {
-  const playerWindow = (window as any).Player;
+  const globalWindow = window as any;
+  const playerWindow = globalWindow.Player;
+  if (!playerWindow) return false;
 
-  const characterIsEyesClosed = (window as any).CharacterIsEyesClosed;
+  const characterIsEyesClosed = globalWindow.CharacterIsEyesClosed;
   if (typeof characterIsEyesClosed === "function") {
     return characterIsEyesClosed(playerWindow);
   }
 
-  if (typeof (playerWindow as any).IsEyesClosed === "function") {
-    return (playerWindow as any).IsEyesClosed();
+  if (typeof playerWindow.IsEyesClosed === "function") {
+    return playerWindow.IsEyesClosed();
   }
 
   if (Array.isArray(playerWindow.Appearance)) {
