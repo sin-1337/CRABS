@@ -288,34 +288,39 @@ export class Roster extends CRABS_Base {
    * @param {HTMLElement} root - The parent container element for the roster.
    */
   public updateRosterUI(root: HTMLElement): void {
-    if (typeof ChatRoomData === "undefined" || ChatRoomData === null) return;
+    const globalWindow = window as any;
+    const chatRoomData = globalWindow.ChatRoomData;
+    const chatRoomCharacter = globalWindow.ChatRoomCharacter || [];
+    const playerWindow = globalWindow.Player;
+
+    if (typeof chatRoomData === "undefined" || chatRoomData === null) return;
 
     const updateText = (id: string, text: string) => {
       const el = root.querySelector(id);
       if (el && el.textContent !== text) el.textContent = text;
     };
 
-    const currentRoomName = ChatRoomData.Name || "Roster";
+    const currentRoomName = chatRoomData.Name || "Roster";
     updateText("#drawer-title", `CRABS: ${currentRoomName}`);
 
-    const adminInRoom = ChatRoomData.Character.filter((c: any) =>
-      ChatRoomData.Admin.includes(c.MemberNumber),
-    ).length;
-    updateText(
-      "#CRABS_header_admins",
-      `${adminInRoom}/${ChatRoomData.Admin.length}`,
-    );
+    const admins = chatRoomData.Admin || [];
+    const adminInRoom =
+      chatRoomData.Character?.filter((c: any) =>
+        admins.includes(c.MemberNumber),
+      ).length || 0;
+
+    updateText("#CRABS_header_admins", `${adminInRoom}/${admins.length}`);
     updateText(
       "#CRABS_header_players",
-      `${ChatRoomCharacter.length}/${ChatRoomData.Limit}`,
+      `${chatRoomCharacter.length}/${chatRoomData.Limit || 0}`,
     );
     updateText(
       "#CRABS_header_friends",
-      `${this.onlineFriendsCache}/${Player.FriendList.length}`,
+      `${this.onlineFriendsCache}/${playerWindow?.FriendList?.length || 0}`,
     );
     updateText(
       "#CRABS_header_online",
-      `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
+      `${typeof globalWindow.CurrentOnlinePlayers !== "undefined" ? globalWindow.CurrentOnlinePlayers : ""} `,
     );
 
     const keyContainer = root.querySelector(
@@ -324,7 +329,10 @@ export class Roster extends CRABS_Base {
     const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
 
     if (keyContainer && keyContent) {
-      const isMap = ChatRoomMapViewIsActive();
+      const isMap =
+        typeof globalWindow.ChatRoomMapViewIsActive === "function"
+          ? globalWindow.ChatRoomMapViewIsActive()
+          : false;
       const activeStr = isMap ? "true" : "false";
 
       if (keyContainer.getAttribute("data-map-active") !== activeStr) {
@@ -332,9 +340,7 @@ export class Roster extends CRABS_Base {
       }
 
       if (isMap) {
-        const playerWindow = (window as any).Player;
-        const pState = playerWindow.MapData?.PrivateState;
-
+        const pState = playerWindow?.MapData?.PrivateState;
         const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
 
         if (keyContent.dataset.lastKeys !== currentKeyState) {
@@ -361,7 +367,9 @@ export class Roster extends CRABS_Base {
 
     const container = root.querySelector(".CRABS_card-container");
     const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
-    if (currentCardCount !== ChatRoomData.Character.length) {
+    const characterCount = chatRoomData.Character?.length || 0;
+
+    if (currentCardCount !== characterCount) {
       if (container) {
         container.innerHTML = DOMPurify.sanitize(
           this.buildroster("all", false, true),
@@ -371,54 +379,54 @@ export class Roster extends CRABS_Base {
       }
     }
 
-    ChatRoomData.Character.forEach((charData: any) => {
-      const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
-      const character = ChatRoomCharacter.find(
-        (c) => c.MemberNumber === charData.MemberNumber,
-      );
+    if (chatRoomData.Character) {
+      chatRoomData.Character.forEach((charData: any) => {
+        const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
+        const character = chatRoomCharacter.find(
+          (c: any) => c.MemberNumber === charData.MemberNumber,
+        );
 
-      if (card && character) {
-        // Handle nickname changes
-        const nameContainer = card.querySelector(
-          ".CRABS_player-name",
-        ) as HTMLElement;
-        if (nameContainer) {
-          const currentNickname =
-            CharacterNickname(character).normalize("NFKC");
-          if (nameContainer.textContent !== currentNickname) {
-            nameContainer.textContent = currentNickname;
+        if (card && character) {
+          const nameContainer = card.querySelector(
+            ".CRABS_player-name",
+          ) as HTMLElement;
+          if (nameContainer) {
+            const currentNickname = globalWindow
+              .CharacterNickname(character)
+              .normalize("NFKC");
+            if (nameContainer.textContent !== currentNickname) {
+              nameContainer.textContent = currentNickname;
+            }
+          }
+
+          const statusContainer = card.querySelector(
+            ".CRABS_status-icons",
+          ) as HTMLElement;
+          if (statusContainer) {
+            const currentEffects = globalWindow
+              .CharacterGetEffects(character)
+              .join(",");
+            if (statusContainer.dataset.lastEffects !== currentEffects) {
+              statusContainer.innerHTML = DOMPurify.sanitize(
+                Icons.setStatusIcons(character),
+              );
+              statusContainer.dataset.lastEffects = currentEffects;
+            }
+          }
+
+          const iconContainer = card.querySelector(
+            ".CRABS_player-icons",
+          ) as HTMLElement;
+          if (iconContainer) {
+            const newIconHTML = Icons.setIcons(character);
+            if (iconContainer.dataset.lastIcons !== newIconHTML) {
+              iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
+              iconContainer.dataset.lastIcons = newIconHTML;
+            }
           }
         }
-
-        // Handle status icons
-        const statusContainer = card.querySelector(
-          ".CRABS_status-icons",
-        ) as HTMLElement;
-        if (statusContainer) {
-          const currentEffects = CharacterGetEffects(character).join(",");
-
-          if (statusContainer.dataset.lastEffects !== currentEffects) {
-            statusContainer.innerHTML = DOMPurify.sanitize(
-              Icons.setStatusIcons(character),
-            );
-            statusContainer.dataset.lastEffects = currentEffects;
-          }
-        }
-
-        // Handle relationship icons
-        const iconContainer = card.querySelector(
-          ".CRABS_player-icons",
-        ) as HTMLElement;
-        if (iconContainer) {
-          const newIconHTML = Icons.setIcons(character);
-
-          if (iconContainer.dataset.lastIcons !== newIconHTML) {
-            iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
-            iconContainer.dataset.lastIcons = newIconHTML;
-          }
-        }
-      }
-    });
+      });
+    }
   }
 
   /**
@@ -629,13 +637,10 @@ export class Roster extends CRABS_Base {
   ): string {
     const globalWindow = window as any;
     const chatRoomData = globalWindow.ChatRoomData;
-    const chatRoomCharacter = globalWindow.ChatRoomCharacter;
+    const chatRoomCharacter = globalWindow.ChatRoomCharacter || [];
 
-    if (
-      !chatRoomData ||
-      !Array.isArray(chatRoomData.Character) ||
-      !Array.isArray(chatRoomCharacter)
-    ) {
+    // Revert to original check: ensures the outer HTML shell renders even if arrays are still loading.
+    if (typeof chatRoomData === "undefined" || chatRoomData === null) {
       return "";
     }
 
@@ -679,9 +684,14 @@ export class Roster extends CRABS_Base {
 
     const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
 
-    for (let characterIndex in ChatRoomData.Character) {
-      const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
-      const character = ChatRoomCharacter.find(
+    // Safely default to empty arrays to prevent mapping errors during transitions
+    const characters = chatRoomData.Character || [];
+    const admins = chatRoomData.Admin || [];
+    const whitelist = chatRoomData.Whitelist || [];
+
+    for (let characterIndex in characters) {
+      const memberNumber = characters[characterIndex].MemberNumber;
+      const character = chatRoomCharacter.find(
         (c: any) => c.MemberNumber == memberNumber,
       );
 
@@ -699,9 +709,8 @@ export class Roster extends CRABS_Base {
       }
 
       const isMe = character.IsPlayer();
-      const isAdmin = ChatRoomData.Admin.includes(memberNumber);
-      const isVIP =
-        ChatRoomData.Whitelist.includes(memberNumber) && !isMe && !isAdmin;
+      const isAdmin = admins.includes(memberNumber);
+      const isVIP = whitelist.includes(memberNumber) && !isMe && !isAdmin;
       const isStandard = !isMe && !isAdmin && !isVIP;
 
       if (isAdmin) admin_count++;
@@ -736,31 +745,34 @@ export class Roster extends CRABS_Base {
       output_rows += card.html;
     }
 
-    const playerWindow = (window as any).Player;
-    const isMap = ChatRoomMapViewIsActive();
+    const playerWindow = globalWindow.Player;
+    const isMap =
+      typeof globalWindow.ChatRoomMapViewIsActive === "function"
+        ? globalWindow.ChatRoomMapViewIsActive()
+        : false;
 
     let templatevars: Record<string, string> = {
       RosterStyle: rosterStyle,
       adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
       adminsInRoom: `${admin_count}`,
-      totalAdmins: `${ChatRoomData.Admin.length}`,
+      totalAdmins: `${admins.length}`,
       playerIcon: `${Assets.printimage({ key: "player", tooltip_override: "Players", css_class_override: "CRABS_header_icons" })}`,
-      playersInRoom: `${ChatRoomCharacter.length}`,
-      totalPlayers: `${ChatRoomData.Limit}`,
+      playersInRoom: `${chatRoomCharacter.length}`,
+      totalPlayers: `${chatRoomData.Limit || 0}`,
       friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
       friendsOnline: `${this.onlineFriendsCache}`,
-      totalFriends: `${playerWindow.FriendList.length}`,
+      totalFriends: `${playerWindow?.FriendList?.length || 0}`,
       connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })}`,
-      onlinePlayers: `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
+      onlinePlayers: `${typeof globalWindow.CurrentOnlinePlayers !== "undefined" ? globalWindow.CurrentOnlinePlayers : ""} `,
       playerRows: output_rows,
       MapActive: isMap ? "true" : "false",
     };
 
     let displaykeys = "";
     const KEYS = {
-      keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
-      keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
-      keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
+      keyBronze: playerWindow?.MapData?.PrivateState?.HasKeyBronze,
+      keySilver: playerWindow?.MapData?.PrivateState?.HasKeySilver,
+      keyGold: playerWindow?.MapData?.PrivateState?.HasKeyGold,
     };
 
     for (const [key, value] of Object.entries(KEYS)) {
