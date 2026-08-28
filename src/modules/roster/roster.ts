@@ -20,6 +20,7 @@ import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
 
+import * as Icons from "./icons";
 import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as Immersion from "./immersion";
@@ -457,99 +458,6 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
-   */
-  private setStatusIcons(character: any): string {
-    const prefixes = ["Blind", "Gag", "Deaf"];
-    const effects = CharacterGetEffects(character);
-
-    const effectLists: { [key: string]: { [key: string]: number } } = {
-      Blind: {
-        BlindLight: 1,
-        BlindNormal: 2,
-        BlindHeavy: 3,
-        BlindTotal: 4,
-      },
-      Gag: {
-        GagVeryLight: 1,
-        GagEasy: 1,
-        GagLight: 1,
-        GagNormal: 2,
-        GagMedium: 2,
-        GagHeavy: 3,
-        GagVeryHeavy: 3,
-        GagTotal: 4,
-        GagTotal2: 4,
-        GagTotal3: 4,
-        GagTotal4: 4,
-      },
-      Deaf: {
-        DeafLight: 1,
-        DeafNormal: 2,
-        DeafHeavy: 3,
-        DeafTotal: 4,
-      },
-    };
-
-    const icons: { [key: string]: string } = {
-      Blind: "",
-      Gag: "",
-      Deaf: "",
-    };
-
-    const updateIcon = (prefix: string, effect: string): void => {
-      const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
-      const effectList = effectLists[prefix];
-
-      if (effect in effectList) {
-        const effectValue = effectList[effect];
-        if (
-          effectValue >
-          (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
-        ) {
-          icons[prefix] = Assets.printimage({
-            key: effectName,
-            tooltip_override: `${prefix}: ${effectValue}`,
-            css_class_override: `CRABS_status-icon`,
-            css_style: `--brightness: brightness(2.5);
-            background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
-            `,
-          });
-        }
-      }
-    };
-
-    for (let effect of effects) {
-      for (let prefix of prefixes) {
-        if (effect.startsWith(prefix)) {
-          updateIcon(prefix, effect);
-        }
-      }
-    }
-
-    icons.Blind =
-      icons.Blind ||
-      Assets.printimage({
-        key: "blindNone",
-        css_class_override: "CRABS_status-icon",
-      });
-    icons.Gag =
-      icons.Gag ||
-      Assets.printimage({
-        key: "gagNone",
-        css_class_override: "CRABS_status-icon",
-      });
-    icons.Deaf =
-      icons.Deaf ||
-      Assets.printimage({
-        key: "deafNone",
-        css_class_override: "CRABS_status-icon",
-      });
-
-    return `${icons.Gag} ${icons.Blind} ${icons.Deaf}`;
-  }
-
-  /**
    * Builds the HTML card for a single player in the roster.
    */
   private buildCard(
@@ -613,7 +521,7 @@ export class Roster extends CRABS_Base {
       LabelShadow: labelShadow,
       PlayerName: CharacterNickname(character).normalize("NFKC"),
       PlayerIcons: playerIcons,
-      StatusIcons: `${this.setStatusIcons(character)}`,
+      StatusIcons: `${Icons.setStatusIcons(character)}`,
       CompassBlock: compassBlock,
     };
 
@@ -660,81 +568,6 @@ export class Roster extends CRABS_Base {
   /** Returns the currently cached online friends count for dirty-checking. */
   public getOnlineFriendsCount(): number | string {
     return this.onlineFriendsCache;
-  }
-
-  /**
-   * Determines the room badge for a player (Admin, VIP, or Guest).
-   */
-  private setbadge(character: any): string {
-    const memberNum = character.MemberNumber ?? -1;
-    let badge = Assets.printimage({ key: "player" });
-
-    badge = ChatRoomData.Whitelist.includes(memberNum)
-      ? Assets.printimage({ key: "vip" })
-      : badge;
-
-    badge = ChatRoomData.Admin.includes(memberNum)
-      ? Assets.printimage({ key: "admin" })
-      : badge;
-
-    return badge;
-  }
-
-  /**
-   * Determines and generates relational icons for a player.
-   */
-  private setIcons(character: any): string {
-    if (character.IsPlayer()) {
-      return Assets.printimage({ key: "you" }) + " ";
-    }
-
-    let playerIcons = "";
-    const memberNum = character.MemberNumber ?? -1;
-    const playerWindow = (window as any).Player;
-
-    const isTrial =
-      character.Ownership?.MemberNumber === playerWindow.MemberNumber &&
-      character.Ownership?.Stage === 0;
-
-    if (playerWindow.OwnerNumber() === memberNum) {
-      playerIcons += Assets.printimage({ key: "owner" }) + " ";
-    } else if (character.IsOwnedByPlayer()) {
-      if (isTrial) {
-        playerIcons += Assets.printimage({ key: "trial" }) + " ";
-      } else {
-        playerIcons += Assets.printimage({ key: "sub" }) + " ";
-      }
-    } else if (playerWindow.IsInFamilyOfMemberNumber(memberNum)) {
-      playerIcons += Assets.printimage({ key: "family" }) + " ";
-    }
-
-    if (playerWindow.GetLoversNumbers().includes(memberNum)) {
-      playerIcons += Assets.printimage({ key: "lover" }) + " ";
-    } else {
-      if (CrossMod.detectMod("BCTweaks")) {
-        if (
-          playerWindow.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)
-        ) {
-          playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
-        } else if (playerWindow.FriendList.includes(memberNum)) {
-          playerIcons += Assets.printimage({ key: "friend" }) + " ";
-        }
-      } else if (playerWindow.FriendList.includes(memberNum)) {
-        playerIcons += Assets.printimage({ key: "friend" }) + " ";
-      }
-    }
-
-    if (playerWindow.WhiteList.includes(memberNum)) {
-      playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
-    } else if (playerWindow.BlackList.includes(memberNum)) {
-      playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
-    }
-
-    if (playerWindow.GhostList.includes(memberNum)) {
-      playerIcons += Assets.printimage({ key: "ghost" }) + " ";
-    }
-
-    return playerIcons;
   }
 
   /**
@@ -816,8 +649,8 @@ export class Roster extends CRABS_Base {
 
       if (isAdmin) admin_count++;
 
-      const badge = this.setbadge(character);
-      let playerIcons = this.setIcons(character);
+      const badge = Icons.setbadge(character);
+      let playerIcons = Icons.setIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
       const score = Sorting.calculateSortScore(character, effectiveSortMode);

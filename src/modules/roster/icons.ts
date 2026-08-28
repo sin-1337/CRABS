@@ -8,7 +8,7 @@ import { CrossMod } from "../crossmod";
  */
 export function setStatusIcons(character: any): string {
   const prefixes = ["Blind", "Gag", "Deaf"];
-  const effects = (window as any).CharacterGetEffects(character);
+  const effects = (window as any).CharacterGetEffects(character) || [];
 
   const effectLists: { [key: string]: { [key: string]: number } } = {
     Blind: {
@@ -140,10 +140,13 @@ export function setIcons(character: any): string {
   const playerWindow = (window as any).Player;
 
   const isTrial =
-    character.Ownership?.MemberNumber === playerWindow.MemberNumber &&
+    character.Ownership?.MemberNumber === playerWindow?.MemberNumber &&
     character.Ownership?.Stage === 0;
 
-  if (playerWindow.OwnerNumber() === memberNum) {
+  if (
+    typeof playerWindow?.OwnerNumber === "function" &&
+    playerWindow.OwnerNumber() === memberNum
+  ) {
     playerIcons += Assets.printimage({ key: "owner" }) + " ";
   } else if (character.IsOwnedByPlayer()) {
     if (isTrial) {
@@ -151,31 +154,33 @@ export function setIcons(character: any): string {
     } else {
       playerIcons += Assets.printimage({ key: "sub" }) + " ";
     }
-  } else if (playerWindow.IsInFamilyOfMemberNumber(memberNum)) {
+  } else if (playerWindow?.IsInFamilyOfMemberNumber(memberNum)) {
     playerIcons += Assets.printimage({ key: "family" }) + " ";
   }
 
-  if (playerWindow.GetLoversNumbers().includes(memberNum)) {
+  if (playerWindow?.GetLoversNumbers?.().includes(memberNum)) {
     playerIcons += Assets.printimage({ key: "lover" }) + " ";
   } else {
     if (CrossMod.detectMod("BCTweaks")) {
-      if (playerWindow.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)) {
+      if (
+        playerWindow?.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)
+      ) {
         playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
-      } else if (playerWindow.FriendList.includes(memberNum)) {
+      } else if (playerWindow?.FriendList?.includes(memberNum)) {
         playerIcons += Assets.printimage({ key: "friend" }) + " ";
       }
-    } else if (playerWindow.FriendList.includes(memberNum)) {
+    } else if (playerWindow?.FriendList?.includes(memberNum)) {
       playerIcons += Assets.printimage({ key: "friend" }) + " ";
     }
   }
 
-  if (playerWindow.WhiteList.includes(memberNum)) {
+  if (playerWindow?.WhiteList?.includes(memberNum)) {
     playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
-  } else if (playerWindow.BlackList.includes(memberNum)) {
+  } else if (playerWindow?.BlackList?.includes(memberNum)) {
     playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
   }
 
-  if (playerWindow.GhostList.includes(memberNum)) {
+  if (playerWindow?.GhostList?.includes(memberNum)) {
     playerIcons += Assets.printimage({ key: "ghost" }) + " ";
   }
 
