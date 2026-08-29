@@ -12,7 +12,7 @@
 import { CRABS_Base } from "../base";
 import { Assets } from "../assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import "../templates/banner.css";
+import "./templates/banner.css";
 import bannertemplate from "../templates/banner.html";
 import { Settings } from "../settings";
 import { Drawer } from "../drawer";
