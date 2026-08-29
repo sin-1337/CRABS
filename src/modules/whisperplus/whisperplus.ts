@@ -14,13 +14,13 @@
  */
 
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CRABS_Base } from "./base";
-import { Assets } from "./assets";
-import { CrossMod } from "./crossmod";
-import { Notification } from "./notifications";
-import { Settings } from "./settings";
+import { CRABS_Base } from "../base";
+import { Assets } from "../assets";
+import { CrossMod } from "../crossmod";
+import { Notification } from "../notifications";
+import { Settings } from "../settings";
 
-import { Drawer } from "./drawer";
+import { Drawer } from "../drawer";
 
 /**
  * Class representing the Whisper+ enhanced messaging system.

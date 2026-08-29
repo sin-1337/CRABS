@@ -1,5 +1,5 @@
-import { Settings } from "./settings";
-import { CRABS_Base } from "./base";
+import { Settings } from "../settings";
+import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
 export class PrivacyMode extends CRABS_Base {

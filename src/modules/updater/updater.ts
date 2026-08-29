@@ -1,7 +1,7 @@
-import { CRABS_Base } from "./base";
+import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Notification } from "./notifications";
-import { Settings } from "./settings";
+import { Notification } from "../notifications";
+import { Settings } from "../settings";
 
 /**
  * Class handling automatic background updates.

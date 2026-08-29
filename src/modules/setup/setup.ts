@@ -1,9 +1,9 @@
-import { CRABS_Base } from "./base";
+import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Drawer } from "./drawer";
-import { Settings } from "./settings";
-import { Roster } from "./roster";
-import { Banner } from "./banner";
+import { Drawer } from "../drawer";
+import { Settings } from "../settings";
+import { Roster } from "../roster";
+import { Banner } from "../banner";
 
 export class Setup extends CRABS_Base {
   private crabsLastRoomID: number | null = null;

@@ -1,8 +1,8 @@
 // src/modules/performance.ts
 
-import { CRABS_Base, PerformanceLevel } from "./base";
+import { CRABS_Base, PerformanceLevel } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "./settings";
+import { Settings } from "../settings";
 
 export class Performance extends CRABS_Base {
 	private originalRefreshRates: Record<string, number> = {};
