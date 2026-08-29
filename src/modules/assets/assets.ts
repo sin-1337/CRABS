@@ -56,6 +56,24 @@ export abstract class Assets {
         class: "CRABS_logo",
       },
 
+      menu_cards: {
+        file: "Menu_Cards.svg",
+        alt: "Card Layout",
+        class: "CRABS_menu_icon",
+      },
+
+      menu_rows: {
+        file: "Menu_Rows.svg",
+        alt: "Rows Layout",
+        class: "CRABS_menu_icon",
+      },
+
+      menu_rows_compressed: {
+        file: "Menu_Rows_Compressed.svg",
+        alt: "Compressed Rows Layout",
+        class: "CRABS_menu_icon",
+      },
+
       // error icon
       error: {
         file: "error.svg",

@@ -224,3 +224,14 @@ img.CRABS_error_icon {
   display: inline-block !important;
   vertical-align: middle !important;
 }
+
+/* menu icons */
+img.CRABS_menu_icon {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}

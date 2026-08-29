@@ -131,6 +131,23 @@ export class Drawer extends CRABS_Base {
   };
 
   /**
+   * Helper mapping the active layout mode string to its corresponding asset key.
+   * @private
+   * @returns {string}
+   */
+  private getLayoutIconKey(): string {
+    switch (this.rosterModule.layoutMode) {
+      case "layout-mobile-stack":
+        return "menu_rows";
+      case "layout-compact":
+        return "menu_rows_compressed";
+      case "layout-grid":
+      default:
+        return "menu_cards";
+    }
+  }
+
+  /**
    * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
    * @returns {void}
    */
@@ -319,7 +336,7 @@ export class Drawer extends CRABS_Base {
         css_class_override: "CRABS_Drawer_Settings_Icon",
       }),
       Layout: Assets.printimage({
-        key: "layout",
+        key: this.getLayoutIconKey() as any,
         css_class_override: "CRABS_Drawer_Layout_Icon",
       }),
       TabIcon: Assets.printimage({ key: logoKey }),
@@ -494,9 +511,15 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        // Restore roster controls
+        // Restore and sync roster controls
         if (sortContainer) sortContainer.style.display = "flex";
-        if (layoutIconContainer) layoutIconContainer.style.display = "flex";
+        if (layoutIconContainer) {
+          layoutIconContainer.style.display = "flex";
+          layoutIconContainer.innerHTML = Assets.printimage({
+            key: this.getLayoutIconKey() as any,
+            css_class_override: "CRABS_Drawer_Layout_Icon",
+          });
+        }
 
         content.innerHTML = this.rosterModule.buildroster("all", false);
         this.rosterModule.initScrollingOverflow();
@@ -557,7 +580,7 @@ export class Drawer extends CRABS_Base {
 
         this.rosterModule.layoutMode = nextLayout;
 
-        // Re-render the drawer so the new HTML card template is injected
+        // Re-render the drawer and update the active layout icon
         this.refresh();
 
         const table = this.instance?.querySelector(
