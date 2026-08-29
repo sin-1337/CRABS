@@ -28,19 +28,17 @@ export class Setup extends CRABS_Base {
       -10000,
       (args: any[], next: (args: any[]) => any) => {
         try {
-          // @ts-ignore: We must bypass 'window' because 'let' globals do not attach to it
-          if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
-            // @ts-ignore
-            if (!ChatRoomData.Custom) {
-              // @ts-ignore
-              ChatRoomData.Custom = { SizeMode: 0 };
-              // @ts-ignore
-            } else if (typeof ChatRoomData.Custom.SizeMode === "undefined") {
-              // @ts-ignore
-              ChatRoomData.Custom.SizeMode = 0;
+          const globalWindow = window as any;
+          const chatRoomData = globalWindow.ChatRoomData;
+
+          if (chatRoomData) {
+            if (!chatRoomData.Custom) {
+              chatRoomData.Custom = { SizeMode: 0 };
+            } else if (typeof chatRoomData.Custom.SizeMode === "undefined") {
+              chatRoomData.Custom.SizeMode = 0;
             }
           }
-        } catch (e) {} // Failsafe
+        } catch {} // Failsafe
 
         return next(args);
       },
@@ -64,23 +62,22 @@ export class Setup extends CRABS_Base {
 
     // Handle Room Joins and UI Recovery
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
-      // GUARD CLAUSE: If ChatRoomData is missing, do NOT run our room-tracking logic.
-      // This prevents the mod from forcing a screen change to ChatSearch.
-      if (typeof ChatRoomData === "undefined" || ChatRoomData === null) {
+      const globalWindow = window as any;
+      const chatRoomData = globalWindow.ChatRoomData;
+
+      if (!chatRoomData) {
         return next(args);
       }
 
       const result = next(args);
-
+      const currentScreen = globalWindow.CurrentScreen;
       const inChatRoom =
-        typeof ChatRoomData !== "undefined" &&
-        ChatRoomData !== null &&
-        (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+        currentScreen === undefined || currentScreen === "ChatRoom";
 
       if (inChatRoom) {
-        // Just joined a new room
-        if (ChatRoomData.ID !== this.crabsLastRoomID) {
-          this.crabsLastRoomID = ChatRoomData.ID;
+        // Just joined a new room and room metadata is populated
+        if (chatRoomData.ID !== this.crabsLastRoomID && chatRoomData.Name) {
+          this.crabsLastRoomID = chatRoomData.ID;
           Drawer.updateVisibility();
           Settings.instance?.syncGameState();
 
@@ -90,7 +87,7 @@ export class Setup extends CRABS_Base {
         }
 
         // Returned from Wardrobe/Profile
-        const isFocused = (window as any).CurrentCharacter !== null;
+        const isFocused = globalWindow.CurrentCharacter !== null;
         const drawerElement = document.getElementById("crabs-drawer");
 
         if (
@@ -131,8 +128,10 @@ export class Setup extends CRABS_Base {
   }
 
   private hookNativeExit(): void {
-    const nativeChatRoomExit = window.ChatRoomExit;
-    window.ChatRoomExit = function () {
+    const globalWindow = window as any;
+    const nativeChatRoomExit = globalWindow.ChatRoomExit;
+
+    globalWindow.ChatRoomExit = function () {
       if (typeof nativeChatRoomExit === "function") {
         nativeChatRoomExit();
       }
@@ -140,13 +139,24 @@ export class Setup extends CRABS_Base {
     };
   }
 
-  public drawbanner(): void | boolean {
-    if (typeof Player === "undefined" || Player.LastChatRoom === null)
+  public drawbanner(): boolean {
+    const globalWindow = window as any;
+    const player = globalWindow.Player;
+    const chatRoomData = globalWindow.ChatRoomData;
+
+    if (
+      !player ||
+      player.LastChatRoom === null ||
+      !chatRoomData ||
+      !chatRoomData.Name
+    ) {
       return false;
+    }
 
     const extraData = {
       RosterCounters: this.rosterModule.buildroster("count", false),
     };
     this.bannerModule.drawBanner(extraData);
+    return true;
   }
 }

@@ -63,11 +63,20 @@ export class Banner extends CRABS_Base {
    */
   public drawBanner(extraData?: Record<string, string>): void {
     const globalWindow = window as any;
+    const currentScreen = globalWindow.CurrentScreen;
     const chatRoomData = globalWindow.ChatRoomData;
     const player = globalWindow.Player;
 
-    if (!chatRoomData || Object.keys(chatRoomData).length === 0) {
-      console.log("CRABS: ChatRoomData wasn't populated");
+    // Ensure the player is actively in a chat room and room data is populated
+    if (currentScreen !== "ChatRoom" || !chatRoomData || !chatRoomData.Name) {
+      if (
+        typeof globalWindow.ChatRoomSendLocal === "function" &&
+        currentScreen === "ChatRoom"
+      ) {
+        globalWindow.ChatRoomSendLocal(
+          "CRABS: Room data is still synchronizing. Please try again in a moment.",
+        );
+      }
       return;
     }
 
@@ -75,7 +84,7 @@ export class Banner extends CRABS_Base {
       Logo: Assets.printimage({ key: "logo" }),
       LabelColor: `${player?.LabelColor || "#FFFFFF"}`,
       PermissionOptions: Permissions.drawPermissionOptions(),
-      RoomName: chatRoomData.Name || "Room",
+      RoomName: chatRoomData.Name,
     };
 
     const wrappervars = {
@@ -97,22 +106,5 @@ export class Banner extends CRABS_Base {
       this.template(bannertemplate, templatevars, true, wrappervars),
       "CRABS_Banner",
     );
-  }
-
-  /**
-   * Builds the user interface for the banner and attaches listeners.
-   * @param {string} output - The compiled HTML string.
-   * @param {string} [elementId] - Optional element ID for root container.
-   */
-  public override buildui(output: string, elementId?: string): void {
-    super.buildui(output, elementId);
-    this.attachEvent(
-      "CRABS_Permission_Select",
-      this.selectPermission,
-      undefined,
-      undefined,
-      "change",
-    );
-    this.attachEvent("CRABS_banner_rosterlink", () => this.handleRosterLink());
   }
 }
