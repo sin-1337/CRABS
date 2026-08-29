@@ -273,6 +273,16 @@ export class Roster extends CRABS_Base {
   public updateRosterUI(root: HTMLElement): void {
     if (typeof ChatRoomData === "undefined" || ChatRoomData === null) return;
 
+    const table = root.querySelector(".CRABS_roster_center_table");
+    if (table) {
+      table.classList.remove(
+        "layout-grid",
+        "layout-mobile-stack",
+        "layout-compact",
+      );
+      table.classList.add(this.currentLayoutMode);
+    }
+
     const updateText = (id: string, text: string) => {
       const el = root.querySelector(id);
       if (el && el.textContent !== text) el.textContent = text;

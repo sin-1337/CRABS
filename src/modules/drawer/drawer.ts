@@ -559,6 +559,14 @@ export class Drawer extends CRABS_Base {
 
         // Re-render the drawer so the new HTML card template is injected
         this.refresh();
+
+        const table = this.instance?.querySelector(
+          ".CRABS_roster_center_table",
+        );
+        if (table) {
+          table.classList.remove(...layouts);
+          table.classList.add(nextLayout);
+        }
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
         if (this.showingHelp) {
