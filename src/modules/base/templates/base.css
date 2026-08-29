@@ -215,3 +215,12 @@
   visibility: visible;
   opacity: 1;
 }
+
+/* Restrict error icons */
+.CRABS_error_icon {
+  width: 24px;
+  height: 24px;
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+}
