@@ -216,11 +216,13 @@
   opacity: 1;
 }
 
-/* Restrict error icons */
-.CRABS_error_icon {
-  width: 24px;
-  height: 24px;
-  max-width: 24px;
-  max-height: 24px;
-  object-fit: contain;
+/* Universal constraint for missing/fallback assets */
+img.CRABS_error_icon {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
