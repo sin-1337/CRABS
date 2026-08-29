@@ -331,3 +331,96 @@
   filter: brightness(1.2) drop-shadow(0 0 2px var(--player-color, white));
   opacity: 1;
 }
+
+/* =========================================================
+   LAYOUT OPTION 1: Two-Column Grid (Default)
+   Applied automatically when no layout class is present or via .layout-grid
+   ========================================================= */
+.CRABS_roster_center_table.layout-grid .CRABS_card-container,
+.CRABS_roster_center_table:not([class*="layout-"]) .CRABS_card-container {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  gap: 2px;
+}
+
+/* =========================================================
+   LAYOUT OPTION 2: Mobile / Single Column (Clean Vertical)
+   Use class: layout-mobile-stack
+   ========================================================= */
+.CRABS_roster_center_table.layout-mobile-stack .CRABS_roster_table_shrink {
+  width: 100%;
+  max-width: 480px; /* Constrain reading width */
+}
+
+.CRABS_roster_center_table.layout-mobile-stack .CRABS_card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.CRABS_roster_center_table.layout-mobile-stack .CRABS_card {
+  min-height: 46px;
+  padding: 6px 8px;
+}
+
+.CRABS_roster_center_table.layout-mobile-stack .CRABS_player-name,
+.CRABS_roster_center_table.layout-mobile-stack .CRABS_player-id {
+  font-size: 1.2rem;
+}
+
+/* =========================================================
+   LAYOUT OPTION 3: Ultra-Compact Single Column (High Player Counts)
+   Use class: layout-compact
+   ========================================================= */
+.CRABS_roster_center_table.layout-compact .CRABS_roster_table_shrink {
+  width: 100%;
+  max-width: 420px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_room-status {
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_status_cell {
+  padding: 2px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_card {
+  min-height: 38px;
+  padding: 3px 6px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_card_badge {
+  width: 28px;
+  margin-right: 4px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_card_badge img {
+  width: 24px;
+  height: 24px;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_player-name,
+.CRABS_roster_center_table.layout-compact .CRABS_player-id {
+  font-size: 1rem;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_key-icons,
+.CRABS_roster_center_table.layout-compact .CRABS_player-icons,
+.CRABS_roster_center_table.layout-compact .CRABS_status-icon {
+  height: 1.1rem;
+  min-height: 1.1rem;
+}
+
+.CRABS_roster_center_table.layout-compact .CRABS_track-compass img,
+.CRABS_roster_center_table.layout-compact .CRABS_track-compass svg {
+  height: 1.1rem;
+  width: 1.1rem;
+}

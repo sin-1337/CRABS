@@ -58,6 +58,21 @@ export class Roster extends CRABS_Base {
     Compass.autoPaginateToPlayer(targetId);
   }
 
+  /** Tracks the user's selected roster layout. Defaults to 2-column grid. */
+  public currentLayoutMode: string =
+    localStorage.getItem("CRABS_RosterLayout") || "layout-grid";
+
+  /** Getter and setter for external callers (e.g. drawer.ts) */
+  public get layoutMode(): string {
+    return this.currentLayoutMode;
+  }
+
+  public set layoutMode(val: string) {
+    this.currentLayoutMode = val;
+    localStorage.setItem("CRABS_RosterLayout", val);
+    this.isDirty = true;
+  }
+
   /** Cached count of online friends. */
   private onlineFriendsCache: number | string = "...";
 
@@ -687,6 +702,7 @@ export class Roster extends CRABS_Base {
 
     let templatevars: Record<string, string> = {
       RosterStyle: rosterStyle,
+      RosterLayoutClass: this.currentLayoutMode,
       adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
       adminsInRoom: `${admin_count}`,
       totalAdmins: `${ChatRoomData.Admin.length}`,

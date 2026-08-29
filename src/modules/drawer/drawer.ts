@@ -104,13 +104,13 @@ export class Drawer extends CRABS_Base {
   public static refresh(): void {
     Drawer._instance?.refresh();
   }
-  /** * Checks if the help menu is currently being displayed.
+  /** Checks if the help menu is currently being displayed.
    * @returns {boolean} True if the help screen is active.
    */
   public static isShowingHelp(): boolean {
     return Drawer._instance?.showingHelp ?? false;
   }
-  /** * Overrides the current view state of the drawer.
+  /** Overrides the current view state of the drawer.
    * @param {boolean} value - True to show Help, false to show Roster.
    */
   public static setShowingHelp(value: boolean): void {
@@ -139,19 +139,13 @@ export class Drawer extends CRABS_Base {
     const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
     if (!tab) return;
 
-    // Set the icon and the 'rave' lock
     tab.innerHTML = Assets.printimage({ key: "rave" });
     tab.setAttribute("data-mode", "rave");
 
-    // Set the 10-second timer to release the lock
     setTimeout(() => {
       if (!tab) return;
-
-      // Release the bypass
       tab.removeAttribute("data-mode");
 
-      // Immediately re-evaluate performance so the icon swaps
-      // back to whatever is appropriate for the current FPS.
       const isLow = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
       this.optimizeVisuals(isLow);
     }, 10000);
@@ -173,17 +167,12 @@ export class Drawer extends CRABS_Base {
       "keydown",
       (event) => {
         if (event.key === "Escape") {
-          // If the player focus screen is up, we force it to close
           if ((window as any).CurrentCharacter !== null) {
             (window as any).DialogLeave();
-
-            // If the drawer was open behind it, we make sure it stays closed
             if (this.isOpen) {
               this.close();
             }
-          }
-          // If no player is focused, but the drawer is open, close the drawer
-          else if (this.isOpen) {
+          } else if (this.isOpen) {
             this.close();
           }
         }
@@ -196,8 +185,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Evaluates user settings and system performance to dictate visual intensity.
-   * Restricts animations and intensive CSS effects when the engine is struggling,
-   * while strictly honoring the user's explicit preferences.
+   * Restricts animations and intensive CSS effects when the engine is struggling.
    * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
    * @private
    * @returns {void}
@@ -206,24 +194,19 @@ export class Drawer extends CRABS_Base {
     if (!this.instance || !this.tabElement) return;
 
     const currentMode = this.tabElement.getAttribute("data-mode");
-
-    // Bail out early if we are locked in an easter egg
     if (currentMode === "rave") return;
 
-    // Determine target mode using our single source of truth
     const targetMode =
       !lowPerformance && Settings.instance.data.animatedCrabsLogo
         ? "animated"
         : "static";
 
-    // Swap DOM only if modes mismatch
     if (currentMode !== targetMode) {
       const iconKey = targetMode === "animated" ? "animated_logo" : "logo";
       this.tabElement.innerHTML = Assets.printimage({ key: iconKey });
       this.tabElement.setAttribute("data-mode", targetMode);
     }
 
-    // Handle CSS performance classes
     const rootElement = this.instance;
     if (lowPerformance && !rootElement.classList.contains("CRABS_perf_low")) {
       rootElement.classList.add("CRABS_perf_low");
@@ -239,8 +222,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Hooks into the game's render loop to process updates.
-   * Monitors performance state and executes surgical DOM updates to the roster
-   * to preserve CPU cycles, only rebuilding entirely when structurally required.
+   * Monitors performance state and executes surgical DOM updates to the roster.
    * @private
    * @returns {void}
    */
@@ -257,14 +239,12 @@ export class Drawer extends CRABS_Base {
         const isLowPerformance =
           this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
 
-        // Check if the user's setting OR the performance requires a visual update
         const expectedMode =
           !isLowPerformance && Settings.instance.data.animatedCrabsLogo
             ? "animated"
             : "static";
         const actualMode = this.tabElement?.getAttribute("data-mode");
 
-        // If the performance changed, OR the tab is in the wrong mode (and not raving), fix it!
         if (
           previousPerformanceLevel !== this.currentPerformanceLevel ||
           (actualMode !== "rave" && actualMode !== expectedMode)
@@ -284,10 +264,9 @@ export class Drawer extends CRABS_Base {
           this.updateTick = 0;
 
           this.updateVisibility();
-          this.syncToChat(); // Keep it aligned to the chat box without thrashing
+          this.syncToChat();
 
           if (this.isOpen && !this.showingHelp) {
-            // CRITICAL FIX: Only update if the data ACTUALLY changed!
             if (this.rosterModule.isDirty) {
               const rosterRoot = this.instance?.querySelector(
                 ".CRABS_roster_center_table",
@@ -296,11 +275,9 @@ export class Drawer extends CRABS_Base {
               if (rosterRoot) {
                 this.rosterModule.updateRosterUI(this.instance!);
               } else {
-                // Fallback only if the roster is physically missing from DOM
                 this.refresh();
               }
 
-              // Reset the dirty flag so we don't obliterate the CPU next frame
               this.rosterModule.isDirty = false;
             }
           }
@@ -341,6 +318,10 @@ export class Drawer extends CRABS_Base {
         key: "settings",
         css_class_override: "CRABS_Drawer_Settings_Icon",
       }),
+      Layout: Assets.printimage({
+        key: "layout",
+        css_class_override: "CRABS_Drawer_Layout_Icon",
+      }),
       TabIcon: Assets.printimage({ key: logoKey }),
       TitleBar: title,
       Close: Assets.printimage({
@@ -363,8 +344,6 @@ export class Drawer extends CRABS_Base {
       this.chatLogElement = document.getElementById("TextAreaChatLog");
 
       this.bindEvents();
-
-      // Force immediate layout alignment and visibility check on creation
       this.updateVisibility();
       this.syncToChat();
     }
@@ -372,7 +351,6 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Aligns the drawer UI to the dimensions and position of the native game chat log.
-   * Adapts dynamically to window resizing and user settings.
    * @private
    * @returns {void}
    */
@@ -386,8 +364,6 @@ export class Drawer extends CRABS_Base {
     const rightOffset = document.documentElement.clientWidth - rect.right;
     const compact = Settings.instance.data.compactDrawer;
 
-    // ONLY touch the DOM if the chatbox actually moved or resized!
-    // This completely eliminates layout thrashing.
     if (
       this.lastRect.top !== rect.top ||
       this.lastRect.width !== rect.width ||
@@ -402,7 +378,6 @@ export class Drawer extends CRABS_Base {
         : `${rect.height}px`;
       this.instance.style.right = `${rightOffset}px`;
 
-      // Save the new coordinates
       this.lastRect = {
         top: rect.top,
         width: rect.width,
@@ -414,8 +389,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Determines whether the drawer should be injected into the DOM workflow based on:
-   * User settings, current screen (ChatRoom), and modal overlays (CurrentCharacter).
+   * Determines whether the drawer should be injected into the DOM workflow.
    * @returns {void}
    */
   public updateVisibility(): void {
@@ -446,13 +420,12 @@ export class Drawer extends CRABS_Base {
 
       const tab = this.tabElement;
       if (tab) {
-        // Show the tab only if the setting is true AND we aren't focused on a character dialog
         tab.style.display =
           Settings.instance.data.showDrawerTab && !isFocused ? "flex" : "none";
       }
 
       if (!this.resizeObserver) {
-        const chatLog = this.chatLogElement; // Use the cache!
+        const chatLog = this.chatLogElement;
         if (chatLog) {
           this.resizeObserver = new ResizeObserver(() => this.syncToChat());
           this.resizeObserver.observe(chatLog);
@@ -463,8 +436,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Completely rebuilds the inner HTML of the drawer based on the current context
-   * (Help Menu vs. Player Roster) and fires sub-module UI builds.
+   * Completely rebuilds the inner HTML of the drawer based on context.
    * @returns {void}
    */
   public refresh(): void {
@@ -473,8 +445,9 @@ export class Drawer extends CRABS_Base {
     const helpIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_Help_Icon",
     );
-
-    // Grab the whole container so we hide the text AND the dropdown
+    const layoutIconContainer = this.instance?.querySelector(
+      ".CRABS_Drawer_Layout_Icon",
+    ) as HTMLElement;
     const sortContainer = this.instance?.querySelector(
       "#CRABS_sort_container",
     ) as HTMLElement;
@@ -501,8 +474,9 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "roster");
         }
 
-        // Hide the entire sort container
+        // Hide roster-specific controls when displaying Help
         if (sortContainer) sortContainer.style.display = "none";
+        if (layoutIconContainer) layoutIconContainer.style.display = "none";
 
         content.innerHTML = this.helpModule.showHelp(false);
       } else {
@@ -520,8 +494,9 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        // Show the entire sort container (use flex to keep them aligned)
+        // Restore roster controls
         if (sortContainer) sortContainer.style.display = "flex";
+        if (layoutIconContainer) layoutIconContainer.style.display = "flex";
 
         content.innerHTML = this.rosterModule.buildroster("all", false);
         this.rosterModule.initScrollingOverflow();
@@ -536,8 +511,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Overrides the base class openSettings to ensure the drawer
-   * slides closed before the settings modal appears.
+   * Overrides the base class openSettings to ensure drawer closes before opening modal.
    * @override
    * @returns {Promise<void>}
    */
@@ -547,8 +521,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Attaches click event listeners to the interactive elements within the drawer header.
-   * Delegates handling for the Tab, Help, Settings, and Close buttons.
+   * Attaches click event listeners to the header elements.
    * @private
    * @returns {void}
    */
@@ -571,6 +544,30 @@ export class Drawer extends CRABS_Base {
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
         this.openSettings();
+      } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
+        // Layout cycle sequence: Default Grid -> Single Column -> Compact Single Column
+        const layouts = [
+          "layout-grid",
+          "layout-mobile-stack",
+          "layout-compact",
+        ];
+        const currentIndex = layouts.indexOf(this.rosterModule.layoutMode);
+        const nextLayout =
+          layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
+
+        this.rosterModule.layoutMode = nextLayout;
+
+        // Perform instant DOM swap on the table wrapper
+        const rosterTable = this.instance?.querySelector(
+          ".CRABS_roster_center_table",
+        );
+        if (rosterTable) {
+          rosterTable.classList.remove(...layouts);
+          rosterTable.classList.add(nextLayout);
+        }
+
+        // Recalculate scrolling text widths for the new card dimensions
+        this.rosterModule.initScrollingOverflow();
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
         if (this.showingHelp) {
@@ -592,7 +589,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Opens the drawer by updating the CSS classes and triggering a content refresh.
+   * Opens the drawer and refreshes content.
    * @returns {void}
    */
   public open(): void {
@@ -604,7 +601,7 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Closes the drawer by updating the CSS classes.
+   * Closes the drawer.
    * @returns {void}
    */
   public close(): void {
