@@ -12,6 +12,15 @@ export function calculateSortScore(
   mode: string,
   naturalIndex: number = 0,
 ): number {
+  switch (mode) {
+    case "none":
+    case "natural":
+      return naturalIndex;
+    default:
+      break;
+  }
+
+  // Pin player to top only for priority-based modes
   if (character.IsPlayer && character.IsPlayer()) return 0;
 
   const globalWindow = window as any;
@@ -23,9 +32,6 @@ export function calculateSortScore(
     player?.BCT?.bctSettings?.bestFriendsList?.includes(mNum);
 
   switch (mode) {
-    case "none":
-    case "natural":
-      return naturalIndex;
     case "ds":
       if (player?.OwnerNumber && player.OwnerNumber() === mNum) return 1;
       if (
