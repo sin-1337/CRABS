@@ -162,7 +162,6 @@ export abstract class CRABS_Base {
       !globalWindow.KeyManager ||
       !globalWindow.KeyManager.getContext("always")
     ) {
-      // Pass the arguments back into the timeout if it needs to wait!
       setTimeout(
         () =>
           this.registerKeybind(
@@ -185,13 +184,19 @@ export abstract class CRABS_Base {
       });
     }
 
-    Object.defineProperty(actionCallback, "name", {
+    // Create an isolated wrapper
+    const actionWrapper = () => actionCallback();
+
+    // Explicitly define configurable and writable
+    Object.defineProperty(actionWrapper, "name", {
       value: { EN: actionName },
+      configurable: true,
+      writable: true,
     });
 
     globalWindow.KeyManager.registerKeybinding({
       id: id,
-      action: actionCallback,
+      action: actionWrapper,
       description: { EN: description },
       contextIds: [],
       categoryId: "crabs",
