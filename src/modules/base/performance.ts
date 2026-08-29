@@ -5,7 +5,7 @@ export enum PerformanceLevel {
 }
 
 export class PerformanceTracker {
-  public currentLevel: PerformanceLevel = PerformanceLevel.NORMAL;
+  public currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
   private stabilityCounter: number = 0;
   private readonly STABILITY_THRESHOLD: number = 60;
 
@@ -34,20 +34,21 @@ export class PerformanceTracker {
       }
     }
 
-    if (targetLevel !== this.currentLevel) {
-      // Degrade fast (5 frames), Recover slow (60 frames)
+    if (targetLevel !== this.currentPerformanceLevel) {
       const threshold =
-        targetLevel > this.currentLevel ? 5 : this.STABILITY_THRESHOLD;
+        targetLevel > this.currentPerformanceLevel
+          ? 5
+          : this.STABILITY_THRESHOLD;
 
       this.stabilityCounter++;
 
       if (this.stabilityCounter >= threshold) {
-        this.currentLevel = targetLevel;
+        this.currentPerformanceLevel = targetLevel;
         this.stabilityCounter = 0;
 
         if (debugMode) {
           console.log(
-            `CRABS Performance Shift: ${this.currentLevel} (Actual: ${Math.round(actualFps)} FPS)`,
+            `CRABS Performance Shift: ${this.currentPerformanceLevel} (Actual: ${Math.round(actualFps)} FPS)`,
           );
         }
       }
