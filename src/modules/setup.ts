@@ -1,5 +1,3 @@
-// setup.ts
-
 import { CRABS_Base } from "./base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Drawer } from "./drawer";
@@ -28,110 +26,126 @@ export class Setup extends CRABS_Base {
       -10000,
       (args: any[], next: (args: any[]) => any) => {
         try {
-          const globalWindow = window as any;
-          const chatRoomData = globalWindow.ChatRoomData;
-
-          if (chatRoomData) {
-            if (!chatRoomData.Custom) {
-              chatRoomData.Custom = { SizeMode: 0 };
-            } else if (typeof chatRoomData.Custom.SizeMode === "undefined") {
-              chatRoomData.Custom.SizeMode = 0;
+          // @ts-ignore: We must bypass 'window' because 'let' globals do not attach to it
+          if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
+            // @ts-ignore
+            if (!ChatRoomData.Custom) {
+              // @ts-ignore
+              ChatRoomData.Custom = { SizeMode: 0 };
+              // @ts-ignore
+            } else if (typeof ChatRoomData.Custom.SizeMode === "undefined") {
+              // @ts-ignore
+              ChatRoomData.Custom.SizeMode = 0;
             }
           }
-        } catch {} // Failsafe
+        } catch (e) {} // Failsafe
 
         return next(args);
       },
     );
 
     // Auto-stow Drawer on Chat
-    this.safeHook("ChatRoomSendChat", 10, (args, next) => {
-      const chatInput = document.getElementById(
-        "InputChat",
-      ) as HTMLTextAreaElement;
-      const message = chatInput?.value?.toLowerCase().trim() || "";
-      const result = next(args);
+    this.safeHook(
+      "ChatRoomSendChat",
+      10,
+      (args: any[], next: (args: any[]) => any) => {
+        const chatInput = document.getElementById(
+          "InputChat",
+        ) as HTMLTextAreaElement;
+        const message = chatInput?.value?.toLowerCase().trim() || "";
+        const result = next(args);
 
-      if (Settings.instance?.data.closeDrawerOnChat) {
-        if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
-          Drawer.close();
-        }
-      }
-      return result;
-    });
-
-    // Handle Room Joins and UI Recovery
-    this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
-      const globalWindow = window as any;
-      const chatRoomData = globalWindow.ChatRoomData;
-
-      if (!chatRoomData) {
-        return next(args);
-      }
-
-      const result = next(args);
-      const currentScreen = globalWindow.CurrentScreen;
-      const inChatRoom =
-        currentScreen === undefined || currentScreen === "ChatRoom";
-
-      if (inChatRoom) {
-        // Just joined a new room and room metadata is populated
-        if (chatRoomData.ID !== this.crabsLastRoomID && chatRoomData.Name) {
-          this.crabsLastRoomID = chatRoomData.ID;
-          Drawer.updateVisibility();
-          Settings.instance?.syncGameState();
-
-          if (Settings.instance?.data.showBanner) {
-            this.drawbanner();
+        if (Settings.instance?.data.closeDrawerOnChat) {
+          if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
+            Drawer.close();
           }
         }
+        return result;
+      },
+    );
 
-        // Returned from Wardrobe/Profile
-        const isFocused = globalWindow.CurrentCharacter !== null;
-        const drawerElement = document.getElementById("crabs-drawer");
+    // Handle Room Joins and UI Recovery
+    this.safeHook(
+      "ChatRoomUpdateDisplay",
+      10,
+      (args: any[], next: (args: any[]) => any) => {
+        const result = next(args);
 
-        if (
-          !isFocused &&
-          drawerElement &&
-          drawerElement.style.display === "none" &&
-          !Settings.instance?.data.enableDrawer
-        ) {
-          Drawer.updateVisibility();
+        const inChatRoom =
+          typeof ChatRoomData !== "undefined" &&
+          ChatRoomData !== null &&
+          (typeof CurrentScreen === "undefined" ||
+            CurrentScreen === "ChatRoom");
+
+        if (inChatRoom) {
+          // Just joined a new room
+          if (ChatRoomData.ID !== this.crabsLastRoomID) {
+            this.crabsLastRoomID = ChatRoomData.ID;
+            Drawer.updateVisibility();
+            Settings.instance?.syncGameState();
+
+            if (Settings.instance?.data.showBanner) {
+              this.drawbanner();
+            }
+          }
+
+          // Returned from Wardrobe/Profile
+          const isFocused = (window as any).CurrentCharacter !== null;
+          const drawerElement = document.getElementById("crabs-drawer");
+
+          if (
+            !isFocused &&
+            drawerElement &&
+            drawerElement.style.display === "none" &&
+            !Settings.instance?.data.enableDrawer
+          ) {
+            Drawer.updateVisibility();
+          }
+        } else {
+          this.crabsLastRoomID = null; // Left the room
         }
-      } else {
-        this.crabsLastRoomID = null; // Left the room
-      }
 
-      return result;
-    });
+        return result;
+      },
+    );
 
     // Auto-stow Drawer on Screen Change
-    this.safeHook("CommonSetScreen", 0, (args, next) => {
-      const result = next(args);
-      Drawer.updateVisibility();
-      return result;
-    });
+    this.safeHook(
+      "CommonSetScreen",
+      0,
+      (args: any[], next: (args: any[]) => any) => {
+        const result = next(args);
+        Drawer.updateVisibility();
+        return result;
+      },
+    );
 
     // Auto-stow Drawer on Character Focus
-    this.safeHook("ChatRoomFocusCharacter", 0, (args, next) => {
-      const result = next(args);
-      Drawer.updateVisibility();
-      return result;
-    });
+    this.safeHook(
+      "ChatRoomFocusCharacter",
+      0,
+      (args: any[], next: (args: any[]) => any) => {
+        const result = next(args);
+        Drawer.updateVisibility();
+        return result;
+      },
+    );
 
     // Recover Drawer on Dialog Leave
-    this.safeHook("DialogLeave", 0, (args, next) => {
-      const result = next(args);
-      Drawer.updateVisibility();
-      return result;
-    });
+    this.safeHook(
+      "DialogLeave",
+      0,
+      (args: any[], next: (args: any[]) => any) => {
+        const result = next(args);
+        Drawer.updateVisibility();
+        return result;
+      },
+    );
   }
 
   private hookNativeExit(): void {
-    const globalWindow = window as any;
-    const nativeChatRoomExit = globalWindow.ChatRoomExit;
-
-    globalWindow.ChatRoomExit = function () {
+    const nativeChatRoomExit = (window as any).ChatRoomExit;
+    (window as any).ChatRoomExit = function () {
       if (typeof nativeChatRoomExit === "function") {
         nativeChatRoomExit();
       }
@@ -139,24 +153,13 @@ export class Setup extends CRABS_Base {
     };
   }
 
-  public drawbanner(): boolean {
-    const globalWindow = window as any;
-    const player = globalWindow.Player;
-    const chatRoomData = globalWindow.ChatRoomData;
-
-    if (
-      !player ||
-      player.LastChatRoom === null ||
-      !chatRoomData ||
-      !chatRoomData.Name
-    ) {
+  public drawbanner(): void | boolean {
+    if (typeof Player === "undefined" || Player.LastChatRoom === null)
       return false;
-    }
 
     const extraData = {
       RosterCounters: this.rosterModule.buildroster("count", false),
     };
     this.bannerModule.drawBanner(extraData);
-    return true;
   }
 }
