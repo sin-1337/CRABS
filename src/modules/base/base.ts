@@ -320,53 +320,45 @@ export abstract class CRABS_Base {
   public async openSettings(): Promise<void> {
     const screen = window as any;
 
-    // 1. Wait for the base preference translations to be ready
+    // 1. Warm up the Preference translation cache to prevent base-game TextGet errors
     if (
       typeof screen.TextPrefetchFile === "function" &&
       typeof screen.ScreenFileGetTranslation === "function"
     ) {
       const cache = screen.TextPrefetchFile(
-        screen.ScreenFileGetTranslation(
-          "Character",
-          "Preference",
-          "Preference",
-        ),
+        screen.ScreenFileGetTranslation("Character", "Preference"),
       );
       if (cache?.loadedPromise) {
         await cache.loadedPromise;
       }
     }
 
-    // 2. Set the player context
-    if (typeof screen.InformationSheetLoadCharacter === "function") {
-      screen.InformationSheetLoadCharacter(screen.Player);
-    }
-
-    // 3. Set the subscreen target BEFORE loading Preference screen
-    if (CRABS_Base.subscreenDef) {
-      screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
-    }
-
-    // 4. If we are not in Preference, transition over
+    // 2. Original sequence: Set character context and switch screen
     if (
       screen.CurrentModule !== "Character" ||
       screen.CurrentScreen !== "Preference"
     ) {
+      if (typeof screen.InformationSheetLoadCharacter === "function") {
+        screen.InformationSheetLoadCharacter(screen.Player);
+      }
       screen.CommonSetScreen("Character", "Preference");
     }
 
-    // 5. If we were already on Preference or CommonSetScreen needs manual load
+    // 3. Clean up the default subscreen that PreferenceLoad opened
     if (typeof screen.PreferenceSubscreenUnload === "function") {
       screen.PreferenceSubscreenUnload();
     }
 
+    // 4. Inject CRABS subscreen (Identical to your original working logic)
     if (CRABS_Base.subscreenDef) {
       screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
       screen.PreferencePageCurrent = 1;
       screen.PreferenceMessage = "";
 
       if (typeof screen.PreferenceSubscreenCreateSubscreen === "function") {
-        screen.PreferenceSubscreenCreateSubscreen("");
+        screen.PreferenceSubscreenCreateSubscreen(
+          CRABS_Base.subscreenDef.Identifier || "CRABS",
+        );
       }
 
       if (typeof CRABS_Base.subscreenDef.load === "function") {
