@@ -10,16 +10,16 @@
  * - Event-driven rendering based on the Roster module's state
  */
 
-import { CRABS_Base, PerformanceLevel } from "./base";
-import { Assets } from "./assets";
+import { CRABS_Base, PerformanceLevel } from "../base";
+import { Assets } from "../assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Roster } from "./roster";
+import { Roster } from "../roster";
 import "./templates/drawer.css";
 import drawertemplate from "./templates/drawer.html";
 
-import { Help } from "./help";
-import { WhisperPlus } from "./whisperplus";
-import { Settings } from "./settings";
+import { Help } from "../help";
+import { WhisperPlus } from "../whisperplus";
+import { Settings } from "../settings";
 
 /**
  * Class representing the side drawer UI.
