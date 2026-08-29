@@ -124,88 +124,86 @@
   pointer-events: none;
 }
 
-/* 
-   Flip tooltips for the first 2 rows of cards (1st column & 2nd column)
-   so they don't get cut off by the top of the drawer or roster container.
-   Also flip header icons.
-*/
+/* Tooltip Arrow Base */
+.CRABS_tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+}
+
+/* =========================================================
+   TOOLTIP FLIP (Header & Top Rows)
+   ========================================================= */
+
+/* 1. Flip ALL tooltips inside the header and top rows downwards */
+.CRABS_wrapper_header .CRABS_tooltip,
 #CRABS_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip,
 .CRABS_room-status .CRABS_tooltip,
 .CRABS_header_icons + .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip {
+.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip {
   bottom: auto;
   top: 125%;
 }
 
-/* Flip the arrow for the top-row and header tooltips as well */
+/* 2. Flip tooltip arrows downwards */
+.CRABS_wrapper_header .CRABS_tooltip::after,
 #CRABS_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card:nth-child(-n + 4) .CRABS_tooltip::after,
 .CRABS_room-status .CRABS_tooltip::after,
 .CRABS_header_icons + .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip::after {
+.CRABS_tooltip-wrapper:has(.CRABS_header_icons) .CRABS_tooltip::after {
   top: auto;
   bottom: 100%;
   border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
 }
 
-/* --- Edge Clipping Prevention --- */
+/* =========================================================
+   EDGE CLIPPING PREVENTION
+   ========================================================= */
 
-/* 1. Left edge: Badges in the left column or single-column drawer/banner, and header left icons */
+/* Left-align tooltips on the left side of the header so they don't clip off-screen */
+.header-left-icons .CRABS_tooltip,
 #CRABS_Roster .CRABS_card:nth-child(odd) .CRABS_card_badge .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip,
-#CRABS_Banner .CRABS_card_badge .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip {
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip {
   left: 0;
   transform: translateX(0);
 }
+
+.header-left-icons .CRABS_tooltip::after,
 #CRABS_Roster
   .CRABS_card:nth-child(odd)
   .CRABS_card_badge
   .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_card_badge .CRABS_tooltip::after,
-#CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Help_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Settings_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Help_Icon) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Settings_Icon) .CRABS_tooltip::after {
+#CRABS_Banner .CRABS_card_badge .CRABS_tooltip::after {
   left: 10px;
   transform: translateX(0);
 }
 
-/* 2. Right edge: Status icons in the right column or single-column drawer/banner, and header close icon */
+/* Right-align tooltips on the right side of the header */
+.header-right-icons .CRABS_tooltip,
 #CRABS_Roster .CRABS_card:nth-child(even) .CRABS_status-frame .CRABS_tooltip,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip,
-#CRABS_Banner .CRABS_status-frame .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip {
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip {
   left: auto;
   right: 0;
   transform: translateX(0);
 }
+
+.header-right-icons .CRABS_tooltip::after,
 #CRABS_Roster
   .CRABS_card:nth-child(even)
   .CRABS_status-frame
   .CRABS_tooltip::after,
 #CRABS_Drawer_Roster .CRABS_card .CRABS_status-frame .CRABS_tooltip::after,
-#CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_close) .CRABS_tooltip::after,
-.CRABS_tooltip-wrapper:has(.CRABS_Drawer_Close_Icon) .CRABS_tooltip::after {
+#CRABS_Banner .CRABS_status-frame .CRABS_tooltip::after {
   left: auto;
   right: 10px;
   transform: translateX(0);
