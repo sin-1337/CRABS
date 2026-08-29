@@ -557,17 +557,8 @@ export class Drawer extends CRABS_Base {
 
         this.rosterModule.layoutMode = nextLayout;
 
-        // Perform instant DOM swap on the table wrapper
-        const rosterTable = this.instance?.querySelector(
-          ".CRABS_roster_center_table",
-        );
-        if (rosterTable) {
-          rosterTable.classList.remove(...layouts);
-          rosterTable.classList.add(nextLayout);
-        }
-
-        // Recalculate scrolling text widths for the new card dimensions
-        this.rosterModule.initScrollingOverflow();
+        // Re-render the drawer so the new HTML card template is injected
+        this.refresh();
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
         if (this.showingHelp) {

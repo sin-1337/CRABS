@@ -18,6 +18,7 @@ import DOMPurify from "dompurify";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
 import rostercardstemplate from "./templates/roster_cards.html";
+import rostercardssingletemplate from "./templates/roster_cards_single.html";
 
 import * as Icons from "./icons";
 import * as Compass from "./compass";
@@ -539,7 +540,12 @@ export class Roster extends CRABS_Base {
       CompassBlock: compassBlock,
     };
 
-    return this.template(rostercardstemplate, templatevars, false);
+    const targetTemplate =
+      this.currentLayoutMode === "layout-grid"
+        ? rostercardstemplate
+        : rostercardssingletemplate;
+
+    return this.template(targetTemplate, templatevars, false);
   }
 
   /**
