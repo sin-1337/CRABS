@@ -320,7 +320,7 @@ export abstract class CRABS_Base {
   public async openSettings(): Promise<void> {
     const screen = window as any;
 
-    // Ensure Text_Preference.csv is cached before triggering screen load
+    // 1. Wait for the base preference translations to be ready
     if (
       typeof screen.TextPrefetchFile === "function" &&
       typeof screen.ScreenFileGetTranslation === "function"
@@ -337,12 +337,17 @@ export abstract class CRABS_Base {
       }
     }
 
-    // Set the player context if needed
+    // 2. Set the player context
     if (typeof screen.InformationSheetLoadCharacter === "function") {
       screen.InformationSheetLoadCharacter(screen.Player);
     }
 
-    // Navigate directly to the Preference module
+    // 3. Set the subscreen target BEFORE loading Preference screen
+    if (CRABS_Base.subscreenDef) {
+      screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
+    }
+
+    // 4. If we are not in Preference, transition over
     if (
       screen.CurrentModule !== "Character" ||
       screen.CurrentScreen !== "Preference"
@@ -350,12 +355,11 @@ export abstract class CRABS_Base {
       screen.CommonSetScreen("Character", "Preference");
     }
 
-    // Unload whatever subscreen was loaded by PreferenceLoad
+    // 5. If we were already on Preference or CommonSetScreen needs manual load
     if (typeof screen.PreferenceSubscreenUnload === "function") {
       screen.PreferenceSubscreenUnload();
     }
 
-    // Inject CRABS subscreen
     if (CRABS_Base.subscreenDef) {
       screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
       screen.PreferencePageCurrent = 1;
