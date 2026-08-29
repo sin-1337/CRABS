@@ -7,6 +7,8 @@
  * - Banner template rendering system
  * - CSS styling for banner elements
  * - Integration with the CRABS base class for consistent functionality
+ *
+ * The banner module enhances the visual presentation of the CRABS mod in chat rooms.
  */
 
 import { CRABS_Base } from "../base";
@@ -28,6 +30,7 @@ declare const __VERSION__: string;
 export class Banner extends CRABS_Base {
   /**
    * Creates an instance of the Banner module.
+   *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
@@ -35,18 +38,84 @@ export class Banner extends CRABS_Base {
   }
 
   /**
-   * Event listener delegate for permission dropdown updates.
+   * Attaches a change handler to the permission selection element.
+   *
+   * @returns {void}
    */
-  private selectPermission = (event: Event): void => {
-    const target = event.target as HTMLSelectElement;
-    if (target && target.value !== undefined) {
-      const newPermissionLevel = parseInt(target.value, 10);
-      Permissions.setPermissionLevel(newPermissionLevel);
+  public attachPermissionChangeHandler(): void {
+    const select = document.getElementById(
+      "CRABS_permission_select",
+    ) as HTMLSelectElement;
+
+    if (select) {
+      select.addEventListener("change", (event: Event) => {
+        const target = event.target as HTMLSelectElement;
+        const newPermissionLevel = parseInt(target.value, 10);
+        Permissions.setPermissionLevel(newPermissionLevel);
+      });
     }
-  };
+  }
 
   /**
-   * Handles clicking the /roster link in the banner.
+   * Processes the permission selection event and updates player permissions.
+   *
+   * @param {any} event - The selection event object.
+   * @returns {void}
+   */
+  private selectPermission(event: any): void {
+    const target = event.target as HTMLSelectElement;
+    const newPermissionLevel = parseInt(target.value, 10);
+    Permissions.setPermissionLevel(newPermissionLevel);
+  }
+
+  /**
+   * Renders and displays the room information banner.
+   *
+   * @param {Record<string, string>} [extraData] - Optional additional data to populate the template.
+   * @returns {void}
+   */
+  public drawBanner(extraData?: Record<string, string>): void {
+    // bail if ChatRoomData is null or blank
+    if (
+      typeof ChatRoomData === "undefined" ||
+      !ChatRoomData ||
+      Object.keys(ChatRoomData).length === 0
+    ) {
+      console.log("CRABS: ChatRoomData wasn't populated");
+      return;
+    }
+
+    // set up the template and populate the fields.
+    let templatevars = {
+      Logo: Assets.printimage({ key: "logo" }),
+      LabelColor: `${Player.LabelColor}`,
+      PermissionOptions: Permissions.drawPermissionOptions(),
+      RoomName: ChatRoomData.Name,
+    };
+
+    let wrappervars = {
+      TitleBar:
+        typeof __NAME__ !== "undefined" && typeof __VERSION__ !== "undefined"
+          ? `${__NAME__}:  ${__VERSION__}`
+          : "CRABS Banner",
+      Close: Assets.printimage({
+        key: "close",
+        data: ["elementid", "CRABS_Banner"],
+      }),
+    };
+
+    if (extraData) Object.assign(templatevars, extraData);
+
+    this.buildui(
+      this.template(bannertemplate, templatevars, true, wrappervars),
+      "CRABS_Banner",
+    );
+  }
+
+  /**
+   * Handles the /roster link click, respecting the rosterOpensDrawer setting.
+   *
+   * @returns {void}
    */
   private handleRosterLink(): void {
     if (Settings.instance.data.rosterOpensDrawer) {
@@ -58,53 +127,22 @@ export class Banner extends CRABS_Base {
   }
 
   /**
-   * Renders and displays the room information banner.
-   * @param {Record<string, string>} [extraData] - Optional template override parameters.
+   * Builds the user interface for the banner and attaches necessary events.
+   *
+   * @param {string} output - The HTML string to be displayed.
+   * @param {string} [elementId] - Optional ID for the banner element.
+   * @returns {void}
    */
-  public drawBanner(extraData?: Record<string, string>): void {
-    const globalWindow = window as any;
-    const currentScreen = globalWindow.CurrentScreen;
-    const chatRoomData = globalWindow.ChatRoomData;
-    const player = globalWindow.Player;
-
-    // Ensure the player is actively in a chat room and room data is populated
-    if (currentScreen !== "ChatRoom" || !chatRoomData || !chatRoomData.Name) {
-      if (
-        typeof globalWindow.ChatRoomSendLocal === "function" &&
-        currentScreen === "ChatRoom"
-      ) {
-        globalWindow.ChatRoomSendLocal(
-          "CRABS: Room data is still synchronizing. Please try again in a moment.",
-        );
-      }
-      return;
-    }
-
-    const templatevars: Record<string, string> = {
-      Logo: Assets.printimage({ key: "logo" }),
-      LabelColor: `${player?.LabelColor || "#FFFFFF"}`,
-      PermissionOptions: Permissions.drawPermissionOptions(),
-      RoomName: chatRoomData.Name,
-    };
-
-    const wrappervars = {
-      TitleBar:
-        typeof __NAME__ !== "undefined" && typeof __VERSION__ !== "undefined"
-          ? `${__NAME__}: ${__VERSION__}`
-          : "CRABS Banner",
-      Close: Assets.printimage({
-        key: "close",
-        data: ["elementid", "CRABS_Banner"],
-      }),
-    };
-
-    if (extraData) {
-      Object.assign(templatevars, extraData);
-    }
-
-    this.buildui(
-      this.template(bannertemplate, templatevars, true, wrappervars),
-      "CRABS_Banner",
+  public override buildui(output: string, elementId?: string): void {
+    super.buildui(output, elementId);
+    this.attachPermissionChangeHandler();
+    this.attachEvent(
+      "CRABS_Permission_Select",
+      this.selectPermission,
+      undefined,
+      undefined,
+      "change",
     );
+    this.attachEvent("CRABS_banner_rosterlink", () => this.handleRosterLink());
   }
 }

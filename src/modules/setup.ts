@@ -45,102 +45,81 @@ export class Setup extends CRABS_Base {
     );
 
     // Auto-stow Drawer on Chat
-    this.safeHook(
-      "ChatRoomSendChat",
-      10,
-      (args: any[], next: (args: any[]) => any) => {
-        const chatInput = document.getElementById(
-          "InputChat",
-        ) as HTMLTextAreaElement;
-        const message = chatInput?.value?.toLowerCase().trim() || "";
-        const result = next(args);
+    this.safeHook("ChatRoomSendChat", 10, (args, next) => {
+      const chatInput = document.getElementById(
+        "InputChat",
+      ) as HTMLTextAreaElement;
+      const message = chatInput?.value?.toLowerCase().trim() || "";
+      const result = next(args);
 
-        if (Settings.instance?.data.closeDrawerOnChat) {
-          if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
-            Drawer.close();
-          }
+      if (Settings.instance?.data.closeDrawerOnChat) {
+        if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
+          Drawer.close();
         }
-        return result;
-      },
-    );
+      }
+      return result;
+    });
 
     // Handle Room Joins and UI Recovery
-    this.safeHook(
-      "ChatRoomUpdateDisplay",
-      10,
-      (args: any[], next: (args: any[]) => any) => {
-        const result = next(args);
+    this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
+      const result = next(args);
 
-        const inChatRoom =
-          typeof ChatRoomData !== "undefined" &&
-          ChatRoomData !== null &&
-          (typeof CurrentScreen === "undefined" ||
-            CurrentScreen === "ChatRoom");
+      const inChatRoom =
+        typeof ChatRoomData !== "undefined" &&
+        ChatRoomData !== null &&
+        (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
 
-        if (inChatRoom) {
-          // Just joined a new room
-          if (ChatRoomData.ID !== this.crabsLastRoomID) {
-            this.crabsLastRoomID = ChatRoomData.ID;
-            Drawer.updateVisibility();
-            Settings.instance?.syncGameState();
+      if (inChatRoom) {
+        // Just joined a new room
+        if (ChatRoomData.ID !== this.crabsLastRoomID) {
+          this.crabsLastRoomID = ChatRoomData.ID;
+          Drawer.updateVisibility();
+          Settings.instance?.syncGameState();
 
-            if (Settings.instance?.data.showBanner) {
-              this.drawbanner();
-            }
+          if (Settings.instance?.data.showBanner) {
+            this.drawbanner();
           }
-
-          // Returned from Wardrobe/Profile
-          const isFocused = (window as any).CurrentCharacter !== null;
-          const drawerElement = document.getElementById("crabs-drawer");
-
-          if (
-            !isFocused &&
-            drawerElement &&
-            drawerElement.style.display === "none" &&
-            !Settings.instance?.data.enableDrawer
-          ) {
-            Drawer.updateVisibility();
-          }
-        } else {
-          this.crabsLastRoomID = null; // Left the room
         }
 
-        return result;
-      },
-    );
+        // Returned from Wardrobe/Profile
+        const isFocused = (window as any).CurrentCharacter !== null;
+        const drawerElement = document.getElementById("crabs-drawer");
+
+        if (
+          !isFocused &&
+          drawerElement &&
+          drawerElement.style.display === "none" &&
+          !Settings.instance?.data.enableDrawer
+        ) {
+          Drawer.updateVisibility();
+        }
+      } else {
+        this.crabsLastRoomID = null; // Left the room
+      }
+
+      return result;
+    });
 
     // Auto-stow Drawer on Screen Change
-    this.safeHook(
-      "CommonSetScreen",
-      0,
-      (args: any[], next: (args: any[]) => any) => {
-        const result = next(args);
-        Drawer.updateVisibility();
-        return result;
-      },
-    );
+    this.safeHook("CommonSetScreen", 0, (args, next) => {
+      const result = next(args);
+      Drawer.updateVisibility();
+      return result;
+    });
 
     // Auto-stow Drawer on Character Focus
-    this.safeHook(
-      "ChatRoomFocusCharacter",
-      0,
-      (args: any[], next: (args: any[]) => any) => {
-        const result = next(args);
-        Drawer.updateVisibility();
-        return result;
-      },
-    );
+    this.safeHook("ChatRoomFocusCharacter", 0, (args, next) => {
+      const result = next(args);
+      Drawer.updateVisibility();
+      return result;
+    });
 
     // Recover Drawer on Dialog Leave
-    this.safeHook(
-      "DialogLeave",
-      0,
-      (args: any[], next: (args: any[]) => any) => {
-        const result = next(args);
-        Drawer.updateVisibility();
-        return result;
-      },
-    );
+    this.safeHook("DialogLeave", 0, (args, next) => {
+      const result = next(args);
+      Drawer.updateVisibility();
+      return result;
+    });
   }
 
   private hookNativeExit(): void {
