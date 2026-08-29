@@ -196,7 +196,8 @@ export abstract class CRABS_Base {
 
     globalWindow.KeyManager.registerKeybinding({
       id: id,
-      action: actionWrapper,
+      name: { EN: actionName },
+      action: () => actionCallback(),
       description: { EN: description },
       contextIds: [],
       categoryId: "crabs",
