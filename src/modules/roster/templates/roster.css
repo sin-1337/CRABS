@@ -342,7 +342,7 @@
 /* --- Option 2: Single Column / Mobile Stack --- */
 .CRABS_roster_center_table.layout-mobile-stack .CRABS_roster_table_shrink {
   width: 100% !important;
-  max-width: 560px !important;
+  max-width: 96% !important; /* Matches default header shrink */
 }
 
 .CRABS_roster_center_table.layout-mobile-stack .CRABS_card-container {
@@ -371,16 +371,7 @@
 /* --- Option 3: Ultra-Compact Single Column --- */
 .CRABS_roster_center_table.layout-compact .CRABS_roster_table_shrink {
   width: 100% !important;
-  max-width: 480px !important;
-}
-
-.CRABS_roster_center_table.layout-compact .CRABS_room-status {
-  font-size: 0.95rem !important;
-  margin-bottom: 2px !important;
-}
-
-.CRABS_roster_center_table.layout-compact .CRABS_status_cell {
-  padding: 2px !important;
+  max-width: 96% !important;
 }
 
 .CRABS_roster_center_table.layout-compact .CRABS_card-container {
