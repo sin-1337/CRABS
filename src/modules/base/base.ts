@@ -333,41 +333,34 @@ export abstract class CRABS_Base {
       }
     }
 
-    // 2. Original sequence: Set character context and switch screen
+    // 2. Force the game into the Preferences screen state
     if (
       screen.CurrentModule !== "Character" ||
       screen.CurrentScreen !== "Preference"
     ) {
-      if (typeof screen.InformationSheetLoadCharacter === "function") {
-        screen.InformationSheetLoadCharacter(screen.Player);
-      }
-      screen.CommonSetScreen("Character", "Preference");
+      screen.InformationSheetLoadCharacter(screen.Player);
+      await screen.CommonSetScreen("Character", "Preference");
     }
 
-    // 3. Clean up the default subscreen that PreferenceLoad opened
+    // 3. Unload whatever subscreen is currently active
     if (typeof screen.PreferenceSubscreenUnload === "function") {
       screen.PreferenceSubscreenUnload();
     }
 
-    // 4. Inject CRABS subscreen (Identical to your original working logic)
+    // 4. Inject our stored subscreen using the STATIC reference
     if (CRABS_Base.subscreenDef) {
       screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
       screen.PreferencePageCurrent = 1;
       screen.PreferenceMessage = "";
 
       if (typeof screen.PreferenceSubscreenCreateSubscreen === "function") {
-        screen.PreferenceSubscreenCreateSubscreen(
-          CRABS_Base.subscreenDef.Identifier || "CRABS",
-        );
+        screen.PreferenceSubscreenCreateSubscreen("");
       }
 
-      if (typeof CRABS_Base.subscreenDef.load === "function") {
+      if (typeof CRABS_Base.subscreenDef.load === "function")
         CRABS_Base.subscreenDef.load();
-      }
-
-      if (typeof screen.PreferenceResize === "function") {
+      if (typeof screen.PreferenceResize === "function")
         screen.PreferenceResize(true);
-      }
     }
   }
 
