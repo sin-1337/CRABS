@@ -320,21 +320,42 @@ export abstract class CRABS_Base {
   public async openSettings(): Promise<void> {
     const screen = window as any;
 
-    // Force the game into the Preferences screen state
+    // Ensure Text_Preference.csv is cached before triggering screen load
+    if (
+      typeof screen.TextPrefetchFile === "function" &&
+      typeof screen.ScreenFileGetTranslation === "function"
+    ) {
+      const cache = screen.TextPrefetchFile(
+        screen.ScreenFileGetTranslation(
+          "Character",
+          "Preference",
+          "Preference",
+        ),
+      );
+      if (cache?.loadedPromise) {
+        await cache.loadedPromise;
+      }
+    }
+
+    // Set the player context if needed
+    if (typeof screen.InformationSheetLoadCharacter === "function") {
+      screen.InformationSheetLoadCharacter(screen.Player);
+    }
+
+    // Navigate directly to the Preference module
     if (
       screen.CurrentModule !== "Character" ||
       screen.CurrentScreen !== "Preference"
     ) {
-      screen.InformationSheetLoadCharacter(screen.Player);
-      await screen.CommonSetScreen("Character", "Preference");
+      screen.CommonSetScreen("Character", "Preference");
     }
 
-    // Unload whatever subscreen is currently active
+    // Unload whatever subscreen was loaded by PreferenceLoad
     if (typeof screen.PreferenceSubscreenUnload === "function") {
       screen.PreferenceSubscreenUnload();
     }
 
-    // Inject our stored subscreen using the STATIC reference
+    // Inject CRABS subscreen
     if (CRABS_Base.subscreenDef) {
       screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
       screen.PreferencePageCurrent = 1;
@@ -344,10 +365,13 @@ export abstract class CRABS_Base {
         screen.PreferenceSubscreenCreateSubscreen("");
       }
 
-      if (typeof CRABS_Base.subscreenDef.load === "function")
+      if (typeof CRABS_Base.subscreenDef.load === "function") {
         CRABS_Base.subscreenDef.load();
-      if (typeof screen.PreferenceResize === "function")
+      }
+
+      if (typeof screen.PreferenceResize === "function") {
         screen.PreferenceResize(true);
+      }
     }
   }
 
