@@ -43,7 +43,7 @@ const DEFAULT_SETTINGS: any = {
   localOnlyMode: false,
   lastSaved: 0,
   enablePerformanceMode: false,
-  normalizeFontOnHover: false,
+  normalizeFontOnHover: true,
 };
 
 export class Settings extends CRABS_Base {

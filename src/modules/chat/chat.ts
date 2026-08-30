@@ -43,7 +43,21 @@ export class ChatManager extends CRABS_Base {
           !parent?.classList.contains("chat-room-metadata")
         ) {
           const raw = node.nodeValue || "";
-          const normalized = raw.normalize("NFKC");
+          const cleanZalgoAndNormalize = (str: string): string => {
+            return (
+              str
+                .normalize("NFD")
+                // Strips combining diacritical marks (standard + extended ranges)
+                .replace(
+                  /[\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]/g,
+                  "",
+                )
+                // Normalizes stylized mathematical fonts, fullwidth, etc.
+                .normalize("NFKC")
+            );
+          };
+
+          const normalized = cleanZalgoAndNormalize(raw);
           if (raw !== normalized) {
             if (!textMap.has(node)) {
               textMap.set(node, raw);
