@@ -10,6 +10,7 @@ import "./templates/chat.css";
 export class ChatManager extends CRABS_Base {
   private roster: Roster;
   public chatLogHoveredPlayer: number | null = null;
+  private hoveredNormalizedMessage: HTMLElement | null = null;
 
   constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
     super(CRABS);
@@ -18,53 +19,136 @@ export class ChatManager extends CRABS_Base {
     this.setupChatLogHover();
   }
 
+  /**
+   * Recursively normalizes or restores text nodes within an element.
+   */
+  private toggleTextNormalization(
+    element: HTMLElement,
+    normalize: boolean,
+  ): void {
+    const originalStore = (element as any)._crabsOriginalTextNodes as
+      | Map<Text, string>
+      | undefined;
+
+    if (normalize) {
+      const textMap = originalStore || new Map<Text, string>();
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      let node = walker.nextNode() as Text | null;
+
+      while (node) {
+        // Skip metadata/timestamp containers if needed
+        const parent = node.parentElement;
+        if (
+          !parent?.classList.contains("ChatMessageName") &&
+          !parent?.classList.contains("chat-room-metadata")
+        ) {
+          const raw = node.nodeValue || "";
+          const normalized = raw.normalize("NFKC");
+          if (raw !== normalized) {
+            if (!textMap.has(node)) {
+              textMap.set(node, raw);
+            }
+            node.nodeValue = normalized;
+          }
+        }
+        node = walker.nextNode() as Text | null;
+      }
+
+      if (textMap.size > 0) {
+        (element as any)._crabsOriginalTextNodes = textMap;
+      }
+    } else if (originalStore) {
+      // Restore cached originals
+      originalStore.forEach((origText, node) => {
+        if (node && node.parentNode) {
+          node.nodeValue = origText;
+        }
+      });
+      delete (element as any)._crabsOriginalTextNodes;
+    }
+  }
+
   private setupChatLogHover(): void {
     document.addEventListener("mouseover", (mouseEvent) => {
-      if (Settings.instance?.data?.chatLogHover === false) return;
       const target = mouseEvent.target as HTMLElement;
+      if (!target) return;
+
+      const messageElement = target.closest(
+        ".ChatMessage",
+      ) as HTMLElement | null;
+
+      // --- Font Normalization on Message Hover ---
+      if (
+        Settings.instance?.data?.normalizeFontOnHover !== false &&
+        messageElement &&
+        this.hoveredNormalizedMessage !== messageElement
+      ) {
+        // Restore previously hovered element if moving across message boundaries
+        if (
+          this.hoveredNormalizedMessage &&
+          this.hoveredNormalizedMessage !== messageElement
+        ) {
+          this.toggleTextNormalization(this.hoveredNormalizedMessage, false);
+        }
+        this.hoveredNormalizedMessage = messageElement;
+        this.toggleTextNormalization(messageElement, true);
+      }
+
+      // --- Player Name Highlight Hover ---
+      if (Settings.instance?.data?.chatLogHover === false) return;
       const nameElement = target.closest(".ChatMessageName");
 
-      if (nameElement) {
-        const messageElement = nameElement.closest(
-          ".ChatMessage",
-        ) as HTMLElement;
-        if (messageElement) {
-          // Determine the correct ID to highlight
-          const senderID = parseInt(messageElement.dataset.sender || "", 10);
-          const targetID = parseInt(messageElement.dataset.target || "", 10);
-          const isWhisper =
-            messageElement.classList.contains("ChatMessageWhisper");
+      if (nameElement && messageElement) {
+        const senderID = parseInt(messageElement.dataset.sender || "", 10);
+        const targetID = parseInt(messageElement.dataset.target || "", 10);
+        const isWhisper =
+          messageElement.classList.contains("ChatMessageWhisper");
 
-          const player = (window as any).Player;
-          let memberNumber = senderID;
+        const player = (window as any).Player;
+        let memberNumber = senderID;
 
-          // Logic Fix: If it's a whisper and WE sent it, highlight the target instead
-          if (
-            isWhisper &&
-            senderID === player.MemberNumber &&
-            !isNaN(targetID)
-          ) {
-            memberNumber = targetID;
-          }
+        if (
+          isWhisper &&
+          senderID === player?.MemberNumber &&
+          !isNaN(targetID)
+        ) {
+          memberNumber = targetID;
+        }
 
-          if (
-            !isNaN(memberNumber) &&
-            this.chatLogHoveredPlayer !== memberNumber
-          ) {
-            this.chatLogHoveredPlayer = memberNumber;
-            if (this.roster) {
-              this.roster.chatLogHoveredPlayer = memberNumber;
-              this.roster.hoveredMapPlayer = memberNumber;
-            }
+        if (
+          !isNaN(memberNumber) &&
+          this.chatLogHoveredPlayer !== memberNumber
+        ) {
+          this.chatLogHoveredPlayer = memberNumber;
+          if (this.roster) {
+            this.roster.chatLogHoveredPlayer = memberNumber;
+            this.roster.hoveredMapPlayer = memberNumber;
           }
         }
       }
     });
 
     document.addEventListener("mouseout", (mouseEvent) => {
-      if (Settings.instance?.data?.chatLogHover === false) return;
       const target = mouseEvent.target as HTMLElement;
+      const relatedTarget = mouseEvent.relatedTarget as HTMLElement | null;
+      if (!target) return;
 
+      // --- Restore Font on Leaving Message ---
+      const messageElement = target.closest(
+        ".ChatMessage",
+      ) as HTMLElement | null;
+      if (
+        messageElement &&
+        (!relatedTarget || !messageElement.contains(relatedTarget))
+      ) {
+        if (this.hoveredNormalizedMessage === messageElement) {
+          this.toggleTextNormalization(messageElement, false);
+          this.hoveredNormalizedMessage = null;
+        }
+      }
+
+      // --- Clear Player Highlight ---
+      if (Settings.instance?.data?.chatLogHover === false) return;
       if (target.closest(".ChatMessageName")) {
         this.chatLogHoveredPlayer = null;
         if (this.roster) {
