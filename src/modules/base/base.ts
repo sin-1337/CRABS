@@ -225,6 +225,24 @@ export abstract class CRABS_Base {
   }
 
   /**
+   * Strips combining diacritical marks (Zalgo/glitch text) and normalizes
+   * stylized Unicode fonts (mathematical, fullwidth, etc.) to standard text.
+   *
+   * @param text - The raw input string containing potential stylized or glitch characters.
+   * @returns The sanitized, normalized plain text string.
+   */
+  public cleanZalgoAndNormalize(text: string): string {
+    if (!text) return "";
+    return text
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]/g,
+        "",
+      )
+      .normalize("NFKC");
+  }
+
+  /**
    * Determines if the drawer should render in mobile mode.
    * Checks physical screen width first, then falls back to User-Agent detection.
    * @returns {boolean} True if the device is a phone or the window is very small.

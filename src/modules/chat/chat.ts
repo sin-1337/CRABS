@@ -36,28 +36,13 @@ export class ChatManager extends CRABS_Base {
       let node = walker.nextNode() as Text | null;
 
       while (node) {
-        // Skip metadata/timestamp containers if needed
         const parent = node.parentElement;
         if (
           !parent?.classList.contains("ChatMessageName") &&
           !parent?.classList.contains("chat-room-metadata")
         ) {
           const raw = node.nodeValue || "";
-          const cleanZalgoAndNormalize = (str: string): string => {
-            return (
-              str
-                .normalize("NFD")
-                // Strips combining diacritical marks (standard + extended ranges)
-                .replace(
-                  /[\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]/g,
-                  "",
-                )
-                // Normalizes stylized mathematical fonts, fullwidth, etc.
-                .normalize("NFKC")
-            );
-          };
-
-          const normalized = cleanZalgoAndNormalize(raw);
+          const normalized = this.cleanZalgoAndNormalize(raw);
           if (raw !== normalized) {
             if (!textMap.has(node)) {
               textMap.set(node, raw);
@@ -72,7 +57,6 @@ export class ChatManager extends CRABS_Base {
         (element as any)._crabsOriginalTextNodes = textMap;
       }
     } else if (originalStore) {
-      // Restore cached originals
       originalStore.forEach((origText, node) => {
         if (node && node.parentNode) {
           node.nodeValue = origText;

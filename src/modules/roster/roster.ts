@@ -376,8 +376,10 @@ export class Roster extends CRABS_Base {
           ".CRABS_player-name",
         ) as HTMLElement;
         if (nameContainer) {
-          const currentNickname =
-            CharacterNickname(character).normalize("NFKC");
+          // --- CHANGED HERE ---
+          const currentNickname = this.cleanZalgoAndNormalize(
+            CharacterNickname(character),
+          );
           if (nameContainer.textContent !== currentNickname) {
             nameContainer.textContent = currentNickname;
           }
@@ -544,7 +546,7 @@ export class Roster extends CRABS_Base {
       LabelColorBorder: `${this.convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
       LabelShadow: labelShadow,
-      PlayerName: CharacterNickname(character).normalize("NFKC"),
+      PlayerName: this.cleanZalgoAndNormalize(CharacterNickname(character)),
       PlayerIcons: playerIcons,
       StatusIcons: `${Icons.setStatusIcons(character)}`,
       CompassBlock: compassBlock,
