@@ -7,5 +7,11 @@
     },
     "permissions": {
         "fallback_option": "Permission {index}"
+    },
+    "labels": {
+        "item_permission": "Item Permission",
+        "room": "Room",
+        "roster_hint_prefix": "Use",
+        "roster_hint_suffix": "to see the full output"
     }
 }

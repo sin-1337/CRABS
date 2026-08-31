@@ -131,8 +131,34 @@ export class SelectWidget extends UIWidget {
       el = document.createElement("select");
       el.id = this.domID;
       el.className = "HideOnPopup";
+
+      // Theme matching styles
       el.style.position = "fixed";
       el.style.zIndex = "100";
+      el.style.fontSize = "16px";
+      el.style.fontFamily = "Arial, sans-serif";
+      el.style.color = "#FFFFFF";
+      el.style.backgroundColor = "#2d2a3e";
+      el.style.border = "2px solid #555555";
+      el.style.borderRadius = "6px";
+      el.style.padding = "2px 28px 2px 10px";
+      el.style.cursor = "pointer";
+      el.style.boxSizing = "border-box";
+      el.style.outline = "none";
+      el.style.appearance = "none";
+      el.style.backgroundImage =
+        "url('https://sin-1337.github.io/CRABS/images/down-arrow.svg')";
+      el.style.backgroundRepeat = "no-repeat";
+      el.style.backgroundPosition = "right 8px center";
+      el.style.backgroundSize = "14px";
+
+      el.addEventListener("focus", () => {
+        el!.style.borderColor = "#AAAAAA";
+      });
+      el.addEventListener("blur", () => {
+        el!.style.borderColor = "#555555";
+      });
+
       document.body.appendChild(el);
 
       el.addEventListener("change", (e) => {
@@ -145,7 +171,7 @@ export class SelectWidget extends UIWidget {
       const currentHtml = options
         .map(
           (opt) =>
-            `<option value="${opt.value}" ${opt.value === this.getValue() ? "selected" : ""}>${opt.text}</option>`,
+            `<option value="${opt.value}" ${opt.value === this.getValue() ? "selected" : ""} style="background-color: #222222; color: #FFFFFF;">${opt.text}</option>`,
         )
         .join("");
 
@@ -156,7 +182,7 @@ export class SelectWidget extends UIWidget {
     }
 
     if (!locked && isVisible && el) {
-      const inputWidth = 260;
+      const inputWidth = 280;
       const inputStartX = bounds.x + 320;
       const centerX = inputStartX + inputWidth / 2;
       globalWindow.ElementPosition(
@@ -164,7 +190,7 @@ export class SelectWidget extends UIWidget {
         centerX,
         bounds.y,
         inputWidth,
-        36,
+        38,
       );
     } else if (el) {
       globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
