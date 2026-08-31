@@ -1,0 +1,55 @@
+{
+    "header": {
+        "title_default": "[uk] Roster",
+        "tooltip_admins": "[uk] Admins",
+        "tooltip_players": "[uk] Players",
+        "tooltip_friends": "[uk] Friends",
+        "tooltip_online": "[uk] Online Accounts"
+    },
+    "controls": {
+        "sort_by": "[uk] Sort By",
+        "view_grid": "[uk] Grid View",
+        "view_single": "[uk] Single Column View",
+        "view_compact": "[uk] Compact View",
+        "close_dialog": "[uk] Close Roster"
+    },
+    "sort_options": {
+        "natural": "[uk] Natural (Room Order)",
+        "none": "[uk] None",
+        "role": "[uk] Role (Admins & VIPs)",
+        "ds": "[uk] D/s Hierarchy",
+        "lovers": "[uk] Lovers & Relationships",
+        "friends": "[uk] Friends",
+        "whitelist": "[uk] Whitelisted",
+        "blacklist": "[uk] Blacklisted"
+    },
+    "status": {
+        "unknown_person": "[uk] [Unknown Person]",
+        "blind": "[uk] Blind: {level}",
+        "gag": "[uk] Gag: {level}",
+        "deaf": "[uk] Deaf: {level}"
+    },
+    "badges": {
+        "player": "[uk] Player",
+        "admin": "[uk] Room Administrator",
+        "vip": "[uk] Room Whitelist / VIP"
+    },
+    "relations": {
+        "you": "[uk] You",
+        "owner": "[uk] Owner",
+        "sub": "[uk] Submissive",
+        "trial": "[uk] Trial Submissive",
+        "family": "[uk] Family",
+        "lover": "[uk] Lover",
+        "bestfriend": "[uk] Best Friend",
+        "friend": "[uk] Friend",
+        "whitelist": "[uk] Whitelisted",
+        "blacklist": "[uk] Blacklisted",
+        "ghost": "[uk] Ghostlisted"
+    },
+    "tooltips": {
+        "track_compass": "[uk] Track Player on Map",
+        "focus_player": "[uk] Focus Player",
+        "copy_id": "[uk] Copy Member Number"
+    }
+}

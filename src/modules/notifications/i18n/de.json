@@ -1,0 +1,9 @@
+{
+    "errors": {
+        "feature_disabled": "[de] CRABS Feature disabled: {hook} failed.",
+        "error_title": "[de] Error"
+    },
+    "clipboard": {
+        "copied": "[de] \"{data}\" copied to clipboard."
+    }
+}

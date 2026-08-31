@@ -1,0 +1,114 @@
+{
+    "header": {
+        "title_default": "[tw] Help",
+        "documentation_title": "[tw] Documentation",
+        "view_changelog": "[tw] View Changelog"
+    },
+    "controls": {
+        "close_dialog": "[tw] Close Help"
+    },
+    "sections": {
+        "key_features": "[tw] Key Features",
+        "core_commands": "[tw] Core Commands",
+        "interactions": "[tw] Interactions & Navigation",
+        "relational_icons": "[tw] Relational Icons",
+        "status_badges": "[tw] Status & Badges",
+        "settings_overview": "[tw] ⚙️ Settings Detailed Overview",
+        "general": "[tw] General",
+        "drawer": "[tw] Drawer",
+        "immersion": "[tw] Immersion",
+        "maps": "[tw] Maps",
+        "chat": "[tw] Chat",
+        "config": "[tw] Config"
+    },
+    "features": {
+        "drawer_title": "[tw] 🗄️ Interactive Drawer",
+        "drawer_desc": "[tw] A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.",
+        "compass_title": "[tw] 🧭 Universal Compass & Focus",
+        "compass_desc": "[tw] Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.",
+        "chat_title": "[tw] 🔔 Chat Highlighting",
+        "chat_desc": "[tw] Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.",
+        "privacy_title": "[tw] 🛡️ Privacy Mode",
+        "privacy_desc": "[tw] A customizable \"boss key\" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).",
+        "performance_title": "[tw] ⚡ Smart Performance",
+        "performance_desc": "[tw] Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.",
+        "blindness_title": "[tw] 👁️ Immersive Blindness",
+        "blindness_desc": "[tw] Optional roster blurring based on your blindness level. Fully respects BCX \"Full Blind\" rules.",
+        "colors_title": "[tw] ✨ Smart Colors",
+        "colors_desc": "[tw] Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.",
+        "whisper_title": "[tw] 💬 Whisper+",
+        "whisper_desc": "[tw] Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send."
+    },
+    "commands": {
+        "roster_desc": "[tw] Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.",
+        "args_label": "[tw] Arguments:",
+        "arg_count": "[tw] Only shows current room population counters.",
+        "arg_admins": "[tw] Only lists room administrators.",
+        "arg_vips": "[tw] Only lists room whitelisted users.",
+        "arg_banner": "[tw] Force redraws the room information banner.",
+        "arg_help": "[tw] Shows this documentation.",
+        "whisper_desc": "[tw] Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.",
+        "dropkeys_desc": "[tw] Instantly drop specific keys (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">silver</span>, <span style=\"color:#ffd700\">gold</span>) or all keys at once."
+    },
+    "interactions": {
+        "click_badge": "[tw] <b>Click Badge:</b> Opens the character's focus screen.",
+        "click_name": "[tw] <b>Click Player's Name:</b> Start a Whisper+ message.",
+        "click_id": "[tw] <b>Click Number (ID):</b> Copies the player's member number to your clipboard.",
+        "live_sorting": "[tw] <b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.",
+        "reverse_hover": "[tw] <b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.",
+        "shortcuts": "[tw] <b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode."
+    },
+    "relations": {
+        "you": "[tw] You",
+        "owner": "[tw] Owner",
+        "sub": "[tw] Submissive",
+        "trial": "[tw] On Trial",
+        "lover": "[tw] Lover",
+        "family": "[tw] Family",
+        "bestfriend": "[tw] Best Friend",
+        "friend": "[tw] Friend",
+        "whitelist": "[tw] Whitelisted",
+        "blacklist": "[tw] Blacklisted",
+        "ghost": "[tw] Ghosted"
+    },
+    "badges": {
+        "admin": "[tw] Room Admin",
+        "vip": "[tw] Room Whitelist",
+        "player": "[tw] Room Guest"
+    },
+    "status": {
+        "indicators_desc": "[tw] <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered."
+    },
+    "settings_guide": {
+        "intro": "[tw] Access settings via the {icon} icon in the drawer, now featuring a fully <b>tabbed interface</b>. <br><b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right to instantly return to the game.",
+        "general_update": "[tw] <b>Update Notifications:</b> Alerts you when to refresh for a new version.",
+        "general_banner": "[tw] <b>Show Banner on Entry:</b> Displays an info banner when joining a room.",
+        "general_privacy": "[tw] <b>Full-Screen Privacy Mode:</b> Blanks the entire screen instead of just the chat side when the hotkey is used.",
+        "general_halo": "[tw] <b>Enable Focus Halo:</b> Shows a pulsing halo effect on hovered avatars.",
+        "general_keybinds": "[tw] <b>Edit Keybinds:</b> Direct shortcut to the game's keybinding menu to change your Privacy and Drawer toggle hotkeys.",
+        "drawer_enable": "[tw] <b>Enable Drawer UI:</b> Turns the sliding drawer interface on or off.",
+        "drawer_toggle_cmd": "[tw] <b>/roster toggles drawer:</b> Typing <span class=\"CRABS_help_command\">/roster</span> or <span class=\"CRABS_help_command\">/crabs</span> opens the drawer instead of printing in chat.",
+        "drawer_tab": "[tw] <b>Show Drawer Tab:</b> Toggles the persistent visual tab on the screen edge.",
+        "drawer_logo_anim": "[tw] <b>Animated Tab Logo:</b> Toggle the drawer logo animation to save performance.",
+        "drawer_compact": "[tw] <b>Compact Height:</b> Limits the drawer to 77% height, keeping the chat input visible.",
+        "drawer_autostow": "[tw] <b>Auto-stow Options:</b> Close the drawer automatically after sending a standard chat or Whisper+.",
+        "drawer_focus": "[tw] <b>Focus Follows Mouse:</b> Automatically switch to a player's page when hovering their card.",
+        "drawer_autoscroll": "[tw] <b>Auto-Scroll Drawer:</b> The roster automatically scrolls to the character you are mousing over in the game world.",
+        "immersion_lock": "[tw] <b>Hardcore Lock:</b> Locks these immersion settings ON while your character is bound.",
+        "immersion_blind_gag": "[tw] <b>Respect Blindness & Gags:</b> Blurs the roster UI and disables Whisper+ based on character state.",
+        "immersion_bcx": "[tw] <b>Respect BCX Rules:</b> Enforces BCX restrictions within the CRABS interface.",
+        "maps_compass": "[tw] <b>Show Map Compass:</b> Displays a directional arrow on the map.",
+        "maps_superzoom": "[tw] <b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).",
+        "chat_mentions": "[tw] <b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken. Customize the highlight color.",
+        "chat_caps_match": "[tw] <b>Auto-Capitalize & Color Match:</b> Capitalizes your name and matches it to your character's label color in highlights.",
+        "chat_custom_words": "[tw] <b>Custom Words & Exclusion Phrases:</b> Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.",
+        "chat_links": "[tw] <b>Chat Log Hover Links:</b> Hovering names in the chat log triggers the focus halo and map compass.",
+        "chat_whisper_elevate": "[tw] <b>Whisper+ Auto-elevate:</b> Attempts to send a Whisper+ as a standard beep if a friend leaves the room.",
+        "config_cloud_sync": "[tw] <b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.",
+        "config_delete_server": "[tw] <b>Delete Server Save:</b> Wipes your CRABS settings from the game server.",
+        "config_export_import": "[tw] <b>Export / Import:</b> Copy or paste your settings string to backup or share."
+    },
+    "general": {
+        "not_applicable": "[tw] N/A"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "notifications": {
+        "blocked_title": "[uk] Whisper+ Blocked",
+        "blocked_gagged": "[uk] You cannot use Whisper+ while gagged.",
+        "sent_as_beep": "[uk] Whisper+ sent as beep.",
+        "failed_title": "[uk] Whisper+ Failed"
+    },
+    "chat": {
+        "note_to_self": "[uk] <span style=\"color:#989898\">{icon} Note to </span><span style=\"color:{labelColor}\">self</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "[uk] Beep to {targetName} ({memberNumber}): {message}",
+        "invalid_member": "[uk] Member number is invalid.",
+        "blank_message": "[uk] Message was blank",
+        "player_left": "[uk] Player left or became unavailable",
+        "auto_beep_failed": "[uk]  (Auto-beep failed: Target is not on your friend list.)",
+        "fallback_member": "[uk] Member"
+    }
+}

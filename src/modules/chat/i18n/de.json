@@ -1,0 +1,7 @@
+{
+    "notifications": {
+        "mention_title": "[de] Mentioned!",
+        "mention_body": "[de] {sender} mentioned you!",
+        "unknown_sender": "[de] Someone"
+    }
+}

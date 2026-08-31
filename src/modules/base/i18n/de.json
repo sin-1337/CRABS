@@ -1,0 +1,12 @@
+{
+    "keybinds": {
+        "category": "[de] CRABS Mod"
+    },
+    "chat": {
+        "person_not_found": "[de] This person is no longer in the room."
+    },
+    "tooltips": {
+        "help": "[de] Help",
+        "settings": "[de] Settings"
+    }
+}

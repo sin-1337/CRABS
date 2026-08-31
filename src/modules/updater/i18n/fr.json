@@ -1,0 +1,9 @@
+{
+    "notification": {
+        "title": "[fr] 🦀 CRABS Update Available!",
+        "message": "[fr] Version {newVersion} ({branch}) is out! (You are on {currentVersion}). Refresh your page to apply the update."
+    },
+    "chat": {
+        "local_message": "[fr] <span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) is available. Reload the page to update!</span>"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "header": {
+        "title_default": "Bannière"
+    },
+    "controls": {
+        "close_dialog": "Fermer la bannière"
+    },
+    "permissions": {
+        "fallback_option": "Autorisation {index}"
+    },
+    "labels": {
+        "item_permission": "Autorisation de l'élément",
+        "room": "Salle",
+        "roster_hint_prefix": "Utiliser",
+        "roster_hint_suffix": "pour voir la sortie complète"
+    }
+}

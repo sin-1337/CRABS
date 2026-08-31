@@ -1,0 +1,17 @@
+{
+    "notifications": {
+        "blocked_title": "[fr] Whisper+ Blocked",
+        "blocked_gagged": "[fr] You cannot use Whisper+ while gagged.",
+        "sent_as_beep": "[fr] Whisper+ sent as beep.",
+        "failed_title": "[fr] Whisper+ Failed"
+    },
+    "chat": {
+        "note_to_self": "[fr] <span style=\"color:#989898\">{icon} Note to </span><span style=\"color:{labelColor}\">self</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "[fr] Beep to {targetName} ({memberNumber}): {message}",
+        "invalid_member": "[fr] Member number is invalid.",
+        "blank_message": "[fr] Message was blank",
+        "player_left": "[fr] Player left or became unavailable",
+        "auto_beep_failed": "[fr]  (Auto-beep failed: Target is not on your friend list.)",
+        "fallback_member": "[fr] Member"
+    }
+}

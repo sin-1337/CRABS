@@ -1,0 +1,38 @@
+{
+    "commands": {
+        "whisper_desc": "[de] Enables the /whisper+ command that does global whisper in a map room",
+        "w_desc": "[de] Enables the /w+ command that does global whisper in a map room",
+        "crabs_desc": "[de] Open the CRABS Roster.",
+        "roster_desc": "[de] Open the CRABS Roster.",
+        "dropkeys_desc": "[de] Drops the specified keys: gold, silver, or bronze. You can also use all.",
+        "crab_desc": "[de] Uh oh! Sin left a highly volatile debug command in! It's highly volatile, could do just about anything... even make noise!",
+        "unrecognized_arg": "[de] Unrecognized argument: '{arg}'. Try '/roster help'",
+        "dropkeys_missing_arg": "[de] You must supply which key to drop, or 'all' to drop them all.",
+        "dropkeys_not_map": "[de] Keys only work on a map...",
+        "dropkeys_dropped": "[de] {color} key dropped.",
+        "dropkeys_invalid_arg": "[de] Argument '{arg}' was not understood.",
+        "keys": {
+            "bronze": "[de] Bronze",
+            "silver": "[de] Silver",
+            "gold": "[de] Gold"
+        },
+        "crab_easter_egg": {
+            "rave_message": "[de] 🦀 RAVE TIME! 🦀",
+            "no_args": [
+                "[de] The crab is confused. Maybe try telling it what to do?",
+                "[de] The crab clicks its claws at you. Maybe try giving it an argument?",
+                "[de] A tiny crab scuttles by, ignores you, and disappears into a hole. It seems to want a command.",
+                "[de] You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
+                "[de] The crab is currently on lunch break. Try back later with some instructions.",
+                "[de] ERROR: Crab not found. Please provide an argument to locate the crab."
+            ],
+            "fail_messages": [
+                "[de] Trying it... nope, not that one.",
+                "[de] The crab looks confused. '{arg}'? Is that even a word?",
+                "[de] You try to make the crab {arg}. It pinches you in response. Ouch!",
+                "[de] The crab tries its best to {arg}, but it just ends up spinning in circles.",
+                "[de] The crab remains unimpressed."
+            ]
+        }
+    }
+}

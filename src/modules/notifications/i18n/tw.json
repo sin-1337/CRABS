@@ -1,0 +1,9 @@
+{
+    "errors": {
+        "feature_disabled": "[tw] CRABS Feature disabled: {hook} failed.",
+        "error_title": "[tw] Error"
+    },
+    "clipboard": {
+        "copied": "[tw] \"{data}\" copied to clipboard."
+    }
+}

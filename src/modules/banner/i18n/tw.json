@@ -1,0 +1,17 @@
+{
+    "header": {
+        "title_default": "橫幅"
+    },
+    "controls": {
+        "close_dialog": "關閉橫幅"
+    },
+    "permissions": {
+        "fallback_option": "權限 {index}"
+    },
+    "labels": {
+        "item_permission": "項目權限",
+        "room": "房間",
+        "roster_hint_prefix": "使用",
+        "roster_hint_suffix": "查看完整輸出"
+    }
+}
