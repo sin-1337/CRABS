@@ -141,7 +141,6 @@ export class SelectWidget extends UIWidget {
       el.style.border = "2px solid #555555";
       el.style.borderRadius = "6px";
       el.style.padding = "0 30px 0 10px";
-      el.style.lineHeight = "1";
       el.style.cursor = "pointer";
       el.style.boxSizing = "border-box";
       el.style.outline = "none";
@@ -182,27 +181,27 @@ export class SelectWidget extends UIWidget {
     }
 
     if (!locked && isVisible && el) {
-      const inputWidth = 280;
+      const inputWidth = 260;
       const inputStartX = bounds.x + 320;
       const centerX = inputStartX + inputWidth / 2;
+      const centerY = bounds.y - 3; // Shifted up by 3px to baseline-align with the canvas text
 
-      // Use ElementPositionFix to scale font size dynamically with game canvas zoom
       if (typeof globalWindow.ElementPositionFix === "function") {
         globalWindow.ElementPositionFix(
           this.domID,
-          22, // Target font size in canvas coordinates
+          20,
           centerX,
-          bounds.y,
+          centerY,
           inputWidth,
-          42, // Height in canvas coordinates
+          36,
         );
       } else {
         globalWindow.ElementPosition(
           this.domID,
           centerX,
-          bounds.y,
+          centerY,
           inputWidth,
-          42,
+          36,
         );
       }
     } else if (el) {
