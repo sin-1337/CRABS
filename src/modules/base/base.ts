@@ -119,14 +119,19 @@ export abstract class CRABS_Base {
       case "zh":
       case "zh-cn":
         return "cn";
+      case "tw":
+      case "zh-tw":
+      case "zh-hk":
+        return "tw";
       case "de":
         return "de";
       case "fr":
         return "fr";
       case "ru":
         return "ru";
-      case "es":
-        return "es";
+      case "uk":
+      case "ua":
+        return "uk";
       default:
         return normalized.slice(0, 2);
     }
