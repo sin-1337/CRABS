@@ -132,16 +132,16 @@ export class SelectWidget extends UIWidget {
       el.id = this.domID;
       el.className = "HideOnPopup";
 
-      // Theme matching styles
+      // Visual styling matching the dark BC UI
       el.style.position = "fixed";
       el.style.zIndex = "100";
-      el.style.fontSize = "16px";
       el.style.fontFamily = "Arial, sans-serif";
       el.style.color = "#FFFFFF";
       el.style.backgroundColor = "#2d2a3e";
       el.style.border = "2px solid #555555";
       el.style.borderRadius = "6px";
-      el.style.padding = "2px 28px 2px 10px";
+      el.style.padding = "0 30px 0 10px";
+      el.style.lineHeight = "1";
       el.style.cursor = "pointer";
       el.style.boxSizing = "border-box";
       el.style.outline = "none";
@@ -185,13 +185,26 @@ export class SelectWidget extends UIWidget {
       const inputWidth = 280;
       const inputStartX = bounds.x + 320;
       const centerX = inputStartX + inputWidth / 2;
-      globalWindow.ElementPosition(
-        this.domID,
-        centerX,
-        bounds.y,
-        inputWidth,
-        38,
-      );
+
+      // Use ElementPositionFix to scale font size dynamically with game canvas zoom
+      if (typeof globalWindow.ElementPositionFix === "function") {
+        globalWindow.ElementPositionFix(
+          this.domID,
+          22, // Target font size in canvas coordinates
+          centerX,
+          bounds.y,
+          inputWidth,
+          42, // Height in canvas coordinates
+        );
+      } else {
+        globalWindow.ElementPosition(
+          this.domID,
+          centerX,
+          bounds.y,
+          inputWidth,
+          42,
+        );
+      }
     } else if (el) {
       globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
     }
