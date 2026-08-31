@@ -267,11 +267,8 @@ export class Roster extends CRABS_Base {
       if (el && el.textContent !== text) el.textContent = text;
     };
 
-    const currentRoomName = ChatRoomData.Name;
-    const titleText = currentRoomName
-      ? this.t("header.title_room", { roomName: currentRoomName })
-      : this.t("header.title_default");
-    updateText("#drawer-title", titleText);
+    const currentRoomName = ChatRoomData.Name || this.t("header.title_default");
+    updateText("#drawer-title", `CRABS: ${currentRoomName}`);
 
     const adminInRoom = ChatRoomData.Character.filter((c: any) =>
       ChatRoomData.Admin.includes(c.MemberNumber),
@@ -756,7 +753,7 @@ export class Roster extends CRABS_Base {
     templatevars["collectedKeys"] = displaykeys;
 
     let wrappervars = {
-      TitleBar: this.t("header.title_default"),
+      TitleBar: `CRABS: ${this.t("header.title_default")}`,
       Close: Assets.printimage({
         key: "close",
         tooltip_override: this.t("controls.close_dialog"),

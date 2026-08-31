@@ -1,7 +1,6 @@
 {
     "header": {
-        "title_default": "CRABS: Roster",
-        "title_room": "CRABS: {roomName}",
+        "title_default": "Roster",
         "tooltip_admins": "Admins",
         "tooltip_players": "Players",
         "tooltip_friends": "Friends",

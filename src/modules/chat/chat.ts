@@ -1,19 +1,35 @@
+/**
+ * CRABS Chat Manager Module
+ *
+ * Handles chat log interactions, custom font normalization,
+ * chat hover states, and message mention highlighting.
+ */
+
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "../settings";
 import type { Roster } from "../roster";
 import "./templates/chat.css";
 
+import en from "./i18n/en.json";
+
 /**
- * CRABS Chat Manager Module
+ * Class managing chat log message hooks, highlights, and DOM hovers.
+ * @extends CRABS_Base
  */
 export class ChatManager extends CRABS_Base {
   private roster: Roster;
   public chatLogHoveredPlayer: number | null = null;
   private hoveredNormalizedMessage: HTMLElement | null = null;
 
+  /**
+   * Initializes the ChatManager module and registers its localization dictionary.
+   *
+   * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+   * @param {Roster} rosterInstance - Active Roster module reference for hover sync.
+   */
   constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
-    super(CRABS);
+    super(CRABS, "chat", { en });
     this.roster = rosterInstance;
     this.setupMessageHooks();
     this.setupChatLogHover();
@@ -21,6 +37,11 @@ export class ChatManager extends CRABS_Base {
 
   /**
    * Recursively normalizes or restores text nodes within an element.
+   *
+   * @param {HTMLElement} element - The root message element to scan.
+   * @param {boolean} normalize - Whether to apply font normalization or restore original text.
+   * @returns {void}
+   * @private
    */
   private toggleTextNormalization(
     element: HTMLElement,
@@ -66,6 +87,12 @@ export class ChatManager extends CRABS_Base {
     }
   }
 
+  /**
+   * Sets up mouseover and mouseout listeners across the chat log.
+   *
+   * @private
+   * @returns {void}
+   */
   private setupChatLogHover(): void {
     document.addEventListener("mouseover", (mouseEvent) => {
       const target = mouseEvent.target as HTMLElement;
@@ -81,7 +108,6 @@ export class ChatManager extends CRABS_Base {
         messageElement &&
         this.hoveredNormalizedMessage !== messageElement
       ) {
-        // Restore previously hovered element if moving across message boundaries
         if (
           this.hoveredNormalizedMessage &&
           this.hoveredNormalizedMessage !== messageElement
@@ -157,6 +183,13 @@ export class ChatManager extends CRABS_Base {
     });
   }
 
+  /**
+   * Hooks into the base game's message display pipeline to process keyword matching,
+   * name styling, inline colors, and external system notifications.
+   *
+   * @private
+   * @returns {void}
+   */
   private setupMessageHooks(): void {
     this.safeHook(
       "ChatRoomMessageDisplay",
@@ -173,7 +206,6 @@ export class ChatManager extends CRABS_Base {
           if (!messageDiv || !(messageDiv instanceof HTMLElement))
             return messageDiv;
 
-          const globalWindow = window as any;
           const player = globalWindow.Player;
           if (!player) return messageDiv;
 
@@ -208,7 +240,6 @@ export class ChatManager extends CRABS_Base {
 
           let ignoreRegex: RegExp | null = null;
           if (rawIgnorePhrases.length > 0) {
-            // Sort by length descending to prevent overlapping wildcard bugs
             rawIgnorePhrases.sort(
               (firstPhrase: string, secondPhrase: string) =>
                 secondPhrase.length - firstPhrase.length,
@@ -220,7 +251,6 @@ export class ChatManager extends CRABS_Base {
               escapeRegExp(validPhrase).replace(/\\\*/g, ".*?"),
             );
 
-            // Capturing group ( ) is CRITICAL here so .split() preserves the phrase
             ignoreRegex = new RegExp(`(${ignorePatterns.join("|")})`, "gi");
           }
 
@@ -304,7 +334,6 @@ export class ChatManager extends CRABS_Base {
                     partIndex++
                   ) {
                     if (partIndex % 2 === 0) {
-                      // Standard text
                       const processedText = processTextChunk(
                         textPartsArray[partIndex],
                       );
@@ -312,7 +341,6 @@ export class ChatManager extends CRABS_Base {
                         hasModifications = true;
                       newlyGeneratedHTML += processedText;
                     } else {
-                      // Ignored phrase (leave completely untouched)
                       newlyGeneratedHTML += textPartsArray[partIndex];
                     }
                   }
@@ -349,22 +377,23 @@ export class ChatManager extends CRABS_Base {
           searchAndHighlight(messageDiv);
 
           if (isMentioned) {
-            // Browser Notification
+            // Browser Notification using native window.Notification
             if (
               Settings.instance?.data?.browserNotifications &&
               document.hidden
             ) {
-              if (
-                "Notification" in window &&
-                Notification.permission === "granted"
-              ) {
+              const BrowserNotify = (window as any).Notification;
+              if (BrowserNotify && BrowserNotify.permission === "granted") {
+                const unknownSender = this.t("notifications.unknown_sender");
                 const senderIdentity =
                   senderData?.nickname && senderData?.playerNumber
                     ? `${senderData.nickname}(${senderData.playerNumber})`
-                    : senderData?.Name || "Someone";
+                    : senderData?.Name || unknownSender;
 
-                new Notification("Mentioned!", {
-                  body: `${senderIdentity} mentioned you!`,
+                new BrowserNotify(this.t("notifications.mention_title"), {
+                  body: this.t("notifications.mention_body", {
+                    sender: senderIdentity,
+                  }),
                 });
               }
             }
@@ -404,7 +433,6 @@ export class ChatManager extends CRABS_Base {
         } catch (err) {
           console.error("[CRABS] Error in chat highlight hook", err);
         } finally {
-          // Apply the scroll fix if we were at the bottom
           if (
             wasAtBottom &&
             typeof globalWindow.ElementScrollToEnd === "function"

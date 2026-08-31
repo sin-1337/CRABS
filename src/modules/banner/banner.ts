@@ -20,12 +20,14 @@ import { Settings } from "../settings";
 import { Drawer } from "../drawer";
 
 import * as Permissions from "./permissions";
+import en from "./i18n/en.json";
 
 declare const __NAME__: string;
 declare const __VERSION__: string;
 
 /**
  * Class representing the room information banner.
+ * @extends CRABS_Base
  */
 export class Banner extends CRABS_Base {
   /**
@@ -34,7 +36,7 @@ export class Banner extends CRABS_Base {
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "banner", { en });
   }
 
   /**
@@ -61,6 +63,7 @@ export class Banner extends CRABS_Base {
    *
    * @param {any} event - The selection event object.
    * @returns {void}
+   * @private
    */
   private selectPermission(event: any): void {
     const target = event.target as HTMLSelectElement;
@@ -75,7 +78,6 @@ export class Banner extends CRABS_Base {
    * @returns {void}
    */
   public drawBanner(extraData?: Record<string, string>): void {
-    // bail if ChatRoomData is null or blank
     if (
       typeof ChatRoomData === "undefined" ||
       !ChatRoomData ||
@@ -85,8 +87,7 @@ export class Banner extends CRABS_Base {
       return;
     }
 
-    // set up the template and populate the fields.
-    let templatevars = {
+    let templatevars: Record<string, string> = {
       Logo: Assets.printimage({ key: "logo" }),
       LabelColor: `${Player.LabelColor}`,
       PermissionOptions: Permissions.drawPermissionOptions(),
@@ -97,9 +98,10 @@ export class Banner extends CRABS_Base {
       TitleBar:
         typeof __NAME__ !== "undefined" && typeof __VERSION__ !== "undefined"
           ? `${__NAME__}:  ${__VERSION__}`
-          : "CRABS Banner",
+          : `CRABS: ${this.t("header.title_default")}`,
       Close: Assets.printimage({
         key: "close",
+        tooltip_override: this.t("controls.close_dialog"),
         data: ["elementid", "CRABS_Banner"],
       }),
     };
@@ -116,6 +118,7 @@ export class Banner extends CRABS_Base {
    * Handles the /roster link click, respecting the rosterOpensDrawer setting.
    *
    * @returns {void}
+   * @private
    */
   private handleRosterLink(): void {
     if (Settings.instance.data.rosterOpensDrawer) {

@@ -1,0 +1,11 @@
+{
+    "header": {
+        "title_default": "Banner"
+    },
+    "controls": {
+        "close_dialog": "Close Banner"
+    },
+    "permissions": {
+        "fallback_option": "Permission {index}"
+    }
+}

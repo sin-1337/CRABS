@@ -1,17 +1,44 @@
 // main.ts
 // entry point for CRABS
 
-// import section
 import bcModSDK from "bondage-club-mod-sdk";
-import { Banner, WhisperPlus, Roster, Help, Drawer, Settings, Assets, Setup, Notification, Updater, ChatManager, PrivacyMode, Performance } from "./modules";
+import {
+  Banner,
+  WhisperPlus,
+  Roster,
+  Help,
+  Drawer,
+  Settings,
+  Assets,
+  Setup,
+  Notification,
+  Updater,
+  ChatManager,
+  PrivacyMode,
+  Performance,
+} from "./modules";
+import { CRABS_Base } from "./modules/base";
+import mainEn from "./i18n/en.json";
 
 // register the mod
 const CRABS = bcModSDK.registerMod({
-	name: __NICKNAME__,
-	fullName: __NAME__,
-	version: __VERSION__,
-	repository: "https://github.com/sin-1337/CRABS",
+  name: __NICKNAME__,
+  fullName: __NAME__,
+  version: __VERSION__,
+  repository: "https://github.com/sin-1337/CRABS",
 });
+
+// Register root-level translations under the "main" namespace
+const normLang = CRABS_Base.normalizeLocale("en");
+const translations = (CRABS_Base as any).translations;
+if (translations) {
+  if (!translations[normLang]) translations[normLang] = {};
+  translations[normLang]["main"] = mainEn;
+}
+
+// Helper to translate main namespace keys concisely
+const t = (key: string, params?: Record<string, string | number>) =>
+  CRABS_Base.translate(`main.${key}`, params);
 
 // print version early, so you know what version is running even if it fails.
 console.log(`CRABS v${__VERSION__} Loading`); // do not remove
@@ -44,33 +71,35 @@ console.log(`CRABS v${__VERSION__} Loaded`); // do not remove
  * @returns {boolean} Returns true if the command should proceed to the next handler, false otherwise.
  */
 function argcheck(commandArguments: string): boolean {
-	const splitArgs = commandArguments.toLowerCase().split(" ");
-	const arg = splitArgs[0];
+  const splitArgs = commandArguments.toLowerCase().split(" ");
+  const arg = splitArgs[0];
 
-	if (arg === "help") {
-		HELP.buildui(HELP.showHelp(), "CRABS_Help");
-		const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
-		if (HELPBUTTON) HELPBUTTON.style.display = "none";
-		return false;
-	} else if (arg === "version") {
-		ChatRoomSendLocal(`${__NAME__} (${__NICKNAME__}) <br>Version: ${__VERSION__}`);
-		return false;
-	} else if (arg === "banner") {
-		SETUP.drawbanner();
-		return false;
-	}
+  if (arg === "help") {
+    HELP.buildui(HELP.showHelp(), "CRABS_Help");
+    const HELPBUTTON = document.getElementById("CRABS_Help_Icon");
+    if (HELPBUTTON) HELPBUTTON.style.display = "none";
+    return false;
+  } else if (arg === "version") {
+    ChatRoomSendLocal(
+      `${__NAME__} (${__NICKNAME__}) <br>Version: ${__VERSION__}`,
+    );
+    return false;
+  } else if (arg === "banner") {
+    SETUP.drawbanner();
+    return false;
+  }
 
-	// Allowlist of words that are allowed to print the roster to the chat log
-	const validPrintArgs = ["print", "count", "admins", "vips", "all"];
+  // Allowlist of words that are allowed to print the roster to the chat log
+  const validPrintArgs = ["print", "count", "admins", "vips", "all"];
 
-	// If there's no argument, or it's a valid print argument, return true to build the roster
-	if (arg === "" || validPrintArgs.includes(arg)) {
-		return true;
-	}
+  // If there's no argument, or it's a valid print argument, return true to build the roster
+  if (arg === "" || validPrintArgs.includes(arg)) {
+    return true;
+  }
 
-	// If it's a nonsense word, catch it here and return false so the roster doesn't print
-	ChatRoomSendLocal(`Unrecognized argument: '${arg}'. Try '/roster help'`);
-	return false;
+  // If it's a nonsense word, catch it here and return false so the roster doesn't print
+  ChatRoomSendLocal(t("commands.unrecognized_arg", { arg }));
+  return false;
 }
 
 /**
@@ -81,168 +110,179 @@ function argcheck(commandArguments: string): boolean {
  * @returns {void}
  */
 function commandRedirect(command: string, commandArguments: string): void {
-	for (let [_unused, COMMAND] of Commands.entries()) {
-		if (COMMAND.Tag === command) {
-			COMMAND.Action(commandArguments, command);
-			break;
-		}
-	}
+  for (let [_unused, COMMAND] of Commands.entries()) {
+    if (COMMAND.Tag === command) {
+      COMMAND.Action(commandArguments, command);
+      break;
+    }
+  }
 }
 
 // implements the whisper+ command
 CommandCombine([
-	{
-		Tag: "whisper+",
-		Description: "Enables the /whisper+ command that does global whisper in a map room",
-		Action: (commandArguments: string, command: string) => {
-			WHISPERPLUS.whisperplus(commandArguments, command);
-		},
-	},
+  {
+    Tag: "whisper+",
+    Description: t("commands.whisper_desc"),
+    Action: (commandArguments: string, command: string) => {
+      WHISPERPLUS.whisperplus(commandArguments, command);
+    },
+  },
 ]);
 
 // implements the /w+ command as a synonym for the whisper+ command
 CommandCombine([
-	{
-		Tag: "w+",
-		Description:
-			"Enables the /w+ command that does global whisper in a map room",
-		Action: (commandArguments: string) => {
-			commandRedirect("whisper+", commandArguments);
-		},
-	},
+  {
+    Tag: "w+",
+    Description: t("commands.w_desc"),
+    Action: (commandArguments: string) => {
+      commandRedirect("whisper+", commandArguments);
+    },
+  },
 ]);
 
 // implements the /crabs command as a synonym for /roster
 CommandCombine([
-	{
-		Tag: "crabs",
-		Description: "Open the CRABS Roster.",
-		Action: (commandArguments: string) => {
-			commandRedirect("roster", commandArguments);
-		},
-	},
+  {
+    Tag: "crabs",
+    Description: t("commands.crabs_desc"),
+    Action: (commandArguments: string) => {
+      commandRedirect("roster", commandArguments);
+    },
+  },
 ]);
 
-// who the heck knows what this does... clearly Sin was sleep deprived.
+// Easter egg command
 CommandCombine([
-	{
-		Tag: "crab",
-		Description: "Uh oh! Sin left a highly unstable debug command in! It's highly volatile, could do just about anything... even make noise!",
-		Action: (commandArguments: string) => {
-			const trimmedArgs = commandArguments.trim().toLowerCase();
+  {
+    Tag: "crab",
+    Description: t("commands.crab_desc"),
+    Action: (commandArguments: string) => {
+      const trimmedArgs = commandArguments.trim().toLowerCase();
 
-			if (!trimmedArgs) {
-				const noArgMessages = [
-					"The crab is confused. Maybe try telling it what to do?",
-					"The crab clicks its claws at you. Maybe try giving it an argument?",
-					"A tiny crab scuttles by, ignores you, and disappears into a hole. It seems to want a command.",
-					"You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
-					"The crab is currently on lunch break. Try back later with some instructions.",
-					"ERROR: Crab not found. Please provide an argument to locate the crab.",
-				];
-				ChatRoomSendLocal(noArgMessages[Math.floor(Math.random() * noArgMessages.length)]);
-				return;
-			}
+      if (!trimmedArgs) {
+        const noArgMessages = [
+          "The crab is confused. Maybe try telling it what to do?",
+          "The crab clicks its claws at you. Maybe try giving it an argument?",
+          "A tiny crab scuttles by, ignores you, and disappears into a hole. It seems to want a command.",
+          "You shout at the crab. It does nothing. It looks like it's waiting for a specific word.",
+          "The crab is currently on lunch break. Try back later with some instructions.",
+          "ERROR: Crab not found. Please provide an argument to locate the crab.",
+        ];
+        ChatRoomSendLocal(
+          noArgMessages[Math.floor(Math.random() * noArgMessages.length)],
+        );
+        return;
+      }
 
-			if (trimmedArgs === "rave") {
-				Assets.PlayAudio("rave");
-				Drawer.RaveTab();
-				Notification.send({
-					message: "🦀 RAVE TIME! 🦀",
-					image: "rave",
-					duration: 10000
-				});
-				return;
-			}
+      if (trimmedArgs === "rave") {
+        Assets.PlayAudio("rave");
+        Drawer.RaveTab();
+        Notification.send({
+          message: t("commands.crab_easter_egg.rave_message"),
+          image: "rave",
+          duration: 10000,
+        });
+        return;
+      }
 
-			const failMessages = [
-				`Trying it... nope, not that one.`,
-				`The crab looks confused. '${commandArguments}'? Is that even a word?`,
-				`You try to make the crab ${commandArguments}. It pinches you in response. Ouch!`,
-				`The crab tries its best to ${commandArguments}, but it just ends up spinning in circles.`,
-				"The crab remains unimpressed.",
-			];
-			ChatRoomSendLocal(failMessages[Math.floor(Math.random() * failMessages.length)]);
-		},
-	},
+      const failMessages = [
+        "Trying it... nope, not that one.",
+        `The crab looks confused. '${commandArguments}'? Is that even a word?`,
+        `You try to make the crab ${commandArguments}. It pinches you in response. Ouch!`,
+        `The crab tries its best to ${commandArguments}, but it just ends up spinning in circles.`,
+        "The crab remains unimpressed.",
+      ];
+      ChatRoomSendLocal(
+        failMessages[Math.floor(Math.random() * failMessages.length)],
+      );
+    },
+  },
 ]);
 
 // implements the /roster command
 CommandCombine([
-	{
-		Tag: "roster",
-		Description: "Open the CRABS Roster.",
-		Action: (commandArguments: string) => {
-			if (Settings.instance.data.rosterOpensDrawer && !commandArguments) {
-				Drawer.updateVisibility();
-				Drawer.toggle();
-				return;
-			}
+  {
+    Tag: "roster",
+    Description: t("commands.roster_desc"),
+    Action: (commandArguments: string) => {
+      if (Settings.instance.data.rosterOpensDrawer && !commandArguments) {
+        Drawer.updateVisibility();
+        Drawer.toggle();
+        return;
+      }
 
-			if (argcheck(commandArguments)) {
-				ROSTER.buildui(ROSTER.buildroster(commandArguments), "CRABS_Roster");
+      if (argcheck(commandArguments)) {
+        ROSTER.buildui(ROSTER.buildroster(commandArguments), "CRABS_Roster");
+        WHISPERPLUS.buildui();
+        ROSTER.initScrollingOverflow();
+      }
+      const elements = document.querySelectorAll<HTMLDivElement>(
+        "div.ChatMessageNonDialogue",
+      );
 
-				// call this to set the whisper plus event in the roster ui
-				WHISPERPLUS.buildui();
-				ROSTER.initScrollingOverflow();
-			}
-			const elements = document.querySelectorAll<HTMLDivElement>(
-				"div.ChatMessageNonDialogue",
-			);
-
-			elements.forEach((element) => {
-				element.style.overflow = "visible";
-			});
-		},
-	},
+      elements.forEach((element) => {
+        element.style.overflow = "visible";
+      });
+    },
+  },
 ]);
 
 // implements /dropkeys command
 CommandCombine([
-	{
-		Tag: "dropkeys",
-		Description:
-			"Drops the specified keys: gold, silver, or bronze. You can also use all.",
-		Action: (commandArguments: string) => {
-			const splitArgs = commandArguments.toLowerCase().split(" ");
-			if (splitArgs.length < 1) {
-				ChatRoomSendLocal(
-					`You must supply which key to drop, or 'all' to drop them all.`,
-				);
-				return;
-			}
-			if (!ChatRoomMapViewIsActive()) {
-				ChatRoomSendLocal(`Key only work on a map...`);
-				return;
-			}
-			for (let index = 0; index < splitArgs.length; index++) {
-				if (splitArgs[index] == "bronze" || splitArgs[index] == "all") {
-					if (Player.MapData.PrivateState.HasKeyBronze) {
-						Player.MapData.PrivateState.HasKeyBronze = false;
-						ChatRoomSendLocal(`Bronze key dropped.`);
-					}
-				}
-				if (splitArgs[index] == "silver" || splitArgs[index] == "all") {
-					if (Player.MapData.PrivateState.HasKeySilver) {
-						Player.MapData.PrivateState.HasKeySilver = false;
-						ChatRoomSendLocal(`Silver key dropped.`);
-					}
-				}
-				if (splitArgs[index] == "gold" || splitArgs[index] == "all") {
-					if (Player.MapData.PrivateState.HasKeyGold) {
-						Player.MapData.PrivateState.HasKeyGold = false;
-						ChatRoomSendLocal(`Gold key dropped.`);
-					}
-				}
-				if (
-					splitArgs[index] != "bronze" &&
-					splitArgs[index] != "silver" &&
-					splitArgs[index] != "gold" &&
-					splitArgs[index] != "all"
-				) {
-					ChatRoomSendLocal(`Argument '${splitArgs[index]}', was not understood.`);
-				}
-			}
-		},
-	},
+  {
+    Tag: "dropkeys",
+    Description: t("commands.dropkeys_desc"),
+    Action: (commandArguments: string) => {
+      const splitArgs = commandArguments.toLowerCase().split(" ");
+      if (splitArgs.length < 1 || !commandArguments.trim()) {
+        ChatRoomSendLocal(t("commands.dropkeys_missing_arg"));
+        return;
+      }
+      if (!ChatRoomMapViewIsActive()) {
+        ChatRoomSendLocal(t("commands.dropkeys_not_map"));
+        return;
+      }
+      for (let index = 0; index < splitArgs.length; index++) {
+        const arg = splitArgs[index];
+        if (arg === "bronze" || arg === "all") {
+          if (Player.MapData.PrivateState.HasKeyBronze) {
+            Player.MapData.PrivateState.HasKeyBronze = false;
+            ChatRoomSendLocal(
+              t("commands.dropkeys_dropped", {
+                color: t("commands.keys.bronze"),
+              }),
+            );
+          }
+        }
+        if (arg === "silver" || arg === "all") {
+          if (Player.MapData.PrivateState.HasKeySilver) {
+            Player.MapData.PrivateState.HasKeySilver = false;
+            ChatRoomSendLocal(
+              t("commands.dropkeys_dropped", {
+                color: t("commands.keys.silver"),
+              }),
+            );
+          }
+        }
+        if (arg === "gold" || arg === "all") {
+          if (Player.MapData.PrivateState.HasKeyGold) {
+            Player.MapData.PrivateState.HasKeyGold = false;
+            ChatRoomSendLocal(
+              t("commands.dropkeys_dropped", {
+                color: t("commands.keys.gold"),
+              }),
+            );
+          }
+        }
+        if (
+          arg !== "bronze" &&
+          arg !== "silver" &&
+          arg !== "gold" &&
+          arg !== "all"
+        ) {
+          ChatRoomSendLocal(t("commands.dropkeys_invalid_arg", { arg }));
+        }
+      }
+    },
+  },
 ]);

@@ -21,6 +21,8 @@ import { Help } from "../help";
 import { WhisperPlus } from "../whisperplus";
 import { Settings } from "../settings";
 
+import en from "./i18n/en.json";
+
 /**
  * Class representing the side drawer UI.
  * Manages the sliding panel that contains the Roster, Help, and Settings access.
@@ -53,6 +55,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Initializes the Drawer module and sets up the Singleton instance.
+   *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    * @param {Roster} roster - The Roster module instance.
    * @param {Help} help - The Help module instance.
@@ -64,7 +67,7 @@ export class Drawer extends CRABS_Base {
     help: Help,
     whisperPlus: WhisperPlus,
   ) {
-    super(CRABS);
+    super(CRABS, "drawer", { en });
     Drawer._instance = this;
     this.rosterModule = roster;
     this.helpModule = help;
@@ -72,8 +75,8 @@ export class Drawer extends CRABS_Base {
 
     CRABS_Base.registerKeybind(
       "crabs_drawer_toggle",
-      "Toggle Drawer",
-      "Opens or closes the CRABS side drawer.",
+      this.t("keybinds.toggle_name"),
+      this.t("keybinds.toggle_desc"),
       "KeyD",
       () => {
         this.toggle();
@@ -132,6 +135,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Helper mapping the active layout mode string to its corresponding asset key.
+   *
    * @private
    * @returns {string}
    */
@@ -149,6 +153,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
+   *
    * @returns {void}
    */
   public RaveTab(): void {
@@ -170,6 +175,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Bootstraps the drawer layout, injecting it into the DOM and establishing global hotkeys.
+   *
    * @private
    * @returns {void}
    */
@@ -203,6 +209,7 @@ export class Drawer extends CRABS_Base {
   /**
    * Evaluates user settings and system performance to dictate visual intensity.
    * Restricts animations and intensive CSS effects when the engine is struggling.
+   *
    * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
    * @private
    * @returns {void}
@@ -240,10 +247,24 @@ export class Drawer extends CRABS_Base {
   /**
    * Hooks into the game's render loop to process updates.
    * Monitors performance state and executes surgical DOM updates to the roster.
+   *
    * @private
    * @returns {void}
    */
   private setupDynamicUpdates(): void {
+    // Re-render when the base game language switches
+    this.safeHook(
+      "TranslationLoad",
+      10,
+      (args: any, next: (args: any[]) => any) => {
+        const result = next(args);
+        if (this.instance) {
+          this.refresh();
+        }
+        return result;
+      },
+    );
+
     this.safeHook(
       "ChatRoomRun",
       10,
@@ -308,6 +329,7 @@ export class Drawer extends CRABS_Base {
   /**
    * Compiles the drawer HTML template and injects it into the document body.
    * Binds internal events once the element is created.
+   *
    * @private
    * @returns {void}
    */
@@ -317,10 +339,8 @@ export class Drawer extends CRABS_Base {
     const globalWindow = window as any;
     const chatRoomData = globalWindow.ChatRoomData;
 
-    let title = "CRABS: Roster";
-    if (chatRoomData && chatRoomData.Name) {
-      title = `CRABS: ${chatRoomData.Name}`;
-    }
+    const roomName = chatRoomData?.Name || this.t("header.title_default");
+    const title = `CRABS: ${roomName}`;
 
     const logoKey = Settings.instance.data.animatedCrabsLogo
       ? "animated_logo"
@@ -329,20 +349,27 @@ export class Drawer extends CRABS_Base {
     const templateVars = {
       Help: Assets.printimage({
         key: "help",
+        tooltip_override: this.t("tooltips.help"),
         css_class_override: "CRABS_Drawer_Help_Icon",
       }),
       Settings: Assets.printimage({
         key: "settings",
+        tooltip_override: this.t("tooltips.settings"),
         css_class_override: "CRABS_Drawer_Settings_Icon",
       }),
       Layout: Assets.printimage({
         key: this.getLayoutIconKey() as any,
+        tooltip_override: this.t("tooltips.layout"),
         css_class_override: "CRABS_Drawer_Layout_Icon",
       }),
-      TabIcon: Assets.printimage({ key: logoKey }),
+      TabIcon: Assets.printimage({
+        key: logoKey,
+        tooltip_override: this.t("tooltips.tab"),
+      }),
       TitleBar: title,
       Close: Assets.printimage({
         key: "close",
+        tooltip_override: this.t("tooltips.close"),
         css_class_override: "CRABS_Drawer_Close_Icon",
       }),
     };
@@ -368,6 +395,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Aligns the drawer UI to the dimensions and position of the native game chat log.
+   *
    * @private
    * @returns {void}
    */
@@ -407,6 +435,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Determines whether the drawer should be injected into the DOM workflow.
+   *
    * @returns {void}
    */
   public updateVisibility(): void {
@@ -454,6 +483,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Completely rebuilds the inner HTML of the drawer based on context.
+   *
    * @returns {void}
    */
   public refresh(): void {
@@ -473,12 +503,13 @@ export class Drawer extends CRABS_Base {
       typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
     if (content && isRoomReady) {
-      const roomName = ChatRoomData.Name || "Roster";
+      const roomName = ChatRoomData.Name || this.t("header.title_default");
       const rosterTitle = `CRABS: ${roomName}`;
+      const helpTitle = `CRABS: ${this.t("header.title_help")}`;
 
       if (this.showingHelp) {
-        if (title && title.textContent !== "CRABS: Help")
-          title.textContent = "CRABS: Help";
+        if (title && title.textContent !== helpTitle)
+          title.textContent = helpTitle;
 
         if (
           helpIconContainer &&
@@ -486,6 +517,7 @@ export class Drawer extends CRABS_Base {
         ) {
           helpIconContainer.innerHTML = Assets.printimage({
             key: "roster",
+            tooltip_override: this.t("tooltips.roster"),
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
           helpIconContainer.setAttribute("data-icon", "roster");
@@ -506,6 +538,7 @@ export class Drawer extends CRABS_Base {
         ) {
           helpIconContainer.innerHTML = Assets.printimage({
             key: "help",
+            tooltip_override: this.t("tooltips.help"),
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
           helpIconContainer.setAttribute("data-icon", "help");
@@ -517,6 +550,7 @@ export class Drawer extends CRABS_Base {
           layoutIconContainer.style.display = "flex";
           layoutIconContainer.innerHTML = Assets.printimage({
             key: this.getLayoutIconKey() as any,
+            tooltip_override: this.t("tooltips.layout"),
             css_class_override: "CRABS_Drawer_Layout_Icon",
           });
         }
@@ -535,6 +569,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Overrides the base class openSettings to ensure drawer closes before opening modal.
+   *
    * @override
    * @returns {Promise<void>}
    */
@@ -545,6 +580,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Attaches click event listeners to the header elements.
+   *
    * @private
    * @returns {void}
    */
@@ -604,6 +640,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Alternates the drawer's state between open and closed.
+   *
    * @returns {void}
    */
   public toggle(): void {
@@ -612,6 +649,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Opens the drawer and refreshes content.
+   *
    * @returns {void}
    */
   public open(): void {
@@ -624,6 +662,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Closes the drawer.
+   *
    * @returns {void}
    */
   public close(): void {

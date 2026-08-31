@@ -1,163 +1,163 @@
 <div class="CRABS_help_container">
   <div class="CRABS_help_title_container">
     {{Logo}}
-    <div class="CRABS_help_title">CRABS {{Version}} Documentation</div>
+    <div class="CRABS_help_title">{{Help_Title}}</div>
     <div style="margin-top: 0.5rem;">
-      <a href="https://github.com/sin-1337/CRABS/blob/{{Branch}}/changelog.md" target="_blank" style="color: #ffaa00; text-decoration: underline; font-size: 1.1rem;">View Changelog</a>
+      <a href="https://github.com/sin-1337/CRABS/blob/{{Branch}}/changelog.md" target="_blank" style="color: #ffaa00; text-decoration: underline; font-size: 1.1rem;">{{t:header.view_changelog}}</a>
     </div>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Key Features</div>
+    <div class="CRABS_help_header">{{t:sections.key_features}}</div>
     <div class="CRABS_feature_grid">
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">🗄️ Interactive Drawer</div>
-        <div class="CRABS_help_description">A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.</div>
+        <div class="CRABS_feature_title">{{t:features.drawer_title}}</div>
+        <div class="CRABS_help_description">{{t:features.drawer_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">🧭 Universal Compass & Focus</div>
-        <div class="CRABS_help_description">Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.</div>
+        <div class="CRABS_feature_title">{{t:features.compass_title}}</div>
+        <div class="CRABS_help_description">{{t:features.compass_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">🔔 Chat Highlighting</div>
-        <div class="CRABS_help_description">Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.</div>
+        <div class="CRABS_feature_title">{{t:features.chat_title}}</div>
+        <div class="CRABS_help_description">{{t:features.chat_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">🛡️ Privacy Mode</div>
-        <div class="CRABS_help_description">A customizable "boss key" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).</div>
+        <div class="CRABS_feature_title">{{t:features.privacy_title}}</div>
+        <div class="CRABS_help_description">{{t:features.privacy_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">⚡ Smart Performance</div>
-        <div class="CRABS_help_description">Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.</div>
+        <div class="CRABS_feature_title">{{t:features.performance_title}}</div>
+        <div class="CRABS_help_description">{{t:features.performance_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">👁️ Immersive Blindness</div>
-        <div class="CRABS_help_description">Optional roster blurring based on your blindness level. Fully respects BCX "Full Blind" rules.</div>
+        <div class="CRABS_feature_title">{{t:features.blindness_title}}</div>
+        <div class="CRABS_help_description">{{t:features.blindness_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">✨ Smart Colors</div>
-        <div class="CRABS_help_description">Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.</div>
+        <div class="CRABS_feature_title">{{t:features.colors_title}}</div>
+        <div class="CRABS_help_description">{{t:features.colors_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">💬 Whisper+</div>
-        <div class="CRABS_help_description">Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send.</div>
+        <div class="CRABS_feature_title">{{t:features.whisper_title}}</div>
+        <div class="CRABS_help_description">{{t:features.whisper_desc}}</div>
       </div>
     </div>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Core Commands</div>
+    <div class="CRABS_help_header">{{t:sections.core_commands}}</div>
     <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/roster [argument]</span>
       <div class="CRABS_help_description">
-        Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.
+        {{t:commands.roster_desc}}
       </div>
       <div class="CRABS_help_arguments">
-        <b>Arguments:</b><br>
-        • <span class="CRABS_help_command">count</span> - Only shows current room population counters.<br>
-        • <span class="CRABS_help_command">admins</span> - Only lists room administrators.<br>
-        • <span class="CRABS_help_command">vips</span> - Only lists room whitelisted users.<br>
-        • <span class="CRABS_help_command">banner</span> - Force redraws the room information banner.<br>
-        • <span class="CRABS_help_command">help</span> - Shows this documentation.
+        <b>{{t:commands.args_label}}</b><br>
+        • <span class="CRABS_help_command">count</span> - {{t:commands.arg_count}}<br>
+        • <span class="CRABS_help_command">admins</span> - {{t:commands.arg_admins}}<br>
+        • <span class="CRABS_help_command">vips</span> - {{t:commands.arg_vips}}<br>
+        • <span class="CRABS_help_command">banner</span> - {{t:commands.arg_banner}}<br>
+        • <span class="CRABS_help_command">help</span> - {{t:commands.arg_help}}
       </div>
     </div>
     <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/whisper+ [number] [msg]</span> or <span class="CRABS_help_command">/w+</span>
       <div class="CRABS_help_description">
-        Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.
+        {{t:commands.whisper_desc}}
       </div>
     </div>
     <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/dropkeys [color/all]</span>
       <div class="CRABS_help_description">
-        Instantly drop specific keys (<span style="color:#cd7f32">bronze</span>, <span style="color:#c0c0c0">silver</span>, <span style="color:#ffd700">gold</span>) or all keys at once.
+        {{t:commands.dropkeys_desc}}
       </div>
     </div>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Interactions & Navigation</div>
+    <div class="CRABS_help_header">{{t:sections.interactions}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Click Badge:</b> Opens the character's focus screen.</li>
-      <li><b>Click Player's Name:</b> Start a Whisper+ message.</li>
-      <li><b>Click Number (ID):</b> Copies the player's member number to your clipboard.</li>
-      <li><b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.</li>
-      <li><b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.</li>
-      <li><b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode.</li>
+      <li>{{t:interactions.click_badge}}</li>
+      <li>{{t:interactions.click_name}}</li>
+      <li>{{t:interactions.click_id}}</li>
+      <li>{{t:interactions.live_sorting}}</li>
+      <li>{{t:interactions.reverse_hover}}</li>
+      <li>{{t:interactions.shortcuts}}</li>
     </ul>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Relational Icons</div>
+    <div class="CRABS_help_header">{{t:sections.relational_icons}}</div>
     <div class="CRABS_help_grid">
-      <div class="CRABS_help_item">{{Icon_You}} You</div>
-      <div class="CRABS_help_item">{{Icon_Owner}} Owner</div>
-      <div class="CRABS_help_item">{{Icon_Sub}} Submissive</div>
-      <div class="CRABS_help_item">{{Icon_Trial}} On Trial</div>
-      <div class="CRABS_help_item">{{Icon_Lover}} Lover</div>
-      <div class="CRABS_help_item">{{Icon_Family}} Family</div>
-      <div class="CRABS_help_item">{{Icon_BestFriend}} Best Friend</div>
-      <div class="CRABS_help_item">{{Icon_Friend}} Friend</div>
-      <div class="CRABS_help_item">{{Icon_Whitelist}} Whitelisted</div>
-      <div class="CRABS_help_item">{{Icon_Blacklist}} Blacklisted</div>
-      <div class="CRABS_help_item">{{Icon_Ghost}} Ghosted</div>
+      <div class="CRABS_help_item">{{Icon_You}} {{t:relations.you}}</div>
+      <div class="CRABS_help_item">{{Icon_Owner}} {{t:relations.owner}}</div>
+      <div class="CRABS_help_item">{{Icon_Sub}} {{t:relations.sub}}</div>
+      <div class="CRABS_help_item">{{Icon_Trial}} {{t:relations.trial}}</div>
+      <div class="CRABS_help_item">{{Icon_Lover}} {{t:relations.lover}}</div>
+      <div class="CRABS_help_item">{{Icon_Family}} {{t:relations.family}}</div>
+      <div class="CRABS_help_item">{{Icon_BestFriend}} {{t:relations.bestfriend}}</div>
+      <div class="CRABS_help_item">{{Icon_Friend}} {{t:relations.friend}}</div>
+      <div class="CRABS_help_item">{{Icon_Whitelist}} {{t:relations.whitelist}}</div>
+      <div class="CRABS_help_item">{{Icon_Blacklist}} {{t:relations.blacklist}}</div>
+      <div class="CRABS_help_item">{{Icon_Ghost}} {{t:relations.ghost}}</div>
     </div>
   </div>
   <div class="CRABS_help_section">
-    <div class="CRABS_help_header">Status & Badges</div>
+    <div class="CRABS_help_header">{{t:sections.status_badges}}</div>
     <div class="CRABS_help_grid">
-      <div class="CRABS_help_item">{{Badge_Admin}} Room Admin</div>
-      <div class="CRABS_help_item">{{Badge_VIP}} Room Whitelist</div>
-      <div class="CRABS_help_item">{{Badge_Player}} Room Guest</div>
+      <div class="CRABS_help_item">{{Badge_Admin}} {{t:badges.admin}}</div>
+      <div class="CRABS_help_item">{{Badge_VIP}} {{t:badges.vip}}</div>
+      <div class="CRABS_help_item">{{Badge_Player}} {{t:badges.player}}</div>
     </div>
     <div class="CRABS_help_description" style="margin-top: 1.2rem;">
-      <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered.
+      {{t:status.indicators_desc}}
     </div>
   </div>
   <div class="CRABS_help_section" style="border-bottom: none;">
-    <div class="CRABS_help_header">⚙️ Settings Detailed Overview</div>
+    <div class="CRABS_help_header">{{t:sections.settings_overview}}</div>
     <div class="CRABS_help_description" style="margin-bottom: 1rem;">
-      Access settings via the {{Icon_Settings}} icon in the drawer, now featuring a fully <b>tabbed interface</b>. <br>
-      <b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right to instantly return to the game.
+      {{Settings_Intro}}
     </div>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">General</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.general}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Update Notifications:</b> Alerts you when to refresh for a new version.</li>
-      <li><b>Show Banner on Entry:</b> Displays an info banner when joining a room.</li>
-      <li><b>Full-Screen Privacy Mode:</b> Blanks the entire screen instead of just the chat side when the hotkey is used.</li>
-      <li><b>Enable Focus Halo:</b> Shows a pulsing halo effect on hovered avatars.</li>
-      <li><b>Edit Keybinds:</b> Direct shortcut to the game's keybinding menu to change your Privacy and Drawer toggle hotkeys.</li>
+      <li>{{t:settings_guide.general_update}}</li>
+      <li>{{t:settings_guide.general_banner}}</li>
+      <li>{{t:settings_guide.general_privacy}}</li>
+      <li>{{t:settings_guide.general_halo}}</li>
+      <li>{{t:settings_guide.general_keybinds}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Drawer</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.drawer}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Enable Drawer UI:</b> Turns the sliding drawer interface on or off.</li>
-      <li><b>/roster toggles drawer:</b> Typing <span class="CRABS_help_command">/roster</span> or <span class="CRABS_help_command">/crabs</span> opens the drawer instead of printing in chat.</li>
-      <li><b>Show Drawer Tab:</b> Toggles the persistent visual tab on the screen edge.</li>
-      <li><b>Animated Tab Logo:</b> Toggle the drawer logo animation to save performance.</li>
-      <li><b>Compact Height:</b> Limits the drawer to 77% height, keeping the chat input visible.</li>
-      <li><b>Auto-stow Options:</b> Close the drawer automatically after sending a standard chat or Whisper+.</li>
-      <li><b>Focus Follows Mouse:</b> Automatically switch to a player's page when hovering their card.</li>
-      <li><b>Auto-Scroll Drawer:</b> The roster automatically scrolls to the character you are mousing over in the game world.</li>
+      <li>{{t:settings_guide.drawer_enable}}</li>
+      <li>{{t:settings_guide.drawer_toggle_cmd}}</li>
+      <li>{{t:settings_guide.drawer_tab}}</li>
+      <li>{{t:settings_guide.drawer_logo_anim}}</li>
+      <li>{{t:settings_guide.drawer_compact}}</li>
+      <li>{{t:settings_guide.drawer_autostow}}</li>
+      <li>{{t:settings_guide.drawer_focus}}</li>
+      <li>{{t:settings_guide.drawer_autoscroll}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Immersion</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.immersion}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Hardcore Lock:</b> Locks these immersion settings ON while your character is bound.</li>
-      <li><b>Respect Blindness & Gags:</b> Blurs the roster UI and disables Whisper+ based on character state.</li>
-      <li><b>Respect BCX Rules:</b> Enforces BCX restrictions within the CRABS interface.</li>
+      <li>{{t:settings_guide.immersion_lock}}</li>
+      <li>{{t:settings_guide.immersion_blind_gag}}</li>
+      <li>{{t:settings_guide.immersion_bcx}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Maps</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.maps}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Show Map Compass:</b> Displays a directional arrow on the map.</li>
-      <li><b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).</li>
+      <li>{{t:settings_guide.maps_compass}}</li>
+      <li>{{t:settings_guide.maps_superzoom}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Chat</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.chat}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken. Customize the highlight color.</li>
-      <li><b>Auto-Capitalize & Color Match:</b> Capitalizes your name and matches it to your character's label color in highlights.</li>
-      <li><b>Custom Words & Exclusion Phrases:</b> Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.</li>
-      <li><b>Chat Log Hover Links:</b> Hovering names in the chat log triggers the focus halo and map compass.</li>
-      <li><b>Whisper+ Auto-elevate:</b> Attempts to send a Whisper+ as a standard beep if a friend leaves the room.</li>
+      <li>{{t:settings_guide.chat_mentions}}</li>
+      <li>{{t:settings_guide.chat_caps_match}}</li>
+      <li>{{t:settings_guide.chat_custom_words}}</li>
+      <li>{{t:settings_guide.chat_links}}</li>
+      <li>{{t:settings_guide.chat_whisper_elevate}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">Config</div>
+    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.config}}</div>
     <ul class="CRABS_help_list">
-      <li><b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.</li>
-      <li><b>Delete Server Save:</b> Wipes your CRABS settings from the game server.</li>
-      <li><b>Export / Import:</b> Copy or paste your settings string to backup or share.</li>
+      <li>{{t:settings_guide.config_cloud_sync}}</li>
+      <li>{{t:settings_guide.config_delete_server}}</li>
+      <li>{{t:settings_guide.config_export_import}}</li>
     </ul>
   </div>
+</div>

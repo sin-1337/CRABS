@@ -19,17 +19,38 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/help.css";
 import helptemplate from "./templates/help.html";
 
+import en from "./i18n/en.json";
+
 /**
  * Class representing the help system and documentation viewer.
+ * @extends CRABS_Base
  */
 export class Help extends CRABS_Base {
+  /**
+   * Initializes the Help module and registers its localization dictionary.
+   *
+   * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+   */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "help", { en });
   }
 
+  /**
+   * Generates and compiles the HTML documentation view.
+   *
+   * @param {boolean} [wrapper=true] - Whether to surround the output with the main mod window wrapper.
+   * @returns {string} The processed HTML string for the help interface.
+   */
   public showHelp(wrapper: boolean = true): string {
+    const iconSettings = Assets.printimage({
+      key: "settings",
+      css_class_override: "CRABS_help_icon_small",
+    });
+
     const templateVariables: Record<string, string> = {
-      Version: `${__VERSION__} ${__BRANCH__}`.trim(),
+      Help_Title:
+        `CRABS ${__VERSION__} ${__BRANCH__}`.trim() +
+        ` ${this.t("header.documentation_title")}`,
       Branch: __BRANCH__,
       Logo: Assets.printimage({ key: "logo" }),
       Icon_You: Assets.printimage({
@@ -61,7 +82,7 @@ export class Help extends CRABS_Base {
             key: "bestfriend",
             css_class_override: "CRABS_help_icon_small",
           })
-        : "<i>(N/A)</i>",
+        : `<i>(${this.t("general.not_applicable")})</i>`,
       Icon_Friend: Assets.printimage({
         key: "friend",
         css_class_override: "CRABS_help_icon_small",
@@ -90,21 +111,16 @@ export class Help extends CRABS_Base {
         key: "player",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Icon_Compass: Assets.printimage({
-        key: "compass",
-        css_class_override: "CRABS_help_icon_small",
-      }),
-      // Added Settings Icon for the new overview section
-      Icon_Settings: Assets.printimage({
-        key: "settings",
-        css_class_override: "CRABS_help_icon_small",
+      Settings_Intro: this.t("settings_guide.intro", {
+        icon: iconSettings,
       }),
     };
 
     const wrapperVariables = {
-      TitleBar: `CRABS: Help`,
+      TitleBar: `CRABS: ${this.t("header.title_default")}`,
       Close: Assets.printimage({
         key: "close",
+        tooltip_override: this.t("controls.close_dialog"),
         data: ["elementid", "CRABS_Help"],
       }),
     };

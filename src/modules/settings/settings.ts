@@ -1,4 +1,3 @@
-// src/modules/settings/settings.ts
 import { CRABS_Base } from "../base";
 import { Notification } from "../notifications";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -8,10 +7,14 @@ import {
   ButtonWidget,
   TextLabelWidget,
   TextAreaWidget,
+  SelectWidget,
 } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
 
+import en from "./i18n/en.json";
+
 const DEFAULT_SETTINGS: any = {
+  languageOverride: "auto",
   showBanner: true,
   checkForUpdates: true,
   rosterOpensDrawer: true,
@@ -49,7 +52,7 @@ const DEFAULT_SETTINGS: any = {
 export class Settings extends CRABS_Base {
   public static instance: Settings;
   public data: any;
-  private readonly MAX_SERVER_PAYLOAD = 8000; // Safe limit for BC ExtensionSettings
+  private readonly MAX_SERVER_PAYLOAD = 8000;
 
   private layout: LayoutEngine;
   private registry: ConfiguredWidget[] = [];
@@ -58,24 +61,19 @@ export class Settings extends CRABS_Base {
   private readonly STORAGE_KEY = "CRABS_Settings";
 
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "settings", { en });
     Settings.instance = this;
 
-    // Initial load (will grab generic settings if not logged in yet)
     this.data = this.loadLocal();
+    CRABS_Base.setLanguageOverride(this.data.languageOverride);
+
     this.syncFromServer();
 
-    // RE-LOAD the correct file as soon as the game populates the Player object
     this.CRABS.hookFunction("LoginResponse", 0, (args, next) => {
-      // Let the base game process the login FIRST to build the Player object
       const result = next(args);
-
-      // Now Player.MemberNumber exists, so it loads the correct local file
       this.data = this.loadLocal();
-
-      // Now Player.ExtensionSettings exists, so it syncs from the cloud
+      CRABS_Base.setLanguageOverride(this.data.languageOverride);
       this.syncFromServer();
-
       return result;
     });
 
@@ -110,13 +108,11 @@ export class Settings extends CRABS_Base {
     for (const key of Object.keys(this.data)) {
       if (key === "lastSaved") continue;
 
-      // Pack exactly as it would save
       if (this.data[key] !== DEFAULT_SETTINGS[key] && this.data[key] !== "") {
         serverPayload[key] = this.data[key];
       }
     }
 
-    // JSON.stringify length represents the exact byte size of the payload
     return JSON.stringify(serverPayload).length;
   }
 
@@ -127,7 +123,6 @@ export class Settings extends CRABS_Base {
       const globalWindow = window as any;
       const player = globalWindow.Player;
 
-      // If the player or their extension settings don't exist yet, abort
       if (
         !player ||
         !player.ExtensionSettings ||
@@ -136,32 +131,28 @@ export class Settings extends CRABS_Base {
         return;
       }
 
-      // Extract and parse our specific CRABS data from the global BC object
       const rawServerData = player.ExtensionSettings.CRABS;
       let serverData = null;
 
       if (typeof rawServerData === "string") {
         serverData = JSON.parse(rawServerData);
       } else if (typeof rawServerData === "object") {
-        serverData = rawServerData; // Just in case another mod parsed it already
+        serverData = rawServerData;
       }
 
       if (serverData) {
         const serverTime = serverData.lastSaved || 0;
         const localTime = this.data.lastSaved || 0;
 
-        // Compare timestamps: Only overwrite if server is newer
         if (serverTime > localTime) {
-          // Start with defaults, apply server data, and retain local-only rules
           const mergedData = { ...DEFAULT_SETTINGS, ...serverData };
           mergedData.localOnlyMode = this.data.localOnlyMode;
 
           this.data = this.sanitizeData(mergedData);
+          CRABS_Base.setLanguageOverride(this.data.languageOverride);
 
-          // Backup the newer server data to local storage
           localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
-          // Refresh the UI if it happens to be open
           if (this.layout) this.layout.updateDOM(this.isMenuOpen);
         }
       }
@@ -170,9 +161,6 @@ export class Settings extends CRABS_Base {
     }
   }
 
-  /**
-   * Returns the sanitized array AND a boolean indicating if anything was dropped due to length.
-   */
   private sanitizeList(
     raw: string,
     delimiter: string,
@@ -195,15 +183,12 @@ export class Settings extends CRABS_Base {
 
   public save(): void {
     this.data.lastSaved = Date.now();
-
-    // Always save the FULL data to LocalStorage
     localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
     if (this.data.localOnlyMode) return;
 
     const serverPayload: any = { lastSaved: this.data.lastSaved };
 
-    // Sanitize and track if gibberish was dropped
     const wordsData = this.sanitizeList(
       this.data.customHighlightWords,
       ",",
@@ -217,7 +202,6 @@ export class Settings extends CRABS_Base {
 
     let hitCapacityLimit = false;
 
-    // Pack the standard settings first
     for (const key of Object.keys(this.data)) {
       if (
         key === "lastSaved" ||
@@ -230,7 +214,6 @@ export class Settings extends CRABS_Base {
       }
     }
 
-    // Dynamically measure and trim until it fits
     while (true) {
       const testWords = words.join(",");
       const testPhrases = phrases.join("\n");
@@ -252,7 +235,6 @@ export class Settings extends CRABS_Base {
 
       hitCapacityLimit = true;
 
-      // Over limit: Pop the last item off whichever list is currently taking up the most characters
       if (words.length > 0 && phrases.length > 0) {
         if (testWords.length > testPhrases.length) words.pop();
         else phrases.pop();
@@ -261,11 +243,10 @@ export class Settings extends CRABS_Base {
       } else if (phrases.length > 0) {
         phrases.pop();
       } else {
-        break; // Failsafe
+        break;
       }
     }
 
-    // Sync to the server
     const globalWindow = window as any;
     const player = globalWindow.Player;
 
@@ -280,23 +261,19 @@ export class Settings extends CRABS_Base {
       }
     }
 
-    // Context-Aware User Feedback
     if (hitCapacityLimit && hadInvalidItems) {
       Notification.send({
-        message:
-          "Cloud Sync: Dropped invalid long strings AND reached 8KB storage limit. Excess kept local.",
+        message: this.t("notifications.cloud_both_limit"),
         title: "CRABS Storage",
       });
     } else if (hitCapacityLimit) {
       Notification.send({
-        message:
-          "Cloud Sync capacity reached (8KB). Excess words/phrases kept local only.",
+        message: this.t("notifications.cloud_capacity_limit"),
         title: "CRABS Storage",
       });
     } else if (hadInvalidItems) {
       Notification.send({
-        message:
-          "Cloud Sync: Dropped individual words/phrases that exceeded character limits. Kept local.",
+        message: this.t("notifications.cloud_invalid_items"),
         title: "CRABS Storage",
       });
     }
@@ -309,21 +286,14 @@ export class Settings extends CRABS_Base {
       const player = globalWindow.Player;
 
       if (player) {
-        // Ensure the object exists so we don't throw a null reference error
         if (!player.ExtensionSettings) player.ExtensionSettings = {};
-
-        // Set to an empty string instead of using 'delete'.
-        // This clears the data on the server without triggering the WCE 'undefined' crash.
         player.ExtensionSettings.CRABS = "";
 
-        // Sync the cleared data using the native modern function
         if (
           typeof globalWindow.ServerPlayerExtensionSettingsSync === "function"
         ) {
           globalWindow.ServerPlayerExtensionSettingsSync("CRABS");
-        }
-        // Fallback for older BC versions just in case
-        else if (
+        } else if (
           typeof globalWindow.ServerAccountUpdate?.QueueData === "function"
         ) {
           globalWindow.ServerAccountUpdate.QueueData(
@@ -335,41 +305,32 @@ export class Settings extends CRABS_Base {
         }
       }
 
-      // Toggle Local Only mode on so it doesn't instantly resync
       this.data.localOnlyMode = true;
       localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
-
-      // Refresh the UI to show the checkbox state change
       this.layout.updateDOM(this.isMenuOpen);
 
-      // Success notification
-      Notification.send({ message: "Server save successfully cleared!" });
+      Notification.send({ message: this.t("notifications.server_cleared") });
     } catch (e: any) {
       console.error("Failed to delete server data", e);
-
-      // Print the specific error message to the game's notification system
       const errorMessage = e instanceof Error ? e.message : "Unknown error";
       Notification.send({
-        message: `Clear failed: ${errorMessage}`,
+        message: this.t("notifications.server_clear_failed", {
+          error: errorMessage,
+        }),
         title: "CRABS Error",
       });
     }
   }
 
-  /**
-   * Strips out any ghost data from old or renamed variables
-   */
   private sanitizeData(loadedData: any): any {
     const cleanData: any = { ...DEFAULT_SETTINGS };
 
-    // Only copy over keys that actually exist in the current DEFAULT_SETTINGS
     for (const key of Object.keys(DEFAULT_SETTINGS)) {
       if (loadedData.hasOwnProperty(key)) {
         cleanData[key] = loadedData[key];
       }
     }
 
-    // Preserve the timestamp
     if (loadedData.lastSaved) {
       cleanData.lastSaved = loadedData.lastSaved;
     }
@@ -383,11 +344,11 @@ export class Settings extends CRABS_Base {
       const encoded = btoa(str);
       navigator.clipboard.writeText(encoded);
 
-      Notification.send({ message: "Config copied to clipboard!" });
+      Notification.send({ message: this.t("notifications.config_exported") });
     } catch (e) {
       console.error("Export failed", e);
       Notification.send({
-        message: "Failed to copy config to clipboard.",
+        message: this.t("notifications.export_failed"),
         title: "CRABS Error",
       });
     }
@@ -397,38 +358,34 @@ export class Settings extends CRABS_Base {
     const globalWindow = window as any;
 
     try {
-      // Ask the user to paste the string manually to bypass browser clipboard blocks
       const text = globalWindow.prompt(
-        "Paste your CRABS settings string here:",
+        this.t("notifications.import_prompt"),
         "",
       );
 
-      // If they clicked Cancel or left it empty, abort gracefully
       if (!text) return;
 
       const decoded = atob(text);
       const imported = JSON.parse(decoded);
 
       if (typeof imported === "object" && "showBanner" in imported) {
-        // Ensure the imported config gets a fresh timestamp so the server accepts it
         imported.lastSaved = Date.now();
-
-        // Sanitize to strip any ghost data before applying
         this.data = this.sanitizeData(imported);
+        CRABS_Base.setLanguageOverride(this.data.languageOverride);
         this.save();
         this.layout.updateDOM(this.isMenuOpen);
 
-        Notification.send({ message: "Config imported successfully!" });
+        Notification.send({ message: this.t("notifications.import_success") });
       } else {
         Notification.send({
-          message: "Import failed. Unrecognized settings format.",
+          message: this.t("notifications.import_unrecognized"),
           title: "CRABS Error",
         });
       }
     } catch (e) {
       console.error("Import failed", e);
       Notification.send({
-        message: "Import failed. Invalid or corrupted string.",
+        message: this.t("notifications.import_invalid"),
         title: "CRABS Error",
       });
     }
@@ -452,13 +409,12 @@ export class Settings extends CRABS_Base {
     const createCheck = (
       cat: ComponentCategory,
       setting: string,
-      label: string,
-      hint: string,
+      labelKey: string,
+      hintKey: string,
       indent = 0,
       extraDisable?: () => boolean,
       onChange?: (val: boolean) => void,
     ) => {
-      // Only apply the hardcore lock to settings in the Immersion tab
       const isDisabled = () =>
         (cat === "Immersion" && hardcoreLock(setting)) ||
         (extraDisable ? extraDisable() : false);
@@ -473,15 +429,54 @@ export class Settings extends CRABS_Base {
       this.registry.push({
         category: cat,
         indent,
-        widget: new CheckboxWidget(label, hint, isDisabled, getVal, setVal),
+        widget: new CheckboxWidget(
+          () => this.t(labelKey),
+          () => this.t(hintKey),
+          isDisabled,
+          getVal,
+          setVal,
+        ),
+      });
+    };
+
+    const createSelect = (
+      cat: ComponentCategory,
+      setting: string,
+      labelKey: string,
+      hintKey: string,
+      getOptions: () => { value: string; text: string }[],
+      indent = 0,
+      extraDisable?: () => boolean,
+      onChange?: (val: string) => void,
+    ) => {
+      const isDisabled = () => (extraDisable ? extraDisable() : false);
+      const getVal = () => this.data[setting];
+      const setVal = (val: string) => {
+        this.data[setting] = val;
+        if (onChange) onChange(val);
+        this.save();
+      };
+
+      this.registry.push({
+        category: cat,
+        indent,
+        widget: new SelectWidget(
+          () => this.t(labelKey),
+          () => this.t(hintKey),
+          isDisabled,
+          `CRABS_Select_${setting}`,
+          getOptions,
+          getVal,
+          setVal,
+        ),
       });
     };
 
     const createInput = (
       cat: ComponentCategory,
       setting: string,
-      label: string,
-      hint: string,
+      labelKey: string,
+      hintKey: string,
       inputType: "text" | "color",
       indent = 0,
       extraDisable?: () => boolean,
@@ -497,8 +492,8 @@ export class Settings extends CRABS_Base {
         category: cat,
         indent,
         widget: new InputWidget(
-          label,
-          hint,
+          () => this.t(labelKey),
+          () => this.t(hintKey),
           isDisabled,
           `CRABS_Input_${setting}`,
           inputType,
@@ -511,8 +506,8 @@ export class Settings extends CRABS_Base {
     const createTextArea = (
       cat: ComponentCategory,
       setting: string,
-      label: string,
-      hint: string,
+      labelKey: string,
+      hintKey: string,
       indent = 0,
       extraDisable?: () => boolean,
     ) => {
@@ -527,8 +522,8 @@ export class Settings extends CRABS_Base {
         category: cat,
         indent,
         widget: new TextAreaWidget(
-          label,
-          hint,
+          () => this.t(labelKey),
+          () => this.t(hintKey),
           isDisabled,
           `CRABS_Input_${setting}`,
           getVal,
@@ -539,15 +534,19 @@ export class Settings extends CRABS_Base {
 
     const createButton = (
       cat: ComponentCategory,
-      label: string,
-      hint: string,
+      labelKey: string,
+      hintKey: string,
       onClick: () => void,
       indent = 0,
     ) => {
       this.registry.push({
         category: cat,
         indent,
-        widget: new ButtonWidget(label, hint, onClick),
+        widget: new ButtonWidget(
+          () => this.t(labelKey),
+          () => this.t(hintKey),
+          onClick,
+        ),
       });
     };
 
@@ -555,7 +554,7 @@ export class Settings extends CRABS_Base {
       const globalWindow = window as any;
       const bind = globalWindow.KeyManager?.getKeybinding(bindId);
 
-      if (!bind || !bind.keyCombo) return "Unbound";
+      if (!bind || !bind.keyCombo) return this.t("general.unbound");
 
       const mods = Array.from(bind.keyCombo.modifiers || []).join("+");
       let keyText = "";
@@ -575,14 +574,14 @@ export class Settings extends CRABS_Base {
         keyText = bind.keyCombo.char.toUpperCase();
       }
 
-      if (!keyText && !mods) return "Unbound";
+      if (!keyText && !mods) return this.t("general.unbound");
       return mods && keyText ? `${mods}+${keyText}` : mods || keyText;
     };
 
     const createLabel = (
       cat: ComponentCategory,
       text: string | (() => string),
-      hint: string = "",
+      hint: string | (() => string) = "",
       indent = 0,
     ) => {
       this.registry.push({
@@ -593,51 +592,78 @@ export class Settings extends CRABS_Base {
     };
 
     // --- GENERAL ---
+    createSelect(
+      "General",
+      "languageOverride",
+      "general.language_label",
+      "general.language_hint",
+      () => [
+        { value: "auto", text: this.t("language.auto") },
+        { value: "en", text: this.t("language.en") },
+        { value: "cn", text: this.t("language.cn") },
+        { value: "de", text: this.t("language.de") },
+        { value: "fr", text: this.t("language.fr") },
+        { value: "ru", text: this.t("language.ru") },
+        { value: "es", text: this.t("language.es") },
+      ],
+      0,
+      undefined,
+      (val) => {
+        CRABS_Base.setLanguageOverride(val);
+        this.layout.updateDOM(this.isMenuOpen);
+      },
+    );
     createCheck(
       "General",
       "checkForUpdates",
-      "Notify me about updates",
-      "Periodically check for CRABS updates, and notify me.",
+      "general.check_updates_label",
+      "general.check_updates_hint",
     );
     createCheck(
       "General",
       "enablePerformanceMode",
-      "Performance Mode",
-      "Applies performance optimizations to the base game.",
+      "general.perf_mode_label",
+      "general.perf_mode_hint",
     );
     createCheck(
       "General",
       "showBanner",
-      "Show Banner on Entry",
-      "Display info banner on room join.",
+      "general.banner_label",
+      "general.banner_hint",
     );
     createCheck(
       "General",
       "privacyModeFull",
-      "Full-Screen Privacy Mode",
-      "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.",
+      "general.privacy_full_label",
+      "general.privacy_full_hint",
     );
     createCheck(
       "General",
       "enableFocusHalo",
-      "Enable Focus Halo",
-      "Show a pulsing halo effect on character avatars when you mouse over them in the roster or chat.",
+      "general.halo_label",
+      "general.halo_hint",
     );
     createButton(
       "General",
-      "Edit Keybinds",
-      "Open the game's Keybindings menu to change the Privacy Mode hotkey.",
+      "general.edit_keybinds_label",
+      "general.edit_keybinds_hint",
       () => this.openNativeKeybindings(),
     );
     createLabel(
       "General",
-      () => `Crabs drawer toggle: ${getBindString("crabs_drawer_toggle")}`,
+      () =>
+        this.t("general.drawer_toggle_bind", {
+          bind: getBindString("crabs_drawer_toggle"),
+        }),
       "",
       1,
     );
     createLabel(
       "General",
-      () => `Privacy mode: ${getBindString("crabs_privacy_toggle")}`,
+      () =>
+        this.t("general.privacy_toggle_bind", {
+          bind: getBindString("crabs_privacy_toggle"),
+        }),
       "",
       1,
     );
@@ -646,8 +672,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "enableDrawer",
-      "Enable Drawer UI",
-      "Enable the sliding drawer interface on the edge of the screen.",
+      "drawer.enable_label",
+      "drawer.enable_hint",
       0,
       undefined,
       (enabled) => {
@@ -660,8 +686,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "rosterOpensDrawer",
-      "/roster toggles drawer",
-      "Toggle drawer via /roster or /crabs commands.",
+      "drawer.roster_cmd_label",
+      "drawer.roster_cmd_hint",
       1,
       isDrawerDisabled,
       (enabled) => {
@@ -671,8 +697,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "showDrawerTab",
-      "Show Drawer Tab",
-      "Display the CRABS drawer tab on the edge of the screen.",
+      "drawer.tab_label",
+      "drawer.tab_hint",
       2,
       () => isDrawerDisabled() || !this.data.rosterOpensDrawer,
       (enabled) => {
@@ -682,48 +708,48 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "animatedCrabsLogo",
-      "Animated Tab Logo",
-      "Use the animated logo when performance is optimal.",
+      "drawer.animated_logo_label",
+      "drawer.animated_logo_hint",
       3,
       () => isDrawerDisabled() || !this.data.showDrawerTab,
     );
     createCheck(
       "Drawer",
       "compactDrawer",
-      "Compact Height",
-      "Drawer has a 77% height limit.",
+      "drawer.compact_label",
+      "drawer.compact_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "closeDrawerOnWhisper",
-      "Auto-stow on Whisper+",
-      "Close drawer after sending a whisper+ message.",
+      "drawer.close_whisper_label",
+      "drawer.close_whisper_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "closeDrawerOnChat",
-      "Auto-stow on Chat",
-      "Close drawer after sending a message.",
+      "drawer.close_chat_label",
+      "drawer.close_chat_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "pageFocusHover",
-      "Focus follows mouse",
-      "When you mouse over a player's card, change the page they are on.",
+      "drawer.focus_hover_label",
+      "drawer.focus_hover_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "autoScrollRoster",
-      "Auto-Scroll drawer",
-      "Automatically scroll the drawer roster to the character matching the avatar your mouse is over.",
+      "drawer.auto_scroll_label",
+      "drawer.auto_scroll_hint",
       1,
       isDrawerDisabled,
     );
@@ -732,28 +758,28 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Immersion",
       "lockImmersive",
-      "Hardcore Lock",
-      "Locks settings ON while bound.",
+      "immersion.lock_label",
+      "immersion.lock_hint",
     );
     createCheck(
       "Immersion",
       "immersiveBlind",
-      "Respect Blindness",
-      "Blurred roster when blind.",
+      "immersion.blind_label",
+      "immersion.blind_hint",
       1,
     );
     createCheck(
       "Immersion",
       "immersiveGag",
-      "Respect Gags",
-      "No Whisper+ when gagged.",
+      "immersion.gag_label",
+      "immersion.gag_hint",
       1,
     );
     createCheck(
       "Immersion",
       "respectBcxRules",
-      "Respect BCX Rules",
-      "BCX integration.",
+      "immersion.bcx_label",
+      "immersion.bcx_hint",
       1,
     );
 
@@ -761,14 +787,14 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Maps",
       "showMapCompass",
-      "Show Map Compass",
-      "Show a directional arrow on map.",
+      "maps.compass_label",
+      "maps.compass_hint",
     );
     createCheck(
       "Maps",
       "mapSuperZoom",
-      "SuperZoom",
-      "Unlock map zoom limits.",
+      "maps.superzoom_label",
+      "maps.superzoom_hint",
       0,
       () => {
         const perceptionValue = (window as any)
@@ -780,7 +806,6 @@ export class Settings extends CRABS_Base {
         );
       },
       (_enabled) => {
-        // Trigger the game state sync immediately when toggled
         this.syncGameState();
       },
     );
@@ -789,14 +814,14 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "highlightMentions",
-      "Highlight Mentions",
-      "Highlights chat messages containing your name or nickname.",
+      "chat.mentions_label",
+      "chat.mentions_hint",
     );
     createCheck(
       "Chat",
       "browserNotifications",
-      "Desktop Notifications",
-      "Get an OS alert when mentioned (only triggers if the game is tabbed out or minimized).",
+      "chat.notifications_label",
+      "chat.notifications_hint",
       1,
       () => !this.data.highlightMentions,
       (enabled) => {
@@ -819,24 +844,24 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "capitalizeNames",
-      "Auto-Capitalize My Name",
-      "Forces the first letter of your name(s) to be capitalized when highlighted.",
+      "chat.caps_label",
+      "chat.caps_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createCheck(
       "Chat",
       "colorMatchNames",
-      "Inline Name Coloring",
-      "Colors your name in highlighted messages to match your character's actual label color.",
+      "chat.color_match_label",
+      "chat.color_match_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createInput(
       "Chat",
       "customHighlightWords",
-      "Custom Words",
-      "Comma-separated list of extra words to trigger highlights.",
+      "chat.custom_words_label",
+      "chat.custom_words_hint",
       "text",
       1,
       () => !this.data.highlightMentions,
@@ -844,16 +869,16 @@ export class Settings extends CRABS_Base {
     createTextArea(
       "Chat",
       "ignorePhrases",
-      "Exclusion Phrases",
-      "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').",
+      "chat.ignore_phrases_label",
+      "chat.ignore_phrases_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createInput(
       "Chat",
       "highlightColor",
-      "Highlight Color",
-      "Pick a custom color for chat highlights.",
+      "chat.highlight_color_label",
+      "chat.highlight_color_hint",
       "color",
       1,
       () => !this.data.highlightMentions,
@@ -861,34 +886,33 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "chatLogHover",
-      "Chat Log Hover Links",
-      "Mousing over names in the chat log triggers the roster focus halo and map compass.",
+      "chat.hover_links_label",
+      "chat.hover_links_hint",
     );
     createCheck(
       "Chat",
       "autoBeepOnLeave",
-      "Whisper+ Autoelevate to Beep",
-      "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.",
+      "chat.auto_beep_label",
+      "chat.auto_beep_hint",
     );
     createCheck(
       "Chat",
       "normalizeFontOnHover",
-      "Normalize Font on Hover",
-      "Temporarily converts fancy/styled Unicode fonts in chat messages to standard text while hovering over them.",
+      "chat.normalize_font_label",
+      "chat.normalize_font_hint",
     );
 
     // --- CONFIG MANAGEMENT ---
     createCheck(
       "Config",
       "localOnlyMode",
-      "Disable Cloud Sync",
-      "If checked, settings are only saved to this browser and will not sync across your devices.",
+      "config.local_only_label",
+      "config.local_only_hint",
     );
     createLabel(
       "Config",
       () => {
-        if (this.data.localOnlyMode)
-          return "Cloud Storage: Disabled (Local Only)";
+        if (this.data.localOnlyMode) return this.t("config.cloud_disabled");
 
         const size = this.getCloudPayloadSize();
         const limit = this.MAX_SERVER_PAYLOAD || 8000;
@@ -898,31 +922,30 @@ export class Settings extends CRABS_Base {
         );
 
         let status = "🟢";
-        if (size > limit) status = "🔴 (Will truncate on save)";
-        else if (percent > 85) status = "🟡 (Nearing capacity)";
+        if (size > limit) status = this.t("config.status_truncate");
+        else if (percent > 85) status = this.t("config.status_nearing");
 
-        return `Cloud Storage: ${size} / ${limit} bytes [${percent}%] ${status}`;
+        return this.t("config.cloud_status", {
+          size,
+          limit,
+          percent,
+          status,
+        });
       },
-      "Shows how much server allowance is used. Exceeding this will truncate new items form the server sync.",
+      () => this.t("config.cloud_hint"),
       1,
     );
     createButton(
       "Config",
-      "Delete Server Save",
-      "Wipes your CRABS settings from the game server.",
+      "config.delete_server_label",
+      "config.delete_server_hint",
       () => this.deleteServerData(),
     );
-    createButton(
-      "Config",
-      "Export to Clipboard",
-      "Copy your settings string to share or backup.",
-      () => this.exportConfig(),
+    createButton("Config", "config.export_label", "config.export_hint", () =>
+      this.exportConfig(),
     );
-    createButton(
-      "Config",
-      "Import from Clipboard",
-      "Paste a settings string to overwrite current config.",
-      () => this.importConfig(),
+    createButton("Config", "config.import_label", "config.import_hint", () =>
+      this.importConfig(),
     );
   }
 
@@ -968,14 +991,30 @@ export class Settings extends CRABS_Base {
         globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
         canvasContext.textAlign = "center";
         globalWindow.DrawText(
-          "Restore Default Settings?",
+          this.t("nav.confirm_reset_title"),
           1000,
           430,
           "White",
           "",
         );
-        globalWindow.DrawButton(750, 500, 200, 60, "Confirm", "White", "");
-        globalWindow.DrawButton(1050, 500, 200, 60, "Cancel", "White", "");
+        globalWindow.DrawButton(
+          750,
+          500,
+          200,
+          60,
+          this.t("nav.confirm"),
+          "White",
+          "",
+        );
+        globalWindow.DrawButton(
+          1050,
+          500,
+          200,
+          60,
+          this.t("nav.cancel"),
+          "White",
+          "",
+        );
         globalWindow.DrawButton(
           1815,
           75,
@@ -984,7 +1023,7 @@ export class Settings extends CRABS_Base {
           "",
           "White",
           "Icons/Exit.png",
-          "Back",
+          this.t("nav.back"),
         );
 
         const isInChat =
@@ -997,7 +1036,7 @@ export class Settings extends CRABS_Base {
           "",
           isInChat ? "White" : "#888888",
           "Icons/Chat.png",
-          isInChat ? "Return to Chat" : "Not in a Chat Room",
+          isInChat ? this.t("nav.chat") : this.t("nav.no_chat"),
         );
         globalWindow.DrawButton(
           1605,
@@ -1007,7 +1046,7 @@ export class Settings extends CRABS_Base {
           "",
           "#888888",
           "Icons/Reset.png",
-          "Restore Defaults",
+          this.t("nav.restore_defaults"),
         );
       }
     } finally {
@@ -1021,6 +1060,7 @@ export class Settings extends CRABS_Base {
     if (this.showResetConfirm) {
       if (globalWindow.MouseIn(750, 500, 200, 60)) {
         this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        CRABS_Base.setLanguageOverride(this.data.languageOverride);
         this.save();
         this.syncGameState();
 
@@ -1029,6 +1069,11 @@ export class Settings extends CRABS_Base {
             `CRABS_Input_${key}`,
           ) as HTMLInputElement;
           if (domElement) domElement.value = this.data[key];
+
+          const selectEl = document.getElementById(
+            `CRABS_Select_${key}`,
+          ) as HTMLSelectElement;
+          if (selectEl) selectEl.value = this.data[key];
         }
 
         this.showResetConfirm = false;
@@ -1043,6 +1088,7 @@ export class Settings extends CRABS_Base {
 
         for (const key of Object.keys(this.data)) {
           globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+          globalWindow.ElementRemove?.(`CRABS_Select_${key}`);
         }
 
         globalWindow.PreferenceMessage = "";
@@ -1059,6 +1105,7 @@ export class Settings extends CRABS_Base {
 
         for (const key of Object.keys(this.data)) {
           globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+          globalWindow.ElementRemove?.(`CRABS_Select_${key}`);
         }
 
         globalWindow.CommonSetScreen("Online", "ChatRoom");
@@ -1125,7 +1172,6 @@ export class Settings extends CRABS_Base {
         this.showResetConfirm = false;
         this.layout.updateDOM(true);
 
-        // Hide the native base game header
         document
           .getElementById("preference-subscreen-hgroup")
           ?.style.setProperty("display", "none", "important");
@@ -1136,6 +1182,7 @@ export class Settings extends CRABS_Base {
 
         for (const key of Object.keys(this.data)) {
           globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+          globalWindow.ElementRemove?.(`CRABS_Select_${key}`);
         }
 
         globalWindow.PreferenceMessage = "";
@@ -1164,6 +1211,7 @@ export class Settings extends CRABS_Base {
     this.layout.updateDOM(false);
     for (const key of Object.keys(this.data)) {
       globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
+      globalWindow.ElementRemove?.(`CRABS_Select_${key}`);
     }
 
     globalWindow.ElementRemove?.("InputSearch");

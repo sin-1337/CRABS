@@ -10,14 +10,17 @@
  * the mod, for managing and updating graphical elements.
  */
 
+import { CRABS_Base } from "../base";
+import en from "./i18n/en.json";
+
 type ImageStore = {
   readonly basePath: string;
   readonly image: {
     readonly [key: string]: {
       readonly file: string;
       readonly subdir?: string;
-      readonly alt?: string;
-      readonly toolTip?: string;
+      readonly altKey?: string;
+      readonly toolTipKey?: string;
       readonly class?: string;
     };
   };
@@ -27,331 +30,326 @@ type ImageStore = {
  * Static class for managing and retrieving mod assets.
  */
 export abstract class Assets {
+  private static isInitialized = false;
+
+  /**
+   * Bootstraps and registers the asset localization dictionary once.
+   * @private
+   */
+  private static init(): void {
+    if (Assets.isInitialized) return;
+
+    const normLang = CRABS_Base.normalizeLocale("en");
+    const translations = (CRABS_Base as any).translations;
+    if (translations) {
+      if (!translations[normLang]) translations[normLang] = {};
+      translations[normLang]["assets"] = en;
+    }
+    Assets.isInitialized = true;
+  }
+
   protected static readonly IMAGES: ImageStore = {
     basePath: "https://sin-1337.github.io/CRABS/images/",
 
-    // logo
     image: {
       logo: {
         file: "CRABS_Logo.png",
-        alt: "CRABS",
+        altKey: "alt.logo",
         class: "CRABS_logo",
       },
-
       static_logo: {
         file: "CRABS_Logo.png",
-        alt: "CRABS",
+        altKey: "alt.logo",
         class: "CRABS_logo",
       },
-
       animated_logo: {
         file: "CRABS_Logo.gif",
-        alt: "CRABS",
+        altKey: "alt.logo",
         class: "CRABS_logo",
       },
-
       rave: {
         file: "CRABS_logo_rave.gif",
-        alt: "RAVE!",
+        altKey: "alt.rave",
         class: "CRABS_logo",
       },
-
       menu_cards: {
         file: "Menu_Cards.svg",
-        alt: "Card Layout",
+        altKey: "alt.menu_cards",
         class: "CRABS_menu_icon",
       },
-
       menu_rows: {
         file: "Menu_Rows.svg",
-        alt: "Rows Layout",
+        altKey: "alt.menu_rows",
         class: "CRABS_menu_icon",
       },
-
       menu_rows_compressed: {
         file: "Menu_Rows_Compressed.svg",
-        alt: "Compressed Rows Layout",
+        altKey: "alt.menu_rows_compressed",
         class: "CRABS_menu_icon",
       },
-
-      // error icon
       error: {
         file: "error.svg",
-        alt: "Error, image not found.",
-        toolTip: "Error: Image not found",
+        altKey: "alt.error",
+        toolTipKey: "tooltips.error",
         class: "CRABS_error_icon",
       },
-
-      // options:
       close: {
         file: "close.svg",
-        alt: "Close",
-        toolTip: "Close",
+        altKey: "alt.close",
+        toolTipKey: "tooltips.close",
         class: "CRABS_close",
       },
       roster: {
         file: "roster.svg",
-        alt: "Roster",
-        toolTip: "Roster",
+        altKey: "alt.roster",
+        toolTipKey: "tooltips.roster",
         class: "CRABS_Roster_Icon",
       },
       help: {
         file: "help.svg",
-        alt: "Help",
-        toolTip: "Help",
+        altKey: "alt.help",
+        toolTipKey: "tooltips.help",
         class: "CRABS_Help_Icon",
       },
       settings: {
         file: "settings.svg",
-        alt: "Settings",
-        toolTip: "Settings",
+        altKey: "alt.settings",
+        toolTipKey: "tooltips.settings",
         class: "CRABS_Settings_Icon",
       },
-
-      // badges
       admin: {
         file: "admin.svg",
-        alt: "Admin",
-        toolTip: "Admin",
+        altKey: "alt.admin",
+        toolTipKey: "tooltips.admin",
         class: "CRABS_badge",
       },
       vip: {
         file: "vip.svg",
-        alt: "VIP",
-        toolTip: "Room Whitelisted",
+        altKey: "alt.vip",
+        toolTipKey: "tooltips.vip",
         class: "CRABS_badge",
       },
       player: {
         file: "player.svg",
-        alt: "Guest",
-        toolTip: "Room Guest",
+        altKey: "alt.player",
+        toolTipKey: "tooltips.player",
         class: "CRABS_badge",
       },
-
-      // icons
       you: {
         file: "you.svg",
-        alt: "You",
-        toolTip: "You",
+        altKey: "alt.you",
+        toolTipKey: "tooltips.you",
         class: "CRABS_icon",
       },
       owner: {
         file: "owner.svg",
-        alt: "Owner",
-        toolTip: "Your Owner",
+        altKey: "alt.owner",
+        toolTipKey: "tooltips.owner",
         class: "CRABS_icon",
       },
       sub: {
         file: "sub.svg",
-        alt: "Sub",
-        toolTip: "Submissive",
+        altKey: "alt.sub",
+        toolTipKey: "tooltips.sub",
         class: "CRABS_icon",
       },
       family: {
         file: "family.svg",
-        alt: "Family",
-        toolTip: "Family",
+        altKey: "alt.family",
+        toolTipKey: "tooltips.family",
         class: "CRABS_icon",
       },
       trial: {
         file: "trial.svg",
-        alt: "Trial",
-        toolTip: "Trial",
+        altKey: "alt.trial",
+        toolTipKey: "tooltips.trial",
         class: "CRABS_icon",
       },
       lover: {
         file: "lover.svg",
-        alt: "Lover",
-        toolTip: "Lover",
+        altKey: "alt.lover",
+        toolTipKey: "tooltips.lover",
         class: "CRABS_icon",
       },
       bestfriend: {
         file: "bestfriend.svg",
-        alt: "Best friend",
-        toolTip: "Best Friend",
+        altKey: "alt.bestfriend",
+        toolTipKey: "tooltips.bestfriend",
         class: "CRABS_icon",
       },
       friend: {
         file: "friends.svg",
-        alt: "Friend",
-        toolTip: "Friend",
+        altKey: "alt.friend",
+        toolTipKey: "tooltips.friend",
         class: "CRABS_icon",
       },
       whitelist: {
         file: "whitelist.svg",
-        alt: "Whitelist",
-        toolTip: "Whitelisted",
+        altKey: "alt.whitelist",
+        toolTipKey: "tooltips.whitelist",
         class: "CRABS_icon",
       },
       blacklist: {
         file: "blacklist.svg",
-        alt: "blacklist",
-        toolTip: "Blacklisted",
+        altKey: "alt.blacklist",
+        toolTipKey: "tooltips.blacklist",
         class: "CRABS_icon",
       },
       ghost: {
         file: "ghost.svg",
-        alt: "ghost",
-        toolTip: "Ghosted",
+        altKey: "alt.ghost",
+        toolTipKey: "tooltips.ghost",
         class: "CRABS_icon",
       },
       thought: {
         file: "thought.svg",
-        alt: "thought bubble",
+        altKey: "alt.thought",
         class: "CRABS_icon",
       },
       compass: {
         file: "compass.svg",
-        alt: "Compass",
-        toolTip: "Compass",
+        altKey: "alt.compass",
+        toolTipKey: "tooltips.compass",
         class: "CRABS_icon",
       },
-
-      // globe icon for all BC players
       connected: {
         file: "connected.svg",
-        alt: "connected",
-        toolTip: "Total accounts online",
+        altKey: "alt.connected",
+        toolTipKey: "tooltips.connected",
       },
-
-      //map keys
       keyGold: {
         file: "keyGold.png",
-        alt: "gold key",
-        toolTip: "Gold Key",
+        altKey: "alt.key_gold",
+        toolTipKey: "tooltips.key_gold",
         class: "CRABS_key-icons",
       },
       keySilver: {
         file: "keySilver.png",
-        alt: "silver key",
-        toolTip: "Silver Key",
+        altKey: "alt.key_silver",
+        toolTipKey: "tooltips.key_silver",
         class: "CRABS_key-icons",
       },
       keyBronze: {
         file: "keyBronze.png",
-        alt: "bronze key",
-        toolTip: "Bronze Key",
+        altKey: "alt.key_bronze",
+        toolTipKey: "tooltips.key_bronze",
         class: "CRABS_key-icons",
       },
       keyNull: {
         file: "keyNull.svg",
-        alt: "null key",
-        toolTip: "Empty Key Slot",
+        altKey: "alt.key_null",
+        toolTipKey: "tooltips.key_null",
         class: "CRABS_key-icons",
       },
-
-      //Status Icons:
       blindNone: {
         file: "blindNone.svg",
-        alt: "blind none",
-        toolTip: "Not Blind",
+        altKey: "alt.blind_none",
+        toolTipKey: "tooltips.blind_none",
       },
       blindLight: {
         file: "BlindLight.png",
-        alt: "blind light",
-        toolTip: "Blind 1",
+        altKey: "alt.blind_light",
+        toolTipKey: "tooltips.blind_light",
       },
-
       blindNormal: {
         file: "BlindNormal.png",
-        alt: "blind normal",
-        toolTip: "Blind 2",
+        altKey: "alt.blind_normal",
+        toolTipKey: "tooltips.blind_normal",
       },
       blindHeavy: {
         file: "BlindHeavy.png",
-        alt: "blind heavy",
-        toolTip: "Blind 3",
+        altKey: "alt.blind_heavy",
+        toolTipKey: "tooltips.blind_heavy",
       },
       blindTotal: {
         file: "BlindHeavy.png",
-        alt: "blind heavy",
-        toolTip: "Blind 4",
+        altKey: "alt.blind_total",
+        toolTipKey: "tooltips.blind_total",
       },
-
       deafNone: {
         file: "deafNone.svg",
-        alt: "deaf none",
-        toolTip: "Not Deaf",
+        altKey: "alt.deaf_none",
+        toolTipKey: "tooltips.deaf_none",
       },
       deafLight: {
         file: "DeafLight.png",
-        alt: "deaf light",
-        toolTip: "Deaf 1",
+        altKey: "alt.deaf_light",
+        toolTipKey: "tooltips.deaf_light",
       },
       deafNormal: {
         file: "DeafNormal.png",
-        alt: "deaf normal",
-        toolTip: "Deaf 2",
+        altKey: "alt.deaf_normal",
+        toolTipKey: "tooltips.deaf_normal",
       },
       deafHeavy: {
         file: "DeafHeavy.png",
-        alt: "deaf heavy",
-        toolTip: "Deaf 3",
+        altKey: "alt.deaf_heavy",
+        toolTipKey: "tooltips.deaf_heavy",
       },
       deafTotal: {
         file: "DeafHeavy.png",
-        alt: "deaf heavy",
-        toolTip: "Deaf 4",
+        altKey: "alt.deaf_total",
+        toolTipKey: "tooltips.deaf_total",
       },
       gagNone: {
         file: "gagNone.svg",
-        alt: "gag nonoe",
-        toolTip: "Not Gagged",
+        altKey: "alt.gag_none",
+        toolTipKey: "tooltips.gag_none",
       },
       gagVeryLight: {
         file: "GagLight.png",
-        alt: "gag very light",
-        toolTip: "Gag 1",
+        altKey: "alt.gag_very_light",
+        toolTipKey: "tooltips.gag_very_light",
       },
       gagEasy: {
         file: "GagLight.png",
-        alt: "gag easy",
-        toolTip: "Gag 1",
+        altKey: "alt.gag_easy",
+        toolTipKey: "tooltips.gag_easy",
       },
       gagLight: {
         file: "GagLight.png",
-        alt: "gag light",
-        toolTip: "Gag 1",
+        altKey: "alt.gag_light",
+        toolTipKey: "tooltips.gag_light",
       },
       gagNormal: {
         file: "GagNormal.png",
-        alt: "gag normal",
-        toolTip: "Gag 2",
+        altKey: "alt.gag_normal",
+        toolTipKey: "tooltips.gag_normal",
       },
       gagMedium: {
         file: "GagNormal.png",
-        alt: "gag medium",
-        toolTip: "Gag 3",
+        altKey: "alt.gag_medium",
+        toolTipKey: "tooltips.gag_medium",
       },
       gagHeavy: {
         file: "GagHeavy.png",
-        alt: "gag heavy",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_heavy",
+        toolTipKey: "tooltips.gag_heavy",
       },
       gagVeryHeavy: {
         file: "GagHeavy.png",
-        alt: "gag very heavy",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_very_heavy",
+        toolTipKey: "tooltips.gag_very_heavy",
       },
       gagTotal: {
         file: "GagTotal.png",
-        alt: "gag total",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_total",
+        toolTipKey: "tooltips.gag_total",
       },
       gagTotal2: {
         file: "GagTotal.png",
-        alt: "gag total",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_total",
+        toolTipKey: "tooltips.gag_total",
       },
       gagTotal3: {
         file: "GagTotal.png",
-        alt: "gag total",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_total",
+        toolTipKey: "tooltips.gag_total",
       },
       gagTotal4: {
         file: "GagTotal.png",
-        alt: "gag total",
-        toolTip: "Gag 4",
+        altKey: "alt.gag_total",
+        toolTipKey: "tooltips.gag_total",
       },
     },
   } as const;
@@ -374,7 +372,6 @@ export abstract class Assets {
   ): string {
     const imgObj = Assets.IMAGES.image[key];
 
-    // If the key is missing or undefined at runtime, gracefully return the error image
     if (!imgObj) {
       console.warn(`Missing image key: ${key}`);
       return `${Assets.IMAGES.basePath}${Assets.IMAGES.image["error"].file}`;
@@ -403,6 +400,8 @@ export abstract class Assets {
     alt_override,
     data,
   }: PrintImage): string {
+    Assets.init();
+
     const images = Assets.IMAGES.image;
 
     if (!(key in images)) {
@@ -414,12 +413,18 @@ export abstract class Assets {
 
     const imgData = key in images ? images[key] : images["error"];
 
+    const defaultAlt = imgData.altKey
+      ? CRABS_Base.translate(`assets.${imgData.altKey}`)
+      : key;
+    const defaultTooltip = imgData.toolTipKey
+      ? CRABS_Base.translate(`assets.${imgData.toolTipKey}`)
+      : "";
+
     const css_class = css_class_override || imgData.class || "";
-    const tooltip = tooltip_override || imgData.toolTip || "";
-    const alt = alt_override || imgData.alt || key;
+    const tooltip = tooltip_override || defaultTooltip;
+    const alt = alt_override || defaultAlt;
 
     let html = "";
-    // Notice: No spaces after the '<'
     if (tooltip !== "") html += `<div class='CRABS_tooltip-wrapper'>`;
 
     html += `<img `;
@@ -430,8 +435,9 @@ export abstract class Assets {
     if (css_style !== "") html += `style="${css_style}" `;
     html += `>`;
 
-    if (tooltip !== "")
+    if (tooltip !== "") {
       html += `<div class='CRABS_tooltip'>${tooltip}</div></div>`;
+    }
 
     return html;
   }

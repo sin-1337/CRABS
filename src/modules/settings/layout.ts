@@ -1,217 +1,283 @@
-// layout.ts
-
 import { UIWidget } from "./widgets";
+import { CRABS_Base } from "../base";
 
-export type ComponentCategory = "General" | "Drawer" | "Immersion" | "Maps" | "Chat" | "Config";
+export type ComponentCategory =
+  | "General"
+  | "Drawer"
+  | "Immersion"
+  | "Maps"
+  | "Chat"
+  | "Config";
 
 export interface ConfiguredWidget {
-	category: ComponentCategory;
-	indent: number;
-	widget: UIWidget;
+  category: ComponentCategory;
+  indent: number;
+  widget: UIWidget;
 }
 
 export class LayoutEngine {
-	private readonly BASE_X = 600;
-	private readonly INDENT_WIDTH = 50;
-	private readonly TABS: ComponentCategory[] = ["General", "Drawer", "Immersion", "Maps", "Chat", "Config"];
+  private readonly BASE_X = 600;
+  private readonly INDENT_WIDTH = 50;
+  private readonly TABS: ComponentCategory[] = [
+    "General",
+    "Drawer",
+    "Immersion",
+    "Maps",
+    "Chat",
+    "Config",
+  ];
 
-	public activeTab: ComponentCategory = "General";
-	public scrollOffset: number = 0;
-	public maxScroll: number = 0;
-	public currentTooltip: string = "";
+  public activeTab: ComponentCategory = "General";
+  public scrollOffset: number = 0;
+  public maxScroll: number = 0;
+  public currentTooltip: string = "";
 
-	constructor(private registry: ConfiguredWidget[]) { }
+  constructor(private registry: ConfiguredWidget[]) {}
 
-	private getVisibleWidgets(): ConfiguredWidget[] {
-		return this.registry.filter(w => w.category === this.activeTab);
-	}
+  private getVisibleWidgets(): ConfiguredWidget[] {
+    return this.registry.filter((w) => w.category === this.activeTab);
+  }
 
-	public updateDOM(isMenuOpen: boolean): void {
-		const visible = this.getVisibleWidgets();
+  public updateDOM(isMenuOpen: boolean): void {
+    const visible = this.getVisibleWidgets();
+    let currentY = 280 - this.scrollOffset;
 
-		// Use an accumulator to stack the widgets dynamically!
-		let currentY = 280 - this.scrollOffset;
+    for (const item of this.registry) {
+      const isVisibleOnTab = visible.includes(item);
+      let bounds = { x: -1000, y: -1000, w: 0, h: 0 };
+      let isSafelyOnScreen = false;
 
-		for (const item of this.registry) {
-			const isVisibleOnTab = visible.includes(item);
+      if (isVisibleOnTab) {
+        bounds = {
+          x: this.BASE_X + item.indent * this.INDENT_WIDTH,
+          y: currentY,
+          w: 500,
+          h: item.widget.rowHeight,
+        };
+        isSafelyOnScreen = isMenuOpen && currentY > 210 && currentY < 870;
+        currentY += item.widget.rowHeight;
+      }
 
-			// Default off-screen bounds
-			let bounds = { x: -1000, y: -1000, w: 0, h: 0 };
-			let isSafelyOnScreen = false;
+      item.widget.updateDOM(bounds, isSafelyOnScreen);
+    }
+  }
 
-			if (isVisibleOnTab) {
-				bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
-				isSafelyOnScreen = isMenuOpen && currentY > 210 && currentY < 870;
+  public draw(
+    context: CanvasRenderingContext2D,
+    isModalOpen: boolean = false,
+  ): void {
+    const globalWindow = window as any;
+    this.currentTooltip = "";
 
-				// Push the next widget down by this widget's specific height
-				currentY += item.widget.rowHeight;
-			}
+    const visible = this.getVisibleWidgets();
 
-			item.widget.updateDOM(bounds, isSafelyOnScreen);
-		}
-	}
+    let totalHeight = 0;
+    for (const item of visible) totalHeight += item.widget.rowHeight;
+    this.maxScroll = Math.max(0, totalHeight - 500);
 
-	public draw(context: CanvasRenderingContext2D, isModalOpen: boolean = false): void {
-		const globalWindow = window as any;
-		this.currentTooltip = "";
+    globalWindow.DrawRect(40, 40, 420, 920, "#222222aa");
+    globalWindow.DrawCharacter(globalWindow.Player, 50, 50, 0.9);
 
-		const visible = this.getVisibleWidgets();
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    globalWindow.DrawText(
+      CRABS_Base.translate("settings.nav.title"),
+      1140,
+      80,
+      "Black",
+      "Gray",
+    );
 
-		// Calculate Max Scroll dynamically by summing all widget heights
-		let totalHeight = 0;
-		for (const item of visible) totalHeight += item.widget.rowHeight;
-		this.maxScroll = Math.max(0, totalHeight - 500);
+    const btnColor = isModalOpen ? "#888888" : "White";
+    globalWindow.DrawButton(
+      1815,
+      75,
+      90,
+      90,
+      "",
+      btnColor,
+      "Icons/Exit.png",
+      CRABS_Base.translate("settings.nav.back"),
+    );
 
-		// Background
-		globalWindow.DrawRect(40, 40, 420, 920, "#222222aa");
-		globalWindow.DrawCharacter(globalWindow.Player, 50, 50, 0.9);
+    const isInChat =
+      typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+    globalWindow.DrawButton(
+      1710,
+      75,
+      90,
+      90,
+      "",
+      isModalOpen || !isInChat ? "#888888" : "White",
+      "Icons/Chat.png",
+      isInChat
+        ? CRABS_Base.translate("settings.nav.chat")
+        : CRABS_Base.translate("settings.nav.no_chat"),
+    );
 
-		context.textAlign = "center";
-		context.textBaseline = "middle";
-		globalWindow.DrawText("- CRABS Mod Settings -", 1140, 80, "Black", "Gray");
+    globalWindow.DrawButton(
+      1605,
+      75,
+      90,
+      90,
+      "",
+      btnColor,
+      "Icons/Reset.png",
+      CRABS_Base.translate("settings.nav.restore_defaults"),
+    );
 
-		// --- Draw Top-Right Nav Buttons (Greyed out if modal is open) ---
-		const btnColor = isModalOpen ? "#888888" : "White";
-		globalWindow.DrawButton(1815, 75, 90, 90, "", btnColor, "Icons/Exit.png", "Back");
+    let tabX = 500;
+    for (const tab of this.TABS) {
+      const isActive = this.activeTab === tab;
+      const tabColor = isModalOpen || isActive ? "#888888" : "White";
+      const tabLabel = CRABS_Base.translate(
+        `settings.tabs.${tab.toLowerCase()}`,
+      );
+      globalWindow.DrawButton(tabX, 130, 160, 45, tabLabel, tabColor, "", "");
+      tabX += 175;
+    }
 
-		const isInChat = typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
-		globalWindow.DrawButton(1710, 75, 90, 90, "", isModalOpen || !isInChat ? "#888888" : "White", "Icons/Chat.png", isInChat ? "Return to Chat" : "Not in a Chat Room");
+    context.save();
+    context.beginPath();
+    context.rect(500, 200, 1280, 680);
+    context.clip();
 
-		globalWindow.DrawButton(1605, 75, 90, 90, "", btnColor, "Icons/Reset.png", "Restore Defaults");
+    context.beginPath();
+    context.strokeStyle = "#666666";
+    context.lineWidth = 3;
 
-		// Tabs
-		let tabX = 500;
-		for (const tab of this.TABS) {
-			const isActive = this.activeTab === tab;
-			const tabColor = isModalOpen || isActive ? "#888888" : "White";
-			globalWindow.DrawButton(tabX, 130, 160, 45, tab, tabColor, "", "");
-			tabX += 175;
-		}
+    let currentY = 280 - this.scrollOffset;
+    for (let i = 0; i < visible.length; i++) {
+      const item = visible[i];
 
-		// Clip Region (so scrolling cuts off perfectly)
-		context.save();
-		context.beginPath();
-		context.rect(500, 200, 1280, 680);
-		context.clip();
+      if (item.indent > 0) {
+        let parentY = null;
+        let parentScanY = 280 - this.scrollOffset;
 
-		// Draw the tree hierarchy lines
-		context.beginPath();
-		context.strokeStyle = "#666666";
-		context.lineWidth = 3;
+        for (let j = 0; j < i; j++) {
+          if (visible[j].indent === item.indent - 1) {
+            parentY = parentScanY;
+          }
+          parentScanY += visible[j].widget.rowHeight;
+        }
 
-		let currentY = 280 - this.scrollOffset;
-		for (let i = 0; i < visible.length; i++) {
-			const item = visible[i];
+        if (parentY !== null) {
+          const spineX =
+            this.BASE_X + (item.indent - 1) * this.INDENT_WIDTH + 32;
+          const childX = this.BASE_X + item.indent * this.INDENT_WIDTH;
 
-			if (item.indent > 0) {
-				let parentY = null;
-				let parentScanY = 280 - this.scrollOffset;
+          context.moveTo(spineX, parentY + 32);
+          context.lineTo(spineX, currentY);
+          context.lineTo(childX - 10, currentY);
+        }
+      }
+      currentY += item.widget.rowHeight;
+    }
+    context.stroke();
 
-				// Scan forward from the top to find the most recent parent's Y coordinate
-				for (let j = 0; j < i; j++) {
-					if (visible[j].indent === item.indent - 1) {
-						parentY = parentScanY;
-					}
-					parentScanY += visible[j].widget.rowHeight;
-				}
+    currentY = 280 - this.scrollOffset;
+    for (const item of visible) {
+      if (currentY > 180 && currentY < 900) {
+        const bounds = {
+          x: this.BASE_X + item.indent * this.INDENT_WIDTH,
+          y: currentY,
+          w: 500,
+          h: item.widget.rowHeight,
+        };
+        item.widget.draw(context, bounds, (hint) => {
+          this.currentTooltip = hint;
+        });
+      }
+      currentY += item.widget.rowHeight;
+    }
+    context.restore();
 
-				if (parentY !== null) {
-					const spineX = this.BASE_X + ((item.indent - 1) * this.INDENT_WIDTH) + 32;
-					const childX = this.BASE_X + (item.indent * this.INDENT_WIDTH);
+    if (this.maxScroll > 0) {
+      const trackX = 1760;
+      const trackY = 200;
+      const trackW = 20;
+      const trackH = 680;
 
-					context.moveTo(spineX, parentY + 32);
-					context.lineTo(spineX, currentY);
-					context.lineTo(childX - 10, currentY);
-				}
-			}
-			currentY += item.widget.rowHeight;
-		}
-		context.stroke();
+      globalWindow.DrawRect(trackX, trackY, trackW, trackH, "#333333");
 
-		// Draw the actual Widgets
-		currentY = 280 - this.scrollOffset;
-		for (const item of visible) {
-			if (currentY > 180 && currentY < 900) {
-				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
-				item.widget.draw(context, bounds, (hint) => { this.currentTooltip = hint; });
-			}
-			currentY += item.widget.rowHeight;
-		}
-		context.restore();
+      const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
+      const thumbH = Math.max(40, trackH * visibleRatio);
+      const thumbY =
+        trackY + (this.scrollOffset / this.maxScroll) * (trackH - thumbH);
 
-		// Add scroll bar logic
-		if (this.maxScroll > 0) {
-			const trackX = 1760;
-			const trackY = 200;
-			const trackW = 20;
-			const trackH = 680;
+      const isHovering =
+        globalWindow.MouseX >= trackX &&
+        globalWindow.MouseX <= trackX + trackW &&
+        globalWindow.MouseY >= trackY &&
+        globalWindow.MouseY <= trackY + trackH;
 
-			// Draw track background
-			globalWindow.DrawRect(trackX, trackY, trackW, trackH, "#333333");
+      globalWindow.DrawRect(
+        trackX,
+        thumbY,
+        trackW,
+        thumbH,
+        isHovering ? "#AAAAAA" : "#888888",
+      );
+    }
 
-			// Calculate proportional thumb size and current position
-			const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
-			const thumbH = Math.max(40, trackH * visibleRatio); // Minimum 40px height
-			const thumbY = trackY + (this.scrollOffset / this.maxScroll) * (trackH - thumbH);
+    if (this.currentTooltip)
+      globalWindow.DrawText(this.currentTooltip, 1140, 920, "Black", "Gray");
+  }
 
-			// Highlight thumb if hovering over the track
-			const isHovering = globalWindow.MouseX >= trackX && globalWindow.MouseX <= trackX + trackW &&
-				globalWindow.MouseY >= trackY && globalWindow.MouseY <= trackY + trackH;
+  public click(mouseX: number, mouseY: number): boolean {
+    const globalWindow = window as any;
 
-			globalWindow.DrawRect(trackX, thumbY, trackW, thumbH, isHovering ? "#AAAAAA" : "#888888");
-		}
+    let tabX = 500;
+    for (const tab of this.TABS) {
+      if (globalWindow.MouseIn(tabX, 130, 160, 45)) {
+        if (this.activeTab !== tab) {
+          this.activeTab = tab;
+          this.scrollOffset = 0;
+          return true;
+        }
+      }
+      tabX += 175;
+    }
 
-		// footer
-		if (this.currentTooltip) globalWindow.DrawText(this.currentTooltip, 1140, 920, "Black", "Gray");
-	}
+    if (this.maxScroll > 0) {
+      const trackX = 1760;
+      const trackY = 200;
+      const trackW = 20;
+      const trackH = 680;
 
-	public click(mouseX: number, mouseY: number): boolean {
-		const globalWindow = window as any;
+      if (
+        mouseX >= trackX &&
+        mouseX <= trackX + trackW &&
+        mouseY >= trackY &&
+        mouseY <= trackY + trackH
+      ) {
+        const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
+        const thumbH = Math.max(40, trackH * visibleRatio);
 
-		// Check tabs
-		let tabX = 500;
-		for (const tab of this.TABS) {
-			if (globalWindow.MouseIn(tabX, 130, 160, 45)) {
-				if (this.activeTab !== tab) {
-					this.activeTab = tab;
-					this.scrollOffset = 0;
-					return true;
-				}
-			}
-			tabX += 175;
-		}
+        const clickPercent = (mouseY - trackY - thumbH / 2) / (trackH - thumbH);
 
-		// Scroll bar
-		if (this.maxScroll > 0) {
-			const trackX = 1760;
-			const trackY = 200;
-			const trackW = 20;
-			const trackH = 680;
+        this.scrollOffset = Math.max(
+          0,
+          Math.min(this.maxScroll, clickPercent * this.maxScroll),
+        );
+        return true;
+      }
+    }
 
-			// If the user clicks anywhere on the scroll track
-			if (mouseX >= trackX && mouseX <= trackX + trackW && mouseY >= trackY && mouseY <= trackY + trackH) {
-				const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
-				const thumbH = Math.max(40, trackH * visibleRatio);
-
-				// Calculate percentage based on where they clicked relative to the center of the thumb
-				const clickPercent = (mouseY - trackY - (thumbH / 2)) / (trackH - thumbH);
-
-				// Clamp the result and apply it
-				this.scrollOffset = Math.max(0, Math.min(this.maxScroll, clickPercent * this.maxScroll));
-				return true;
-			}
-		}
-
-		// Check widgets
-		const visible = this.getVisibleWidgets();
-		let currentY = 280 - this.scrollOffset;
-		for (const item of visible) {
-			if (currentY > 180 && currentY < 900) {
-				const bounds = { x: this.BASE_X + (item.indent * this.INDENT_WIDTH), y: currentY, w: 500, h: item.widget.rowHeight };
-				if (item.widget.click(bounds, mouseX, mouseY)) return true;
-			}
-			currentY += item.widget.rowHeight;
-		}
-		return false;
-	}
+    const visible = this.getVisibleWidgets();
+    let currentY = 280 - this.scrollOffset;
+    for (const item of visible) {
+      if (currentY > 180 && currentY < 900) {
+        const bounds = {
+          x: this.BASE_X + item.indent * this.INDENT_WIDTH,
+          y: currentY,
+          w: 500,
+          h: item.widget.rowHeight,
+        };
+        if (item.widget.click(bounds, mouseX, mouseY)) return true;
+      }
+      currentY += item.widget.rowHeight;
+    }
+    return false;
+  }
 }
