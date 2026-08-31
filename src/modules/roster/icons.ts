@@ -1,8 +1,10 @@
 import { Assets } from "../assets";
+import { CRABS_Base } from "../base";
 import { CrossMod } from "../crossmod";
 
 /**
  * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
+ *
  * @param {Character} character - The character object to check.
  * @returns {string} HTML string containing the status icons.
  */
@@ -50,13 +52,18 @@ export function setStatusIcons(character: any): string {
 
     if (effect in effectList) {
       const effectValue = effectList[effect];
+      const localizedTooltip = CRABS_Base.translate(
+        `roster.status.${prefix.toLowerCase()}`,
+        { level: effectValue },
+      );
+
       if (
         effectValue >
         (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
       ) {
         icons[prefix] = Assets.printimage({
           key: effectName,
-          tooltip_override: `${prefix}: ${effectValue}`,
+          tooltip_override: localizedTooltip,
           css_class_override: `CRABS_status-icon`,
           css_style: `--brightness: brightness(2.5);
           background: linear-gradient(to right, #202020 10%, var(--border-color, white) 80%, transparent 100%);
@@ -98,13 +105,17 @@ export function setStatusIcons(character: any): string {
 
 /**
  * Determines the room badge for a player (Admin, VIP, or Guest).
+ *
  * @param {Character} character - The character to check.
  * @returns {string} HTML string representing the badge icon.
  */
 export function setbadge(character: any): string {
   const memberNum = character.MemberNumber ?? -1;
   const chatRoomData = (window as any).ChatRoomData;
-  let badge = Assets.printimage({ key: "player" });
+  let badge = Assets.printimage({
+    key: "player",
+    tooltip_override: CRABS_Base.translate("roster.badges.player"),
+  });
 
   if (!chatRoomData) {
     return badge;
@@ -117,9 +128,15 @@ export function setbadge(character: any): string {
     Array.isArray(chatRoomData.Admin) && chatRoomData.Admin.includes(memberNum);
 
   if (isAdmin) {
-    badge = Assets.printimage({ key: "admin" });
+    badge = Assets.printimage({
+      key: "admin",
+      tooltip_override: CRABS_Base.translate("roster.badges.admin"),
+    });
   } else if (isVip) {
-    badge = Assets.printimage({ key: "vip" });
+    badge = Assets.printimage({
+      key: "vip",
+      tooltip_override: CRABS_Base.translate("roster.badges.vip"),
+    });
   }
 
   return badge;
@@ -127,12 +144,18 @@ export function setbadge(character: any): string {
 
 /**
  * Determines and generates relational icons for a player (Owner, Friend, Whitelisted, etc.).
+ *
  * @param {Character} character - The character object.
  * @returns {string} HTML string containing the relevant relational icons.
  */
 export function setIcons(character: any): string {
   if (character.IsPlayer()) {
-    return Assets.printimage({ key: "you" }) + " ";
+    return (
+      Assets.printimage({
+        key: "you",
+        tooltip_override: CRABS_Base.translate("roster.relations.you"),
+      }) + " "
+    );
   }
 
   let playerIcons = "";
@@ -147,41 +170,87 @@ export function setIcons(character: any): string {
     typeof playerWindow?.OwnerNumber === "function" &&
     playerWindow.OwnerNumber() === memberNum
   ) {
-    playerIcons += Assets.printimage({ key: "owner" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "owner",
+        tooltip_override: CRABS_Base.translate("roster.relations.owner"),
+      }) + " ";
   } else if (character.IsOwnedByPlayer()) {
     if (isTrial) {
-      playerIcons += Assets.printimage({ key: "trial" }) + " ";
+      playerIcons +=
+        Assets.printimage({
+          key: "trial",
+          tooltip_override: CRABS_Base.translate("roster.relations.trial"),
+        }) + " ";
     } else {
-      playerIcons += Assets.printimage({ key: "sub" }) + " ";
+      playerIcons +=
+        Assets.printimage({
+          key: "sub",
+          tooltip_override: CRABS_Base.translate("roster.relations.sub"),
+        }) + " ";
     }
   } else if (playerWindow?.IsInFamilyOfMemberNumber(memberNum)) {
-    playerIcons += Assets.printimage({ key: "family" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "family",
+        tooltip_override: CRABS_Base.translate("roster.relations.family"),
+      }) + " ";
   }
 
   if (playerWindow?.GetLoversNumbers?.().includes(memberNum)) {
-    playerIcons += Assets.printimage({ key: "lover" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "lover",
+        tooltip_override: CRABS_Base.translate("roster.relations.lover"),
+      }) + " ";
   } else {
     if (CrossMod.detectMod("BCTweaks")) {
       if (
         playerWindow?.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)
       ) {
-        playerIcons += Assets.printimage({ key: "bestfriend" }) + " ";
+        playerIcons +=
+          Assets.printimage({
+            key: "bestfriend",
+            tooltip_override: CRABS_Base.translate(
+              "roster.relations.bestfriend",
+            ),
+          }) + " ";
       } else if (playerWindow?.FriendList?.includes(memberNum)) {
-        playerIcons += Assets.printimage({ key: "friend" }) + " ";
+        playerIcons +=
+          Assets.printimage({
+            key: "friend",
+            tooltip_override: CRABS_Base.translate("roster.relations.friend"),
+          }) + " ";
       }
     } else if (playerWindow?.FriendList?.includes(memberNum)) {
-      playerIcons += Assets.printimage({ key: "friend" }) + " ";
+      playerIcons +=
+        Assets.printimage({
+          key: "friend",
+          tooltip_override: CRABS_Base.translate("roster.relations.friend"),
+        }) + " ";
     }
   }
 
   if (playerWindow?.WhiteList?.includes(memberNum)) {
-    playerIcons += Assets.printimage({ key: "whitelist" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "whitelist",
+        tooltip_override: CRABS_Base.translate("roster.relations.whitelist"),
+      }) + " ";
   } else if (playerWindow?.BlackList?.includes(memberNum)) {
-    playerIcons += Assets.printimage({ key: "blacklist" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "blacklist",
+        tooltip_override: CRABS_Base.translate("roster.relations.blacklist"),
+      }) + " ";
   }
 
   if (playerWindow?.GhostList?.includes(memberNum)) {
-    playerIcons += Assets.printimage({ key: "ghost" }) + " ";
+    playerIcons +=
+      Assets.printimage({
+        key: "ghost",
+        tooltip_override: CRABS_Base.translate("roster.relations.ghost"),
+      }) + " ";
   }
 
   return playerIcons;

@@ -3,6 +3,7 @@
  *
  * This is the base class for all CRABS mod modules. It provides:
  * - Core functionality that all modules inherit
+ * - Centralized translation engine (i18n) and dictionary registry
  * - Utility methods for chat room interactions
  * - Common helper functions for mod operations
  * - Base initialization and setup procedures
@@ -35,29 +36,186 @@ export abstract class CRABS_Base {
   /** Static reference to the subscreen definition for the game's preference menu. */
   protected static subscreenDef: any = null;
 
-  protected currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
+  /**
+   * Central storage dictionary for registered translations.
+   * Maps normalized locale codes to namespaced key-value dictionaries.
+   * @type {Record<string, Record<string, any>>}
+   */
+  private static translations: Record<string, Record<string, any>> = {};
 
+  /**
+   * Explicit user language override setting.
+   * When set to null, the runtime defaults to automatic base-game language detection.
+   * @type {string | null}
+   */
+  private static userLanguageOverride: string | null = null;
+
+  /** The module namespace assigned during super() call. */
+  protected readonly moduleNamespace: string;
+
+  protected currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
   private perfStabilityCounter: number = 0;
   private readonly STABILITY_THRESHOLD = 60;
-
-  /** Tracks hooks that have already failed to prevent log/toast spamming. */
   private failedHooks: Set<string> = new Set();
   private disabledHooks: Set<string> = new Set();
 
   /**
-   * Creates an instance of a CRABS module.
+   * Initializes a CRABS module instance, assigns its unique namespace,
+   * and registers all provided translation bundles into the global registry.
    *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+   * @param {string} [namespace="base"] - Unique module identifier used for scoping localization keys.
+   * @param {Record<string, any>} [locales={}] - Key-value map of locale codes to translation JSON objects.
    */
-  constructor(CRABS: ModSDKModAPI) {
+  constructor(
+    CRABS: ModSDKModAPI,
+    namespace: string = "base",
+    locales: Record<string, any> = {},
+  ) {
     this.CRABS = CRABS;
+    this.moduleNamespace = namespace;
+
+    for (const [lang, bundle] of Object.entries(locales)) {
+      const normLang = CRABS_Base.normalizeLocale(lang);
+      if (!CRABS_Base.translations[normLang]) {
+        CRABS_Base.translations[normLang] = {};
+      }
+      CRABS_Base.translations[normLang][namespace] = bundle;
+    }
+  }
+
+  /**
+   * Normalizes arbitrary locale strings and standard Bondage Club language codes
+   * into standardized, two-letter lowercase language identifiers.
+   *
+   * @param {string | undefined | null} lang - The raw language code or descriptor.
+   * @returns {string} The normalized language identifier.
+   */
+  public static normalizeLocale(lang: string | undefined | null): string {
+    if (!lang) return "en";
+    const normalized = lang.trim().toLowerCase();
+    switch (normalized) {
+      case "cn":
+      case "zh":
+      case "zh-cn":
+        return "cn";
+      case "de":
+        return "de";
+      case "fr":
+        return "fr";
+      case "ru":
+        return "ru";
+      case "es":
+        return "es";
+      default:
+        return normalized.slice(0, 2);
+    }
+  }
+
+  /**
+   * Evaluates the active locale by checking the user override configuration,
+   * falling back to the base game's active translation settings, or defaulting to English.
+   *
+   * @returns {string} The resolved active locale code.
+   */
+  public static getActiveLocale(): string {
+    if (CRABS_Base.userLanguageOverride) {
+      return CRABS_Base.normalizeLocale(CRABS_Base.userLanguageOverride);
+    }
+    const globalWindow = window as any;
+    const gameLang =
+      globalWindow.TranslationLanguage ||
+      localStorage.getItem("BondageClubLanguage") ||
+      "en";
+    return CRABS_Base.normalizeLocale(gameLang);
+  }
+
+  /**
+   * Sets or clears an explicit language override for all CRABS operations.
+   * Passing null or "auto" restores automatic base-game language synchronization.
+   *
+   * @param {string | null} lang - Target locale identifier or null to clear.
+   * @returns {void}
+   */
+  public static setLanguageOverride(lang: string | null): void {
+    CRABS_Base.userLanguageOverride = !lang || lang === "auto" ? null : lang;
+  }
+
+  /**
+   * Traverses a nested dictionary structure using a dot-delimited path key.
+   *
+   * @param {any} obj - The root object or dictionary to traverse.
+   * @param {string} key - Dot-delimited path indicating the target property.
+   * @returns {string | undefined} The resolved string value, or undefined if not found.
+   * @private
+   */
+  private static resolveKey(obj: any, key: string): string | undefined {
+    if (!obj) return undefined;
+    const parts = key.split(".");
+    let current = obj;
+    for (const part of parts) {
+      if (current && typeof current === "object" && part in current) {
+        current = current[part];
+      } else {
+        return undefined;
+      }
+    }
+    return typeof current === "string" ? current : undefined;
+  }
+
+  /**
+   * Translates a fully qualified key path into localized text using the active locale,
+   * gracefully falling back to English and performing dynamic token interpolation.
+   *
+   * @param {string} key - Fully qualified, dot-delimited path key (e.g., 'roster.header.tooltip_admins').
+   * @param {Record<string, string | number>} [params] - Optional interpolation tokens mapped to replacement values.
+   * @returns {string} The fully resolved and interpolated localized text, or the raw key upon resolution failure.
+   */
+  public static translate(
+    key: string,
+    params?: Record<string, string | number>,
+  ): string {
+    const active = CRABS_Base.getActiveLocale();
+
+    let text = CRABS_Base.resolveKey(CRABS_Base.translations[active], key);
+
+    if ((text === undefined || text === "") && active !== "en") {
+      text = CRABS_Base.resolveKey(CRABS_Base.translations["en"], key);
+    }
+
+    if (text === undefined || text === "") {
+      return key;
+    }
+
+    if (params) {
+      return text.replace(/\{(\w+)\}/g, (_, match) =>
+        params[match] !== undefined ? String(params[match]) : `{${match}}`,
+      );
+    }
+
+    return text;
+  }
+
+  /**
+   * Translates a localization key relative to the current module's namespace.
+   * Automatically prefixes the module namespace if not already included.
+   *
+   * @param {string} key - Scoped key (e.g., 'header.tooltip_admins') or fully qualified key path.
+   * @param {Record<string, string | number>} [params] - Optional interpolation tokens mapped to replacement values.
+   * @returns {string} The resolved, localized text.
+   */
+  public t(key: string, params?: Record<string, string | number>): string {
+    const fullKey = key.startsWith(`${this.moduleNamespace}.`)
+      ? key
+      : `${this.moduleNamespace}.${key}`;
+    return CRABS_Base.translate(fullKey, params);
   }
 
   /**
    * Safely hooks a base-game function.
    * Catches registration errors if the function is missing, and wraps the execution
    * in a try/catch so mod logic failures don't crash the base game.
-   * * @param targetFunction The name of the global game function to hook.
+   * @param targetFunction The name of the global game function to hook.
    * @param priority ModSDK priority level.
    * @param callback Your hook logic.
    */
@@ -135,18 +293,18 @@ export abstract class CRABS_Base {
 
   /**
    * Registers a new keybinding with the global KeyManager.
-   * * If the KeyManager or the required 'always' context is not yet initialized,
+   * If the KeyManager or the required 'always' context is not yet initialized,
    * the method will retry registration every 500ms. It automatically handles
    * the creation of the 'crabs' category if it does not exist.
    *
    * @param id - A unique identifier for the keybinding.
-   * @param actionName - The display name of the action (English).
-   * @param description - A brief description of what the keybind does (English).
+   * @param actionName - The display name of the action.
+   * @param description - A brief description of what the keybind does.
    * @param key - The primary key for the shortcut (e.g., 'A', 'Enter').
    * @param actionCallback - The function to execute when the keybind is triggered.
    * Should return a boolean indicating success/handled state.
    * @param modifiers - A set of modifier keys. Defaults to ['Ctrl', 'Alt'].
-   * * @returns void
+   * @returns void
    */
   public static registerKeybind(
     id: string,
@@ -248,18 +406,15 @@ export abstract class CRABS_Base {
    * @returns {boolean} True if the device is a phone or the window is very small.
    */
   protected isMobileView(): boolean {
-    // Check physical window width (Catch shrinking desktop windows & most phones)
     if (window.innerWidth <= 768) {
       return true;
     }
 
-    // Check the modern User-Agent Data API (Catch phones reporting accurately)
     const nav = navigator as any;
     if (nav.userAgentData && nav.userAgentData.mobile) {
       return true;
     }
 
-    // Fallback to classic User-Agent string parsing (Catch Safari/iOS and older browsers)
     const ua = navigator.userAgent || (window as any).opera;
     return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
       ua.toLowerCase(),
@@ -268,13 +423,11 @@ export abstract class CRABS_Base {
 
   /**
    * Takes a member number and opens that player's "focus" screen.
-   * This function is setup to be exposed to the global DOM.
    *
    * @param {number} MemberNumber - The member number for the player in question.
    * @returns {void}
    */
   public showPlayerFocus(MemberNumber: number): void {
-    // Check if the person is still in the room
     const character = ChatRoomCharacter.find(
       (characterItem) => characterItem.MemberNumber == MemberNumber,
     );
@@ -307,7 +460,6 @@ export abstract class CRABS_Base {
     try {
       await navigator.clipboard.writeText(data);
       Notification.send({ message: `"${data}" copied to clipboard.` });
-      // console.log("DEBUG: Text copied to clipboard: ", data);
       return;
     } catch (error) {
       console.error("Copy to clipboard failed", error);
@@ -338,7 +490,6 @@ export abstract class CRABS_Base {
   public async openSettings(): Promise<void> {
     const screen = window as any;
 
-    // 1. Warm up the Preference translation cache to prevent base-game TextGet errors
     if (
       typeof screen.TextPrefetchFile === "function" &&
       typeof screen.ScreenFileGetTranslation === "function"
@@ -351,7 +502,6 @@ export abstract class CRABS_Base {
       }
     }
 
-    // 2. Force the game into the Preferences screen state
     if (
       screen.CurrentModule !== "Character" ||
       screen.CurrentScreen !== "Preference"
@@ -360,12 +510,10 @@ export abstract class CRABS_Base {
       await screen.CommonSetScreen("Character", "Preference");
     }
 
-    // 3. Unload whatever subscreen is currently active
     if (typeof screen.PreferenceSubscreenUnload === "function") {
       screen.PreferenceSubscreenUnload();
     }
 
-    // 4. Inject our stored subscreen using the STATIC reference
     if (CRABS_Base.subscreenDef) {
       screen.PreferenceSubscreen = CRABS_Base.subscreenDef;
       screen.PreferencePageCurrent = 1;
@@ -509,7 +657,7 @@ export abstract class CRABS_Base {
     template: string,
     templateArguments: Record<string, string>,
     wrapper: boolean = true,
-    wrapperArgs?: Record<string, string>, // ignored when wrapper == false
+    wrapperArgs?: Record<string, string>,
   ): string {
     let regularExpression: RegExp;
 
@@ -542,15 +690,10 @@ export abstract class CRABS_Base {
    * @returns {string} The resulting RGBA color string.
    */
   protected convertColor(hex: string, alpha: number = 0): string {
-    // Remove the hash if it's there
     hex = hex.replace(/^#/, "");
-
-    // Parse the red, green, and blue components
     const red = parseInt(hex.slice(0, 2), 16);
     const green = parseInt(hex.slice(2, 4), 16);
     const blue = parseInt(hex.slice(4, 6), 16);
-
-    // Return the rgba value with alpha transparency
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
   }
 
@@ -570,7 +713,7 @@ export abstract class CRABS_Base {
    * @returns {number} A value from 0 (darkest) to 255 (brightest).
    */
   protected getColorBrightness(color: string): number {
-    if (!color) return 255; // Default fallback
+    if (!color) return 255;
 
     if (this.colorBrightnessCache.has(color))
       return this.colorBrightnessCache.get(color)!;
@@ -589,7 +732,6 @@ export abstract class CRABS_Base {
       this.colorBrightnessCache.set(color, brightness);
       return brightness;
     } catch (error) {
-      // Fallback to prevent canvas crashes
       this.colorBrightnessCache.set(color, 255);
       return 255;
     }
@@ -597,11 +739,11 @@ export abstract class CRABS_Base {
 
   /**
    * Generates a brightly saturated version of a color for the text outline.
-   * * @param {string} color - The base color to brighten.
+   * @param {string} color - The base color to brighten.
    * @returns {string} RGBA string of the brightened color.
    */
   protected getBrightOutlineColor(color: string): string {
-    if (!this.canvasContext) return "rgba(255,255,255,0.8)"; // fallback
+    if (!this.canvasContext) return "rgba(255,255,255,0.8)";
 
     try {
       this.colorCanvas.width = 1;
@@ -615,12 +757,10 @@ export abstract class CRABS_Base {
         g = data[1],
         b = data[2];
 
-      // If the color is basically pitch black, return a visible white/gray outline
       if (r < 30 && g < 30 && b < 30) {
         return "rgba(200, 200, 200, 0.9)";
       }
 
-      // Find the strongest color channel and scale it mathematically
       const max = Math.max(r, g, b);
       const multiplier = 255 / max;
 
@@ -628,7 +768,6 @@ export abstract class CRABS_Base {
       const brightG = Math.min(255, g * multiplier);
       const brightB = Math.min(255, b * multiplier);
 
-      // Mix the bright neon color 50/50 with pure white to create a soft, high-contrast pastel halo
       r = Math.round((brightR + 255) / 2);
       g = Math.round((brightG + 255) / 2);
       b = Math.round((brightB + 255) / 2);
@@ -664,7 +803,6 @@ export abstract class CRABS_Base {
     }
 
     if (targetLevel !== this.currentPerformanceLevel) {
-      // NEW: Degrade fast (5 frames), Recover slow (60 frames)
       const threshold =
         targetLevel > this.currentPerformanceLevel
           ? 5

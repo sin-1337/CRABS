@@ -1,7 +1,19 @@
+import { CRABS_Base } from "../base";
 import { CrossMod } from "../crossmod";
 
 /**
+ * Returns localized label for a sort mode key.
+ *
+ * @param {string} mode - The sort mode identifier.
+ * @returns {string} The localized label.
+ */
+export function getSortOptionLabel(mode: string): string {
+  return CRABS_Base.translate(`roster.sort_options.${mode}`);
+}
+
+/**
  * Calculates a numerical score for sorting the roster. Lower score = higher on the list.
+ *
  * @param {any} character - The character to sort.
  * @param {string} mode - The sorting algorithm to apply.
  * @param {number} [naturalIndex=0] - The original room array index of the character.

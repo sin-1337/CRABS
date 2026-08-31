@@ -25,6 +25,8 @@ import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as Immersion from "./immersion";
 
+import en from "./i18n/en.json";
+
 /**
  * Class representing the enhanced player roster and related map features.
  */
@@ -92,10 +94,11 @@ export class Roster extends CRABS_Base {
 
   /**
    * Creates an instance of the Roster module and initializes map and state hooks.
+   *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "roster", { en });
     this.loadFriendList();
     this.setupEventHooks();
 
@@ -268,7 +271,9 @@ export class Roster extends CRABS_Base {
 
   /**
    * Updates the DOM elements within the roster without a full redraw.
+   *
    * @param {HTMLElement} root - The parent container element for the roster.
+   * @returns {void}
    */
   public updateRosterUI(root: HTMLElement): void {
     if (typeof ChatRoomData === "undefined" || ChatRoomData === null) return;
@@ -288,8 +293,11 @@ export class Roster extends CRABS_Base {
       if (el && el.textContent !== text) el.textContent = text;
     };
 
-    const currentRoomName = ChatRoomData.Name || "Roster";
-    updateText("#drawer-title", `CRABS: ${currentRoomName}`);
+    const currentRoomName = ChatRoomData.Name;
+    const titleText = currentRoomName
+      ? this.t("header.title_room", { roomName: currentRoomName })
+      : this.t("header.title_default");
+    updateText("#drawer-title", titleText);
 
     const adminInRoom = ChatRoomData.Character.filter((c: any) =>
       ChatRoomData.Admin.includes(c.MemberNumber),
@@ -376,7 +384,6 @@ export class Roster extends CRABS_Base {
           ".CRABS_player-name",
         ) as HTMLElement;
         if (nameContainer) {
-          // --- CHANGED HERE ---
           const currentNickname = this.cleanZalgoAndNormalize(
             CharacterNickname(character),
           );
@@ -418,7 +425,9 @@ export class Roster extends CRABS_Base {
 
   /**
    * Hooks into base-game functions that represent state changes.
+   *
    * @private
+   * @returns {void}
    */
   private setupEventHooks(): void {
     const flagDirty = (args: any, next: Function) => {
@@ -431,6 +440,7 @@ export class Roster extends CRABS_Base {
     this.safeHook("ChatRoomSyncMemberJoin", 10, flagDirty);
     this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
     this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
+    this.safeHook("TranslationLoad", 10, flagDirty);
 
     this.safeHook("ChatRoomMessage", 10, (args: any, next: Function) => {
       const result = next(args);
@@ -455,7 +465,9 @@ export class Roster extends CRABS_Base {
 
   /**
    * Detects overflow in card wrappers and applies scrolling animation if necessary.
+   *
    * @param {string} [containerSelector=".CRABS_overflow-wrapper"] - CSS selector for the containers to check.
+   * @returns {void}
    */
   public initScrollingOverflow(
     containerSelector: string = ".CRABS_overflow-wrapper",
@@ -486,6 +498,13 @@ export class Roster extends CRABS_Base {
 
   /**
    * Builds the HTML card for a single player in the roster.
+   *
+   * @param {any} character - Character object to render.
+   * @param {string} badge - Rendered badge HTML string.
+   * @param {string} playerIcons - Rendered relationship icons HTML string.
+   * @param {boolean} [isDrawer=false] - Whether the card is inside the drawer view.
+   * @returns {string} The processed HTML string for the player card.
+   * @private
    */
   private buildCard(
     character: any,
@@ -531,6 +550,7 @@ export class Roster extends CRABS_Base {
           : "";
       const compassIcon = Assets.printimage({
         key: "compass",
+        tooltip_override: this.t("tooltips.track_compass"),
         css_class_override: "CRABS_icon",
       });
 
@@ -562,6 +582,9 @@ export class Roster extends CRABS_Base {
 
   /**
    * Hooks into the friend list loading to capture the online friend count.
+   *
+   * @private
+   * @returns {void}
    */
   private loadFriendList(): void {
     this.safeHook(
@@ -583,6 +606,8 @@ export class Roster extends CRABS_Base {
 
   /**
    * Requests the online friend count from the server if cooldown passed.
+   *
+   * @returns {void}
    */
   public requestOnlineFriends(): void {
     const now = Date.now();
@@ -597,13 +622,22 @@ export class Roster extends CRABS_Base {
     }
   }
 
-  /** Returns the currently cached online friends count for dirty-checking. */
+  /**
+   * Returns the currently cached online friends count for dirty-checking.
+   *
+   * @returns {number | string} Cached online friends number or placeholder string.
+   */
   public getOnlineFriendsCount(): number | string {
     return this.onlineFriendsCache;
   }
 
   /**
    * Generates the HTML for the player roster based on provided arguments.
+   *
+   * @param {string} commandArguments - Space-delimited command filters (e.g., "admins", "vips", "count").
+   * @param {boolean} [wrapper=true] - Whether to surround the output with the main mod window wrapper.
+   * @param {boolean} [forceFullRows=false] - When true, returns raw card HTML without template variables.
+   * @returns {string} The compiled HTML string.
    */
   public buildroster(
     commandArguments: string,
@@ -662,7 +696,7 @@ export class Roster extends CRABS_Base {
 
       if (!character) {
         rosterCards.push({
-          html: "❓ <span style='color:#FF0000'>[Unknown Person]</span>\n",
+          html: `❓ <span style='color:#FF0000'>${this.t("status.unknown_person")}</span>\n`,
           score: 99,
           memberNumber: 9999999,
           isMe: false,
@@ -721,16 +755,16 @@ export class Roster extends CRABS_Base {
     let templatevars: Record<string, string> = {
       RosterStyle: rosterStyle,
       RosterLayoutClass: this.currentLayoutMode,
-      adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: "Admins", css_class_override: "CRABS_header_icons" })}`,
+      adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: this.t("header.tooltip_admins"), css_class_override: "CRABS_header_icons" })}`,
       adminsInRoom: `${admin_count}`,
       totalAdmins: `${ChatRoomData.Admin.length}`,
-      playerIcon: `${Assets.printimage({ key: "player", tooltip_override: "Players", css_class_override: "CRABS_header_icons" })}`,
+      playerIcon: `${Assets.printimage({ key: "player", tooltip_override: this.t("header.tooltip_players"), css_class_override: "CRABS_header_icons" })}`,
       playersInRoom: `${ChatRoomCharacter.length}`,
       totalPlayers: `${ChatRoomData.Limit}`,
-      friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: "Friends", css_class_override: "CRABS_header_icons" })}`,
+      friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: this.t("header.tooltip_friends"), css_class_override: "CRABS_header_icons" })}`,
       friendsOnline: `${this.onlineFriendsCache}`,
       totalFriends: `${playerWindow.FriendList.length}`,
-      connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: "Online Accounts", css_class_override: "CRABS_header_icons" })}`,
+      connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: this.t("header.tooltip_online"), css_class_override: "CRABS_header_icons" })}`,
       onlinePlayers: `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
       playerRows: output_rows,
       MapActive: isMap ? "true" : "false",
@@ -751,9 +785,10 @@ export class Roster extends CRABS_Base {
     templatevars["collectedKeys"] = displaykeys;
 
     let wrappervars = {
-      TitleBar: `CRABS: Roster`,
+      TitleBar: this.t("header.title_default"),
       Close: Assets.printimage({
         key: "close",
+        tooltip_override: this.t("controls.close_dialog"),
         data: ["elementid", "CRABS_Roster"],
       }),
     };
@@ -765,6 +800,11 @@ export class Roster extends CRABS_Base {
 
   /**
    * Builds the user interface for the roster and attaches necessary events.
+   *
+   * @param {string} [output] - Optional HTML string to render.
+   * @param {string} [elementId] - Optional ID for the root wrapper element.
+   * @param {HTMLElement} [root] - Optional container element for attaching events.
+   * @returns {void}
    */
   public override buildui(
     output?: string,
@@ -834,6 +874,16 @@ export class Roster extends CRABS_Base {
       "#CRABS_sort_dropdown",
     ) as HTMLSelectElement;
     if (dropdown) {
+      Array.from(dropdown.options).forEach((opt) => {
+        const localizedLabel = Sorting.getSortOptionLabel(opt.value);
+        if (
+          localizedLabel &&
+          localizedLabel !== `roster.sort_options.${opt.value}`
+        ) {
+          opt.textContent = localizedLabel;
+        }
+      });
+
       dropdown.value = this.currentSortMode;
 
       dropdown.onchange = (e) => {

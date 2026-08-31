@@ -1,0 +1,58 @@
+{
+    "roster": {
+        "header": {
+            "title_default": "CRABS: Roster",
+            "title_room": "CRABS: {roomName}",
+            "tooltip_admins": "Admins",
+            "tooltip_players": "Players",
+            "tooltip_friends": "Friends",
+            "tooltip_online": "Online Accounts"
+        },
+        "controls": {
+            "sort_by": "Sort By",
+            "view_grid": "Grid View",
+            "view_single": "Single Column View",
+            "view_compact": "Compact View",
+            "close_dialog": "Close Roster"
+        },
+        "sort_options": {
+            "natural": "Natural (Room Order)",
+            "none": "None",
+            "role": "Role (Admins & VIPs)",
+            "ds": "D/s Hierarchy",
+            "lovers": "Lovers & Relationships",
+            "friends": "Friends",
+            "whitelist": "Whitelisted",
+            "blacklist": "Blacklisted"
+        },
+        "status": {
+            "unknown_person": "[Unknown Person]",
+            "blind": "Blind: {level}",
+            "gag": "Gag: {level}",
+            "deaf": "Deaf: {level}"
+        },
+        "badges": {
+            "player": "Player",
+            "admin": "Room Administrator",
+            "vip": "Room Whitelist / VIP"
+        },
+        "relations": {
+            "you": "You",
+            "owner": "Owner",
+            "sub": "Submissive",
+            "trial": "Trial Submissive",
+            "family": "Family",
+            "lover": "Lover",
+            "bestfriend": "Best Friend",
+            "friend": "Friend",
+            "whitelist": "Whitelisted",
+            "blacklist": "Blacklisted",
+            "ghost": "Ghostlisted"
+        },
+        "tooltips": {
+            "track_compass": "Track Player on Map",
+            "focus_player": "Focus Player",
+            "copy_id": "Copy Member Number"
+        }
+    }
+}
