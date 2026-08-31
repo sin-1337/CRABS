@@ -18,7 +18,7 @@ import {
   Performance,
 } from "./modules";
 import { CRABS_Base } from "./modules/base";
-import mainEn from "./i18n/en.json";
+import * as mainLocales from "./i18n";
 
 // register the mod
 const CRABS = bcModSDK.registerMod({
@@ -28,12 +28,14 @@ const CRABS = bcModSDK.registerMod({
   repository: "https://github.com/sin-1337/CRABS",
 });
 
-// Register root-level translations under the "main" namespace
-const normLang = CRABS_Base.normalizeLocale("en");
-const translations = (CRABS_Base as any).translations;
-if (translations) {
-  if (!translations[normLang]) translations[normLang] = {};
-  translations[normLang]["main"] = mainEn;
+// Register all root-level translations under the "main" namespace
+for (const [lang, bundle] of Object.entries(mainLocales)) {
+  CRABS_Base.prototype.registerTranslations.call(
+    { moduleNamespace: "main" },
+    "main",
+    lang,
+    bundle,
+  );
 }
 
 // Helper to translate main namespace keys concisely

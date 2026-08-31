@@ -1,7 +1,7 @@
 import { Assets } from "../assets";
 import { CRABS_Base } from "../base";
 import "./templates/notifications.css";
-import en from "./i18n/en.json";
+import { cn, de, en, fr, ru, tw, uk } from "./i18n";
 
 /**
  * Utility class for managing CRABS custom notifications.

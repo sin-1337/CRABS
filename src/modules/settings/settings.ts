@@ -11,7 +11,7 @@ import {
 } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 const DEFAULT_SETTINGS: any = {
   languageOverride: "auto",
@@ -61,7 +61,7 @@ export class Settings extends CRABS_Base {
   private readonly STORAGE_KEY = "CRABS_Settings";
 
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS, "settings", { en });
+    super(CRABS, "settings", locales);
     Settings.instance = this;
 
     this.data = this.loadLocal();

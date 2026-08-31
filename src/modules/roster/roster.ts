@@ -13,7 +13,7 @@ import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as Immersion from "./immersion";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class representing the enhanced player roster and related map features.
@@ -77,7 +77,7 @@ export class Roster extends CRABS_Base {
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS, "roster", { en });
+    super(CRABS, "roster", locales);
     this.loadFriendList();
     this.setupEventHooks();
 

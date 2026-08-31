@@ -21,7 +21,7 @@ import { Help } from "../help";
 import { WhisperPlus } from "../whisperplus";
 import { Settings } from "../settings";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class representing the side drawer UI.
@@ -67,7 +67,7 @@ export class Drawer extends CRABS_Base {
     help: Help,
     whisperPlus: WhisperPlus,
   ) {
-    super(CRABS, "drawer", { en });
+    super(CRABS, "drawer", locales);
     Drawer._instance = this;
     this.rosterModule = roster;
     this.helpModule = help;

@@ -21,7 +21,7 @@ import { Notification } from "../notifications";
 import { Settings } from "../settings";
 import { Drawer } from "../drawer";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class representing the Whisper+ enhanced messaging system.
@@ -34,7 +34,7 @@ export class WhisperPlus extends CRABS_Base {
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS, "whisperplus", { en });
+    super(CRABS, "whisperplus", locales);
   }
 
   /**

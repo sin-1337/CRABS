@@ -11,7 +11,7 @@
  */
 
 import { CRABS_Base } from "../base";
-import en from "./i18n/en.json";
+import { cn, de, en, fr, ru, tw, uk } from "./i18n";
 
 type ImageStore = {
   readonly basePath: string;

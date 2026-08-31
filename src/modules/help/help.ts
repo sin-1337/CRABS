@@ -19,7 +19,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/help.css";
 import helptemplate from "./templates/help.html";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class representing the help system and documentation viewer.
@@ -32,7 +32,7 @@ export class Help extends CRABS_Base {
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS, "help", { en });
+    super(CRABS, "help", locales);
   }
 
   /**

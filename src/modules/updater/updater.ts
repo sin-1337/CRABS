@@ -2,7 +2,7 @@ import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Notification } from "../notifications";
 import { Settings } from "../settings";
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class handling automatic background updates.
@@ -31,7 +31,7 @@ export class Updater extends CRABS_Base {
    * @param {string} currentVersion - The current version string of the mod (e.g., "1.0.0-Beta").
    */
   constructor(CRABS: ModSDKModAPI, currentVersion: string) {
-    super(CRABS, "updater", { en });
+    super(CRABS, "updater", locales);
     this.currentVersion = currentVersion;
     this.branch = this.determineBranch(currentVersion);
     this.versionUrl = `https://raw.githubusercontent.com/sin-1337/CRABS/refs/heads/${this.branch}/package.json`;

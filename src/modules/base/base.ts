@@ -16,13 +16,15 @@ import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 
-import baseEn from "./i18n/en.json";
+import * as baseLocales from "./i18n";
 
 export enum PerformanceLevel {
   NORMAL = 0, // > 30 FPS
   LOW = 1, // 15 - 30 FPS
   CRITICAL = 2, // < 15 FPS
 }
+
+export type SupportedLocale = "en" | "de" | "fr" | "ru" | "cn" | "tw" | "uk";
 
 /**
  * Abstract base class for all CRABS modules, providing shared utilities and core functionality.
@@ -75,32 +77,16 @@ export abstract class CRABS_Base {
     this.CRABS = CRABS;
     this.moduleNamespace = namespace;
 
-    // Ensure base strings are registered once
+    // Ensure base strings are registered once for all available locales
     if (!CRABS_Base.translations["en"]?.["base"]) {
-      this.registerTranslations("base", "en", baseEn);
+      for (const [lang, bundle] of Object.entries(baseLocales)) {
+        this.registerTranslations("base", lang, bundle);
+      }
     }
 
+    // Register all translations passed into this module
     for (const [lang, bundle] of Object.entries(locales)) {
-      const normLang = CRABS_Base.normalizeLocale(lang);
-      if (!CRABS_Base.translations[normLang]) {
-        CRABS_Base.translations[normLang] = {};
-      }
-
-      const rawData =
-        bundle && typeof bundle === "object" && "default" in bundle
-          ? bundle.default
-          : bundle;
-
-      if (
-        rawData &&
-        typeof rawData === "object" &&
-        namespace in rawData &&
-        Object.keys(rawData).length === 1
-      ) {
-        CRABS_Base.translations[normLang][namespace] = rawData[namespace];
-      } else {
-        CRABS_Base.translations[normLang][namespace] = rawData;
-      }
+      this.registerTranslations(namespace, lang, bundle);
     }
   }
 
@@ -109,9 +95,11 @@ export abstract class CRABS_Base {
    * into standardized, two-letter lowercase language identifiers.
    *
    * @param {string | undefined | null} lang - The raw language code or descriptor.
-   * @returns {string} The normalized language identifier.
+   * @returns {SupportedLocale} The normalized language identifier.
    */
-  public static normalizeLocale(lang: string | undefined | null): string {
+  public static normalizeLocale(
+    lang: string | undefined | null,
+  ): SupportedLocale {
     if (!lang) return "en";
     const normalized = lang.trim().toLowerCase();
     switch (normalized) {
@@ -133,7 +121,7 @@ export abstract class CRABS_Base {
       case "ua":
         return "uk";
       default:
-        return normalized.slice(0, 2);
+        return (normalized.slice(0, 2) as SupportedLocale) || "en";
     }
   }
 
@@ -141,9 +129,9 @@ export abstract class CRABS_Base {
    * Evaluates the active locale by checking the user override configuration,
    * falling back to the base game's active translation settings, or defaulting to English.
    *
-   * @returns {string} The resolved active locale code.
+   * @returns {SupportedLocale} The resolved active locale code.
    */
-  public static getActiveLocale(): string {
+  public static getActiveLocale(): SupportedLocale {
     if (CRABS_Base.userLanguageOverride) {
       return CRABS_Base.normalizeLocale(CRABS_Base.userLanguageOverride);
     }
@@ -183,10 +171,25 @@ export abstract class CRABS_Base {
     if (!CRABS_Base.translations[normLocale]) {
       CRABS_Base.translations[normLocale] = {};
     }
-    CRABS_Base.translations[normLocale][namespace] = {
-      ...(CRABS_Base.translations[normLocale][namespace] || {}),
-      ...bundle,
-    };
+
+    const rawData =
+      bundle && typeof bundle === "object" && "default" in bundle
+        ? bundle.default
+        : bundle;
+
+    if (
+      rawData &&
+      typeof rawData === "object" &&
+      namespace in rawData &&
+      Object.keys(rawData).length === 1
+    ) {
+      CRABS_Base.translations[normLocale][namespace] = rawData[namespace];
+    } else {
+      CRABS_Base.translations[normLocale][namespace] = {
+        ...(CRABS_Base.translations[normLocale][namespace] || {}),
+        ...rawData,
+      };
+    }
   }
 
   /**
@@ -227,6 +230,12 @@ export abstract class CRABS_Base {
 
     let text = CRABS_Base.resolveKey(CRABS_Base.translations[active], key);
 
+    // Fallback: Check Traditional Chinese -> Simplified Chinese before English
+    if ((text === undefined || text === "") && active === "tw") {
+      text = CRABS_Base.resolveKey(CRABS_Base.translations["cn"], key);
+    }
+
+    // Default Fallback: English
     if ((text === undefined || text === "") && active !== "en") {
       text = CRABS_Base.resolveKey(CRABS_Base.translations["en"], key);
     }

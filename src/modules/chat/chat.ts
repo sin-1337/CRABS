@@ -11,7 +11,7 @@ import { Settings } from "../settings";
 import type { Roster } from "../roster";
 import "./templates/chat.css";
 
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 /**
  * Class managing chat log message hooks, highlights, and DOM hovers.
@@ -29,7 +29,7 @@ export class ChatManager extends CRABS_Base {
    * @param {Roster} rosterInstance - Active Roster module reference for hover sync.
    */
   constructor(CRABS: ModSDKModAPI, rosterInstance: Roster) {
-    super(CRABS, "chat", { en });
+    super(CRABS, "chat", locales);
     this.roster = rosterInstance;
     this.setupMessageHooks();
     this.setupChatLogHover();

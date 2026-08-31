@@ -20,7 +20,7 @@ import { Settings } from "../settings";
 import { Drawer } from "../drawer";
 
 import * as Permissions from "./permissions";
-import en from "./i18n/en.json";
+import * as locales from "./i18n";
 
 declare const __NAME__: string;
 declare const __VERSION__: string;
@@ -36,7 +36,7 @@ export class Banner extends CRABS_Base {
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS, "banner", { en });
+    super(CRABS, "banner", locales);
   }
 
   /**
