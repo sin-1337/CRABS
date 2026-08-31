@@ -13,8 +13,6 @@ import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as Immersion from "./immersion";
 import * as locales from "./i18n";
-
-// Import your CrossMod utility
 import { CrossMod } from "../crossmod";
 
 /**
@@ -245,6 +243,92 @@ export class Roster extends CRABS_Base {
     });
   }
 
+  /* ====================================================================
+   * HELPER METHODS FOR CONSOLIDATION
+   * ==================================================================== */
+
+  /**
+   * Generates the consolidated header stats to avoid duplicating logic.
+   */
+  private getHeaderStats() {
+    const currentRoomName =
+      ChatRoomData?.Name || this.t("header.title_default");
+
+    const adminInRoom =
+      ChatRoomData?.Character?.filter((c: any) =>
+        ChatRoomData.Admin.includes(c.MemberNumber),
+      ).length || 0;
+
+    const totalAdmins = ChatRoomData?.Admin?.length || 0;
+    const playersInRoom =
+      typeof ChatRoomCharacter !== "undefined" ? ChatRoomCharacter.length : 0;
+    const totalPlayers = ChatRoomData?.Limit || 0;
+
+    const playerWindow = (window as any).Player;
+    const totalFriends = playerWindow?.FriendList?.length || 0;
+
+    const onlinePlayers =
+      typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : "";
+    const isMap =
+      typeof ChatRoomMapViewIsActive === "function" &&
+      ChatRoomMapViewIsActive();
+
+    const pState = playerWindow?.MapData?.PrivateState;
+    const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
+
+    let keyHtml = "";
+    if (isMap) {
+      const KEYS = {
+        keyBronze: pState?.HasKeyBronze,
+        keySilver: pState?.HasKeySilver,
+        keyGold: pState?.HasKeyGold,
+      };
+      for (const [key, value] of Object.entries(KEYS)) {
+        keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
+      }
+    }
+
+    return {
+      currentRoomName,
+      adminInRoom,
+      totalAdmins,
+      playersInRoom,
+      totalPlayers,
+      friendsOnline: this.onlineFriendsCache,
+      totalFriends,
+      onlinePlayers,
+      isMap,
+      currentKeyState,
+      keyHtml,
+    };
+  }
+
+  /**
+   * Generates the compiled icons string for a character including cross-mod data.
+   */
+  private generatePlayerIcons(character: any): string {
+    let iconsHTML = Icons.setIcons(character);
+
+    // CROSS-MOD: AFC Lovers dynamic DOM update
+    if (
+      typeof character.MemberNumber === "number" &&
+      CrossMod.isAFCLover(character.MemberNumber)
+    ) {
+      const afcRoom = CrossMod.getAFCLoverRoom(character.MemberNumber);
+      const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
+
+      iconsHTML += Assets.printimage({
+        key: "lover",
+        tooltip_override: tooltip,
+        css_class_override: "CRABS_icon",
+      });
+    }
+
+    return iconsHTML;
+  }
+
+  /* ==================================================================== */
+
   /**
    * Updates the DOM elements within the roster without a full redraw.
    *
@@ -269,28 +353,23 @@ export class Roster extends CRABS_Base {
       if (el && el.textContent !== text) el.textContent = text;
     };
 
-    const currentRoomName = ChatRoomData.Name || this.t("header.title_default");
-    updateText("#drawer-title", `CRABS: ${currentRoomName}`);
+    // Use Helper
+    const stats = this.getHeaderStats();
 
-    const adminInRoom = ChatRoomData.Character.filter((c: any) =>
-      ChatRoomData.Admin.includes(c.MemberNumber),
-    ).length;
+    updateText("#drawer-title", `CRABS: ${stats.currentRoomName}`);
     updateText(
       "#CRABS_header_admins",
-      `${adminInRoom}/${ChatRoomData.Admin.length}`,
+      `${stats.adminInRoom}/${stats.totalAdmins}`,
     );
     updateText(
       "#CRABS_header_players",
-      `${ChatRoomCharacter.length}/${ChatRoomData.Limit}`,
+      `${stats.playersInRoom}/${stats.totalPlayers}`,
     );
     updateText(
       "#CRABS_header_friends",
-      `${this.onlineFriendsCache}/${Player.FriendList.length}`,
+      `${stats.friendsOnline}/${stats.totalFriends}`,
     );
-    updateText(
-      "#CRABS_header_online",
-      `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
-    );
+    updateText("#CRABS_header_online", `${stats.onlinePlayers} `);
 
     const keyContainer = root.querySelector(
       "#CRABS_key_container",
@@ -298,34 +377,16 @@ export class Roster extends CRABS_Base {
     const keyContent = root.querySelector("#CRABS_key_content") as HTMLElement;
 
     if (keyContainer && keyContent) {
-      const isMap = ChatRoomMapViewIsActive();
-      const activeStr = isMap ? "true" : "false";
+      const activeStr = stats.isMap ? "true" : "false";
 
       if (keyContainer.getAttribute("data-map-active") !== activeStr) {
         keyContainer.setAttribute("data-map-active", activeStr);
       }
 
-      if (isMap) {
-        const playerWindow = (window as any).Player;
-        const pState = playerWindow.MapData?.PrivateState;
-
-        const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
-
-        if (keyContent.dataset.lastKeys !== currentKeyState) {
-          let keyHtml = "";
-          const KEYS = {
-            keyBronze: pState?.HasKeyBronze,
-            keySilver: pState?.HasKeySilver,
-            keyGold: pState?.HasKeyGold,
-          };
-          for (const [key, value] of Object.entries(KEYS)) {
-            keyHtml += Assets.printimage({
-              key: value ? (key as any) : "keyNull",
-            });
-          }
-
-          keyContent.innerHTML = keyHtml;
-          keyContent.dataset.lastKeys = currentKeyState;
+      if (stats.isMap) {
+        if (keyContent.dataset.lastKeys !== stats.currentKeyState) {
+          keyContent.innerHTML = stats.keyHtml;
+          keyContent.dataset.lastKeys = stats.currentKeyState;
         }
       } else if (keyContent.innerHTML !== "") {
         keyContent.innerHTML = "";
@@ -347,9 +408,12 @@ export class Roster extends CRABS_Base {
 
     ChatRoomData.Character.forEach((charData: any) => {
       const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
-      const character = ChatRoomCharacter.find(
-        (c) => c.MemberNumber === charData.MemberNumber,
-      );
+      const character =
+        typeof ChatRoomCharacter !== "undefined"
+          ? ChatRoomCharacter.find(
+              (c) => c.MemberNumber === charData.MemberNumber,
+            )
+          : null;
 
       if (card && character) {
         const nameContainer = card.querySelector(
@@ -369,7 +433,6 @@ export class Roster extends CRABS_Base {
         ) as HTMLElement;
         if (statusContainer) {
           const currentEffects = CharacterGetEffects(character).join(",");
-
           if (statusContainer.dataset.lastEffects !== currentEffects) {
             statusContainer.innerHTML = DOMPurify.sanitize(
               Icons.setStatusIcons(character),
@@ -381,26 +444,9 @@ export class Roster extends CRABS_Base {
         const iconContainer = card.querySelector(
           ".CRABS_player-icons",
         ) as HTMLElement;
-
         if (iconContainer) {
-          let newIconHTML = Icons.setIcons(character);
-
-          // CROSS-MOD: AFC Lovers dynamic DOM update
-          if (
-            typeof character.MemberNumber === "number" &&
-            CrossMod.isAFCLover(character.MemberNumber)
-          ) {
-            const afcRoom = CrossMod.getAFCLoverRoom(character.MemberNumber);
-            const tooltip = afcRoom
-              ? `AFC Lover (Room: ${afcRoom})`
-              : "AFC Lover";
-            // NOTE: Make sure "lover" below matches the key in your Assets for the heart icon!
-            newIconHTML += Assets.printimage({
-              key: "lover",
-              tooltip_override: tooltip,
-              css_class_override: "CRABS_icon",
-            });
-          }
+          // Use Helper
+          const newIconHTML = this.generatePlayerIcons(character);
 
           if (iconContainer.dataset.lastIcons !== newIconHTML) {
             iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
@@ -530,6 +576,7 @@ export class Roster extends CRABS_Base {
     if (
       !character.IsPlayer() &&
       Settings.instance.data.showMapCompass &&
+      typeof ChatRoomMapViewIsActive === "function" &&
       ChatRoomMapViewIsActive() &&
       isDrawer
     ) {
@@ -664,7 +711,6 @@ export class Roster extends CRABS_Base {
       showme = showadmins = showplayers = false;
     }
 
-    let admin_count = 0;
     let rosterCards: {
       html: string;
       score: number;
@@ -679,9 +725,10 @@ export class Roster extends CRABS_Base {
 
     for (let characterIndex in ChatRoomData.Character) {
       const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
-      const character = ChatRoomCharacter.find(
-        (c: any) => c.MemberNumber == memberNumber,
-      );
+      const character =
+        typeof ChatRoomCharacter !== "undefined"
+          ? ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber)
+          : null;
 
       if (!character) {
         rosterCards.push({
@@ -702,30 +749,13 @@ export class Roster extends CRABS_Base {
         ChatRoomData.Whitelist.includes(memberNumber) && !isMe && !isAdmin;
       const isStandard = !isMe && !isAdmin && !isVIP;
 
-      if (isAdmin) admin_count++;
-
       const badge = Icons.setbadge(character);
-      let playerIcons = Icons.setIcons(character);
 
-      // 🌟 CROSS-MOD: AFC Lovers initial build 🌟
-      if (
-        typeof memberNumber === "number" &&
-        CrossMod.isAFCLover(memberNumber)
-      ) {
-        const afcRoom = CrossMod.getAFCLoverRoom(memberNumber);
-        const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
-
-        // NOTE: Make sure "lover" below matches the key in your Assets for the heart icon!
-        playerIcons += Assets.printimage({
-          key: "lover",
-          tooltip_override: tooltip,
-          css_class_override: "CRABS_icon",
-        });
-      }
+      // Use Helper
+      const playerIcons = this.generatePlayerIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
 
-      // Update Sorting algorithm check in sorting.ts so it sees CrossMod.isAFCLover
       const score = Sorting.calculateSortScore(
         character,
         effectiveSortMode,
@@ -756,40 +786,29 @@ export class Roster extends CRABS_Base {
       output_rows += card.html;
     }
 
-    const playerWindow = (window as any).Player;
-    const isMap = ChatRoomMapViewIsActive();
+    if (forceFullRows) return output_rows;
+
+    // Use Helper
+    const stats = this.getHeaderStats();
 
     let templatevars: Record<string, string> = {
       RosterStyle: rosterStyle,
       RosterLayoutClass: this.currentLayoutMode,
       adminIcon: `${Assets.printimage({ key: "admin", tooltip_override: this.t("header.tooltip_admins"), css_class_override: "CRABS_header_icons" })}`,
-      adminsInRoom: `${admin_count}`,
-      totalAdmins: `${ChatRoomData.Admin.length}`,
+      adminsInRoom: `${stats.adminInRoom}`,
+      totalAdmins: `${stats.totalAdmins}`,
       playerIcon: `${Assets.printimage({ key: "player", tooltip_override: this.t("header.tooltip_players"), css_class_override: "CRABS_header_icons" })}`,
-      playersInRoom: `${ChatRoomCharacter.length}`,
-      totalPlayers: `${ChatRoomData.Limit}`,
+      playersInRoom: `${stats.playersInRoom}`,
+      totalPlayers: `${stats.totalPlayers}`,
       friendIcon: `${Assets.printimage({ key: "friend", tooltip_override: this.t("header.tooltip_friends"), css_class_override: "CRABS_header_icons" })}`,
-      friendsOnline: `${this.onlineFriendsCache}`,
-      totalFriends: `${playerWindow.FriendList.length}`,
+      friendsOnline: `${stats.friendsOnline}`,
+      totalFriends: `${stats.totalFriends}`,
       connectedIcon: `${Assets.printimage({ key: "connected", tooltip_override: this.t("header.tooltip_online"), css_class_override: "CRABS_header_icons" })}`,
-      onlinePlayers: `${typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : ""} `,
+      onlinePlayers: `${stats.onlinePlayers} `,
       playerRows: output_rows,
-      MapActive: isMap ? "true" : "false",
+      MapActive: stats.isMap ? "true" : "false",
+      collectedKeys: stats.keyHtml,
     };
-
-    let displaykeys = "";
-    const KEYS = {
-      keyBronze: playerWindow.MapData?.PrivateState?.HasKeyBronze,
-      keySilver: playerWindow.MapData?.PrivateState?.HasKeySilver,
-      keyGold: playerWindow.MapData?.PrivateState?.HasKeyGold,
-    };
-
-    for (const [key, value] of Object.entries(KEYS)) {
-      displaykeys += Assets.printimage({
-        key: value ? (key as any) : "keyNull",
-      });
-    }
-    templatevars["collectedKeys"] = displaykeys;
 
     let wrappervars = {
       TitleBar: `CRABS: ${this.t("header.title_default")}`,
@@ -799,8 +818,6 @@ export class Roster extends CRABS_Base {
         data: ["elementid", "CRABS_Roster"],
       }),
     };
-
-    if (forceFullRows) return output_rows;
 
     return this.template(rostertemplate, templatevars, wrapper, wrappervars);
   }
