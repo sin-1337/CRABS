@@ -1,9 +1,9 @@
 {
     "errors": {
-        "feature_disabled": "[uk] CRABS Feature disabled: {hook} failed.",
-        "error_title": "[uk] Error"
+        "feature_disabled": "Функцію CRABS вимкнено: {hook} не вдалося.",
+        "error_title": "Помилка"
     },
     "clipboard": {
-        "copied": "[uk] \"{data}\" copied to clipboard."
+        "copied": "\"{data}\" скопійовано в буфер обміну."
     }
 }

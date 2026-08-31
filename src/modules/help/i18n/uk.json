@@ -1,114 +1,13 @@
 {
-    "header": {
-        "title_default": "[uk] Help",
-        "documentation_title": "[uk] Documentation",
-        "view_changelog": "[uk] View Changelog"
-    },
-    "controls": {
-        "close_dialog": "[uk] Close Help"
-    },
-    "sections": {
-        "key_features": "[uk] Key Features",
-        "core_commands": "[uk] Core Commands",
-        "interactions": "[uk] Interactions & Navigation",
-        "relational_icons": "[uk] Relational Icons",
-        "status_badges": "[uk] Status & Badges",
-        "settings_overview": "[uk] ⚙️ Settings Detailed Overview",
-        "general": "[uk] General",
-        "drawer": "[uk] Drawer",
-        "immersion": "[uk] Immersion",
-        "maps": "[uk] Maps",
-        "chat": "[uk] Chat",
-        "config": "[uk] Config"
-    },
-    "features": {
-        "drawer_title": "[uk] 🗄️ Interactive Drawer",
-        "drawer_desc": "[uk] A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.",
-        "compass_title": "[uk] 🧭 Universal Compass & Focus",
-        "compass_desc": "[uk] Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.",
-        "chat_title": "[uk] 🔔 Chat Highlighting",
-        "chat_desc": "[uk] Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.",
-        "privacy_title": "[uk] 🛡️ Privacy Mode",
-        "privacy_desc": "[uk] A customizable \"boss key\" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).",
-        "performance_title": "[uk] ⚡ Smart Performance",
-        "performance_desc": "[uk] Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.",
-        "blindness_title": "[uk] 👁️ Immersive Blindness",
-        "blindness_desc": "[uk] Optional roster blurring based on your blindness level. Fully respects BCX \"Full Blind\" rules.",
-        "colors_title": "[uk] ✨ Smart Colors",
-        "colors_desc": "[uk] Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.",
-        "whisper_title": "[uk] 💬 Whisper+",
-        "whisper_desc": "[uk] Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send."
-    },
-    "commands": {
-        "roster_desc": "[uk] Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.",
-        "args_label": "[uk] Arguments:",
-        "arg_count": "[uk] Only shows current room population counters.",
-        "arg_admins": "[uk] Only lists room administrators.",
-        "arg_vips": "[uk] Only lists room whitelisted users.",
-        "arg_banner": "[uk] Force redraws the room information banner.",
-        "arg_help": "[uk] Shows this documentation.",
-        "whisper_desc": "[uk] Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.",
-        "dropkeys_desc": "[uk] Instantly drop specific keys (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">silver</span>, <span style=\"color:#ffd700\">gold</span>) or all keys at once."
-    },
-    "interactions": {
-        "click_badge": "[uk] <b>Click Badge:</b> Opens the character's focus screen.",
-        "click_name": "[uk] <b>Click Player's Name:</b> Start a Whisper+ message.",
-        "click_id": "[uk] <b>Click Number (ID):</b> Copies the player's member number to your clipboard.",
-        "live_sorting": "[uk] <b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.",
-        "reverse_hover": "[uk] <b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.",
-        "shortcuts": "[uk] <b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode."
-    },
-    "relations": {
-        "you": "[uk] You",
-        "owner": "[uk] Owner",
-        "sub": "[uk] Submissive",
-        "trial": "[uk] On Trial",
-        "lover": "[uk] Lover",
-        "family": "[uk] Family",
-        "bestfriend": "[uk] Best Friend",
-        "friend": "[uk] Friend",
-        "whitelist": "[uk] Whitelisted",
-        "blacklist": "[uk] Blacklisted",
-        "ghost": "[uk] Ghosted"
-    },
-    "badges": {
-        "admin": "[uk] Room Admin",
-        "vip": "[uk] Room Whitelist",
-        "player": "[uk] Room Guest"
-    },
-    "status": {
-        "indicators_desc": "[uk] <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered."
-    },
-    "settings_guide": {
-        "intro": "[uk] Access settings via the {icon} icon in the drawer, now featuring a fully <b>tabbed interface</b>. <br><b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right to instantly return to the game.",
-        "general_update": "[uk] <b>Update Notifications:</b> Alerts you when to refresh for a new version.",
-        "general_banner": "[uk] <b>Show Banner on Entry:</b> Displays an info banner when joining a room.",
-        "general_privacy": "[uk] <b>Full-Screen Privacy Mode:</b> Blanks the entire screen instead of just the chat side when the hotkey is used.",
-        "general_halo": "[uk] <b>Enable Focus Halo:</b> Shows a pulsing halo effect on hovered avatars.",
-        "general_keybinds": "[uk] <b>Edit Keybinds:</b> Direct shortcut to the game's keybinding menu to change your Privacy and Drawer toggle hotkeys.",
-        "drawer_enable": "[uk] <b>Enable Drawer UI:</b> Turns the sliding drawer interface on or off.",
-        "drawer_toggle_cmd": "[uk] <b>/roster toggles drawer:</b> Typing <span class=\"CRABS_help_command\">/roster</span> or <span class=\"CRABS_help_command\">/crabs</span> opens the drawer instead of printing in chat.",
-        "drawer_tab": "[uk] <b>Show Drawer Tab:</b> Toggles the persistent visual tab on the screen edge.",
-        "drawer_logo_anim": "[uk] <b>Animated Tab Logo:</b> Toggle the drawer logo animation to save performance.",
-        "drawer_compact": "[uk] <b>Compact Height:</b> Limits the drawer to 77% height, keeping the chat input visible.",
-        "drawer_autostow": "[uk] <b>Auto-stow Options:</b> Close the drawer automatically after sending a standard chat or Whisper+.",
-        "drawer_focus": "[uk] <b>Focus Follows Mouse:</b> Automatically switch to a player's page when hovering their card.",
-        "drawer_autoscroll": "[uk] <b>Auto-Scroll Drawer:</b> The roster automatically scrolls to the character you are mousing over in the game world.",
-        "immersion_lock": "[uk] <b>Hardcore Lock:</b> Locks these immersion settings ON while your character is bound.",
-        "immersion_blind_gag": "[uk] <b>Respect Blindness & Gags:</b> Blurs the roster UI and disables Whisper+ based on character state.",
-        "immersion_bcx": "[uk] <b>Respect BCX Rules:</b> Enforces BCX restrictions within the CRABS interface.",
-        "maps_compass": "[uk] <b>Show Map Compass:</b> Displays a directional arrow on the map.",
-        "maps_superzoom": "[uk] <b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).",
-        "chat_mentions": "[uk] <b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken. Customize the highlight color.",
-        "chat_caps_match": "[uk] <b>Auto-Capitalize & Color Match:</b> Capitalizes your name and matches it to your character's label color in highlights.",
-        "chat_custom_words": "[uk] <b>Custom Words & Exclusion Phrases:</b> Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.",
-        "chat_links": "[uk] <b>Chat Log Hover Links:</b> Hovering names in the chat log triggers the focus halo and map compass.",
-        "chat_whisper_elevate": "[uk] <b>Whisper+ Auto-elevate:</b> Attempts to send a Whisper+ as a standard beep if a friend leaves the room.",
-        "config_cloud_sync": "[uk] <b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.",
-        "config_delete_server": "[uk] <b>Delete Server Save:</b> Wipes your CRABS settings from the game server.",
-        "config_export_import": "[uk] <b>Export / Import:</b> Copy or paste your settings string to backup or share."
-    },
-    "general": {
-        "not_applicable": "[uk] N/A"
-    }
+    "header": { "title_default": "Допомога", "documentation_title": "Документація", "view_changelog": "Переглянути журнал змін" },
+    "controls": { "close_dialog": "Закрити допомогу" },
+    "sections": { "key_features": "Основні функції", "core_commands": "Основні команди", "interactions": "Взаємодія та навігація", "relational_icons": "Іконки стосунків", "status_badges": "Статус та значки", "settings_overview": "⚙️ Детальний огляд налаштувань", "general": "Загальне", "drawer": "Висувна панель", "immersion": "Занурення", "maps": "Карти", "chat": "Чат", "config": "Конфігурація" },
+    "features": { "drawer_title": "🗄️ Інтерактивна панель", "drawer_desc": "Елегантний, компактний інтерфейс списку. Повністю подієво-орієнтований для оновлення статусу в реальному часі без затримок.", "compass_title": "🧭 Універсальний компас та фокус", "compass_desc": "Відстежуйте гравців на картах або у звичайних кімнатах! Наведення на картки, імена в чаті або персонажів відкриває індикатор 3D, що обертається, та сяючий ореол.", "chat_title": "🔔 Підсвічування чату", "chat_desc": "Підсвічує повідомлення, що містять ваше ім'я або власні слова. Включає підбір кольору, авто-капіталізацію та фрази виключення для запобігання помилковим спрацюванням.", "privacy_title": "🛡️ Режим приватності", "privacy_desc": "Налаштовувана \"кнопка боса\", яка миттєво приховує екран персонажа або вікно гри. Перемикання за гарячою клавішею (за замовчуванням: CTRL + ALT + B).", "performance_title": "⚡ Розумна продуктивність", "performance_desc": "Моніторить реальну дельту кадрів. Динамічно знижує візуальну якість та частоту оновлення для економії FPS під час лагів.", "blindness_title": "👁️ Іммерсивна сліпота", "blindness_desc": "Опціональне розмиття списку залежно від вашого рівня сліпоти. Повністю дотримується правил BCX \"Full Blind\".", "colors_title": "✨ Розумні кольори", "colors_desc": "Автоматично визначає темні або нерозбірливі кольори імен гравців і застосовує висококонтрастний контур для читабельності.", "whisper_title": "💬 Шепіт+", "whisper_desc": "Надсилайте шепіт у кімнатах із картами на будь-якій відстані. Автоматично підвищується до звукового сигналу, якщо друг залишає кімнату до того, як ви надішлете повідомлення." },
+    "commands": { "roster_desc": "Відкриває покращений список у журналі чату. Показує детальну інформацію про всіх у кімнаті.", "args_label": "Аргументи:", "arg_count": "Показує лише поточні лічильники населення кімнати.", "arg_admins": "Показує лише адміністраторів кімнати.", "arg_vips": "Показує лише користувачів із білого списку кімнати.", "arg_banner": "Примусово перемальовує банер із інформацією про кімнату.", "arg_help": "Показує цю документацію.", "whisper_desc": "Глобальна система шепоту для кімнат із картами. Оминає обмеження за дальністю для повідомлення будь-кому на карті.", "dropkeys_desc": "Миттєво скидає певні ключі (<span style=\"color:#cd7f32\">бронзовий</span>, <span style=\"color:#c0c0c0\">срібний</span>, <span style=\"color:#ffd700\">золотий</span>) або всі ключі одразу." },
+    "interactions": { "click_badge": "<b>Натисніть на значок:</b> Відкриває екран фокуса персонажа.", "click_name": "<b>Натисніть на ім'я гравця:</b> Почати повідомлення Шепіт+.", "click_id": "<b>Натисніть на номер (ID):</b> Копіює членський номер гравця в буфер обміну.", "live_sorting": "<b>Живе сортування:</b> Використовуйте випадаючий список у правому верхньому куті панелі для сортування гравців за ролями, сім'єю D/s, коханими або друзями.", "reverse_hover": "<b>Зворотне наведення:</b> Наведення на персонажа в ігровому світі підсвічує його картку у списку.", "shortcuts": "<b>Гарячі клавіші:</b> <code>CTRL + ALT + D</code> перемикає панель. <code>CTRL + ALT + B</code> перемикає режим приватності." },
+    "relations": { "you": "Ви", "owner": "Власник", "sub": "Сабмісив", "trial": "На випробувальному терміні", "lover": "Коханий", "family": "Сім'я", "bestfriend": "Кращий друг", "friend": "Друг", "whitelist": "У білому списку", "blacklist": "У чорному списку", "ghost": "Ігнорований" },
+    "badges": { "admin": "Адмін кімнати", "vip": "Білий список кімнати", "player": "Гість кімнати" },
+    "status": { "indicators_desc": "<b>Статусні індикатори:</b> Кожна картка має три іконки, що вказують, чи є гравець <b>заглушеним</b>, <b>сліпим</b> чи <b>глухим</b>. Вони загоряються і відображають рівні серйозності при наведенні." },
+    "settings_guide": { "intro": "Отримайте доступ до налаштувань через іконку {icon} на панелі, яка тепер має повноцінний <b>інтерфейс із вкладками</b>. <br><b>Швидке повернення до чату:</b> Натисніть на <b>іконку бульбашки чату</b> у правому верхньому куті, щоб миттєво повернутися до гри.", "general_update": "<b>Сповіщення про оновлення:</b> Попереджає вас, коли потрібно оновитися до нової версії.", "general_banner": "<b>Показувати банер при вході:</b> Відображає інформаційний банер при вході в кімнату.", "general_privacy": "<b>Повноекранний режим приватності:</b> Затінює весь екран замість сторони чату при використанні гарячої клавіші.", "general_halo": "<b>Увімкнути ореол фокуса:</b> Показує пульсуючий ефект ореолу на аватарах при наведенні.", "general_keybinds": "<b>Редагувати гарячі клавіші:</b> Пряме посилання на меню гарячих клавіш гри для зміни ваших клавіш приватності та перемикання панелі.", "drawer_enable": "<b>Увімкнути інтерфейс панелі:</b> Вмикає або вимикає висувну панель.", "drawer_toggle_cmd": "<b>/roster перемикає панель:</b> Введення <span class=\"CRABS_help_command\">/roster</span> або <span class=\"CRABS_help_command\">/crabs</span> відкриває панель замість виведення тексту в чат.", "drawer_tab": "<b>Показувати вкладку панелі:</b> Перемикає постійну візуальну вкладку на краю екрана.", "drawer_logo_anim": "<b>Анімований логотип вкладки:</b> Увімкніть анімацію логотипу панелі для економії продуктивності.", "drawer_compact": "<b>Компактна висота:</b> Обмежує панель 77% висоти, залишаючи введення чату видимим.", "drawer_autostow": "<b>Опції авто-приховування:</b> Автоматично закриває панель після надсилання звичайного чату або Шепоту+.", "drawer_focus": "<b>Фокус слідує за мишею:</b> Автоматично перемикається на сторінку гравця при наведенні на його картку.", "drawer_autoscroll": "<b>Авто-прокрутка панелі:</b> Список автоматично прокручується до персонажа, на якого ви наводите курсор в ігровому світі.", "immersion_lock": "<b>Хардкорне блокування:</b> Блокує налаштування занурення у ВКЛЮЧЕНОМУ стані, поки ваш персонаж зв'язаний.", "immersion_blind_gag": "<b>Дотримуватися сліпоти та кляпів:</b> Розмиває інтерфейс списку та вимикає Шепіт+ залежно від стану персонажа.", "immersion_bcx": "<b>Дотримуватися правил BCX:</b> Застосовує обмеження BCX всередині інтерфейсу CRABS.", "maps_compass": "<b>Показувати компас карти:</b> Відображає напрямну стрілку на карті.", "maps_superzoom": "<b>СуперЗум:</b> Розблоковує стандартні обмеження зуму карти в грі (авто-вимикається при виявленні конфліктів).", "chat_mentions": "<b>Підсвічувати згадки:</b> Попереджає вас, коли вимовляються певні слова або ваше ім'я. Налаштуйте колір підсвічування.", "chat_caps_match": "<b>Авто-капіталізація та підбір кольору:</b> Пише ваше ім'я з великої літери та підбирає його колір під колір мітки вашого персонажа в підсвічуваннях.", "chat_custom_words": "<b>Користувацькі слова та фрази виключення:</b> Додавайте тригерні слова та використовуйте підстановочні знаки (наприклад, 'зірвати* троянду'), щоб запобігти помилковим тривогам.", "chat_links": "<b>Посилання при наведенні в чаті:</b> Наведення на імена в журналі чату активує ореол фокуса та компас карти.", "chat_whisper_elevate": "<b>Авто-підвищення Шепоту+:</b> Намагається надіслати Шепіт+ як звичайний звуковий сигнал, якщо друг залишає кімнату.", "config_cloud_sync": "<b>Вимкнути хмарну синхронізацію:</b> Тримає налаштування суворо локальними, запобігаючи синхронізації між пристроями. Включає трекер ємності.", "config_delete_server": "<b>Видалити збереження на сервері:</b> Стирав ваші налаштування CRABS із сервера гри.", "config_export_import": "<b>Експорт / Імпорт:</b> Скопіюйте або вставте рядок налаштувань для резервного копіювання або обміну." },
+    "general": { "not_applicable": "Н/Д" }
 }

@@ -1,9 +1,9 @@
 {
     "notification": {
-        "title": "[de] 🦀 CRABS Update Available!",
-        "message": "[de] Version {newVersion} ({branch}) is out! (You are on {currentVersion}). Refresh your page to apply the update."
+        "title": "🦀 CRABS Update verfügbar!",
+        "message": "Version {newVersion} ({branch}) ist da! (Du hast {currentVersion}). Lade die Seite neu, um das Update anzuwenden."
     },
     "chat": {
-        "local_message": "[de] <span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) is available. Reload the page to update!</span>"
+        "local_message": "<span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) ist verfügbar. Lade die Seite neu zum Aktualisieren!</span>"
     }
 }

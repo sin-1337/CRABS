@@ -1,9 +1,9 @@
 {
     "notification": {
-        "title": "[tw] 🦀 CRABS Update Available!",
-        "message": "[tw] Version {newVersion} ({branch}) is out! (You are on {currentVersion}). Refresh your page to apply the update."
+        "title": "🦀 CRABS 更新可用！",
+        "message": "版本 {newVersion} ({branch}) 已發佈！(目前版本 {currentVersion})。重新整理頁面以套用更新。"
     },
     "chat": {
-        "local_message": "[tw] <span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) is available. Reload the page to update!</span>"
+        "local_message": "<span style=\"color: cyan;\"><b>CRABS 更新：</b> 版本 {newVersion} ({branch}) 已可用。重新載入頁面以更新！</span>"
     }
 }

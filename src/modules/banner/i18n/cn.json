@@ -1,17 +1,6 @@
 {
-    "header": {
-        "title_default": "横幅"
-    },
-    "controls": {
-        "close_dialog": "关闭横幅"
-    },
-    "permissions": {
-        "fallback_option": "权限 {index}"
-    },
-    "labels": {
-        "item_permission": "项目权限",
-        "room": "房间",
-        "roster_hint_prefix": "使用",
-        "roster_hint_suffix": "查看完整输出"
-    }
+    "header": { "title_default": "横幅" },
+    "controls": { "close_dialog": "关闭横幅" },
+    "permissions": { "fallback_option": "权限 {index}" },
+    "labels": { "item_permission": "物品权限", "room": "房间", "roster_hint_prefix": "使用", "roster_hint_suffix": "查看完整输出" }
 }

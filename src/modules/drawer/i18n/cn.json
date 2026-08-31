@@ -1,18 +1,5 @@
 {
-    "keybinds": {
-        "toggle_name": "[cn] Toggle Drawer",
-        "toggle_desc": "[cn] Opens or closes the CRABS side drawer."
-    },
-    "header": {
-        "title_default": "[cn] Roster",
-        "title_help": "[cn] Help"
-    },
-    "tooltips": {
-        "tab": "[cn] CRABS Drawer",
-        "help": "[cn] Help",
-        "roster": "[cn] Roster",
-        "settings": "[cn] Settings",
-        "layout": "[cn] Cycle Layout",
-        "close": "[cn] Close Drawer"
-    }
+    "keybinds": { "toggle_name": "切换抽屉", "toggle_desc": "打开或关闭 CRABS 侧边抽屉。" },
+    "header": { "title_default": "名单", "title_help": "帮助" },
+    "tooltips": { "tab": "CRABS 抽屉", "help": "帮助", "roster": "名单", "settings": "设置", "layout": "切换布局", "close": "关闭抽屉" }
 }

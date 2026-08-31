@@ -1,55 +1,9 @@
 {
-    "header": {
-        "title_default": "[uk] Roster",
-        "tooltip_admins": "[uk] Admins",
-        "tooltip_players": "[uk] Players",
-        "tooltip_friends": "[uk] Friends",
-        "tooltip_online": "[uk] Online Accounts"
-    },
-    "controls": {
-        "sort_by": "[uk] Sort By",
-        "view_grid": "[uk] Grid View",
-        "view_single": "[uk] Single Column View",
-        "view_compact": "[uk] Compact View",
-        "close_dialog": "[uk] Close Roster"
-    },
-    "sort_options": {
-        "natural": "[uk] Natural (Room Order)",
-        "none": "[uk] None",
-        "role": "[uk] Role (Admins & VIPs)",
-        "ds": "[uk] D/s Hierarchy",
-        "lovers": "[uk] Lovers & Relationships",
-        "friends": "[uk] Friends",
-        "whitelist": "[uk] Whitelisted",
-        "blacklist": "[uk] Blacklisted"
-    },
-    "status": {
-        "unknown_person": "[uk] [Unknown Person]",
-        "blind": "[uk] Blind: {level}",
-        "gag": "[uk] Gag: {level}",
-        "deaf": "[uk] Deaf: {level}"
-    },
-    "badges": {
-        "player": "[uk] Player",
-        "admin": "[uk] Room Administrator",
-        "vip": "[uk] Room Whitelist / VIP"
-    },
-    "relations": {
-        "you": "[uk] You",
-        "owner": "[uk] Owner",
-        "sub": "[uk] Submissive",
-        "trial": "[uk] Trial Submissive",
-        "family": "[uk] Family",
-        "lover": "[uk] Lover",
-        "bestfriend": "[uk] Best Friend",
-        "friend": "[uk] Friend",
-        "whitelist": "[uk] Whitelisted",
-        "blacklist": "[uk] Blacklisted",
-        "ghost": "[uk] Ghostlisted"
-    },
-    "tooltips": {
-        "track_compass": "[uk] Track Player on Map",
-        "focus_player": "[uk] Focus Player",
-        "copy_id": "[uk] Copy Member Number"
-    }
+    "header": { "title_default": "Список", "tooltip_admins": "Адміни", "tooltip_players": "Гравці", "tooltip_friends": "Друзі", "tooltip_online": "Онлайн-акаунти" },
+    "controls": { "sort_by": "Сортувати за", "view_grid": "Вигляд сіткою", "view_single": "Вигляд одним стовпцем", "view_compact": "Компактний вигляд", "close_dialog": "Закрити список" },
+    "sort_options": { "natural": "Природний (порядок у кімнаті)", "none": "Немає", "role": "Роль (Адміни та VIP)", "ds": "Ієрархія D/s", "lovers": "Кохані та стосунки", "friends": "Друзі", "whitelist": "У білому списку", "blacklist": "У чорному списку" },
+    "status": { "unknown_person": "[Невідома особа]", "blind": "Сліпота: {level}", "gag": "Кляп: {level}", "deaf": "Глухота: {level}" },
+    "badges": { "player": "Гравець", "admin": "Адміністратор кімнати", "vip": "Білий список / VIP кімнати" },
+    "relations": { "you": "Ви", "owner": "Власник", "sub": "Сабмісив", "trial": "Сабмісив на випробувальному терміні", "family": "Сім'я", "lover": "Коханий", "bestfriend": "Кращий друг", "friend": "Друг", "whitelist": "У білому списку", "blacklist": "У чорному списку", "ghost": "Ігнорований" },
+    "tooltips": { "track_compass": "Відстежувати гравця на карті", "focus_player": "Фокус на гравцеві", "copy_id": "Копіювати номер члена" }
 }

@@ -1,9 +1,9 @@
 {
     "errors": {
-        "feature_disabled": "[fr] CRABS Feature disabled: {hook} failed.",
-        "error_title": "[fr] Error"
+        "feature_disabled": "Fonctionnalité CRABS désactivée : {hook} a échoué.",
+        "error_title": "Erreur"
     },
     "clipboard": {
-        "copied": "[fr] \"{data}\" copied to clipboard."
+        "copied": "\"{data}\" copié dans le presse-papiers."
     }
 }

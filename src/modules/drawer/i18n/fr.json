@@ -1,18 +1,5 @@
 {
-    "keybinds": {
-        "toggle_name": "[fr] Toggle Drawer",
-        "toggle_desc": "[fr] Opens or closes the CRABS side drawer."
-    },
-    "header": {
-        "title_default": "[fr] Roster",
-        "title_help": "[fr] Help"
-    },
-    "tooltips": {
-        "tab": "[fr] CRABS Drawer",
-        "help": "[fr] Help",
-        "roster": "[fr] Roster",
-        "settings": "[fr] Settings",
-        "layout": "[fr] Cycle Layout",
-        "close": "[fr] Close Drawer"
-    }
+    "keybinds": { "toggle_name": "Basculer le tiroir", "toggle_desc": "Ouvre ou ferme le tiroir latéral CRABS." },
+    "header": { "title_default": "Roster", "title_help": "Aide" },
+    "tooltips": { "tab": "Tiroir CRABS", "help": "Aide", "roster": "Roster", "settings": "Paramètres", "layout": "Changer de disposition", "close": "Fermer le tiroir" }
 }

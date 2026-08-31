@@ -1,7 +1,7 @@
 {
     "notifications": {
-        "mention_title": "[cn] Mentioned!",
-        "mention_body": "[cn] {sender} mentioned you!",
-        "unknown_sender": "[cn] Someone"
+        "mention_title": "被提及！",
+        "mention_body": "{sender} 提到了你！",
+        "unknown_sender": "某人"
     }
 }

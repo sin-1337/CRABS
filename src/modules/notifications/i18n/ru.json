@@ -1,9 +1,9 @@
 {
     "errors": {
-        "feature_disabled": "[ru] CRABS Feature disabled: {hook} failed.",
-        "error_title": "[ru] Error"
+        "feature_disabled": "Функция CRABS отключена: {hook} не удалось.",
+        "error_title": "Ошибка"
     },
     "clipboard": {
-        "copied": "[ru] \"{data}\" copied to clipboard."
+        "copied": "\"{data}\" скопировано в буфер обмена."
     }
 }

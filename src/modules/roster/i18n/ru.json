@@ -1,55 +1,9 @@
 {
-    "header": {
-        "title_default": "[ru] Roster",
-        "tooltip_admins": "[ru] Admins",
-        "tooltip_players": "[ru] Players",
-        "tooltip_friends": "[ru] Friends",
-        "tooltip_online": "[ru] Online Accounts"
-    },
-    "controls": {
-        "sort_by": "[ru] Sort By",
-        "view_grid": "[ru] Grid View",
-        "view_single": "[ru] Single Column View",
-        "view_compact": "[ru] Compact View",
-        "close_dialog": "[ru] Close Roster"
-    },
-    "sort_options": {
-        "natural": "[ru] Natural (Room Order)",
-        "none": "[ru] None",
-        "role": "[ru] Role (Admins & VIPs)",
-        "ds": "[ru] D/s Hierarchy",
-        "lovers": "[ru] Lovers & Relationships",
-        "friends": "[ru] Friends",
-        "whitelist": "[ru] Whitelisted",
-        "blacklist": "[ru] Blacklisted"
-    },
-    "status": {
-        "unknown_person": "[ru] [Unknown Person]",
-        "blind": "[ru] Blind: {level}",
-        "gag": "[ru] Gag: {level}",
-        "deaf": "[ru] Deaf: {level}"
-    },
-    "badges": {
-        "player": "[ru] Player",
-        "admin": "[ru] Room Administrator",
-        "vip": "[ru] Room Whitelist / VIP"
-    },
-    "relations": {
-        "you": "[ru] You",
-        "owner": "[ru] Owner",
-        "sub": "[ru] Submissive",
-        "trial": "[ru] Trial Submissive",
-        "family": "[ru] Family",
-        "lover": "[ru] Lover",
-        "bestfriend": "[ru] Best Friend",
-        "friend": "[ru] Friend",
-        "whitelist": "[ru] Whitelisted",
-        "blacklist": "[ru] Blacklisted",
-        "ghost": "[ru] Ghostlisted"
-    },
-    "tooltips": {
-        "track_compass": "[ru] Track Player on Map",
-        "focus_player": "[ru] Focus Player",
-        "copy_id": "[ru] Copy Member Number"
-    }
+    "header": { "title_default": "Список", "tooltip_admins": "Админы", "tooltip_players": "Игроки", "tooltip_friends": "Друзья", "tooltip_online": "Онлайн-аккаунты" },
+    "controls": { "sort_by": "Сортировать по", "view_grid": "Вид сеткой", "view_single": "Вид одним столбцом", "view_compact": "Компактный вид", "close_dialog": "Закрыть список" },
+    "sort_options": { "natural": "Естественный (порядок в комнате)", "none": "Нет", "role": "Роль (Админы и VIP)", "ds": "Иерархия D/s", "lovers": "Возлюбленные и отношения", "friends": "Друзья", "whitelist": "В белом списке", "blacklist": "В черном списке" },
+    "status": { "unknown_person": "[Неизвестный человек]", "blind": "Слепота: {level}", "gag": "Кляп: {level}", "deaf": "Глухота: {level}" },
+    "badges": { "player": "Игрок", "admin": "Администратор комнаты", "vip": "Белый список / VIP комнаты" },
+    "relations": { "you": "Вы", "owner": "Владелец", "sub": "Сабмиссив", "trial": "Сабмиссив на испытательном сроке", "family": "Семья", "lover": "Возлюбленный", "bestfriend": "Лучший друг", "friend": "Друг", "whitelist": "В белом списке", "blacklist": "В черном списке", "ghost": "Игнорируемый" },
+    "tooltips": { "track_compass": "Отслеживать игрока на карте", "focus_player": "Фокус на игроке", "copy_id": "Копировать номер члена" }
 }

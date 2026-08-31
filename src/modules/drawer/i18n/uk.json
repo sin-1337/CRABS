@@ -1,18 +1,5 @@
 {
-    "keybinds": {
-        "toggle_name": "[uk] Toggle Drawer",
-        "toggle_desc": "[uk] Opens or closes the CRABS side drawer."
-    },
-    "header": {
-        "title_default": "[uk] Roster",
-        "title_help": "[uk] Help"
-    },
-    "tooltips": {
-        "tab": "[uk] CRABS Drawer",
-        "help": "[uk] Help",
-        "roster": "[uk] Roster",
-        "settings": "[uk] Settings",
-        "layout": "[uk] Cycle Layout",
-        "close": "[uk] Close Drawer"
-    }
+    "keybinds": { "toggle_name": "Перемкнути панель", "toggle_desc": "Відкриває або закриває бічну панель CRABS." },
+    "header": { "title_default": "Список", "title_help": "Допомога" },
+    "tooltips": { "tab": "Панель CRABS", "help": "Допомога", "roster": "Список", "settings": "Налаштування", "layout": "Змінити макет", "close": "Закрити панель" }
 }

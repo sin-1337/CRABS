@@ -1,17 +1,6 @@
 {
-    "header": {
-        "title_default": "Banner"
-    },
-    "controls": {
-        "close_dialog": "Banner schließen"
-    },
-    "permissions": {
-        "fallback_option": "Berechtigung {index}"
-    },
-    "labels": {
-        "item_permission": "Elementberechtigung",
-        "room": "Raum",
-        "roster_hint_prefix": "Verwenden",
-        "roster_hint_suffix": "um die vollständige Ausgabe zu sehen"
-    }
+    "header": { "title_default": "Banner" },
+    "controls": { "close_dialog": "Banner schließen" },
+    "permissions": { "fallback_option": "Berechtigung {index}" },
+    "labels": { "item_permission": "Objektberechtigung", "room": "Raum", "roster_hint_prefix": "Verwende", "roster_hint_suffix": "um die vollständige Ausgabe zu sehen" }
 }

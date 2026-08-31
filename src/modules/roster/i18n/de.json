@@ -1,55 +1,9 @@
 {
-    "header": {
-        "title_default": "[de] Roster",
-        "tooltip_admins": "[de] Admins",
-        "tooltip_players": "[de] Players",
-        "tooltip_friends": "[de] Friends",
-        "tooltip_online": "[de] Online Accounts"
-    },
-    "controls": {
-        "sort_by": "[de] Sort By",
-        "view_grid": "[de] Grid View",
-        "view_single": "[de] Single Column View",
-        "view_compact": "[de] Compact View",
-        "close_dialog": "[de] Close Roster"
-    },
-    "sort_options": {
-        "natural": "[de] Natural (Room Order)",
-        "none": "[de] None",
-        "role": "[de] Role (Admins & VIPs)",
-        "ds": "[de] D/s Hierarchy",
-        "lovers": "[de] Lovers & Relationships",
-        "friends": "[de] Friends",
-        "whitelist": "[de] Whitelisted",
-        "blacklist": "[de] Blacklisted"
-    },
-    "status": {
-        "unknown_person": "[de] [Unknown Person]",
-        "blind": "[de] Blind: {level}",
-        "gag": "[de] Gag: {level}",
-        "deaf": "[de] Deaf: {level}"
-    },
-    "badges": {
-        "player": "[de] Player",
-        "admin": "[de] Room Administrator",
-        "vip": "[de] Room Whitelist / VIP"
-    },
-    "relations": {
-        "you": "[de] You",
-        "owner": "[de] Owner",
-        "sub": "[de] Submissive",
-        "trial": "[de] Trial Submissive",
-        "family": "[de] Family",
-        "lover": "[de] Lover",
-        "bestfriend": "[de] Best Friend",
-        "friend": "[de] Friend",
-        "whitelist": "[de] Whitelisted",
-        "blacklist": "[de] Blacklisted",
-        "ghost": "[de] Ghostlisted"
-    },
-    "tooltips": {
-        "track_compass": "[de] Track Player on Map",
-        "focus_player": "[de] Focus Player",
-        "copy_id": "[de] Copy Member Number"
-    }
+    "header": { "title_default": "Roster", "tooltip_admins": "Admins", "tooltip_players": "Spieler", "tooltip_friends": "Freunde", "tooltip_online": "Online-Konten" },
+    "controls": { "sort_by": "Sortieren nach", "view_grid": "Rasteransicht", "view_single": "Einspaltige Ansicht", "view_compact": "Kompakte Ansicht", "close_dialog": "Roster schließen" },
+    "sort_options": { "natural": "Natürlich (Raumreihenfolge)", "none": "Keine", "role": "Rolle (Admins & VIPs)", "ds": "D/s-Hierarchie", "lovers": "Liebhaber & Beziehungen", "friends": "Freunde", "whitelist": "Auf der Whitelist", "blacklist": "Auf der Blacklist" },
+    "status": { "unknown_person": "[Unbekannte Person]", "blind": "Blind: {level}", "gag": "Knebel: {level}", "deaf": "Taub: {level}" },
+    "badges": { "player": "Spieler", "admin": "Raum-Administrator", "vip": "Raum-Whitelist / VIP" },
+    "relations": { "you": "Du", "owner": "Besitzer", "sub": "Submissiv", "trial": "Submissiv auf Probe", "family": "Familie", "lover": "Liebhaber", "bestfriend": "Bester Freund", "friend": "Freund", "whitelist": "Auf der Whitelist", "blacklist": "Auf der Blacklist", "ghost": "Auf der Geisterliste" },
+    "tooltips": { "track_compass": "Spieler auf Karte verfolgen", "focus_player": "Spieler fokussieren", "copy_id": "Mitgliedsnummer kopieren" }
 }

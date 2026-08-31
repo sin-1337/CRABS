@@ -1,17 +1,6 @@
 {
-    "header": {
-        "title_default": "Баннер"
-    },
-    "controls": {
-        "close_dialog": "Закрыть баннер"
-    },
-    "permissions": {
-        "fallback_option": "Разрешение {index}"
-    },
-    "labels": {
-        "item_permission": "Разрешение элемента",
-        "room": "Комната",
-        "roster_hint_prefix": "Использовать",
-        "roster_hint_suffix": "чтобы увидеть полный вывод"
-    }
+    "header": { "title_default": "Баннер" },
+    "controls": { "close_dialog": "Закрыть баннер" },
+    "permissions": { "fallback_option": "Разрешение {index}" },
+    "labels": { "item_permission": "Разрешение предмета", "room": "Комната", "roster_hint_prefix": "Используйте", "roster_hint_suffix": "чтобы увидеть полный вывод" }
 }

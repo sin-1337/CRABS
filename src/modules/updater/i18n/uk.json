@@ -1,9 +1,9 @@
 {
     "notification": {
-        "title": "[uk] 🦀 CRABS Update Available!",
-        "message": "[uk] Version {newVersion} ({branch}) is out! (You are on {currentVersion}). Refresh your page to apply the update."
+        "title": "🦀 Доступне оновлення CRABS!",
+        "message": "Версія {newVersion} ({branch}) вийшла! (У вас {currentVersion}). Оновіть сторінку, щоб застосувати оновлення."
     },
     "chat": {
-        "local_message": "[uk] <span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) is available. Reload the page to update!</span>"
+        "local_message": "<span style=\"color: cyan;\"><b>Оновлення CRABS:</b> Версія {newVersion} ({branch}) доступна. Перезавантажте сторінку, щоб оновити!</span>"
     }
 }

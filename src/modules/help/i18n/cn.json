@@ -1,114 +1,13 @@
 {
-    "header": {
-        "title_default": "[cn] Help",
-        "documentation_title": "[cn] Documentation",
-        "view_changelog": "[cn] View Changelog"
-    },
-    "controls": {
-        "close_dialog": "[cn] Close Help"
-    },
-    "sections": {
-        "key_features": "[cn] Key Features",
-        "core_commands": "[cn] Core Commands",
-        "interactions": "[cn] Interactions & Navigation",
-        "relational_icons": "[cn] Relational Icons",
-        "status_badges": "[cn] Status & Badges",
-        "settings_overview": "[cn] ⚙️ Settings Detailed Overview",
-        "general": "[cn] General",
-        "drawer": "[cn] Drawer",
-        "immersion": "[cn] Immersion",
-        "maps": "[cn] Maps",
-        "chat": "[cn] Chat",
-        "config": "[cn] Config"
-    },
-    "features": {
-        "drawer_title": "[cn] 🗄️ Interactive Drawer",
-        "drawer_desc": "[cn] A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.",
-        "compass_title": "[cn] 🧭 Universal Compass & Focus",
-        "compass_desc": "[cn] Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.",
-        "chat_title": "[cn] 🔔 Chat Highlighting",
-        "chat_desc": "[cn] Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.",
-        "privacy_title": "[cn] 🛡️ Privacy Mode",
-        "privacy_desc": "[cn] A customizable \"boss key\" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).",
-        "performance_title": "[cn] ⚡ Smart Performance",
-        "performance_desc": "[cn] Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.",
-        "blindness_title": "[cn] 👁️ Immersive Blindness",
-        "blindness_desc": "[cn] Optional roster blurring based on your blindness level. Fully respects BCX \"Full Blind\" rules.",
-        "colors_title": "[cn] ✨ Smart Colors",
-        "colors_desc": "[cn] Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.",
-        "whisper_title": "[cn] 💬 Whisper+",
-        "whisper_desc": "[cn] Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send."
-    },
-    "commands": {
-        "roster_desc": "[cn] Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.",
-        "args_label": "[cn] Arguments:",
-        "arg_count": "[cn] Only shows current room population counters.",
-        "arg_admins": "[cn] Only lists room administrators.",
-        "arg_vips": "[cn] Only lists room whitelisted users.",
-        "arg_banner": "[cn] Force redraws the room information banner.",
-        "arg_help": "[cn] Shows this documentation.",
-        "whisper_desc": "[cn] Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.",
-        "dropkeys_desc": "[cn] Instantly drop specific keys (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">silver</span>, <span style=\"color:#ffd700\">gold</span>) or all keys at once."
-    },
-    "interactions": {
-        "click_badge": "[cn] <b>Click Badge:</b> Opens the character's focus screen.",
-        "click_name": "[cn] <b>Click Player's Name:</b> Start a Whisper+ message.",
-        "click_id": "[cn] <b>Click Number (ID):</b> Copies the player's member number to your clipboard.",
-        "live_sorting": "[cn] <b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.",
-        "reverse_hover": "[cn] <b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.",
-        "shortcuts": "[cn] <b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode."
-    },
-    "relations": {
-        "you": "[cn] You",
-        "owner": "[cn] Owner",
-        "sub": "[cn] Submissive",
-        "trial": "[cn] On Trial",
-        "lover": "[cn] Lover",
-        "family": "[cn] Family",
-        "bestfriend": "[cn] Best Friend",
-        "friend": "[cn] Friend",
-        "whitelist": "[cn] Whitelisted",
-        "blacklist": "[cn] Blacklisted",
-        "ghost": "[cn] Ghosted"
-    },
-    "badges": {
-        "admin": "[cn] Room Admin",
-        "vip": "[cn] Room Whitelist",
-        "player": "[cn] Room Guest"
-    },
-    "status": {
-        "indicators_desc": "[cn] <b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered."
-    },
-    "settings_guide": {
-        "intro": "[cn] Access settings via the {icon} icon in the drawer, now featuring a fully <b>tabbed interface</b>. <br><b>Quick Chat Return:</b> Click the <b>Chat Bubble Icon</b> in the top right to instantly return to the game.",
-        "general_update": "[cn] <b>Update Notifications:</b> Alerts you when to refresh for a new version.",
-        "general_banner": "[cn] <b>Show Banner on Entry:</b> Displays an info banner when joining a room.",
-        "general_privacy": "[cn] <b>Full-Screen Privacy Mode:</b> Blanks the entire screen instead of just the chat side when the hotkey is used.",
-        "general_halo": "[cn] <b>Enable Focus Halo:</b> Shows a pulsing halo effect on hovered avatars.",
-        "general_keybinds": "[cn] <b>Edit Keybinds:</b> Direct shortcut to the game's keybinding menu to change your Privacy and Drawer toggle hotkeys.",
-        "drawer_enable": "[cn] <b>Enable Drawer UI:</b> Turns the sliding drawer interface on or off.",
-        "drawer_toggle_cmd": "[cn] <b>/roster toggles drawer:</b> Typing <span class=\"CRABS_help_command\">/roster</span> or <span class=\"CRABS_help_command\">/crabs</span> opens the drawer instead of printing in chat.",
-        "drawer_tab": "[cn] <b>Show Drawer Tab:</b> Toggles the persistent visual tab on the screen edge.",
-        "drawer_logo_anim": "[cn] <b>Animated Tab Logo:</b> Toggle the drawer logo animation to save performance.",
-        "drawer_compact": "[cn] <b>Compact Height:</b> Limits the drawer to 77% height, keeping the chat input visible.",
-        "drawer_autostow": "[cn] <b>Auto-stow Options:</b> Close the drawer automatically after sending a standard chat or Whisper+.",
-        "drawer_focus": "[cn] <b>Focus Follows Mouse:</b> Automatically switch to a player's page when hovering their card.",
-        "drawer_autoscroll": "[cn] <b>Auto-Scroll Drawer:</b> The roster automatically scrolls to the character you are mousing over in the game world.",
-        "immersion_lock": "[cn] <b>Hardcore Lock:</b> Locks these immersion settings ON while your character is bound.",
-        "immersion_blind_gag": "[cn] <b>Respect Blindness & Gags:</b> Blurs the roster UI and disables Whisper+ based on character state.",
-        "immersion_bcx": "[cn] <b>Respect BCX Rules:</b> Enforces BCX restrictions within the CRABS interface.",
-        "maps_compass": "[cn] <b>Show Map Compass:</b> Displays a directional arrow on the map.",
-        "maps_superzoom": "[cn] <b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).",
-        "chat_mentions": "[cn] <b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken. Customize the highlight color.",
-        "chat_caps_match": "[cn] <b>Auto-Capitalize & Color Match:</b> Capitalizes your name and matches it to your character's label color in highlights.",
-        "chat_custom_words": "[cn] <b>Custom Words & Exclusion Phrases:</b> Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.",
-        "chat_links": "[cn] <b>Chat Log Hover Links:</b> Hovering names in the chat log triggers the focus halo and map compass.",
-        "chat_whisper_elevate": "[cn] <b>Whisper+ Auto-elevate:</b> Attempts to send a Whisper+ as a standard beep if a friend leaves the room.",
-        "config_cloud_sync": "[cn] <b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.",
-        "config_delete_server": "[cn] <b>Delete Server Save:</b> Wipes your CRABS settings from the game server.",
-        "config_export_import": "[cn] <b>Export / Import:</b> Copy or paste your settings string to backup or share."
-    },
-    "general": {
-        "not_applicable": "[cn] N/A"
-    }
+    "header": { "title_default": "帮助", "documentation_title": "文档", "view_changelog": "查看更新日志" },
+    "controls": { "close_dialog": "关闭帮助" },
+    "sections": { "key_features": "主要功能", "core_commands": "核心命令", "interactions": "交互与导航", "relational_icons": "关系图标", "status_badges": "状态与徽章", "settings_overview": "⚙️ 设置详细概览", "general": "常规", "drawer": "抽屉", "immersion": "沉浸式", "maps": "地图", "chat": "聊天", "config": "配置" },
+    "features": { "drawer_title": "🗄️ 交互式抽屉", "drawer_desc": "一个简洁、可收纳的名单界面。完全事件驱动，实现实时状态更新，无延迟。", "compass_title": "🧭 通用指南针与焦点", "compass_desc": "在地图或普通房间中追踪玩家！悬停在卡片、聊天名称或角色上会显示旋转的 3D 指示器和光晕效果。", "chat_title": "🔔 聊天高亮", "chat_desc": "高亮显示包含您的姓名或自定义词语的消息。包括颜色匹配、自动首字母大写和排除短语以防止误报。", "privacy_title": "🛡️ 隐私模式", "privacy_desc": "可自定义的“老板键”，可瞬间清空角色屏幕或游戏窗口。通过快捷键切换（默认：CTRL + ALT + B）。", "performance_title": "⚡ 智能性能", "performance_desc": "监控真实的帧差。在延迟激增时动态降低视觉质量和更新率，以节省 FPS。", "blindness_title": "👁️ 沉浸式盲目", "blindness_desc": "基于您的盲目等级的可选名单模糊处理。完全尊重 BCX “完全盲目”规则。", "colors_title": "✨ 智能颜色", "colors_desc": "自动检测深色或模糊的玩家名称颜色，并应用高对比度轮廓以提高可读性。", "whisper_title": "💬 私聊+", "whisper_desc": "在地图房间中任意距离发送私聊。如果朋友在您发送前离开房间，自动升级为提示音。" },
+    "commands": { "roster_desc": "在聊天记录中打开增强版名单。显示房间内每个人的详细信息。", "args_label": "参数：", "arg_count": "仅显示当前房间人数计数器。", "arg_admins": "仅列出房间管理员。", "arg_vips": "仅列出房间白名单用户。", "arg_banner": "强制重新绘制房间信息横幅。", "arg_help": "显示此文档。", "whisper_desc": "地图房间的全局私聊系统。绕过范围限制，向地图上的任何人发送消息。", "dropkeys_desc": "立即丢弃特定钥匙（<span style=\"color:#cd7f32\">青铜</span>、<span style=\"color:#c0c0c0\">白银</span>、<span style=\"color:#ffd700\">黄金</span>）或一次性丢弃所有钥匙。" },
+    "interactions": { "click_badge": "<b>点击徽章：</b> 打开角色的焦点屏幕。", "click_name": "<b>点击玩家名称：</b> 发起私聊+消息。", "click_id": "<b>点击数字 (ID)：</b> 将玩家的会员编号复制到剪贴板。", "live_sorting": "<b>实时排序：</b> 使用抽屉右上角的下拉菜单，按角色、D/s 家族、恋人或朋友对玩家进行排序。", "reverse_hover": "<b>反向悬停：</b> 在游戏世界中悬停在角色上会高亮显示其在名单中的卡片。", "shortcuts": "<b>键盘快捷键：</b> <code>CTRL + ALT + D</code> 切换抽屉。 <code>CTRL + ALT + B</code> 切换隐私模式。" },
+    "relations": { "you": "您", "owner": "主人", "sub": "服从者", "trial": "试用期", "lover": "恋人", "family": "家族", "bestfriend": "挚友", "friend": "朋友", "whitelist": "白名单", "blacklist": "黑名单", "ghost": "屏蔽" },
+    "badges": { "admin": "房间管理员", "vip": "房间白名单", "player": "房间访客" },
+    "status": { "indicators_desc": "<b>状态指示器：</b> 每张卡片都有三个图标，指示玩家是否被<b>禁言</b>、<b>失明</b>或<b>失聪</b>。悬停时，这些图标会亮起并显示严重程度。" },
+    "settings_guide": { "intro": "通过抽屉中的 {icon} 图标访问设置，现在具有完整的<b>标签页界面</b>。<br><b>快速聊天返回：</b> 点击右上角的<b>聊天气泡图标</b>即可立即返回游戏。", "general_update": "<b>更新通知：</b> 当有新版本需要刷新时提醒您。", "general_banner": "<b>进入时显示横幅：</b> 进入房间时显示信息横幅。", "general_privacy": "<b>全屏隐私模式：</b> 使用热键时清空整个屏幕，而不仅仅是聊天侧。", "general_halo": "<b>启用焦点光晕：</b> 在悬停的头像上显示脉冲光晕效果。", "general_keybinds": "<b>编辑快捷键：</b> 直接跳转到游戏快捷键菜单，以更改您的隐私和抽屉切换热键。", "drawer_enable": "<b>启用抽屉 UI：</b> 打开或关闭滑动抽屉界面。", "drawer_toggle_cmd": "<b>/roster 切换抽屉：</b> 输入 <span class=\"CRABS_help_command\">/roster</span> 或 <span class=\"CRABS_help_command\">/crabs</span> 打开抽屉，而不是在聊天中打印。", "drawer_tab": "<b>显示抽屉标签：</b> 切换屏幕边缘的持久视觉标签。", "drawer_logo_anim": "<b>动画标签 Logo：</b> 切换抽屉 Logo 动画以节省性能。", "drawer_compact": "<b>紧凑高度：</b> 将抽屉高度限制在 77%，保持聊天输入可见。", "drawer_autostow": "<b>自动收纳选项：</b> 发送普通聊天或私聊+后自动关闭抽屉。", "drawer_focus": "<b>焦点跟随鼠标：</b> 悬停在玩家卡片上时自动切换到其页面。", "drawer_autoscroll": "<b>自动滚动抽屉：</b> 名单自动滚动到您在游戏世界中悬停的那个角色。", "immersion_lock": "<b>硬核锁定：</b> 在您的角色被束缚时锁定这些沉浸式设置处于开启状态。", "immersion_blind_gag": "<b>尊重失明与禁言：</b> 根据角色状态模糊名单 UI 并禁用私聊+。", "immersion_bcx": "<b>尊重 BCX 规则：</b> 在 CRABS 界面内强制执行 BCX 限制。", "maps_compass": "<b>显示地图指南针：</b> 在地图上显示方向箭头。", "maps_superzoom": "<b>超级缩放：</b> 解锁游戏默认的地图缩放限制（若检测到冲突则自动禁用）。", "chat_mentions": "<b>高亮提及：</b> 当有人提及特定词语或您的名字时提醒您。自定义高亮颜色。", "chat_caps_match": "<b>自动大写与颜色匹配：</b> 将您的名字大写，并使其在高亮显示中与您角色的标签颜色相匹配。", "chat_custom_words": "<b>自定义词语与排除短语：</b> 添加触发词并使用通配符（例如 '摘* 一朵玫瑰'）以防止误报。", "chat_links": "<b>聊天记录悬停链接：</b> 悬停在聊天记录中的名称上可触发焦点光晕和地图指南针。", "chat_whisper_elevate": "<b>私聊+ 自动升级：</b> 如果朋友离开房间，尝试将私聊+作为普通提示音发送。", "config_cloud_sync": "<b>禁用云同步：</b> 保持设置严格本地化，防止跨设备同步。包括容量跟踪器。", "config_delete_server": "<b>删除服务器存档：</b> 从游戏服务器中擦除您的 CRABS 设置。", "config_export_import": "<b>导出 / 导入：</b> 复制或粘贴您的设置字符串以备份或共享。" },
+    "general": { "not_applicable": "不适用" }
 }

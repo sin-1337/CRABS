@@ -1,18 +1,5 @@
 {
-    "keybinds": {
-        "toggle_name": "[de] Toggle Drawer",
-        "toggle_desc": "[de] Opens or closes the CRABS side drawer."
-    },
-    "header": {
-        "title_default": "[de] Roster",
-        "title_help": "[de] Help"
-    },
-    "tooltips": {
-        "tab": "[de] CRABS Drawer",
-        "help": "[de] Help",
-        "roster": "[de] Roster",
-        "settings": "[de] Settings",
-        "layout": "[de] Cycle Layout",
-        "close": "[de] Close Drawer"
-    }
+    "keybinds": { "toggle_name": "Drawer umschalten", "toggle_desc": "Öffnet oder schließt die seitliche CRABS-Schublade." },
+    "header": { "title_default": "Roster", "title_help": "Hilfe" },
+    "tooltips": { "tab": "CRABS-Schublade", "help": "Hilfe", "roster": "Roster", "settings": "Einstellungen", "layout": "Layout wechseln", "close": "Schublade schließen" }
 }

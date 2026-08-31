@@ -1,55 +1,9 @@
 {
-    "header": {
-        "title_default": "[fr] Roster",
-        "tooltip_admins": "[fr] Admins",
-        "tooltip_players": "[fr] Players",
-        "tooltip_friends": "[fr] Friends",
-        "tooltip_online": "[fr] Online Accounts"
-    },
-    "controls": {
-        "sort_by": "[fr] Sort By",
-        "view_grid": "[fr] Grid View",
-        "view_single": "[fr] Single Column View",
-        "view_compact": "[fr] Compact View",
-        "close_dialog": "[fr] Close Roster"
-    },
-    "sort_options": {
-        "natural": "[fr] Natural (Room Order)",
-        "none": "[fr] None",
-        "role": "[fr] Role (Admins & VIPs)",
-        "ds": "[fr] D/s Hierarchy",
-        "lovers": "[fr] Lovers & Relationships",
-        "friends": "[fr] Friends",
-        "whitelist": "[fr] Whitelisted",
-        "blacklist": "[fr] Blacklisted"
-    },
-    "status": {
-        "unknown_person": "[fr] [Unknown Person]",
-        "blind": "[fr] Blind: {level}",
-        "gag": "[fr] Gag: {level}",
-        "deaf": "[fr] Deaf: {level}"
-    },
-    "badges": {
-        "player": "[fr] Player",
-        "admin": "[fr] Room Administrator",
-        "vip": "[fr] Room Whitelist / VIP"
-    },
-    "relations": {
-        "you": "[fr] You",
-        "owner": "[fr] Owner",
-        "sub": "[fr] Submissive",
-        "trial": "[fr] Trial Submissive",
-        "family": "[fr] Family",
-        "lover": "[fr] Lover",
-        "bestfriend": "[fr] Best Friend",
-        "friend": "[fr] Friend",
-        "whitelist": "[fr] Whitelisted",
-        "blacklist": "[fr] Blacklisted",
-        "ghost": "[fr] Ghostlisted"
-    },
-    "tooltips": {
-        "track_compass": "[fr] Track Player on Map",
-        "focus_player": "[fr] Focus Player",
-        "copy_id": "[fr] Copy Member Number"
-    }
+    "header": { "title_default": "Roster", "tooltip_admins": "Admins", "tooltip_players": "Joueurs", "tooltip_friends": "Amis", "tooltip_online": "Comptes en ligne" },
+    "controls": { "sort_by": "Trier par", "view_grid": "Vue en grille", "view_single": "Vue en colonne unique", "view_compact": "Vue compacte", "close_dialog": "Fermer le Roster" },
+    "sort_options": { "natural": "Naturel (Ordre de la salle)", "none": "Aucun", "role": "Rôle (Admins & VIPs)", "ds": "Hiérarchie D/s", "lovers": "Amants & Relations", "friends": "Amis", "whitelist": "Liste blanche", "blacklist": "Liste noire" },
+    "status": { "unknown_person": "[Personne inconnue]", "blind": "Aveugle : {level}", "gag": "Bâillon : {level}", "deaf": "Sourd : {level}" },
+    "badges": { "player": "Joueur", "admin": "Administrateur de salle", "vip": "Liste blanche / VIP de salle" },
+    "relations": { "you": "Vous", "owner": "Propriétaire", "sub": "Soumis", "trial": "Soumis à l'essai", "family": "Famille", "lover": "Amant", "bestfriend": "Meilleur ami", "friend": "Ami", "whitelist": "Liste blanche", "blacklist": "Liste noire", "ghost": "Sur liste noire (Fantôme)" },
+    "tooltips": { "track_compass": "Suivre le joueur sur la carte", "focus_player": "Focaliser le joueur", "copy_id": "Copier le numéro de membre" }
 }

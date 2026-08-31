@@ -1,12 +1,5 @@
 {
-    "keybinds": {
-        "category": "[tw] CRABS Mod"
-    },
-    "chat": {
-        "person_not_found": "[tw] This person is no longer in the room."
-    },
-    "tooltips": {
-        "help": "[tw] Help",
-        "settings": "[tw] Settings"
-    }
+    "keybinds": { "category": "CRABS 模組" },
+    "chat": { "person_not_found": "此人已不在房間內。" },
+    "tooltips": { "help": "幫助", "settings": "設定" }
 }

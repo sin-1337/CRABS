@@ -1,7 +1,7 @@
 {
     "notifications": {
-        "mention_title": "[uk] Mentioned!",
-        "mention_body": "[uk] {sender} mentioned you!",
-        "unknown_sender": "[uk] Someone"
+        "mention_title": "Згадка!",
+        "mention_body": "{sender} згадав вас!",
+        "unknown_sender": "Хтось"
     }
 }

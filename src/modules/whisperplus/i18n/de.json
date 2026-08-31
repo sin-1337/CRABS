@@ -1,17 +1,17 @@
 {
     "notifications": {
-        "blocked_title": "[de] Whisper+ Blocked",
-        "blocked_gagged": "[de] You cannot use Whisper+ while gagged.",
-        "sent_as_beep": "[de] Whisper+ sent as beep.",
-        "failed_title": "[de] Whisper+ Failed"
+        "blocked_title": "Whisper+ Blockiert",
+        "blocked_gagged": "Du kannst Whisper+ nicht verwenden, während du geknebelt bist.",
+        "sent_as_beep": "Whisper+ als Beep gesendet.",
+        "failed_title": "Whisper+ Fehlgeschlagen"
     },
     "chat": {
-        "note_to_self": "[de] <span style=\"color:#989898\">{icon} Note to </span><span style=\"color:{labelColor}\">self</span><span style=\"color:#989898\">: {message}</span>",
-        "beep_to": "[de] Beep to {targetName} ({memberNumber}): {message}",
-        "invalid_member": "[de] Member number is invalid.",
-        "blank_message": "[de] Message was blank",
-        "player_left": "[de] Player left or became unavailable",
-        "auto_beep_failed": "[de]  (Auto-beep failed: Target is not on your friend list.)",
-        "fallback_member": "[de] Member"
+        "note_to_self": "<span style=\"color:#989898\">{icon} Notiz an </span><span style=\"color:{labelColor}\">mich selbst</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "Beep an {targetName} ({memberNumber}): {message}",
+        "invalid_member": "Mitgliedsnummer ist ungültig.",
+        "blank_message": "Nachricht war leer",
+        "player_left": "Spieler hat den Raum verlassen oder ist nicht verfügbar",
+        "auto_beep_failed": " (Auto-Beep fehlgeschlagen: Ziel ist nicht auf deiner Freundesliste.)",
+        "fallback_member": "Mitglied"
     }
 }

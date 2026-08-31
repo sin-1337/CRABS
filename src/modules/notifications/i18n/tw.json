@@ -1,9 +1,9 @@
 {
     "errors": {
-        "feature_disabled": "[tw] CRABS Feature disabled: {hook} failed.",
-        "error_title": "[tw] Error"
+        "feature_disabled": "CRABS 功能已停用：{hook} 失敗。",
+        "error_title": "錯誤"
     },
     "clipboard": {
-        "copied": "[tw] \"{data}\" copied to clipboard."
+        "copied": "\"{data}\" 已複製到剪貼簿。"
     }
 }
