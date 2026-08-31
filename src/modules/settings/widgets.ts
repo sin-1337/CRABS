@@ -109,8 +109,9 @@ export class SelectWidget extends UIWidget {
     const locked = this.getIsDisabled();
 
     ctx.textAlign = "left";
+    // Append the colon after the label text
     globalWindow.DrawText(
-      this.getLabel(),
+      `${this.getLabel()}:`,
       bounds.x,
       bounds.y,
       locked ? "#888888" : "Black",
@@ -140,7 +141,8 @@ export class SelectWidget extends UIWidget {
       el.style.backgroundColor = "#2d2a3e";
       el.style.border = "2px solid #555555";
       el.style.borderRadius = "6px";
-      el.style.padding = "0 30px 0 10px";
+      el.style.padding = "0 32px 0 10px";
+      el.style.lineHeight = "1";
       el.style.cursor = "pointer";
       el.style.boxSizing = "border-box";
       el.style.outline = "none";
@@ -148,7 +150,7 @@ export class SelectWidget extends UIWidget {
       el.style.backgroundImage =
         "url('https://sin-1337.github.io/CRABS/images/down-arrow.svg')";
       el.style.backgroundRepeat = "no-repeat";
-      el.style.backgroundPosition = "right 8px center";
+      el.style.backgroundPosition = "right 10px center";
       el.style.backgroundSize = "14px";
 
       el.addEventListener("focus", () => {
@@ -181,10 +183,11 @@ export class SelectWidget extends UIWidget {
     }
 
     if (!locked && isVisible && el) {
-      const inputWidth = 260;
-      const inputStartX = bounds.x + 320;
+      const inputWidth = 320;
+      // Positioned immediately following the "Mod Language:" text label
+      const inputStartX = bounds.x + 230;
       const centerX = inputStartX + inputWidth / 2;
-      const centerY = bounds.y - 3; // Shifted up by 3px to baseline-align with the canvas text
+      const centerY = bounds.y - 18;
 
       if (typeof globalWindow.ElementPositionFix === "function") {
         globalWindow.ElementPositionFix(
