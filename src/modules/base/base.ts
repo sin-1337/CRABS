@@ -61,7 +61,7 @@ export abstract class CRABS_Base {
 
   /**
    * Initializes a CRABS module instance, assigns its unique namespace,
-   * and registers all provided translation bundles into the global registry.
+   * unrolls default bundle exports if present, and registers all translation bundles.
    *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
    * @param {string} [namespace="base"] - Unique module identifier used for scoping localization keys.
@@ -80,7 +80,24 @@ export abstract class CRABS_Base {
       if (!CRABS_Base.translations[normLang]) {
         CRABS_Base.translations[normLang] = {};
       }
-      CRABS_Base.translations[normLang][namespace] = bundle;
+
+      // Handle synthetic default export wrappers from bundlers
+      const rawData =
+        bundle && typeof bundle === "object" && "default" in bundle
+          ? bundle.default
+          : bundle;
+
+      // Handle both flat dictionaries and bundles wrapped in root namespace keys
+      if (
+        rawData &&
+        typeof rawData === "object" &&
+        namespace in rawData &&
+        Object.keys(rawData).length === 1
+      ) {
+        CRABS_Base.translations[normLang][namespace] = rawData[namespace];
+      } else {
+        CRABS_Base.translations[normLang][namespace] = rawData;
+      }
     }
   }
 

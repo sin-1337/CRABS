@@ -1,15 +1,3 @@
-/**
- * CRABS Roster Module
- *
- * This module implements the enhanced roster functionality for the CRABS mod.
- * It provides:
- * - Custom roster display with enhanced features
- * - Roster template rendering system
- * - CSS styling for roster elements
- * - Online friends tracking
- * - Event-driven data synchronization
- */
-
 import { CRABS_Base } from "../base";
 import { Assets } from "../assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -31,7 +19,7 @@ import en from "./i18n/en.json";
  * Class representing the enhanced player roster and related map features.
  */
 export class Roster extends CRABS_Base {
-  /** Proxies for external modules (e.g. drawer.ts) that reference these properties */
+  /** Proxies for external modules that reference these properties */
   public get chatLogHoveredPlayer(): number | null {
     return Compass.chatLogHoveredPlayer;
   }
@@ -65,7 +53,6 @@ export class Roster extends CRABS_Base {
   public currentLayoutMode: string =
     localStorage.getItem("CRABS_RosterLayout") || "layout-grid";
 
-  /** Getter and setter for external callers (e.g. drawer.ts) */
   public get layoutMode(): string {
     return this.currentLayoutMode;
   }
@@ -76,19 +63,11 @@ export class Roster extends CRABS_Base {
     this.isDirty = true;
   }
 
-  /** Cached count of online friends. */
   private onlineFriendsCache: number | string = "...";
-
-  /** Timestamp for the last server request to prevent spamming. */
   private lastSentTime: number = 0;
-
-  /** Prevents multiple requests from firing at the same time. */
   private isFetching: boolean = false;
-
-  /** Flag indicating the roster data has changed and needs a redraw. */
   public isDirty: boolean = true;
 
-  /** Tracks the user's selected sort order in the drawer. */
   private currentSortMode: string =
     localStorage.getItem("CRABS_SortMode") || "natural";
 
@@ -102,7 +81,6 @@ export class Roster extends CRABS_Base {
     this.loadFriendList();
     this.setupEventHooks();
 
-    // Track when the mouse enters/leaves the canvas to prevent stuck hovers
     window.addEventListener("mousemove", (e) => {
       const target = e.target as HTMLElement;
       Compass.setIsMouseOverCanvas(!!target && target.id === "MainCanvas");
@@ -111,7 +89,6 @@ export class Roster extends CRABS_Base {
       Compass.setIsMouseOverCanvas(false);
     });
 
-    // Capture the math during the character drawing phase
     this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
       const globalWindow = window as any;
       let isTarget = false;
@@ -131,7 +108,6 @@ export class Roster extends CRABS_Base {
           globalWindow.ChatRoomMapViewIsActive();
         const targetId = Compass.trackedMapPlayer || Compass.hoveredMapPlayer;
 
-        // Canvas hover detection
         const mouseX = globalWindow.MouseX;
         const mouseY = globalWindow.MouseY;
 
@@ -202,7 +178,6 @@ export class Roster extends CRABS_Base {
       }
       Compass.drawCompass(this.getColorBrightness.bind(this));
 
-      // Map hover detection
       const globalWindow = window as any;
       const isMap =
         globalWindow.ChatRoomMapViewIsActive &&
@@ -256,7 +231,6 @@ export class Roster extends CRABS_Base {
         }
       }
 
-      // Combine canvas hit-detection with chat log hover state
       const combinedHover =
         Compass.currentFrameHoveredPlayer || Compass.chatLogHoveredPlayer;
 
@@ -379,7 +353,6 @@ export class Roster extends CRABS_Base {
       );
 
       if (card && character) {
-        // Handle nickname changes
         const nameContainer = card.querySelector(
           ".CRABS_player-name",
         ) as HTMLElement;
@@ -392,7 +365,6 @@ export class Roster extends CRABS_Base {
           }
         }
 
-        // Handle status icons
         const statusContainer = card.querySelector(
           ".CRABS_status-icons",
         ) as HTMLElement;
@@ -407,7 +379,6 @@ export class Roster extends CRABS_Base {
           }
         }
 
-        // Handle relationship icons
         const iconContainer = card.querySelector(
           ".CRABS_player-icons",
         ) as HTMLElement;

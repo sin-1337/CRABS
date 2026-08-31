@@ -32,7 +32,6 @@ export function calculateSortScore(
       break;
   }
 
-  // Pin player to top only for priority-based modes
   if (character.IsPlayer && character.IsPlayer()) return 0;
 
   const globalWindow = window as any;
