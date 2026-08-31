@@ -12,8 +12,10 @@ import * as Icons from "./icons";
 import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as Immersion from "./immersion";
-
 import * as locales from "./i18n";
+
+// Import your CrossMod utility
+import { CrossMod } from "../crossmod";
 
 /**
  * Class representing the enhanced player roster and related map features.
@@ -379,8 +381,26 @@ export class Roster extends CRABS_Base {
         const iconContainer = card.querySelector(
           ".CRABS_player-icons",
         ) as HTMLElement;
+
         if (iconContainer) {
-          const newIconHTML = Icons.setIcons(character);
+          let newIconHTML = Icons.setIcons(character);
+
+          // CROSS-MOD: AFC Lovers dynamic DOM update
+          if (
+            typeof character.MemberNumber === "number" &&
+            CrossMod.isAFCLover(character.MemberNumber)
+          ) {
+            const afcRoom = CrossMod.getAFCLoverRoom(character.MemberNumber);
+            const tooltip = afcRoom
+              ? `AFC Lover (Room: ${afcRoom})`
+              : "AFC Lover";
+            // NOTE: Make sure "lover" below matches the key in your Assets for the heart icon!
+            newIconHTML += Assets.printimage({
+              key: "lover",
+              tooltip_override: tooltip,
+              css_class_override: "CRABS_icon",
+            });
+          }
 
           if (iconContainer.dataset.lastIcons !== newIconHTML) {
             iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
@@ -424,6 +444,7 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const messageType = args[0];
 
+      // AccountUpdate covers AFC's saveSharedSettings() triggers natively!
       if (messageType === "AccountUpdate") {
         this.isDirty = true;
       }
@@ -686,7 +707,25 @@ export class Roster extends CRABS_Base {
       const badge = Icons.setbadge(character);
       let playerIcons = Icons.setIcons(character);
 
+      // 🌟 CROSS-MOD: AFC Lovers initial build 🌟
+      if (
+        typeof memberNumber === "number" &&
+        CrossMod.isAFCLover(memberNumber)
+      ) {
+        const afcRoom = CrossMod.getAFCLoverRoom(memberNumber);
+        const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
+
+        // NOTE: Make sure "lover" below matches the key in your Assets for the heart icon!
+        playerIcons += Assets.printimage({
+          key: "lover",
+          tooltip_override: tooltip,
+          css_class_override: "CRABS_icon",
+        });
+      }
+
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
+
+      // Update Sorting algorithm check in sorting.ts so it sees CrossMod.isAFCLover
       const score = Sorting.calculateSortScore(
         character,
         effectiveSortMode,
