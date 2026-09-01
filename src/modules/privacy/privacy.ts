@@ -31,7 +31,6 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("left");
         return true;
       },
-      new Set(["Ctrl", "Alt"]),
     );
 
     CRABS_Base.registerKeybind(
@@ -43,7 +42,6 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
-      new Set(["Ctrl", "Shift", "Alt"]),
     );
 
     this.registerNativeKeybind();
@@ -107,7 +105,7 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
+        modifiers: new Set(["Ctrl", "Alt", "Shift"]),
       },
     });
   }
