@@ -196,7 +196,7 @@ export class ChatManager extends CRABS_Base {
       10,
       (hookArguments: any, nextFunction: Function) => {
         const messageData = hookArguments[0];
-        const senderData = hookArguments[2];
+        const rawSender = hookArguments[2];
         const messageDiv = nextFunction(hookArguments);
 
         const globalWindow = window as any;
@@ -215,18 +215,35 @@ export class ChatManager extends CRABS_Base {
               ? globalWindow.ElementIsScrolledToEnd("TextAreaChatLog")
               : true;
 
+          const highlightMentionsEnabled =
+            Settings.instance?.data?.highlightMentions !== false;
+          const browserNotificationsEnabled =
+            !!Settings.instance?.data?.browserNotifications;
+          const colorMatchNamesEnabled =
+            !!Settings.instance?.data?.colorMatchNames;
+
+          // Only skip if all message processing features are disabled
           if (
-            Settings.instance?.data?.highlightMentions === false &&
-            !Settings.instance?.data?.colorMatchNames
-          )
+            !highlightMentionsEnabled &&
+            !browserNotificationsEnabled &&
+            !colorMatchNamesEnabled
+          ) {
             return messageDiv;
+          }
 
           if (messageData && messageData.Type === "ServerMessage")
             return messageDiv;
           if (messageDiv.classList.contains("ChatMessageEnterLeave"))
             return messageDiv;
-          if (senderData && senderData.MemberNumber === player.MemberNumber)
-            return messageDiv;
+
+          // Determine sender member number
+          const senderMemberNumber =
+            typeof rawSender === "number"
+              ? rawSender
+              : (rawSender?.MemberNumber ??
+                parseInt(messageDiv.dataset.sender || "", 10));
+
+          if (senderMemberNumber === player.MemberNumber) return messageDiv;
 
           // --- COMPILE IGNORE PHRASES ---
           const rawIgnorePhrases = (
@@ -278,7 +295,7 @@ export class ChatManager extends CRABS_Base {
           );
 
           const playerColor = player.LabelColor || "#FF00FF";
-          const doInlineColor = !!Settings.instance?.data?.colorMatchNames;
+          const doInlineColor = colorMatchNamesEnabled;
           const doCapitalize = !!Settings.instance?.data?.capitalizeNames;
           let isMentioned = false;
 
@@ -377,29 +394,40 @@ export class ChatManager extends CRABS_Base {
           searchAndHighlight(messageDiv);
 
           if (isMentioned) {
-            // Browser Notification using native window.Notification
-            if (
-              Settings.instance?.data?.browserNotifications &&
-              document.hidden
-            ) {
+            // Trigger Desktop Notification when window loses focus OR tab is hidden
+            const isBackgrounded = document.hidden || !document.hasFocus();
+
+            if (browserNotificationsEnabled && isBackgrounded) {
               const BrowserNotify = (window as any).Notification;
               if (BrowserNotify && BrowserNotify.permission === "granted") {
-                const unknownSender = this.t("notifications.unknown_sender");
+                // Resolve sender name via ChatRoomCharacter list or data attributes
+                const senderCharacter = Array.isArray(
+                  globalWindow.ChatRoomCharacter,
+                )
+                  ? globalWindow.ChatRoomCharacter.find(
+                      (c: any) => c.MemberNumber === senderMemberNumber,
+                    )
+                  : null;
+
                 const senderIdentity =
-                  senderData?.nickname && senderData?.playerNumber
-                    ? `${senderData.nickname}(${senderData.playerNumber})`
-                    : senderData?.Name || unknownSender;
+                  senderCharacter?.Nickname ||
+                  senderCharacter?.Name ||
+                  rawSender?.Name ||
+                  (senderMemberNumber
+                    ? `Member #${senderMemberNumber}`
+                    : this.t("notifications.unknown_sender"));
 
                 new BrowserNotify(this.t("notifications.mention_title"), {
                   body: this.t("notifications.mention_body", {
                     sender: senderIdentity,
                   }),
+                  tag: "crabs-mention", // Replaces older mention notifications instead of flooding the desktop
                 });
               }
             }
 
-            // Highlight Logic
-            if (Settings.instance?.data?.highlightMentions !== false) {
+            // In-Game Highlight Logic
+            if (highlightMentionsEnabled) {
               messageDiv.classList.add("CRABS_mention_highlight");
               const userHexColor =
                 Settings.instance?.data?.highlightColor || "#FFFF00";

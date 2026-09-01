@@ -1,10 +1,26 @@
 import { Assets } from "../assets";
 import { CRABS_Base } from "../base";
 import "./templates/notifications.css";
-import { cn, de, en, fr, ru, tw, uk } from "./i18n";
+import * as locales from "./i18n";
+
+declare const ToastManager: any;
+
+export interface NotificationParams {
+  message: string;
+  title?: string;
+  image?: string;
+  duration?: number;
+}
+
+export interface DesktopNotificationParams {
+  title: string;
+  body: string;
+  tag?: string;
+  icon?: string;
+}
 
 /**
- * Utility class for managing CRABS custom notifications.
+ * Utility class for managing CRABS in-game toasts and desktop notifications.
  */
 export abstract class Notification {
   private static isInitialized = false;
@@ -16,25 +32,22 @@ export abstract class Notification {
   private static init(): void {
     if (Notification.isInitialized) return;
 
-    const normLang = CRABS_Base.normalizeLocale("en");
     const translations = (CRABS_Base as any).translations;
     if (translations) {
-      if (!translations[normLang]) translations[normLang] = {};
-      translations[normLang]["notifications"] = en;
+      for (const [lang, dict] of Object.entries(locales)) {
+        const normLang = CRABS_Base.normalizeLocale(lang);
+        if (!translations[normLang]) {
+          translations[normLang] = {};
+        }
+        translations[normLang]["notifications"] = dict;
+      }
     }
+
     Notification.isInitialized = true;
   }
 
   /**
-   * Dispatches a custom toast notification to the screen.
-   *
-   * @param {NotificationParams & { type?: string }} params - Toast configuration parameters.
-   * @param {string} params.message - Content string or dot-notated translation key.
-   * @param {string} [params.title="CRABS"] - Brand title (defaults to fixed acronym).
-   * @param {string} [params.image="logo"] - Asset identifier for the leading notification icon.
-   * @param {number} [params.duration=3000] - Duration in milliseconds before dismissing.
-   * @param {string} [params.type="General"] - Sub-category namespace for grouped dismissals.
-   * @returns {void}
+   * Dispatches an in-game custom toast notification.
    */
   public static send({
     message,
@@ -58,12 +71,53 @@ export abstract class Notification {
   }
 
   /**
-   * Removes all active notifications of a given sub-category.
-   *
-   * @param {string} [type="General"] - The sub-category identifier to dismiss.
-   * @returns {void}
+   * Removes all active toast notifications of a given sub-category.
    */
   public static dismiss(type: string = "General"): void {
     ToastManager.dismissByCategory(`CRABS_Notification_${type}`);
+  }
+
+  /**
+   * Checks whether the current page is unfocused or tab is backgrounded.
+   */
+  public static isBackgrounded(): boolean {
+    return document.hidden || !document.hasFocus();
+  }
+
+  /**
+   * Requests browser desktop notification permissions from a user gesture.
+   */
+  public static async requestDesktopPermission(): Promise<boolean> {
+    if (!("Notification" in window)) return false;
+    if (window.Notification.permission === "granted") return true;
+    if (window.Notification.permission !== "denied") {
+      const permission = await window.Notification.requestPermission();
+      return permission === "granted";
+    }
+    return false;
+  }
+
+  /**
+   * Sends a native OS desktop notification if permissions are granted.
+   */
+  public static sendDesktop({
+    title,
+    body,
+    tag,
+    icon,
+  }: DesktopNotificationParams): void {
+    Notification.init();
+
+    const BrowserNotify = window.Notification;
+    if (!BrowserNotify || BrowserNotify.permission !== "granted") return;
+
+    const localizedTitle = CRABS_Base.translate(title);
+    const localizedBody = CRABS_Base.translate(body);
+
+    new BrowserNotify(localizedTitle, {
+      body: localizedBody,
+      tag: tag,
+      icon: icon ? Assets.getimage(icon) : undefined,
+    });
   }
 }
