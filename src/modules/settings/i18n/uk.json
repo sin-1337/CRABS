@@ -44,6 +44,8 @@
         "edit_keybinds_hint": "Відкрити меню гарячих клавіш гри, щоб змінити клавіші для режиму приватності та панелі.",
         "drawer_toggle_bind": "Перемикання панелі Crabs: {bind}",
         "privacy_toggle_bind": "Режим приватності: {bind}",
+        "general.privacy_half_bind": "Приватність (половина): {bind}",
+        "general.privacy_full_bind": "Приватність (повний екран): {bind}",
         "unbound": "Не призначено"
     },
     "drawer": {
