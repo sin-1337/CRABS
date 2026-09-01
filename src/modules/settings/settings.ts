@@ -38,7 +38,6 @@ const DEFAULT_SETTINGS: any = {
   autoBeepOnLeave: true,
   whisperPlusAlwaysOn: false,
   autoBeepOnRegularWhisper: false,
-  privacyModeFull: false,
   autoScrollRoster: true,
   chatLogHover: true,
   colorMatchNames: true,
@@ -636,12 +635,6 @@ export class Settings extends CRABS_Base {
     );
     createCheck(
       "General",
-      "privacyModeFull",
-      "general.privacy_full_label",
-      "general.privacy_full_hint",
-    );
-    createCheck(
-      "General",
       "enableFocusHalo",
       "general.halo_label",
       "general.halo_hint",
@@ -664,8 +657,17 @@ export class Settings extends CRABS_Base {
     createLabel(
       "General",
       () =>
-        this.t("general.privacy_toggle_bind", {
-          bind: getBindString("crabs_privacy_toggle"),
+        this.t("general.privacy_half_bind", {
+          bind: getBindString("crabs_privacy_half"),
+        }),
+      "",
+      1,
+    );
+    createLabel(
+      "General",
+      () =>
+        this.t("general.privacy_full_bind", {
+          bind: getBindString("crabs_privacy_full"),
         }),
       "",
       1,

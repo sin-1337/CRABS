@@ -1,139 +1,185 @@
-import { Settings } from "../settings";
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
 export class PrivacyMode extends CRABS_Base {
-	private isVisible: boolean = false;
-	private isSuspended: boolean = false;
-	private overlay: HTMLDivElement;
-	private monitorTimer: number | null = null;
+  private isVisible: boolean = false;
+  private isSuspended: boolean = false;
+  private currentMode: "left" | "full" | null = null;
+  private overlay: HTMLDivElement;
+  private monitorTimer: number | null = null;
 
-	constructor(CRABS: ModSDKModAPI) {
-		super(CRABS);
-		this.overlay = document.createElement("div");
-		this.overlay.id = "CRABS-privacy-overlay";
-		this.overlay.style.display = "none";
-		this.overlay.style.position = "fixed";
-		this.overlay.style.top = "0";
-		this.overlay.style.left = "0";
-		this.overlay.style.bottom = "0";
-		this.overlay.style.backgroundColor = "black";
-		this.overlay.style.zIndex = "999999";
-		document.body.appendChild(this.overlay);
+  constructor(CRABS: ModSDKModAPI) {
+    super(CRABS);
+    this.overlay = document.createElement("div");
+    this.overlay.id = "CRABS-privacy-overlay";
+    this.overlay.style.display = "none";
+    this.overlay.style.position = "fixed";
+    this.overlay.style.top = "0";
+    this.overlay.style.left = "0";
+    this.overlay.style.bottom = "0";
+    this.overlay.style.backgroundColor = "black";
+    this.overlay.style.zIndex = "999999";
+    document.body.appendChild(this.overlay);
 
-		CRABS_Base.registerKeybind(
-			'crabs_privacy_toggle',
-			'Toggle Privacy Mode',
-			'Instantly blanks out the chat room based on your CRABS settings.',
-			'KeyB',
-			() => {
-				const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
-				this.toggle(mode);
-				return true;
-			}
-		);
-	}
+    // Half Mode Keybind (Ctrl + Alt + B)
+    CRABS_Base.registerKeybind(
+      "crabs_privacy_half",
+      "Privacy Mode (Half)",
+      "Blanks out the left side (canvas) of the chat room.",
+      "KeyB",
+      () => {
+        this.toggle("left");
+        return true;
+      },
+    );
 
-	private registerNativeKeybind() {
-		const globalWindow = window as any;
+    // Full Mode Keybind (Ctrl + Alt + Shift + B)
+    CRABS_Base.registerKeybind(
+      "crabs_privacy_full",
+      "Privacy Mode (Full)",
+      "Blanks out the entire screen.",
+      "KeyB",
+      () => {
+        this.toggle("full");
+        return true;
+      },
+    );
 
-		if (!globalWindow.KeyManager || !globalWindow.KeyManager.getContext('always')) {
-			setTimeout(() => this.registerNativeKeybind(), 500);
-			return;
-		}
+    this.registerNativeKeybind();
+  }
 
-		if (!globalWindow.KeyManager.getCategory('crabs')) {
-			globalWindow.KeyManager.registerCategory({
-				id: 'crabs',
-				name: { EN: 'CRABS Mod' }
-			});
-		}
+  private registerNativeKeybind() {
+    const globalWindow = window as any;
 
-		const toggleAction = () => {
-			const mode = Settings.instance.data.privacyModeFull ? "full" : "left";
-			this.toggle(mode);
-			return true;
-		};
+    if (
+      !globalWindow.KeyManager ||
+      !globalWindow.KeyManager.getContext("always")
+    ) {
+      setTimeout(() => this.registerNativeKeybind(), 500);
+      return;
+    }
 
-		Object.defineProperty(toggleAction, "name", { value: { EN: "Toggle Privacy Mode" } });
+    if (!globalWindow.KeyManager.getCategory("crabs")) {
+      globalWindow.KeyManager.registerCategory({
+        id: "crabs",
+        name: { EN: "CRABS Mod" },
+      });
+    }
 
-		globalWindow.KeyManager.registerKeybinding({
-			id: 'crabs_privacy_toggle',
-			action: toggleAction,
-			description: { EN: "Instantly blanks out the chat room based on your CRABS settings." },
-			contextIds: [],
-			categoryId: 'crabs',
-			readonly: false,
-			defaultKeyCombo: {
-				key: 'KeyB',
-				modifiers: new Set(['Ctrl', 'Shift', 'Alt'])
-			}
-		});
-	}
+    // Native Half Mode (Ctrl + Alt + B)
+    const halfAction = () => {
+      this.toggle("left");
+      return true;
+    };
+    Object.defineProperty(halfAction, "name", {
+      value: { EN: "Toggle Privacy Mode (Half)" },
+    });
 
-	public toggle(userPreferredMode: "left" | "full"): void {
-		// If it is on OR temporarily suspended, turn it completely off
-		if (this.isVisible || this.isSuspended) {
-			this.isVisible = false;
-			this.isSuspended = false;
-			this.overlay.style.display = "none";
-			this.stopMonitoring();
-			return;
-		}
+    globalWindow.KeyManager.registerKeybinding({
+      id: "crabs_privacy_half",
+      action: halfAction,
+      description: {
+        EN: "Blanks out the left side (canvas) of the chat room.",
+      },
+      contextIds: [],
+      categoryId: "crabs",
+      readonly: false,
+      defaultKeyCombo: {
+        key: "KeyB",
+        modifiers: new Set(["Ctrl", "Alt"]),
+      },
+    });
 
-		// Turning it on
-		const globalWindow = window as any;
-		const inMainChat = globalWindow.CurrentScreen === "ChatRoom" && globalWindow.CurrentCharacter === null;
+    // Native Full Mode (Ctrl + Alt + Shift + B)
+    const fullAction = () => {
+      this.toggle("full");
+      return true;
+    };
+    Object.defineProperty(fullAction, "name", {
+      value: { EN: "Toggle Privacy Mode (Full)" },
+    });
 
-		if (userPreferredMode === "left") {
-			this.overlay.style.width = "50vw";
+    globalWindow.KeyManager.registerKeybinding({
+      id: "crabs_privacy_full",
+      action: fullAction,
+      description: { EN: "Blanks out the entire screen." },
+      contextIds: [],
+      categoryId: "crabs",
+      readonly: false,
+      defaultKeyCombo: {
+        key: "KeyB",
+        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
+      },
+    });
+  }
 
-			// If they trigger it while already inside a menu, suspend it immediately
-			if (!inMainChat) {
-				this.isSuspended = true;
-			} else {
-				this.isVisible = true;
-				this.overlay.style.display = "block";
-			}
+  public toggle(mode: "left" | "full"): void {
+    // If already active in the same mode, turn off
+    if ((this.isVisible || this.isSuspended) && this.currentMode === mode) {
+      this.isVisible = false;
+      this.isSuspended = false;
+      this.currentMode = null;
+      this.overlay.style.display = "none";
+      this.stopMonitoring();
+      return;
+    }
 
-			this.startMonitoring();
-		} else {
-			// Full screen mode ignores menus
-			this.isVisible = true;
-			this.overlay.style.width = "100vw";
-			this.overlay.style.display = "block";
-			this.stopMonitoring();
-		}
-	}
+    this.currentMode = mode;
+    const globalWindow = window as any;
+    const inMainChat =
+      globalWindow.CurrentScreen === "ChatRoom" &&
+      globalWindow.CurrentCharacter === null;
 
-	// --- SCREEN TRACKING ---
+    if (mode === "left") {
+      this.overlay.style.width = "50vw";
 
-	private startMonitoring(): void {
-		this.stopMonitoring();
+      if (!inMainChat) {
+        this.isVisible = false;
+        this.isSuspended = true;
+        this.overlay.style.display = "none";
+      } else {
+        this.isSuspended = false;
+        this.isVisible = true;
+        this.overlay.style.display = "block";
+      }
 
-		this.monitorTimer = window.setInterval(() => {
-			const globalWindow = window as any;
-			const inMainChat = globalWindow.CurrentScreen === "ChatRoom" && globalWindow.CurrentCharacter === null;
+      this.startMonitoring();
+    } else {
+      this.isSuspended = false;
+      this.isVisible = true;
+      this.overlay.style.width = "100vw";
+      this.overlay.style.display = "block";
+      this.stopMonitoring();
+    }
+  }
 
-			// Suspend the overlay if we leave the main chat
-			if (!inMainChat && this.isVisible) {
-				this.isVisible = false;
-				this.isSuspended = true;
-				this.overlay.style.display = "none";
-			}
-			// Restore the overlay if we return to the main chat
-			else if (inMainChat && this.isSuspended) {
-				this.isSuspended = false;
-				this.isVisible = true;
-				this.overlay.style.display = "block";
-			}
-		}, 200);
-	}
+  // --- SCREEN TRACKING ---
 
-	private stopMonitoring(): void {
-		if (this.monitorTimer !== null) {
-			window.clearInterval(this.monitorTimer);
-			this.monitorTimer = null;
-		}
-	}
+  private startMonitoring(): void {
+    this.stopMonitoring();
+
+    this.monitorTimer = window.setInterval(() => {
+      const globalWindow = window as any;
+      const inMainChat =
+        globalWindow.CurrentScreen === "ChatRoom" &&
+        globalWindow.CurrentCharacter === null;
+
+      if (!inMainChat && this.isVisible) {
+        this.isVisible = false;
+        this.isSuspended = true;
+        this.overlay.style.display = "none";
+      } else if (inMainChat && this.isSuspended) {
+        this.isSuspended = false;
+        this.isVisible = true;
+        this.overlay.style.display = "block";
+      }
+    }, 200);
+  }
+
+  private stopMonitoring(): void {
+    if (this.monitorTimer !== null) {
+      window.clearInterval(this.monitorTimer);
+      this.monitorTimer = null;
+    }
+  }
 }
