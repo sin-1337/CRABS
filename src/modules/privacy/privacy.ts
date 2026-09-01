@@ -25,7 +25,7 @@ export class PrivacyMode extends CRABS_Base {
     // Pass the Set here to prevent CRABS_Base from defaulting to Ctrl+Alt
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
-      "Toggle Privacy Mode (Half)",
+      "Privacy Mode (Half)",
       "Blanks out the left side (canvas) of the chat room.",
       "KeyB",
       () => {
@@ -38,7 +38,7 @@ export class PrivacyMode extends CRABS_Base {
     // Pass the Set here as well to ensure Shift is respected in the base registry
     CRABS_Base.registerKeybind(
       "crabs_privacy_full",
-      "Toggle Privacy Mode (Full)",
+      "Privacy Mode (Full)",
       "Blanks out the entire screen.",
       "KeyB",
       () => {
