@@ -44,8 +44,8 @@
         "edit_keybinds_hint": "Ouvrir le menu des raccourcis du jeu pour changer les raccourcis du Mode Privé et du Tiroir.",
         "drawer_toggle_bind": "Basculer le tiroir Crabs : {bind}",
         "privacy_toggle_bind": "Mode privé : {bind}",
-        "general.privacy_half_bind": "Confidentialité (Moitié) : {bind}",
-        "general.privacy_full_bind": "Confidentialité (Plein écran) : {bind}",
+        "privacy_half_bind": "Confidentialité (Moitié) : {bind}",
+        "privacy_full_bind": "Confidentialité (Plein écran) : {bind}",
         "unbound": "Non lié"
     },
     "drawer": {

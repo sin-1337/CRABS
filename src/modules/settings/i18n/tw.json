@@ -44,8 +44,8 @@
         "edit_keybinds_hint": "打開遊戲快捷鍵菜單以更改隱私模式和抽屜快捷鍵。",
         "drawer_toggle_bind": "Crabs 抽屜切換: {bind}",
         "privacy_toggle_bind": "隱私模式: {bind}",
-        "general.privacy_half_bind": "隱私模式 (半螢幕): {bind}",
-        "general.privacy_full_bind": "隱私模式 (全螢幕): {bind}",
+        "privacy_half_bind": "隱私模式 (半螢幕): {bind}",
+        "privacy_full_bind": "隱私模式 (全螢幕): {bind}",
         "unbound": "未綁定"
     },
     "drawer": {

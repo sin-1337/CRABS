@@ -44,8 +44,8 @@
         "edit_keybinds_hint": "Open the game's Keybindings menu to change the Privacy Mode and Drawer hotkeys.",
         "drawer_toggle_bind": "Crabs drawer toggle: {bind}",
         "privacy_toggle_bind": "Privacy mode: {bind}",
-        "general.privacy_half_bind": "Privacy (Half): {bind}",
-        "general.privacy_full_bind": "Privacy (Full): {bind}",
+        "privacy_half_bind": "Privacy (Half): {bind}",
+        "privacy_full_bind": "Privacy (Full): {bind}",
         "unbound": "Unbound"
     },
     "drawer": {

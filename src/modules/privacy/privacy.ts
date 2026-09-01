@@ -19,6 +19,7 @@ export class PrivacyMode extends CRABS_Base {
     this.overlay.style.bottom = "0";
     this.overlay.style.backgroundColor = "black";
     this.overlay.style.zIndex = "999999";
+    this.overlay.style.pointerEvents = "none"; // Prevents intercepting key and mouse events
     document.body.appendChild(this.overlay);
 
     // Half Mode Keybind (Ctrl + Alt + B)
@@ -31,6 +32,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("left");
         return true;
       },
+      { ctrl: true, alt: true, shift: false },
     );
 
     // Full Mode Keybind (Ctrl + Alt + Shift + B)
@@ -43,6 +45,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
+      { ctrl: true, alt: true, shift: true },
     );
 
     this.registerNativeKeybind();
@@ -86,7 +89,7 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Ctrl", "Alt"]),
+        modifiers: new Set(["Control", "Alt"]),
       },
     });
 
@@ -108,14 +111,16 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
+        modifiers: new Set(["Control", "Shift", "Alt"]),
       },
     });
   }
 
   public toggle(mode: "left" | "full"): void {
-    // If already active in the same mode, turn off
-    if ((this.isVisible || this.isSuspended) && this.currentMode === mode) {
+    const active = this.isVisible || this.isSuspended;
+
+    // Toggle off if currently active in the exact same mode
+    if (active && this.currentMode === mode) {
       this.isVisible = false;
       this.isSuspended = false;
       this.currentMode = null;
@@ -124,6 +129,7 @@ export class PrivacyMode extends CRABS_Base {
       return;
     }
 
+    // Activate or switch mode
     this.currentMode = mode;
     const globalWindow = window as any;
     const inMainChat =
@@ -145,6 +151,7 @@ export class PrivacyMode extends CRABS_Base {
 
       this.startMonitoring();
     } else {
+      // Full screen mode
       this.isSuspended = false;
       this.isVisible = true;
       this.overlay.style.width = "100vw";
@@ -159,6 +166,8 @@ export class PrivacyMode extends CRABS_Base {
     this.stopMonitoring();
 
     this.monitorTimer = window.setInterval(() => {
+      if (this.currentMode !== "left") return;
+
       const globalWindow = window as any;
       const inMainChat =
         globalWindow.CurrentScreen === "ChatRoom" &&
