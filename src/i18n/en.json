@@ -11,6 +11,9 @@
         "dropkeys_not_map": "Keys only work on a map...",
         "dropkeys_dropped": "{color} key dropped.",
         "dropkeys_invalid_arg": "Argument '{arg}' was not understood.",
+        "perf_status": "CRABS Performance Level: {level} (Actual: ~{fps} FPS)",
+        "perf_mem_inspect": "CRABS: Memory stats printed to the browser developer console (F12).",
+        "perf_flushed": "CRABS: Asset and drawing caches successfully purged.",
         "keys": {
             "bronze": "Bronze",
             "silver": "Silver",

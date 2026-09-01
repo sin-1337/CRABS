@@ -11,11 +11,31 @@
         "dropkeys_not_map": "Schlüssel funktionieren nur auf einer Karte...",
         "dropkeys_dropped": "{color} Schlüssel fallengelassen.",
         "dropkeys_invalid_arg": "Argument '{arg}' wurde nicht verstanden.",
-        "keys": { "bronze": "Bronze", "silver": "Silber", "gold": "Gold" },
+        "perf_status": "CRABS Leistungsstufe: {level} (Aktuell: ~{fps} FPS)",
+        "perf_mem_inspect": "CRABS: Speicherstatistiken wurden in der Entwicklerkonsole (F12) ausgegeben.",
+        "perf_flushed": "CRABS: Asset- und Zeichen-Caches wurden erfolgreich bereinigt.",
+        "keys": {
+            "bronze": "Bronze",
+            "silver": "Silber",
+            "gold": "Gold"
+        },
         "crab_easter_egg": {
             "rave_message": "🦀 RAVE ZEIT! 🦀",
-            "no_args": [ "Die Krabbe ist verwirrt. Vielleicht versuchst du ihr zu sagen, was sie tun soll?", "Die Krabbe klickt mit ihren Scheren nach dir. Vielleicht versuchst du ihr ein Argument zu geben?", "Eine winzige Krabbe huscht vorbei, ignoriert dich und verschwindet in einem Loch. Es scheint einen Befehl zu wollen.", "Du schreist die Krabbe an. Sie tut nichts. Es sieht so aus, als würde sie auf ein bestimmtes Wort warten.", "Die Krabbe macht gerade Mittagspause. Versuche es später mit einigen Anweisungen wieder.", "FEHLER: Krabbe nicht gefunden. Bitte gib ein Argument an, um die Krabbe zu lokalisieren." ],
-            "fail_messages": [ "Versuche es... nein, nicht das.", "Die Krabbe sieht verwirrt aus. '{arg}'? Ist das überhaupt ein Wort?", "Du versuchst, die Krabbe {arg} zu machen. Sie kneift dich als Antwort. Autsch!", "Die Krabbe versucht ihr Bestes, {arg} zu tun, aber sie dreht sich nur im Kreis.", "Die Krabbe bleibt unbeeindruckt." ]
+            "no_args": [
+                "Die Krabbe ist verwirrt. Vielleicht versuchst du ihr zu sagen, was sie tun soll?",
+                "Die Krabbe klickt mit ihren Scheren nach dir. Vielleicht versuchst du ihr ein Argument zu geben?",
+                "Eine winzige Krabbe huscht vorbei, ignoriert dich und verschwindet in einem Loch. Es scheint einen Befehl zu wollen.",
+                "Du schreist die Krabbe an. Sie tut nichts. Es sieht so aus, als würde sie auf ein bestimmtes Wort warten.",
+                "Die Krabbe macht gerade Mittagspause. Versuche es später mit einigen Anweisungen wieder.",
+                "FEHLER: Krabbe nicht gefunden. Bitte gib ein Argument an, um die Krabbe zu lokalisieren."
+            ],
+            "fail_messages": [
+                "Versuche es... nein, nicht das.",
+                "Die Krabbe sieht verwirrt aus. '{arg}'? Ist das überhaupt ein Wort?",
+                "Du versuchst, die Krabbe {arg} zu machen. Sie kneift dich als Antwort. Autsch!",
+                "Die Krabbe versucht ihr Bestes, {arg} zu tun, aber sie dreht sich nur im Kreis.",
+                "Die Krabbe bleibt unbeeindruckt."
+            ]
         }
     }
 }
