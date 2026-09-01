@@ -79,8 +79,16 @@ export class Performance extends CRABS_Base {
     const expectedFrameTime = 1000 / targetFps;
     const actualFrameTime = elapsedMs / Math.max(1, framesRendered);
 
-    // Instantaneous Load (1.0 = normal, >1.0 = lagging)
-    const instantLoad = actualFrameTime / expectedFrameTime;
+    // 1. THROTTLE GUARD: If frame time is absurd (> 100ms / < 10 FPS), the browser
+    // is likely throttling the tab (occluded/sleeping) or there is a hard loading freeze.
+    // Return early so we don't poison the moving averages.
+    if (actualFrameTime > 100) {
+      return;
+    }
+
+    // 2. CLAMP INSTANT LOAD: Cap the max penalty at 2.5x load.
+    // This prevents moderate spikes from mathematically ruining the EWMA for minutes.
+    const instantLoad = Math.min(actualFrameTime / expectedFrameTime, 2.5);
 
     // Update Exponential Moving Averages
     const sampleSec = elapsedMs / 1000;
@@ -91,30 +99,29 @@ export class Performance extends CRABS_Base {
     const now = performance.now();
     const currentTier = CRABS_Base.currentPerformanceLevel;
 
-    // 1. FAST ATTACK: Instant degradation on heavy lag spikes
-    if (instantLoad >= this.LOAD_CRITICAL || this.load1 >= this.LOAD_CRITICAL) {
+    // DEGRADATION: Rely purely on the 1-minute moving average (load1)
+    if (this.load1 >= this.LOAD_CRITICAL) {
       this.transitionPerformance(PerformanceLevel.CRITICAL, now);
       return;
     }
 
-    if (instantLoad >= this.LOAD_LOW || this.load1 >= this.LOAD_LOW) {
+    if (this.load1 >= this.LOAD_LOW) {
       if (currentTier !== PerformanceLevel.CRITICAL) {
         this.transitionPerformance(PerformanceLevel.LOW, now);
       }
       return;
     }
 
-    // 2. SLOW DECAY: Cooldown and moving average check for recovery
+    // RECOVERY: Requires sustained health on 5m and 15m averages
     if (currentTier !== PerformanceLevel.NORMAL) {
       const timeInTier = now - this.lastStateChangeTime;
 
-      // Must exceed backoff cooldown AND sustained 5m/15m load must be healthy
       if (
         timeInTier >= this.recoveryCooldownMs &&
+        this.load1 <= this.LOAD_RECOVERY &&
         this.load5 <= this.LOAD_RECOVERY &&
         this.load15 <= this.LOAD_RECOVERY
       ) {
-        // Step down gradually
         const nextTier =
           currentTier === PerformanceLevel.CRITICAL
             ? PerformanceLevel.LOW
