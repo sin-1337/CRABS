@@ -10,9 +10,25 @@ export class Performance extends CRABS_Base {
   private lastEvalTime: number = performance.now();
   private frameCount: number = 0;
 
-  // Configurable thresholds
-  private readonly EVAL_INTERVAL_MS = 2000;
-  private readonly LAG_TOLERANCE = 1.4; // 40% slower than expected frame time triggers degradation
+  // Evaluation timing
+  private readonly SAMPLE_INTERVAL_MS = 2000;
+  private readonly BASE_RECOVERY_COOLDOWN_MS = 5 * 60 * 1000; // 5 min base
+  private readonly MAX_RECOVERY_COOLDOWN_MS = 15 * 60 * 1000; // 15 min max
+
+  // Performance Load Thresholds (1.0 = target FPS, 1.3 = 30% slower)
+  private readonly LOAD_LOW = 1.3;
+  private readonly LOAD_CRITICAL = 1.7;
+  private readonly LOAD_RECOVERY = 1.1; // Strict ceiling before recovering
+
+  // Load Averages (EWMA: 1m, 5m, 15m)
+  private load1: number = 1.0;
+  private load5: number = 1.0;
+  private load15: number = 1.0;
+
+  // Anti-flap tracking
+  private lastStateChangeTime: number = performance.now();
+  private flapCount: number = 0;
+  private recoveryCooldownMs: number = this.BASE_RECOVERY_COOLDOWN_MS;
 
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS);
@@ -22,19 +38,16 @@ export class Performance extends CRABS_Base {
   }
 
   private initVFXRegistry(): void {
-    const globalWindow = window as any;
-    if (globalWindow.DrawSkipVFX) {
-      globalWindow.DrawSkipVFX.register((_module: string, _screen: string) => {
-        // Tier 1: Mod-only non-intrusive performance saving
-        if (!Settings.instance.data.enablePerformanceMode) return false;
+    const g = window as any;
+    if (g.DrawSkipVFX) {
+      g.DrawSkipVFX.register((_module: string, _screen: string) => {
         return CRABS_Base.currentPerformanceLevel !== PerformanceLevel.NORMAL;
       });
     }
   }
 
   private getTargetFps(): number {
-    const globalWindow = window as any;
-    const nativeMax = globalWindow.Player?.GraphicsSettings?.MaxFPS;
+    const nativeMax = (window as any).Player?.GraphicsSettings?.MaxFPS;
     return nativeMax && nativeMax > 0 ? nativeMax : 60;
   }
 
@@ -42,7 +55,6 @@ export class Performance extends CRABS_Base {
     const loop = () => {
       this.rafId = requestAnimationFrame(loop);
 
-      // If the user alt-tabs, the browser throttles rAF. Ignore this entirely.
       if (document.hidden) {
         this.lastEvalTime = performance.now();
         this.frameCount = 0;
@@ -53,7 +65,7 @@ export class Performance extends CRABS_Base {
       const now = performance.now();
       const elapsed = now - this.lastEvalTime;
 
-      if (elapsed >= this.EVAL_INTERVAL_MS) {
+      if (elapsed >= this.SAMPLE_INTERVAL_MS) {
         this.evaluatePerformance(elapsed, this.frameCount);
         this.lastEvalTime = now;
         this.frameCount = 0;
@@ -64,58 +76,108 @@ export class Performance extends CRABS_Base {
   }
 
   private evaluatePerformance(elapsedMs: number, framesRendered: number): void {
-    if (!Settings.instance.data.enablePerformanceMode) {
-      this.setPerformanceLevel(PerformanceLevel.NORMAL);
+    const targetFps = this.getTargetFps();
+    const expectedFrameTime = 1000 / targetFps;
+    const actualFrameTime = elapsedMs / Math.max(1, framesRendered);
+
+    // Instantaneous Load (1.0 = normal, >1.0 = lagging)
+    const instantLoad = actualFrameTime / expectedFrameTime;
+
+    // Update Exponential Moving Averages
+    const sampleSec = elapsedMs / 1000;
+    this.load1 = this.calcEwma(this.load1, instantLoad, sampleSec, 60);
+    this.load5 = this.calcEwma(this.load5, instantLoad, sampleSec, 300);
+    this.load15 = this.calcEwma(this.load15, instantLoad, sampleSec, 900);
+
+    const now = performance.now();
+    const currentTier = CRABS_Base.currentPerformanceLevel;
+
+    // 1. FAST ATTACK: Instant degradation on heavy lag spikes
+    if (instantLoad >= this.LOAD_CRITICAL || this.load1 >= this.LOAD_CRITICAL) {
+      this.transitionPerformance(PerformanceLevel.CRITICAL, now);
       return;
     }
 
-    const targetFps = this.getTargetFps();
+    if (instantLoad >= this.LOAD_LOW || this.load1 >= this.LOAD_LOW) {
+      if (currentTier !== PerformanceLevel.CRITICAL) {
+        this.transitionPerformance(PerformanceLevel.LOW, now);
+      }
+      return;
+    }
 
-    // Calculate expected frame time vs actual frame time
-    const expectedFrameTime = 1000 / targetFps;
-    const actualFrameTime = elapsedMs / framesRendered;
+    // 2. SLOW DECAY: Cooldown and moving average check for recovery
+    if (currentTier !== PerformanceLevel.NORMAL) {
+      const timeInTier = now - this.lastStateChangeTime;
 
-    // If actual frame time is significantly worse than what the user asked for
-    if (actualFrameTime > expectedFrameTime * this.LAG_TOLERANCE * 1.5) {
-      this.setPerformanceLevel(PerformanceLevel.CRITICAL);
-    } else if (actualFrameTime > expectedFrameTime * this.LAG_TOLERANCE) {
-      this.setPerformanceLevel(PerformanceLevel.LOW);
+      // Must exceed backoff cooldown AND sustained 5m/15m load must be healthy
+      if (
+        timeInTier >= this.recoveryCooldownMs &&
+        this.load5 <= this.LOAD_RECOVERY &&
+        this.load15 <= this.LOAD_RECOVERY
+      ) {
+        // Step down gradually
+        const nextTier =
+          currentTier === PerformanceLevel.CRITICAL
+            ? PerformanceLevel.LOW
+            : PerformanceLevel.NORMAL;
+
+        this.transitionPerformance(nextTier, now, true);
+      }
+    }
+  }
+
+  private calcEwma(
+    prev: number,
+    current: number,
+    dt: number,
+    windowSec: number,
+  ): number {
+    const alpha = 1 - Math.exp(-dt / windowSec);
+    return prev + alpha * (current - prev);
+  }
+
+  private transitionPerformance(
+    newLevel: PerformanceLevel,
+    now: number,
+    isRecovery = false,
+  ): void {
+    const oldLevel = CRABS_Base.currentPerformanceLevel;
+    if (oldLevel === newLevel) return;
+
+    if (!isRecovery) {
+      // Degraded again quickly -> penalize with increased hold times
+      if (now - this.lastStateChangeTime < this.BASE_RECOVERY_COOLDOWN_MS * 2) {
+        this.flapCount++;
+        this.recoveryCooldownMs = Math.min(
+          this.BASE_RECOVERY_COOLDOWN_MS * (1 + this.flapCount * 0.5),
+          this.MAX_RECOVERY_COOLDOWN_MS,
+        );
+      }
     } else {
-      this.setPerformanceLevel(PerformanceLevel.NORMAL);
+      // Successful sustained recovery gradually bleeds flap penalties
+      this.flapCount = Math.max(0, this.flapCount - 1);
+    }
+
+    CRABS_Base.currentPerformanceLevel = newLevel;
+    this.lastStateChangeTime = now;
+
+    if (Settings.instance.data.enablePerformanceMode) {
+      this.applyBaseGameOptimizations(newLevel);
     }
   }
 
-  private setPerformanceLevel(level: PerformanceLevel): void {
-    if (CRABS_Base.currentPerformanceLevel === level) return;
-    CRABS_Base.currentPerformanceLevel = level;
-
-    if (Performance.debugMode) {
-      console.log(`[CRABS Perf] Shifted to: ${level}`);
-    }
-
-    // Apply Tier 2 Opt-In Base Game optimizations
-    if (Settings.instance.data.enableAggressiveBaseGameOptimization) {
-      this.applyBaseGameOptimizations(level);
-    }
-  }
-
-  /**
-   * Call whenever the user changes performance settings in the preference menu.
-   */
   public onSettingsChanged(): void {
-    if (!Settings.instance.data.enableAggressiveBaseGameOptimization) {
-      // Force restore any modified refresh rates immediately
+    if (!Settings.instance.data.enablePerformanceMode) {
       this.restoreOriginalRefreshRates();
     } else {
-      // Re-apply current tier if enabled mid-session
       this.applyBaseGameOptimizations(CRABS_Base.currentPerformanceLevel);
     }
   }
 
   private restoreOriginalRefreshRates(): void {
-    const globalWindow = window as any;
-    const animStorage = globalWindow.AnimationPersistentStorage;
-    const animTypes = globalWindow.AnimationDataTypes;
+    const g = window as any;
+    const animStorage = g.AnimationPersistentStorage;
+    const animTypes = g.AnimationDataTypes;
 
     if (!animStorage || !animTypes || !animStorage[animTypes.RefreshRate])
       return;
@@ -130,34 +192,20 @@ export class Performance extends CRABS_Base {
   }
 
   private applyBaseGameOptimizations(level: PerformanceLevel): void {
-    const globalWindow = window as any;
-    const animStorage = globalWindow.AnimationPersistentStorage;
-    const animTypes = globalWindow.AnimationDataTypes;
+    const g = window as any;
+    const animStorage = g.AnimationPersistentStorage;
+    const animTypes = g.AnimationDataTypes;
 
-    // 1. Manage Base Game Cache/Memory
-    if (level === PerformanceLevel.CRITICAL) {
-      if (globalWindow.GLDrawCache) {
-        globalWindow.GLDrawCache = new Map(); // Force clear drawing cache
-      }
-    }
-
-    // 2. Manage Animation Refresh Rates
     if (!animStorage || !animTypes || !animStorage[animTypes.RefreshRate])
       return;
     const refreshRates = animStorage[animTypes.RefreshRate];
 
     if (level === PerformanceLevel.NORMAL) {
-      // Restore original animation speeds
-      for (const charKey in this.originalRefreshRates) {
-        if (refreshRates[charKey] !== undefined) {
-          refreshRates[charKey] = this.originalRefreshRates[charKey];
-        }
-      }
-      this.originalRefreshRates = {};
+      this.restoreOriginalRefreshRates();
       return;
     }
 
-    // Map severity: LOW = 50ms (20fps anims), CRITICAL = 100ms (10fps anims)
+    // Clamp refresh rates (LOW = 50ms / 20fps, CRITICAL = 100ms / 10fps)
     const targetRate = level === PerformanceLevel.CRITICAL ? 100 : 50;
 
     for (const charKey in refreshRates) {
@@ -170,78 +218,30 @@ export class Performance extends CRABS_Base {
     }
   }
 
-  // Inspect and manage memory
-  public inspectBaseGameMemory(): void {
-    const g = window as any;
-
-    const stats: Record<string, number> = {};
-
-    // Base-game drawing/canvas caches
-    if (g.DrawCacheImage && typeof g.DrawCacheImage === "object") {
-      stats["DrawCacheImage Keys"] = Object.keys(g.DrawCacheImage).length;
-    }
-    if (g.GLDrawImageCache && typeof g.GLDrawImageCache === "object") {
-      stats["GLDrawImageCache Keys"] = Object.keys(g.GLDrawImageCache).length;
-    }
-    if (
-      g.AnimationPersistentStorage &&
-      typeof g.AnimationPersistentStorage === "object"
-    ) {
-      stats["AnimationStorage Keys"] = Object.keys(
-        g.AnimationPersistentStorage,
-      ).length;
-    }
-    if (
-      g.DrawImageBuilderCache &&
-      typeof g.DrawImageBuilderCache === "object"
-    ) {
-      stats["DrawImageBuilderCache Keys"] = Object.keys(
-        g.DrawImageBuilderCache,
-      ).length;
-    }
-
-    // Measure active DOM canvases/images
-    stats["DOM Canvas Elements"] = document.querySelectorAll("canvas").length;
-    stats["DOM Img Elements"] = document.querySelectorAll("img").length;
-
-    console.table(stats);
-  }
-
   public setupBaseGameMemoryPruning(): void {
-    // When leaving a room, purge asset caches
+    // Purge assets on room transitions to fix cumulative asset/RAM bloat
     this.safeHook("ChatRoomLeave", 0, (args, next) => {
       const result = next(args);
-
-      // Execute cache purge
       this.pruneBaseGameCaches();
-
       return result;
     });
 
-    // When navigating major screens (e.g. from Main Hall to Wardrobe/Chat)
     this.safeHook("CommonSetScreen", 0, (args, next) => {
       const result = next(args);
-
-      if (CRABS_Base.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
-        this.pruneBaseGameCaches();
-      }
-
+      // Prune if moving across major boundaries
+      this.pruneBaseGameCaches();
       return result;
     });
   }
 
   public pruneBaseGameCaches(): void {
     const g = window as any;
-
     try {
-      // 1. Native WebGL Cache Clear (if supported by base game)
       if (typeof g.GLDrawClearCache === "function") {
         g.GLDrawClearCache();
       }
 
-      // 2. Clear standard 2D Draw Caches if they exist
       if (g.DrawCacheImage && typeof g.DrawCacheImage === "object") {
-        // Optional: iterate through canvases to zero dimensions before clearing
         for (const key in g.DrawCacheImage) {
           const item = g.DrawCacheImage[key];
           if (item?.canvas instanceof HTMLCanvasElement) {
@@ -252,20 +252,87 @@ export class Performance extends CRABS_Base {
         g.DrawCacheImage = {};
       }
 
-      // 3. Clear temporary image builder buffers
       if (
         g.DrawImageBuilderCache &&
         typeof g.DrawImageBuilderCache === "object"
       ) {
         g.DrawImageBuilderCache = {};
       }
-
-      if (CRABS_Base.debugMode) {
-        console.log("[CRABS] Base game asset caches pruned.");
-      }
     } catch (err) {
-      console.error("[CRABS] Failed to prune base game caches:", err);
+      console.error("[CRABS] Cache prune failed:", err);
     }
+  }
+
+  /**
+   * Returns current performance, frame times, and load averages.
+   */
+  public getPerformanceStats(): {
+    level: string;
+    targetFps: number;
+    load1: string;
+    load5: string;
+    load15: string;
+    flapCount: number;
+    cooldownSec: number;
+  } {
+    const levelNames = ["NORMAL", "LOW", "CRITICAL"];
+    return {
+      level: levelNames[CRABS_Base.currentPerformanceLevel] || "UNKNOWN",
+      targetFps: this.getTargetFps(),
+      load1: this.load1.toFixed(2),
+      load5: this.load5.toFixed(2),
+      load15: this.load15.toFixed(2),
+      flapCount: this.flapCount,
+      cooldownSec: Math.round(this.recoveryCooldownMs / 1000),
+    };
+  }
+
+  /**
+   * Returns formatted memory stats for chat and logs details to console table.
+   */
+  public inspectBaseGameMemory(): Record<string, number | string> {
+    const g = window as any;
+    const stats: Record<string, number | string> = {};
+
+    // 1. Caches & Storage counts
+    stats["DrawCacheImage Entries"] =
+      g.DrawCacheImage && typeof g.DrawCacheImage === "object"
+        ? Object.keys(g.DrawCacheImage).length
+        : 0;
+
+    stats["GLDrawImageCache Entries"] =
+      g.GLDrawImageCache && typeof g.GLDrawImageCache === "object"
+        ? Object.keys(g.GLDrawImageCache).length
+        : 0;
+
+    stats["AnimationStorage Keys"] =
+      g.AnimationPersistentStorage &&
+      typeof g.AnimationPersistentStorage === "object"
+        ? Object.keys(g.AnimationPersistentStorage).length
+        : 0;
+
+    stats["ImageBuilder Cache"] =
+      g.DrawImageBuilderCache && typeof g.DrawImageBuilderCache === "object"
+        ? Object.keys(g.DrawImageBuilderCache).length
+        : 0;
+
+    // 2. DOM Elements
+    stats["DOM Canvases"] = document.querySelectorAll("canvas").length;
+    stats["DOM Img Elements"] = document.querySelectorAll("img").length;
+
+    // 3. JS Heap Memory (if Chromium / supported)
+    if (performance && (performance as any).memory) {
+      const mem = (performance as any).memory;
+      stats["JS Heap Used"] =
+        `${(mem.usedJSHeapSize / (1024 * 1024)).toFixed(1)} MB`;
+      stats["JS Heap Total"] =
+        `${(mem.totalJSHeapSize / (1024 * 1024)).toFixed(1)} MB`;
+      stats["JS Heap Limit"] =
+        `${(mem.jsHeapSizeLimit / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    console.table(stats);
+    return stats;
   }
 
   public stop(): void {
