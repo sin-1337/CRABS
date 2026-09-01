@@ -1,13 +1,114 @@
 {
-    "header": { "title_default": "幫助", "documentation_title": "文檔", "view_changelog": "查看更新日誌" },
-    "controls": { "close_dialog": "關閉幫助" },
-    "sections": { "key_features": "主要功能", "core_commands": "核心命令", "interactions": "交互與導航", "relational_icons": "關係圖標", "status_badges": "狀態與徽章", "settings_overview": "⚙️ 設置詳細概覽", "general": "常規", "drawer": "抽屜", "immersion": "沉浸式", "maps": "地圖", "chat": "聊天", "config": "配置" },
-    "features": { "drawer_title": "🗄️ 交互式抽屜", "drawer_desc": "一個簡潔、可收納的名單界面。完全事件驅動，實現實時狀態更新，無延遲。", "compass_title": "🧭 通用指南針與焦點", "compass_desc": "在地圖或普通房間中追蹤玩家！懸停在卡片、聊天名稱或角色上會顯示旋轉的 3D 指示器和光暈效果。", "chat_title": "🔔 聊天高亮", "chat_desc": "高亮顯示包含您的姓名或自定義詞語的消息。包括顏色匹配、自動首字母大寫和排除短語以防止誤報。", "privacy_title": "🛡️ 隱私模式", "privacy_desc": "可自定義的“老闆鍵”，可瞬間清空角色屏幕或遊戲窗口。通過快捷鍵切換（默認：CTRL + ALT + B）。", "performance_title": "⚡ 智能性能", "performance_desc": "監控真實的幀差。在延遲激增時動態降低視覺質量和更新率，以節省 FPS。", "blindness_title": "👁️ 沉浸式盲目", "blindness_desc": "基於您的盲目等級的可選名單模糊處理。完全尊重 BCX “完全盲目”規則。", "colors_title": "✨ 智能顏色", "colors_desc": "自動檢測深色或模糊的玩家名稱顏色，並應用高對比度輪廓以提高可讀性。", "whisper_title": "💬 私聊+", "whisper_desc": "在地圖房間中任意距離發送私聊。如果朋友在您發送前離開房間，自動升級為提示音。" },
-    "commands": { "roster_desc": "在聊天記錄中打開增強版名單。顯示房間內每個人的詳細信息。", "args_label": "參數：", "arg_count": "僅顯示當前房間人數計數器。", "arg_admins": "僅列出房間管理員。", "arg_vips": "僅列出房間白名單用戶。", "arg_banner": "強制重新繪製房間信息橫幅。", "arg_help": "顯示此文檔。", "whisper_desc": "地圖房間的全局私聊系統。繞過範圍限制，向地圖上的任何人發送消息。", "dropkeys_desc": "立即丟棄特定鑰匙（<span style=\"color:#cd7f32\">青銅</span>、<span style=\"color:#c0c0c0\">白銀</span>、<span style=\"color:#ffd700\">黃金</span>）或一次性丟棄所有鑰匙。" },
-    "interactions": { "click_badge": "<b>點擊徽章：</b> 打開角色的焦點屏幕。", "click_name": "<b>點擊玩家名稱：</b> 發起私聊+消息。", "click_id": "<b>點擊數字 (ID)：</b> 將玩家的會員編號複製到剪貼板。", "live_sorting": "<b>實時排序：</b> 使用抽屜右上角的下拉菜單，按角色、D/s 家族、戀人或朋友對玩家進行排序。", "reverse_hover": "<b>反向懸停：</b> 在遊戲世界中懸停在角色上會高亮顯示其在名單中的卡片。", "shortcuts": "<b>鍵盤快捷鍵：</b> <code>CTRL + ALT + D</code> 切換抽屜。 <code>CTRL + ALT + B</code> 切換隱私模式。" },
-    "relations": { "you": "您", "owner": "主人", "sub": "服從者", "trial": "試用期", "lover": "戀人", "family": "家族", "bestfriend": "摯友", "friend": "朋友", "whitelist": "白名單", "blacklist": "黑名單", "ghost": "屏蔽" },
-    "badges": { "admin": "房間管理員", "vip": "房間白名單", "player": "房間訪客" },
-    "status": { "indicators_desc": "<b>狀態指示器：</b> 每張卡片都有三個圖標，指示玩家是否被<b>禁言</b>、<b>失明</b>或<b>失聰</b>。懸停時，這些圖標會亮起並顯示嚴重程度。" },
-    "settings_guide": { "intro": "通過抽屜中的 {icon} 圖標訪問設置，現在具有完整的<b>標籤頁界面</b>。<br><b>快速聊天返回：</b> 點擊右上角的<b>聊天氣泡圖標</b>即可立即返回遊戲。", "general_update": "<b>更新通知：</b> 當有新版本需要刷新時提醒您。", "general_banner": "<b>進入時顯示橫幅：</b> 進入房間時顯示信息橫幅。", "general_privacy": "<b>全屏隱私模式：</b> 使用熱鍵時清空整個屏幕，而不僅僅是聊天側。", "general_halo": "<b>啟用焦點光暈：</b> 在懸停的頭像上顯示脈衝光暈效果。", "general_keybinds": "<b>編輯快捷鍵：</b> 直接跳轉到遊戲快捷鍵菜單，以更改您的隱私和抽屜切換熱鍵。", "drawer_enable": "<b>啟用抽屜 UI：</b> 打開或關閉滑動抽屜界面。", "drawer_toggle_cmd": "<b>/roster 切換抽屜：</b> 輸入 <span class=\"CRABS_help_command\">/roster</span> 或 <span class=\"CRABS_help_command\">/crabs</span> 打開抽屜，而不是在聊天中打印。", "drawer_tab": "<b>顯示抽屜標籤：</b> 切換屏幕邊緣的持久視覺標籤。", "drawer_logo_anim": "<b>動畫標籤 Logo：</b> 切換抽屜 Logo 動畫以節省性能。", "drawer_compact": "<b>緊湊高度：</b> 將抽屜高度限制在 77%，保持聊天輸入可見。", "drawer_autostow": "<b>自動收納選項：</b> 發送普通聊天或私聊+後自動關閉抽屜。", "drawer_focus": "<b>焦點跟隨鼠標：</b> 懸停在玩家卡片上時自動切換到其頁面。", "drawer_autoscroll": "<b>自動滾動抽屜：</b> 名單自動滾動到您在遊戲世界中懸停的那個角色。", "immersion_lock": "<b>硬核鎖定：</b> 在您的角色被束縛時鎖定這些沉浸式設置處於開啟狀態。", "immersion_blind_gag": "<b>尊重失明與禁言：</b> 根據角色狀態模糊名單 UI 並禁用私聊+。", "immersion_bcx": "<b>尊重 BCX 規則：</b> 在 CRABS 界面內強制執行 BCX 限制。", "maps_compass": "<b>顯示地圖指南針：</b> 在地圖上顯示方向箭頭。", "maps_superzoom": "<b>超級縮放：</b> 解鎖遊戲默認的地圖縮放限制（若檢測到衝突則自動禁用）。", "chat_mentions": "<b>高亮提及：</b> 當有人提及特定詞語或您的名字時提醒您。自定義高亮顏色。", "chat_caps_match": "<b>自動大寫與顏色匹配：</b> 將您的名字大寫，並使其在高亮顯示中與您角色的標籤顏色相匹配。", "chat_custom_words": "<b>自定義詞語與排除短語：</b> 添加觸發詞並使用通配符（例如 '摘* 一朵玫瑰'）以防止誤報。", "chat_links": "<b>聊天記錄懸停鏈接：</b> 懸停在聊天記錄中的名稱上可觸發焦點光暈和地圖指南針。", "chat_whisper_elevate": "<b>私聊+ 自動升級：</b> 如果朋友離開房間，嘗試將私聊+作為普通提示音發送。", "config_cloud_sync": "<b>禁用雲同步：</b> 保持設置嚴格本地化，防止跨設備同步。包括容量跟蹤器。", "config_delete_server": "<b>刪除服務器存檔：</b> 從遊戲服務器中擦除您的 CRABS 設置。", "config_export_import": "<b>導出 / 導入：</b> 複製或粘貼您的設置字符串以備份或共享。" },
-    "general": { "not_applicable": "不適用" }
+    "header": {
+        "title_default": "說明",
+        "documentation_title": "文件",
+        "view_changelog": "檢視更新日誌"
+    },
+    "controls": {
+        "close_dialog": "關閉說明"
+    },
+    "sections": {
+        "key_features": "主要功能",
+        "core_commands": "核心指令",
+        "interactions": "互動與導航",
+        "relational_icons": "關係圖示",
+        "status_badges": "狀態與徽章",
+        "settings_overview": "⚙️ 設定詳細概覽",
+        "general": "一般",
+        "drawer": "抽屜",
+        "immersion": "沉浸式",
+        "maps": "地圖",
+        "chat": "聊天",
+        "config": "設定"
+    },
+    "features": {
+        "drawer_title": "🗄️ 互動式抽屜",
+        "drawer_desc": "一個簡潔、可收納的名單介面。完全事件驅動，實現即時狀態更新，零延遲。",
+        "compass_title": "🧭 通用指南針與焦點",
+        "compass_desc": "在地圖或一般房間中追蹤玩家！懸停在卡片、聊天名稱或角色上會顯示旋轉的 3D 指示器和光暈效果。",
+        "chat_title": "🔔 聊天高亮",
+        "chat_desc": "高亮顯示包含您的姓名或自訂詞彙的訊息。包含顏色匹配、自動首字母大寫和排除短語以防止誤報。",
+        "privacy_title": "🛡️ 隱私模式",
+        "privacy_desc": "可自訂的「老闆鍵」，可瞬間清空角色螢幕或遊戲視窗。透過快捷鍵切換（預設：CTRL + ALT + B）。",
+        "performance_title": "⚡ 智慧效能",
+        "performance_desc": "監控真實的幀差。在延遲激增時動態降低視覺品質和更新率，以節省 FPS。",
+        "blindness_title": "👁️ 沉浸式盲目",
+        "blindness_desc": "基於您的盲目等級的選擇性名單模糊處理。完全尊重 BCX 「完全盲目」規則。",
+        "colors_title": "✨ 智慧顏色",
+        "colors_desc": "自動偵測深色或模糊的玩家名稱顏色，並應用高對比度輪廓以提高可讀性。",
+        "whisper_title": "💬 私聊+",
+        "whisper_desc": "在地圖房間中任意距離發送私聊。如果朋友在您發送前離開房間，自動升級為提示音。"
+    },
+    "commands": {
+        "roster_desc": "在聊天記錄中打開增強版名單。顯示房間內每個人的詳細資訊。",
+        "args_label": "參數：",
+        "arg_count": "僅顯示目前房間人數計數器。",
+        "arg_admins": "僅列出房間管理員。",
+        "arg_vips": "僅列出房間白名單使用者。",
+        "arg_banner": "強制重新繪製房間資訊橫幅。",
+        "arg_help": "顯示此文件。",
+        "whisper_desc": "地圖房間的全域私聊系統。繞過範圍限制，向地圖上的任何人發送訊息。",
+        "dropkeys_desc": "立即丟棄特定鑰匙（<span style=\"color:#cd7f32\">青銅</span>、<span style=\"color:#c0c0c0\">白銀</span>、<span style=\"color:#ffd700\">黃金</span>）或一次性丟棄所有鑰匙。"
+    },
+    "interactions": {
+        "click_badge": "<b>點擊徽章：</b> 打開角色的焦點螢幕。",
+        "click_name": "<b>點擊玩家名稱：</b> 發起私聊+訊息。",
+        "click_id": "<b>點擊數字 (ID)：</b> 將玩家的會員編號複製到剪貼簿。",
+        "live_sorting": "<b>即時排序：</b> 使用抽屜右上角的下拉選單，按角色、D/s 家族、戀人或朋友對玩家進行排序。",
+        "reverse_hover": "<b>反向懸停：</b> 在遊戲世界中懸停在角色上會高亮顯示其在名單中的卡片。",
+        "shortcuts": "<b>鍵盤快捷鍵：</b> <code>CTRL + ALT + D</code> 切換抽屜。 <code>CTRL + ALT + B</code> 切換隱私模式。"
+    },
+    "relations": {
+        "you": "您",
+        "owner": "主人",
+        "sub": "服從者",
+        "trial": "試用期",
+        "lover": "戀人",
+        "family": "家族",
+        "bestfriend": "摯友",
+        "friend": "朋友",
+        "whitelist": "白名單",
+        "blacklist": "黑名單",
+        "ghost": "屏蔽"
+    },
+    "badges": {
+        "admin": "房間管理員",
+        "vip": "房間白名單",
+        "player": "房間訪客"
+    },
+    "status": {
+        "indicators_desc": "<b>狀態指示器：</b> 每張卡片都有三個圖示，指示玩家是否被<b>禁言</b>、<b>失明</b>或<b>失聰</b>。懸停時，這些圖示會亮起並顯示嚴重程度。"
+    },
+    "settings_guide": {
+        "intro": "透過抽屜中的 {icon} 圖示存取設定，現在具有完整的<b>頁籤介面</b>。<br><b>快速聊天返回：</b> 點擊右上角的<b>聊天氣泡圖示</b>即可立即返回遊戲。",
+        "general_update": "<b>更新通知：</b> 當有新版本需要重新整理時提醒您。",
+        "general_banner": "<b>進入時顯示橫幅：</b> 進入房間時顯示資訊橫幅。",
+        "general_privacy": "<b>全螢幕隱私模式：</b> 使用熱鍵時清空整個螢幕，而不僅僅是聊天側。",
+        "general_halo": "<b>啟用焦點光暈：</b> 在懸停的頭像上顯示脈衝光暈效果。",
+        "general_keybinds": "<b>編輯快捷鍵：</b> 直接跳轉到遊戲快捷鍵選單，以更改您的隱私和抽屜切換熱鍵。",
+        "drawer_enable": "<b>啟用抽屜 UI：</b> 打開或關閉滑動抽屜介面。",
+        "drawer_toggle_cmd": "<b>/roster 切換抽屜：</b> 輸入 <span class=\"CRABS_help_command\">/roster</span> 或 <span class=\"CRABS_help_command\">/crabs</span> 打開抽屜，而不是在聊天中印出。",
+        "drawer_tab": "<b>顯示抽屜標籤：</b> 切換螢幕邊緣的持久視覺標籤。",
+        "drawer_logo_anim": "<b>動畫標籤 Logo：</b> 切換抽屜 Logo 動畫以節省效能。",
+        "drawer_compact": "<b>緊湊高度：</b> 將抽屜高度限制在 77%，保持聊天輸入可見。",
+        "drawer_autostow": "<b>自動收納選項：</b> 發送普通聊天或私聊+後自動關閉抽屜。",
+        "drawer_focus": "<b>焦點跟隨滑鼠：</b> 懸停在玩家卡片上時自動切換到其頁面。",
+        "drawer_autoscroll": "<b>自動滾動抽屜：</b> 名單自動滾動到您在遊戲世界中懸停的那個角色。",
+        "immersion_lock": "<b>硬核鎖定：</b> 在您的角色被束縛時鎖定這些沉浸式設定處於開啟狀態。",
+        "immersion_blind_gag": "<b>尊重失明與禁言：</b> 根據角色狀態模糊名單 UI 並停用私聊+。",
+        "immersion_bcx": "<b>尊重 BCX 規則：</b> 在 CRABS 介面內強制執行 BCX 限制。",
+        "maps_compass": "<b>顯示地圖指南針：</b> 在地圖上顯示方向箭頭。",
+        "maps_superzoom": "<b>超級縮放：</b> 解鎖遊戲預設的地圖縮放限制（若偵測到衝突則自動停用）。",
+        "chat_mentions": "<b>高亮提及：</b> 當有人提及特定詞語或您的名字時提醒您。自訂高亮顏色。",
+        "chat_caps_match": "<b>自動大寫與顏色匹配：</b> 將您的名字大寫，並使其在高亮顯示中與您角色的標籤顏色相匹配。",
+        "chat_custom_words": "<b>自訂詞彙與排除短語：</b> 新增觸發詞並使用萬用字元（例如 '摘* 一朵玫瑰'）以防止誤報。",
+        "chat_links": "<b>聊天記錄懸停連結：</b> 懸停在聊天記錄中的名稱上可觸發焦點光暈和地圖指南針。",
+        "chat_whisper_elevate": "<b>私聊+ 自動升級：</b> 如果朋友離開房間，嘗試將私聊+作為普通提示音發送。",
+        "config_cloud_sync": "<b>停用雲端同步：</b> 保持設定嚴格本機化，防止跨裝置同步。包含容量追蹤器。",
+        "config_delete_server": "<b>刪除伺服器存檔：</b> 從遊戲伺服器中清除您的 CRABS 設定。",
+        "config_export_import": "<b>匯出 / 匯入：</b> 複製或貼上您的設定字串以備份或分享。"
+    },
+    "general": {
+        "not_applicable": "不適用"
+    }
 }

@@ -81,7 +81,8 @@ export class WhisperPlus extends CRABS_Base {
           Settings.instance.data.autoBeepOnLeave &&
           typeof message === "string"
         ) {
-          const prefix = TextGet("CommandNoWhisperTarget");
+          const prefix: string =
+            (TextGet as any)("CommandNoWhisperTarget") || "";
           if (message.startsWith(prefix)) {
             const targetStr = message
               .slice(prefix.length)

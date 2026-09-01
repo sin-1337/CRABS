@@ -1,13 +1,114 @@
 {
-    "header": { "title_default": "Aide", "documentation_title": "Documentation", "view_changelog": "Voir le journal des modifications" },
-    "controls": { "close_dialog": "Fermer l'aide" },
-    "sections": { "key_features": "Fonctionnalités clés", "core_commands": "Commandes principales", "interactions": "Interactions & Navigation", "relational_icons": "Icônes relationnelles", "status_badges": "Statut & Badges", "settings_overview": "⚙️ Aperçu détaillé des paramètres", "general": "Général", "drawer": "Tiroir", "immersion": "Immersion", "maps": "Cartes", "chat": "Chat", "config": "Configuration" },
-    "features": { "drawer_title": "🗄️ Tiroir interactif", "drawer_desc": "Une interface de liste élégante et escamotable. Entièrement pilotée par événements pour des mises à jour de statut en temps réel sans latence.", "compass_title": "🧭 Boussole universelle & Focus", "compass_desc": "Suivez les joueurs sur les cartes ou dans les salles normales ! Survoler les cartes, les noms de chat ou les personnages révèle un indicateur 3D rotatif et une lueur de halo.", "chat_title": "🔔 Mise en surbrillance du chat", "chat_desc": "Met en surbrillance les messages contenant votre nom ou des mots personnalisés. Inclut la correspondance des couleurs, la capitalisation automatique et des phrases d'exclusion pour éviter les faux positifs.", "privacy_title": "🛡️ Mode vie privée", "privacy_desc": "Un \"bouton panique\" personnalisable qui efface instantanément l'écran du personnage ou la fenêtre de jeu. Basculez via un raccourci clavier (Par défaut : CTRL + ALT + B).", "performance_title": "⚡ Performance intelligente", "performance_desc": "Surveille le delta d'image réel. Abaisse dynamiquement la qualité visuelle et les taux de mise à jour pour économiser vos FPS lors des pics de latence.", "blindness_title": "👁️ Cécité immersive", "blindness_desc": "Flou optionnel du Roster basé sur votre niveau de cécité. Respecte entièrement les règles BCX \"Full Blind\".", "colors_title": "✨ Couleurs intelligentes", "colors_desc": "Détecte automatiquement les couleurs sombres ou boueuses des noms de joueurs et applique un contour à contraste élevé pour la lisibilité.", "whisper_title": "💬 Chuchotement+", "whisper_desc": "Envoyez des chuchotements dans les salles de carte à n'importe quelle distance. Passe automatiquement à un bip si un ami quitte la salle avant que vous n'envoyiez." },
-    "commands": { "roster_desc": "Ouvre le Roster amélioré dans le journal de chat. Affiche des informations détaillées sur tous les membres de la salle.", "args_label": "Arguments :", "arg_count": "Affiche uniquement les compteurs de population actuels de la salle.", "arg_admins": "Liste uniquement les administrateurs de la salle.", "arg_vips": "Liste uniquement les utilisateurs sur la liste blanche de la salle.", "arg_banner": "Force le redessin de la bannière d'information de la salle.", "arg_help": "Affiche cette documentation.", "whisper_desc": "Système de chuchotement global pour les salles de carte. Contournez les restrictions de portée pour envoyer un message à n'importe qui sur la carte.", "dropkeys_desc": "Lâchez instantanément des clés spécifiques (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">argent</span>, <span style=\"color:#ffd700\">or</span>) ou toutes les clés en une fois." },
-    "interactions": { "click_badge": "<b>Cliquez sur le badge :</b> Ouvre l'écran de focus du personnage.", "click_name": "<b>Cliquez sur le nom du joueur :</b> Démarre un message Chuchotement+.", "click_id": "<b>Cliquez sur le numéro (ID) :</b> Copie le numéro de membre du joueur dans votre presse-papiers.", "live_sorting": "<b>Tri en direct :</b> Utilisez le menu déroulant en haut à droite du tiroir pour trier les joueurs par Rôles, Famille D/s, Amants ou Amis.", "reverse_hover": "<b>Survol inversé :</b> Survoler un personnage dans le monde du jeu met en surbrillance sa carte dans le Roster.", "shortcuts": "<b>Raccourcis clavier :</b> <code>CTRL + ALT + D</code> bascule le tiroir. <code>CTRL + ALT + B</code> bascule le mode vie privée." },
-    "relations": { "you": "Vous", "owner": "Propriétaire", "sub": "Soumis", "trial": "En période d'essai", "lover": "Amant", "family": "Famille", "bestfriend": "Meilleur ami", "friend": "Ami", "whitelist": "Liste blanche", "blacklist": "Liste noire", "ghost": "Fantôme" },
-    "badges": { "admin": "Admin de salle", "vip": "Liste blanche de salle", "player": "Invité de salle" },
-    "status": { "indicators_desc": "<b>Indicateurs de statut :</b> Chaque carte comporte trois icônes indiquant si un joueur est <b>Gagged</b>, <b>Blind</b> ou <b>Deaf</b>. Ils s'allument et affichent les niveaux de gravité lorsqu'ils sont survolés." },
-    "settings_guide": { "intro": "Accédez aux paramètres via l'icône {icon} dans le tiroir, désormais doté d'une <b>interface à onglets</b> complète. <br><b>Retour rapide au chat :</b> Cliquez sur l'<b>icône de bulle de chat</b> en haut à droite pour retourner instantanément au jeu.", "general_update": "<b>Notifications de mise à jour :</b> Vous alerte lorsque vous devez rafraîchir pour une nouvelle version.", "general_banner": "<b>Afficher la bannière à l'entrée :</b> Affiche une bannière d'information lors de la jonction d'une salle.", "general_privacy": "<b>Mode vie privée plein écran :</b> Efface tout l'écran au lieu de seulement le côté chat lorsque le raccourci est utilisé.", "general_halo": "<b>Activer le halo de focus :</b> Montre un effet de halo pulsé sur les avatars survolés.", "general_keybinds": "<b>Modifier les raccourcis :</b> Lien direct vers le menu des raccourcis du jeu pour changer vos raccourcis de mode vie privée et de tiroir.", "drawer_enable": "<b>Activer l'interface du tiroir :</b> Active ou désactive l'interface du tiroir coulissant.", "drawer_toggle_cmd": "<b>/roster bascule le tiroir :</b> Taper <span class=\"CRABS_help_command\">/roster</span> ou <span class=\"CRABS_help_command\">/crabs</span> ouvre le tiroir au lieu d'imprimer dans le chat.", "drawer_tab": "<b>Afficher l'onglet du tiroir :</b> Bascule l'onglet visuel persistant sur le bord de l'écran.", "drawer_logo_anim": "<b>Logo d'onglet animé :</b> Active l'animation du logo du tiroir pour économiser des performances.", "drawer_compact": "<b>Hauteur compacte :</b> Limite le tiroir à 77% de hauteur, gardant l'entrée du chat visible.", "drawer_autostow": "<b>Options d'escamotage automatique :</b> Ferme le tiroir automatiquement après l'envoi d'un chat standard ou Chuchotement+.", "drawer_focus": "<b>Le focus suit la souris :</b> Passe automatiquement à la page d'un joueur lorsque vous survolez sa carte.", "drawer_autoscroll": "<b>Défilement automatique du tiroir :</b> Le Roster défile automatiquement jusqu'au personnage que vous survolez dans le monde du jeu.", "immersion_lock": "<b>Verrouillage hardcore :</b> Verrouille ces paramètres d'immersion sur ACTIVÉ pendant que votre personnage est lié.", "immersion_blind_gag": "<b>Respecter Cécité & Gag :</b> Floute l'interface du Roster et désactive Chuchotement+ en fonction de l'état du personnage.", "immersion_bcx": "<b>Respecter les règles BCX :</b> Applique les restrictions BCX dans l'interface CRABS.", "maps_compass": "<b>Afficher la boussole de carte :</b> Affiche une flèche directionnelle sur la carte.", "maps_superzoom": "<b>SuperZoom :</b> Déverrouille les limitations de zoom par défaut du jeu (auto-désactive si des conflits sont détectés).", "chat_mentions": "<b>Mettre en surbrillance les mentions :</b> Vous alerte lorsque des mots spécifiques ou votre nom sont prononcés. Personnalisez la couleur de surbrillance.", "chat_caps_match": "<b>Capitalisation auto & Correspondance couleur :</b> Met votre nom en majuscules et le fait correspondre à la couleur de l'étiquette de votre personnage dans les surbrillances.", "chat_custom_words": "<b>Mots personnalisés & Phrases d'exclusion :</b> Ajoutez des mots déclencheurs et utilisez des caractères génériques (ex: 'cueill* une rose') pour éviter les fausses alertes.", "chat_links": "<b>Liens de survol du journal de chat :</b> Survoler les noms dans le journal de chat déclenche le halo de focus et la boussole de carte.", "chat_whisper_elevate": "<b>Auto-élévation Chuchotement+ :</b> Tente d'envoyer un Chuchotement+ comme un bip standard si un ami quitte la salle.", "config_cloud_sync": "<b>Désactiver la synchro cloud :</b> Garde les paramètres strictement locaux, empêchant la synchronisation entre appareils. Inclut un suivi de capacité.", "config_delete_server": "<b>Supprimer la sauvegarde serveur :</b> Efface vos paramètres CRABS du serveur de jeu.", "config_export_import": "<b>Exporter / Importer :</b> Copiez ou collez votre chaîne de paramètres pour sauvegarder ou partager." },
-    "general": { "not_applicable": "N/A" }
+    "header": {
+        "title_default": "Aide",
+        "documentation_title": "Documentation",
+        "view_changelog": "Voir le journal des modifications"
+    },
+    "controls": {
+        "close_dialog": "Fermer l'aide"
+    },
+    "sections": {
+        "key_features": "Fonctionnalités clés",
+        "core_commands": "Commandes principales",
+        "interactions": "Interactions & Navigation",
+        "relational_icons": "Icônes relationnelles",
+        "status_badges": "Statut & Badges",
+        "settings_overview": "⚙️ Aperçu détaillé des paramètres",
+        "general": "Général",
+        "drawer": "Tiroir",
+        "immersion": "Immersion",
+        "maps": "Cartes",
+        "chat": "Chat",
+        "config": "Configuration"
+    },
+    "features": {
+        "drawer_title": "🗄️ Tiroir interactif",
+        "drawer_desc": "Une interface de liste élégante et escamotable. Entièrement pilotée par événements pour des mises à jour de statut en temps réel sans latence.",
+        "compass_title": "🧭 Boussole universelle & Focus",
+        "compass_desc": "Suivez les joueurs sur les cartes ou dans les salles normales ! Survoler les cartes, les noms de chat ou les personnages révèle un indicateur 3D rotatif et une lueur de halo.",
+        "chat_title": "🔔 Mise en surbrillance du chat",
+        "chat_desc": "Met en surbrillance les messages contenant votre nom ou des mots personnalisés. Inclut la correspondance des couleurs, la capitalisation automatique et des phrases d'exclusion pour éviter les faux positifs.",
+        "privacy_title": "🛡️ Mode vie privée",
+        "privacy_desc": "Un \"bouton panique\" personnalisable qui efface instantanément l'écran du personnage ou la fenêtre de jeu. Basculez via un raccourci clavier (Par défaut : CTRL + ALT + B).",
+        "performance_title": "⚡ Performance intelligente",
+        "performance_desc": "Surveille le delta d'image réel. Abaisse dynamiquement la qualité visuelle et les taux de mise à jour pour économiser vos FPS lors des pics de latence.",
+        "blindness_title": "👁️ Cécité immersive",
+        "blindness_desc": "Flou optionnel du Roster basé sur votre niveau de cécité. Respecte entièrement les règles BCX \"Full Blind\".",
+        "colors_title": "✨ Couleurs intelligentes",
+        "colors_desc": "Détecte automatiquement les couleurs sombres ou boueuses des noms de joueurs et applique un contour à contraste élevé pour la lisibilité.",
+        "whisper_title": "💬 Chuchotement+",
+        "whisper_desc": "Envoyez des chuchotements dans les salles de carte à n'importe quelle distance. Passe automatiquement à un bip si un ami quitte la salle avant que vous n'envoyiez."
+    },
+    "commands": {
+        "roster_desc": "Ouvre le Roster amélioré dans le journal de chat. Affiche des informations détaillées sur tous les membres de la salle.",
+        "args_label": "Arguments :",
+        "arg_count": "Affiche uniquement les compteurs de joueurs actuels de la salle.",
+        "arg_admins": "Liste uniquement les administrateurs de la salle.",
+        "arg_vips": "Liste uniquement les utilisateurs sur la liste blanche de la salle.",
+        "arg_banner": "Force le redessin de la bannière d'information de la salle.",
+        "arg_help": "Affiche cette documentation.",
+        "whisper_desc": "Système de chuchotement global pour les salles de carte. Contournez les restrictions de portée pour envoyer un message à n'importe qui sur la carte.",
+        "dropkeys_desc": "Lâchez instantanément des clés spécifiques (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">argent</span>, <span style=\"color:#ffd700\">or</span>) ou toutes les clés en une fois."
+    },
+    "interactions": {
+        "click_badge": "<b>Cliquez sur le badge :</b> Ouvre l'écran de focus du personnage.",
+        "click_name": "<b>Cliquez sur le nom du joueur :</b> Démarre un message Chuchotement+.",
+        "click_id": "<b>Cliquez sur le numéro (ID) :</b> Copie le numéro de membre du joueur dans votre presse-papiers.",
+        "live_sorting": "<b>Tri en direct :</b> Utilisez le menu déroulant en haut à droite du tiroir pour trier les joueurs par Rôles, Famille D/s, Amants ou Amis.",
+        "reverse_hover": "<b>Survol inversé :</b> Survoler un personnage dans le monde du jeu met en surbrillance sa carte dans le Roster.",
+        "shortcuts": "<b>Raccourcis clavier :</b> <code>CTRL + ALT + D</code> bascule le tiroir. <code>CTRL + ALT + B</code> bascule le mode vie privée."
+    },
+    "relations": {
+        "you": "Vous",
+        "owner": "Propriétaire",
+        "sub": "Soumis",
+        "trial": "En période d'essai",
+        "lover": "Amant",
+        "family": "Famille",
+        "bestfriend": "Meilleur ami",
+        "friend": "Ami",
+        "whitelist": "Liste blanche",
+        "blacklist": "Liste noire",
+        "ghost": "Fantôme"
+    },
+    "badges": {
+        "admin": "Admin de salle",
+        "vip": "Liste blanche de salle",
+        "player": "Invité de salle"
+    },
+    "status": {
+        "indicators_desc": "<b>Indicateurs de statut :</b> Chaque carte comporte trois icônes indiquant si un joueur est <b>Gagged</b>, <b>Blind</b> ou <b>Deaf</b>. Ils s'allument et affichent les niveaux de gravité lorsqu'ils sont survolés."
+    },
+    "settings_guide": {
+        "intro": "Accédez aux paramètres via l'icône {icon} dans le tiroir, désormais doté d'une <b>interface à onglets</b> complète. <br><b>Retour rapide au chat :</b> Cliquez sur l'<b>icône de bulle de chat</b> en haut à droite pour retourner instantanément au jeu.",
+        "general_update": "<b>Notifications de mise à jour :</b> Vous alerte lorsque vous devez rafraîchir pour une nouvelle version.",
+        "general_banner": "<b>Afficher la bannière à l'entrée :</b> Affiche une bannière d'information lors de la jonction d'une salle.",
+        "general_privacy": "<b>Mode vie privée plein écran :</b> Efface tout l'écran au lieu de seulement le côté chat lorsque le raccourci est utilisé.",
+        "general_halo": "<b>Activer le halo de focus :</b> Montre un effet de halo pulsé sur les avatars survolés.",
+        "general_keybinds": "<b>Modifier les raccourcis :</b> Lien direct vers le menu des raccourcis du jeu pour changer vos raccourcis de mode vie privée et de tiroir.",
+        "drawer_enable": "<b>Activer l'interface du tiroir :</b> Active ou désactive l'interface du tiroir coulissant.",
+        "drawer_toggle_cmd": "<b>/roster bascule le tiroir :</b> Taper <span class=\"CRABS_help_command\">/roster</span> ou <span class=\"CRABS_help_command\">/crabs</span> ouvre le tiroir au lieu de l'afficher dans le chat.",
+        "drawer_tab": "<b>Afficher l'onglet du tiroir :</b> Bascule l'onglet visuel persistant sur le bord de l'écran.",
+        "drawer_logo_anim": "<b>Logo d'onglet animé :</b> Active l'animation du logo du tiroir pour économiser des performances.",
+        "drawer_compact": "<b>Hauteur compacte :</b> Limite le tiroir à 77% de hauteur, gardant l'entrée du chat visible.",
+        "drawer_autostow": "<b>Options d'escamotage automatique :</b> Ferme le tiroir automatiquement après l'envoi d'un chat standard ou Chuchotement+.",
+        "drawer_focus": "<b>Le focus suit la souris :</b> Passe automatiquement à la page d'un joueur lorsque vous survolez sa carte.",
+        "drawer_autoscroll": "<b>Défilement automatique du tiroir :</b> Le Roster défile automatiquement jusqu'au personnage que vous survolez dans le monde du jeu.",
+        "immersion_lock": "<b>Verrouillage hardcore :</b> Verrouille ces paramètres d'immersion sur ACTIVÉ pendant que votre personnage est lié.",
+        "immersion_blind_gag": "<b>Respecter Cécité & Gag :</b> Floute l'interface du Roster et désactive Chuchotement+ en fonction de l'état du personnage.",
+        "immersion_bcx": "<b>Respecter les règles BCX :</b> Applique les restrictions BCX dans l'interface CRABS.",
+        "maps_compass": "<b>Afficher la boussole de carte :</b> Affiche une flèche directionnelle sur la carte.",
+        "maps_superzoom": "<b>SuperZoom :</b> Déverrouille les limitations de zoom par défaut du jeu (auto-désactive si des conflits sont détectés).",
+        "chat_mentions": "<b>Mettre en surbrillance les mentions :</b> Vous alerte lorsque des mots spécifiques ou votre nom sont prononcés. Personnalisez la couleur de surbrillance.",
+        "chat_caps_match": "<b>Capitalisation auto & Correspondance couleur :</b> Met votre nom en majuscules et le fait correspondre à la couleur de l'étiquette de votre personnage dans les surbrillances.",
+        "chat_custom_words": "<b>Mots personnalisés & Phrases d'exclusion :</b> Ajoutez des mots déclencheurs et utilisez des caractères génériques (ex: 'cueill* une rose') pour éviter les fausses alertes.",
+        "chat_links": "<b>Liens de survol du journal de chat :</b> Survoler les noms dans le journal de chat déclenche le halo de focus et la boussole de carte.",
+        "chat_whisper_elevate": "<b>Auto-élévation Chuchotement+ :</b> Tente d'envoyer un Chuchotement+ comme un bip standard si un ami quitte la salle.",
+        "config_cloud_sync": "<b>Désactiver la synchro cloud :</b> Garde les paramètres strictement locaux, empêchant la synchronisation entre appareils. Inclut un suivi de capacité.",
+        "config_delete_server": "<b>Supprimer la sauvegarde serveur :</b> Efface vos paramètres CRABS du serveur de jeu.",
+        "config_export_import": "<b>Exporter / Importer :</b> Copiez ou collez votre chaîne de paramètres pour sauvegarder ou partager."
+    },
+    "general": {
+        "not_applicable": "N/A"
+    }
 }
