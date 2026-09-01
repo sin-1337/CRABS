@@ -22,6 +22,7 @@ export class PrivacyMode extends CRABS_Base {
     this.overlay.style.pointerEvents = "none";
     document.body.appendChild(this.overlay);
 
+    // Pass the Set here to prevent CRABS_Base from defaulting to Ctrl+Alt
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
       "Toggle Privacy Mode (Half)",
@@ -31,8 +32,10 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("left");
         return true;
       },
+      new Set(["Ctrl", "Alt"]),
     );
 
+    // Pass the Set here as well to ensure Shift is respected in the base registry
     CRABS_Base.registerKeybind(
       "crabs_privacy_full",
       "Toggle Privacy Mode (Full)",
@@ -42,6 +45,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
+      new Set(["Ctrl", "Shift", "Alt"]),
     );
 
     this.registerNativeKeybind();
@@ -105,7 +109,7 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Ctrl", "Alt", "Shift"]),
+        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
       },
     });
   }
