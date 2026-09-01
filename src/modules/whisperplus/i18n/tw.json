@@ -3,7 +3,8 @@
         "blocked_title": "Whisper+ 已封鎖",
         "blocked_gagged": "口塞狀態下無法使用 Whisper+。",
         "sent_as_beep": "Whisper+ 已作為提示音發送。",
-        "failed_title": "Whisper+ 失敗"
+        "failed_title": "Whisper+ 失敗",
+        "sent_as_beep_regular": "Whisper sent as beep."
     },
     "chat": {
         "note_to_self": "<span style=\"color:#989898\">{icon} 給 </span><span style=\"color:{labelColor}\">自己</span><span style=\"color:#989898\"> 的備註: {message}</span>",

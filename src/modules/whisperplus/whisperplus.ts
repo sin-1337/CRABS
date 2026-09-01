@@ -44,8 +44,89 @@ export class WhisperPlus extends CRABS_Base {
    */
   public setupHooks(): void {
     /**
+     * Hook: CommandParse
+     * Intercepts chat commands before execution to convert standard whispers
+     * into Whisper+ commands when the "Always On" setting is enabled.
+     */
+    this.safeHook(
+      "CommandParse",
+      10,
+      (functionArguments: any[], next: (functionArguments: any[]) => void) => {
+        let command = functionArguments[0] as string;
+
+        if (Settings.instance.data.whisperPlusAlwaysOn) {
+          if (typeof command === "string" && command.startsWith("/whisper ")) {
+            functionArguments[0] = command.replace(/^\/whisper /, "/whisper+ ");
+          }
+        }
+
+        return next(functionArguments);
+      },
+    );
+
+    /**
+     * Hook: ChatRoomSendLocal
+     * Intercepts standard whisper missing-target errors to auto-elevate to a beep
+     * if autoBeepOnRegularWhisper is enabled and whisperPlusAlwaysOn is disabled.
+     */
+    this.safeHook(
+      "ChatRoomSendLocal",
+      10,
+      (functionArguments: any[], next: (functionArguments: any[]) => void) => {
+        const message = functionArguments[0] as string;
+
+        if (
+          !Settings.instance.data.whisperPlusAlwaysOn &&
+          Settings.instance.data.autoBeepOnRegularWhisper &&
+          Settings.instance.data.autoBeepOnLeave &&
+          typeof message === "string"
+        ) {
+          const prefix = TextGet("CommandNoWhisperTarget");
+          if (message.startsWith(prefix)) {
+            const targetStr = message
+              .slice(prefix.length)
+              .trim()
+              .replace(/\.$/, "");
+            const memberNumber = parseInt(targetStr, 10);
+
+            if (!isNaN(memberNumber)) {
+              const chatInput = document.getElementById(
+                "InputChat",
+              ) as HTMLTextAreaElement;
+              const inputVal = chatInput?.value || "";
+
+              if (inputVal.startsWith("/whisper ")) {
+                const parts = inputVal.trim().split(/\s+/);
+                if (parts.length >= 3) {
+                  const parsedNum = parseInt(parts[1], 10);
+                  if (parsedNum === memberNumber) {
+                    const msgIndex =
+                      inputVal.indexOf(parts[1]) + parts[1].length;
+                    const text = inputVal.slice(msgIndex).trim();
+
+                    if (text && this.trySendAccountBeep(memberNumber, text)) {
+                      if (chatInput) {
+                        chatInput.value = "";
+                        chatInput.dispatchEvent(
+                          new Event("input", { bubbles: true }),
+                        );
+                      }
+                      return;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return next(functionArguments);
+      },
+    );
+
+    /**
      * Hook: ChatRoomMessageNameClick
-     * Intercepts clicks on a character's name or the quick-reply arrow in the chat log.
+     * Intercepts clicks on a character's name or quick-reply arrow.
      */
     this.safeHook(
       "ChatRoomMessageNameClick",
@@ -59,7 +140,9 @@ export class WhisperPlus extends CRABS_Base {
           ".chat-room-message-content",
         );
         const contentNode = contents ? contents[contents.length - 1] : null;
-        const isWhisperPlus = contentNode?.textContent?.includes("+:");
+        const isWhisperPlus =
+          Settings.instance.data.whisperPlusAlwaysOn ||
+          contentNode?.textContent?.includes("+:");
 
         next(functionArguments);
 
@@ -80,7 +163,7 @@ export class WhisperPlus extends CRABS_Base {
 
     /**
      * Hook: ChatRoomMessageSetReply
-     * Intercepts the action of selecting "Reply" from a message's three-dot context menu.
+     * Intercepts "Reply" from context menus.
      */
     this.safeHook(
       "ChatRoomMessageSetReply",
@@ -88,7 +171,9 @@ export class WhisperPlus extends CRABS_Base {
       (functionArguments: any[], next: (functionArguments: any[]) => void) => {
         const messageId = functionArguments[0];
         const contentNode = document.querySelector(`[msgid="${messageId}"]`);
-        const isWhisperPlus = contentNode?.textContent?.includes("+:");
+        const isWhisperPlus =
+          Settings.instance.data.whisperPlusAlwaysOn ||
+          contentNode?.textContent?.includes("+:");
 
         next(functionArguments);
 
@@ -109,8 +194,6 @@ export class WhisperPlus extends CRABS_Base {
 
     /**
      * Hook: ChatRoomMessageDisplay
-     * Intercepts the final rendering of chat messages. If a Whisper+ message is detected,
-     * safely updates the "Whisper" text node to "Whisper+" and hides the prefix.
      */
     this.safeHook(
       "ChatRoomMessageDisplay",
@@ -193,6 +276,57 @@ export class WhisperPlus extends CRABS_Base {
         return false;
       },
     });
+  }
+
+  /**
+   * Helper to send an out-of-room account beep to friends / best friends.
+   *
+   * @param {number} memberNumber - Target member number.
+   * @param {string} message - Message text.
+   * @returns {boolean} True if successfully queued as a beep.
+   * @private
+   */
+  private trySendAccountBeep(memberNumber: number, message: string): boolean {
+    const playerWindow = (window as any).Player;
+
+    const isFriend = playerWindow?.FriendList?.some(
+      (id: any) => id == memberNumber,
+    );
+    const isBestFriend =
+      CrossMod.detectMod("BCTweaks") &&
+      playerWindow?.BCT?.bctSettings?.bestFriendsList?.some(
+        (id: any) => id == memberNumber,
+      );
+
+    if (isFriend || isBestFriend) {
+      ServerSend("AccountBeep", {
+        MemberNumber: memberNumber,
+        BeepType: "",
+        Message: message,
+      });
+
+      const defaultMemberName = this.t("chat.fallback_member");
+      const targetName =
+        playerWindow?.FriendNames?.get?.(memberNumber) || defaultMemberName;
+
+      if (typeof ToastManager !== "undefined") {
+        Notification.send({
+          message: this.t("notifications.sent_as_beep"),
+          title: "Whisper+",
+        });
+      }
+      ChatRoomSendLocal(
+        this.t("chat.beep_to", {
+          targetName,
+          memberNumber,
+          message,
+        }),
+      );
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -423,53 +557,15 @@ export class WhisperPlus extends CRABS_Base {
     );
 
     if (!target) {
-      let beepFailed = false;
+      let beepSent = false;
 
       if (Settings.instance.data.autoBeepOnLeave) {
-        const playerWindow = (window as any).Player;
-
-        const isFriend = playerWindow.FriendList?.some(
-          (id: any) => id == memberNumber,
-        );
-        const isBestFriend =
-          CrossMod.detectMod("BCTweaks") &&
-          playerWindow.BCT?.bctSettings?.bestFriendsList?.some(
-            (id: any) => id == memberNumber,
-          );
-
-        if (isFriend || isBestFriend) {
-          ServerSend("AccountBeep", {
-            MemberNumber: memberNumber,
-            BeepType: "",
-            Message: message,
-          });
-
-          const defaultMemberName = this.t("chat.fallback_member");
-          const targetName =
-            playerWindow.FriendNames?.get?.(memberNumber) || defaultMemberName;
-
-          if (typeof ToastManager !== "undefined") {
-            Notification.send({
-              message: this.t("notifications.sent_as_beep"),
-              title: "Whisper+",
-            });
-          }
-          ChatRoomSendLocal(
-            this.t("chat.beep_to", {
-              targetName,
-              memberNumber,
-              message,
-            }),
-          );
-
-          return 0;
-        } else {
-          beepFailed = true;
-        }
+        beepSent = this.trySendAccountBeep(memberNumber, message);
+        if (beepSent) return 0;
       }
 
       let errorMsg = this.t("chat.player_left");
-      if (beepFailed) {
+      if (Settings.instance.data.autoBeepOnLeave && !beepSent) {
         errorMsg += this.t("chat.auto_beep_failed");
       }
 

@@ -18,7 +18,7 @@
         "cancel": "取消"
     },
     "language": {
-        "auto": "自动 (跟随游戏语言)",
+        "auto": "Auto (Follow Game Language)",
         "en": "English",
         "de": "Deutsch",
         "fr": "Français",
@@ -97,10 +97,14 @@
         "ignore_phrases_hint": "每行一个短语。使用 * 作为通配符（例如 'pick* a rose'）。",
         "highlight_color_label": "高亮颜色",
         "highlight_color_hint": "为聊天高亮选择自定义颜色。",
-        "hover_links_label": "聊天记录悬停链接",
-        "hover_links_hint": "在聊天记录中鼠标悬停在姓名上会触发列表焦点光环和地图指南针。",
         "auto_beep_label": "Whisper+ 自动提升为提示音",
         "auto_beep_hint": "如果朋友在您发送之前离开房间，尝试将 Whisper+ 作为提示音发送。",
+        "whisper_plus_always_on_label": "始终使用 Whisper+",
+        "whisper_plus_always_on_hint": "自动将标准 /whisper 命令和快速回复升级为 Whisper+。",
+        "auto_beep_regular_whisper_label": "常规 Whisper 自动转提示音",
+        "auto_beep_regular_whisper_hint": "如果朋友离开房间，允许标准 /whisper 命令自动作为账号提示音发送。",
+        "hover_links_label": "聊天记录悬停链接",
+        "hover_links_hint": "在聊天记录中鼠标悬停在姓名上会触发列表焦点光环和地图指南针。",
         "normalize_font_label": "悬停时规范化字体",
         "normalize_font_hint": "鼠标悬停在聊天消息上时，暂时将花哨/风格化的 Unicode 字体转换为标准文本。"
     },

@@ -18,7 +18,7 @@
         "cancel": "Annuler"
     },
     "language": {
-        "auto": "Auto (Suivre la langue du jeu)",
+        "auto": "Auto (Follow Game Language)",
         "en": "English",
         "de": "Deutsch",
         "fr": "Français",
@@ -97,10 +97,14 @@
         "ignore_phrases_hint": "Une phrase par ligne. Utilisez * comme joker (ex: 'cueillir* une rose').",
         "highlight_color_label": "Couleur de surbrillance",
         "highlight_color_hint": "Choisir une couleur personnalisée pour les surbrillances du chat.",
-        "hover_links_label": "Liens au survol du log de chat",
-        "hover_links_hint": "Passer la souris sur les noms dans le log de chat déclenche le halo de focus du roster et la boussole de carte.",
         "auto_beep_label": "Auto-élévation Whisper+ vers Beep",
         "auto_beep_hint": "Tenter d'envoyer Whisper+ comme un beep si un ami quitte la pièce avant que vous ne cliquiez sur envoyer.",
+        "whisper_plus_always_on_label": "Toujours utiliser Whisper+",
+        "whisper_plus_always_on_hint": "Améliore automatiquement les commandes /whisper standard et les réponses rapides en Whisper+.",
+        "auto_beep_regular_whisper_label": "Auto-Beep sur Whispers normaux",
+        "auto_beep_regular_whisper_hint": "Permet aux commandes /whisper standard d'être envoyées automatiquement sous forme de beep si un ami quitte la pièce.",
+        "hover_links_label": "Liens au survol du log de chat",
+        "hover_links_hint": "Passer la souris sur les noms dans le log de chat déclenche le halo de focus du roster et la boussole de carte.",
         "normalize_font_label": "Normaliser la police au survol",
         "normalize_font_hint": "Convertit temporairement les polices Unicode fantaisistes/stylisées dans les messages de chat en texte standard lorsque vous passez la souris dessus."
     },

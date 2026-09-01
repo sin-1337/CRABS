@@ -36,6 +36,8 @@ const DEFAULT_SETTINGS: any = {
   highlightColor: "#FFFF00",
   enableFocusHalo: true,
   autoBeepOnLeave: true,
+  whisperPlusAlwaysOn: false,
+  autoBeepOnRegularWhisper: false,
   privacyModeFull: false,
   autoScrollRoster: true,
   chatLogHover: true,
@@ -886,15 +888,43 @@ export class Settings extends CRABS_Base {
     );
     createCheck(
       "Chat",
-      "chatLogHover",
-      "chat.hover_links_label",
-      "chat.hover_links_hint",
-    );
-    createCheck(
-      "Chat",
       "autoBeepOnLeave",
       "chat.auto_beep_label",
       "chat.auto_beep_hint",
+    );
+    createCheck(
+      "Chat",
+      "whisperPlusAlwaysOn",
+      "chat.whisper_plus_always_on_label",
+      "chat.whisper_plus_always_on_hint",
+      0,
+      undefined,
+      (enabled) => {
+        if (enabled && this.data.autoBeepOnRegularWhisper) {
+          this.data.autoBeepOnRegularWhisper = false;
+        }
+        this.layout.updateDOM(this.isMenuOpen);
+      },
+    );
+    createCheck(
+      "Chat",
+      "autoBeepOnRegularWhisper",
+      "chat.auto_beep_regular_whisper_label",
+      "chat.auto_beep_regular_whisper_hint",
+      0,
+      () => this.data.whisperPlusAlwaysOn,
+      (enabled) => {
+        if (enabled && this.data.whisperPlusAlwaysOn) {
+          this.data.whisperPlusAlwaysOn = false;
+        }
+        this.layout.updateDOM(this.isMenuOpen);
+      },
+    );
+    createCheck(
+      "Chat",
+      "chatLogHover",
+      "chat.hover_links_label",
+      "chat.hover_links_hint",
     );
     createCheck(
       "Chat",

@@ -3,6 +3,7 @@
         "blocked_title": "Whisper+ Blocked",
         "blocked_gagged": "You cannot use Whisper+ while gagged.",
         "sent_as_beep": "Whisper+ sent as beep.",
+        "sent_as_beep_regular": "Whisper sent as beep.",
         "failed_title": "Whisper+ Failed"
     },
     "chat": {

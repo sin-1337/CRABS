@@ -3,7 +3,8 @@
         "blocked_title": "Whisper+ Bloqué",
         "blocked_gagged": "Vous ne pouvez pas utiliser Whisper+ pendant que vous êtes bâillonné.",
         "sent_as_beep": "Whisper+ envoyé comme bip.",
-        "failed_title": "Whisper+ Échoué"
+        "failed_title": "Whisper+ Échoué",
+        "sent_as_beep_regular": "Whisper sent as beep."
     },
     "chat": {
         "note_to_self": "<span style=\"color:#989898\">{icon} Note pour </span><span style=\"color:{labelColor}\">moi-même</span><span style=\"color:#989898\">: {message}</span>",

@@ -3,7 +3,8 @@
         "blocked_title": "Whisper+ заблоковано",
         "blocked_gagged": "Ви не можете використовувати Whisper+ під дією кляпу.",
         "sent_as_beep": "Whisper+ надіслано як сигнал.",
-        "failed_title": "Помилка Whisper+"
+        "failed_title": "Помилка Whisper+",
+        "sent_as_beep_regular": "Whisper sent as beep."
     },
     "chat": {
         "note_to_self": "<span style=\"color:#989898\">{icon} Нотатка для </span><span style=\"color:{labelColor}\">себе</span><span style=\"color:#989898\">: {message}</span>",

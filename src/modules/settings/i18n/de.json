@@ -18,7 +18,7 @@
         "cancel": "Abbrechen"
     },
     "language": {
-        "auto": "Automatisch (Folgt der Spielsprache)",
+        "auto": "Auto (Follow Game Language)",
         "en": "English",
         "de": "Deutsch",
         "fr": "Français",
@@ -97,10 +97,14 @@
         "ignore_phrases_hint": "Eine Phrase pro Zeile. Verwende * als Platzhalter (z.B. 'pflück* eine rose').",
         "highlight_color_label": "Hervorhebungsfarbe",
         "highlight_color_hint": "Wähle eine benutzerdefinierte Farbe für Chathervorhebungen.",
-        "hover_links_label": "Chat-Log-Hover-Links",
-        "hover_links_hint": "Das Bewegen der Maus über Namen im Chat-Log löst den Roster-Fokus-Halo und den Kartenkompass aus.",
         "auto_beep_label": "Whisper+ Autoelevate zu Beep",
         "auto_beep_hint": "Versuche, Whisper+ als Beep zu senden, wenn ein Freund den Raum verlässt, bevor du auf Senden drückst.",
+        "whisper_plus_always_on_label": "Immer Whisper+ verwenden",
+        "whisper_plus_always_on_hint": "Rüstet Standard-/whisper-Befehle und Schnellantworten automatisch auf Whisper+ auf.",
+        "auto_beep_regular_whisper_label": "Auto-Beep bei regulären Whispers",
+        "auto_beep_regular_whisper_hint": "Erlaubt es, dass Standard-/whisper-Befehle automatisch als Account-Beep gesendet werden, wenn ein Freund den Raum verlässt.",
+        "hover_links_label": "Chat-Log-Hover-Links",
+        "hover_links_hint": "Das Bewegen der Maus über Namen im Chat-Log löst den Roster-Fokus-Halo und den Kartenkompass aus.",
         "normalize_font_label": "Schrift bei Hover normalisieren",
         "normalize_font_hint": "Konvertiert vorübergehend ausgefallene/gestylte Unicode-Schriften in Chatnachrichten zu Standardtext, während du mit der Maus darüberfährst."
     },
