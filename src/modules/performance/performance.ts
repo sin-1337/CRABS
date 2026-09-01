@@ -15,12 +15,11 @@ export class Performance extends CRABS_Base {
   private readonly BASE_RECOVERY_COOLDOWN_MS = 5 * 60 * 1000; // 5 min base
   private readonly MAX_RECOVERY_COOLDOWN_MS = 15 * 60 * 1000; // 15 min max
 
-  // Performance Load Thresholds (1.0 = target FPS, 1.3 = 30% slower)
-  private readonly LOAD_LOW = 1.3;
-  private readonly LOAD_CRITICAL = 1.7;
-  private readonly LOAD_RECOVERY = 1.1; // Strict ceiling before recovering
+  // 1.0 = target FPS. 1.25 = ~48 FPS at 60Hz. 1.60 = ~37 FPS at 60Hz.
+  private readonly LOAD_LOW = 1.25;
+  private readonly LOAD_CRITICAL = 1.6;
+  private readonly LOAD_RECOVERY = 1.08; // Load Averages (EWMA: 1m, 5m, 15m)
 
-  // Load Averages (EWMA: 1m, 5m, 15m)
   private load1: number = 1.0;
   private load5: number = 1.0;
   private load15: number = 1.0;
