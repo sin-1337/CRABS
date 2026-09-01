@@ -133,24 +133,39 @@ export class WhisperPlus extends CRABS_Base {
       "ChatRoomMessageNameClick",
       10,
       function (
-        this: HTMLElement,
+        this: any,
         functionArguments: any[],
         next: (functionArguments: any[]) => void,
       ) {
-        const contents = this.parentElement?.querySelectorAll(
+        // Find the parent message container safely across different call styles
+        const targetElement: HTMLElement | null =
+          this instanceof HTMLElement
+            ? this
+            : functionArguments[0]?.target instanceof HTMLElement
+              ? functionArguments[0].target
+              : null;
+
+        const messageDiv =
+          targetElement?.closest(".ChatMessage") ||
+          targetElement?.parentElement;
+        const contents = messageDiv?.querySelectorAll(
           ".chat-room-message-content",
         );
-        const contentNode = contents ? contents[contents.length - 1] : null;
+        const contentNode =
+          contents && contents.length > 0
+            ? contents[contents.length - 1]
+            : null;
+
         const isWhisperPlus =
           Settings.instance.data.whisperPlusAlwaysOn ||
-          contentNode?.textContent?.includes("+:");
+          Boolean(contentNode?.textContent?.includes("+:"));
 
         next(functionArguments);
 
         if (isWhisperPlus) {
           const chatInput = document.getElementById(
             "InputChat",
-          ) as HTMLTextAreaElement;
+          ) as HTMLTextAreaElement | null;
           if (chatInput && chatInput.value.startsWith("/whisper ")) {
             chatInput.value = chatInput.value.replace(
               /^\/whisper /,
