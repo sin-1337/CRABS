@@ -58,7 +58,7 @@ new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 // Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
 const SETUP = new Setup(CRABS, ROSTER, BANNER);
 new Updater(CRABS, __VERSION__);
-new Performance(CRABS);
+const PERFORMANCE = new Performance(CRABS);
 
 WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
@@ -88,6 +88,28 @@ function argcheck(commandArguments: string): boolean {
     return false;
   } else if (arg === "banner") {
     SETUP.drawbanner();
+    return false;
+  } else if (arg === "perf" || arg === "status") {
+    const levelName = ["NORMAL", "LOW", "CRITICAL"][
+      CRABS_Base.currentPerformanceLevel
+    ];
+    const actualFps = Math.round(
+      1000 / ((window as any).TimerRunInterval || 16.67),
+    );
+    ChatRoomSendLocal(
+      t("commands.perf_status", {
+        level: levelName,
+        fps: actualFps,
+      }),
+    );
+    return false;
+  } else if (arg === "mem" || arg === "inspect") {
+    PERFORMANCE.inspectBaseGameMemory();
+    ChatRoomSendLocal(t("commands.perf_mem_inspect"));
+    return false;
+  } else if (arg === "flush" || arg === "purge") {
+    PERFORMANCE.pruneBaseGameCaches();
+    ChatRoomSendLocal(t("commands.perf_flushed"));
     return false;
   }
 

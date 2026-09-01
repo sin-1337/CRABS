@@ -136,7 +136,7 @@ export class Roster extends CRABS_Base {
             drawX,
             drawY,
             zoom,
-            this.currentPerformanceLevel,
+            CRABS_Base.currentPerformanceLevel,
           );
         }
       }
@@ -153,7 +153,6 @@ export class Roster extends CRABS_Base {
     });
 
     this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
-      this.updatePerformanceState();
       Compass.setCurrentFrameHoveredPlayer(null);
       Compass.setDeferredIndicator(null);
 

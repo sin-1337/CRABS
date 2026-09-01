@@ -55,9 +55,8 @@ export abstract class CRABS_Base {
   /** The module namespace assigned during super() call. */
   protected readonly moduleNamespace: string;
 
-  protected currentPerformanceLevel: PerformanceLevel = PerformanceLevel.NORMAL;
-  private perfStabilityCounter: number = 0;
-  private readonly STABILITY_THRESHOLD = 60;
+  public static currentPerformanceLevel: PerformanceLevel =
+    PerformanceLevel.NORMAL;
   private failedHooks: Set<string> = new Set();
   private disabledHooks: Set<string> = new Set();
 
@@ -847,54 +846,6 @@ export abstract class CRABS_Base {
       return `rgba(${r}, ${g}, ${b}, 0.9)`;
     } catch (error) {
       return "rgba(255,255,255,0.8)";
-    }
-  }
-
-  /**
-   * Checks game performance and throttles updates when FPS is critically low.
-   *
-   * @returns {void}
-   */
-  protected updatePerformanceState(): void {
-    const interval = (window as any).TimerRunInterval;
-    if (!interval || interval <= 0) return;
-
-    const actualFps = 1000 / interval;
-    let targetLevel = PerformanceLevel.NORMAL;
-
-    if (actualFps < 10) {
-      targetLevel = PerformanceLevel.CRITICAL;
-    } else if (actualFps < 25) {
-      const targetFps = (window as any).TimerLimit || 60;
-      const perfRatio = actualFps / targetFps;
-
-      if (perfRatio < 0.6) {
-        targetLevel = PerformanceLevel.CRITICAL;
-      } else if (perfRatio < 0.9) {
-        targetLevel = PerformanceLevel.LOW;
-      }
-    }
-
-    if (targetLevel !== this.currentPerformanceLevel) {
-      const threshold =
-        targetLevel > this.currentPerformanceLevel
-          ? 5
-          : this.STABILITY_THRESHOLD;
-
-      this.perfStabilityCounter++;
-
-      if (this.perfStabilityCounter >= threshold) {
-        this.currentPerformanceLevel = targetLevel;
-        this.perfStabilityCounter = 0;
-
-        if ((this.constructor as any).debugMode) {
-          console.log(
-            `CRABS Performance Shift: ${this.currentPerformanceLevel} (Actual: ${Math.round(actualFps)} FPS)`,
-          );
-        }
-      }
-    } else {
-      this.perfStabilityCounter = 0;
     }
   }
 }

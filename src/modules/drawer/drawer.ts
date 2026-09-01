@@ -52,6 +52,8 @@ export class Drawer extends CRABS_Base {
   private tabElement: HTMLElement | null = null;
   /** Cached reference to the chat log element */
   private chatLogElement: HTMLElement | null = null;
+  /** Tracks the last known performance state to trigger visual swaps */
+  private lastPerfLevel: PerformanceLevel = PerformanceLevel.NORMAL;
 
   /**
    * Initializes the Drawer module and sets up the Singleton instance.
@@ -168,7 +170,8 @@ export class Drawer extends CRABS_Base {
       if (!tab) return;
       tab.removeAttribute("data-mode");
 
-      const isLow = this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+      const isLow =
+        CRABS_Base.currentPerformanceLevel !== PerformanceLevel.NORMAL;
       this.optimizeVisuals(isLow);
     }, 10000);
   }
@@ -271,11 +274,8 @@ export class Drawer extends CRABS_Base {
       (functionArguments: any, next: (args: any[]) => any) => {
         const result = next(functionArguments);
 
-        const previousPerformanceLevel = this.currentPerformanceLevel;
-        this.updatePerformanceState();
-
-        const isLowPerformance =
-          this.currentPerformanceLevel !== PerformanceLevel.NORMAL;
+        const currentPerf = CRABS_Base.currentPerformanceLevel;
+        const isLowPerformance = currentPerf !== PerformanceLevel.NORMAL;
 
         const expectedMode =
           !isLowPerformance && Settings.instance.data.animatedCrabsLogo
@@ -284,16 +284,17 @@ export class Drawer extends CRABS_Base {
         const actualMode = this.tabElement?.getAttribute("data-mode");
 
         if (
-          previousPerformanceLevel !== this.currentPerformanceLevel ||
+          this.lastPerfLevel !== currentPerf ||
           (actualMode !== "rave" && actualMode !== expectedMode)
         ) {
           this.optimizeVisuals(isLowPerformance);
+          this.lastPerfLevel = currentPerf;
         }
 
         let threshold = 5;
-        if (this.currentPerformanceLevel === PerformanceLevel.LOW) {
+        if (currentPerf === PerformanceLevel.LOW) {
           threshold = 30;
-        } else if (this.currentPerformanceLevel === PerformanceLevel.CRITICAL) {
+        } else if (currentPerf === PerformanceLevel.CRITICAL) {
           threshold = 120;
         }
 
