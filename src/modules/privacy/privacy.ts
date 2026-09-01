@@ -19,33 +19,31 @@ export class PrivacyMode extends CRABS_Base {
     this.overlay.style.bottom = "0";
     this.overlay.style.backgroundColor = "black";
     this.overlay.style.zIndex = "999999";
-    this.overlay.style.pointerEvents = "none"; // Prevents intercepting key and mouse events
+    this.overlay.style.pointerEvents = "none";
     document.body.appendChild(this.overlay);
 
-    // Half Mode Keybind (Ctrl + Alt + B)
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
-      "Privacy Mode (Half)",
+      "Toggle Privacy Mode (Half)",
       "Blanks out the left side (canvas) of the chat room.",
       "KeyB",
       () => {
         this.toggle("left");
         return true;
       },
-      new Set(["Control", "Alt"]),
+      new Set(["Ctrl", "Alt"]),
     );
 
-    // Full Mode Keybind (Ctrl + Alt + Shift + B)
     CRABS_Base.registerKeybind(
       "crabs_privacy_full",
-      "Privacy Mode (Full)",
+      "Toggle Privacy Mode (Full)",
       "Blanks out the entire screen.",
       "KeyB",
       () => {
         this.toggle("full");
         return true;
       },
-      new Set(["Control", "Shift", "Alt"]),
+      new Set(["Ctrl", "Shift", "Alt"]),
     );
 
     this.registerNativeKeybind();
@@ -69,7 +67,6 @@ export class PrivacyMode extends CRABS_Base {
       });
     }
 
-    // Native Half Mode (Ctrl + Alt + B)
     const halfAction = () => {
       this.toggle("left");
       return true;
@@ -89,11 +86,10 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Control", "Alt"]),
+        modifiers: new Set(["Ctrl", "Alt"]),
       },
     });
 
-    // Native Full Mode (Ctrl + Alt + Shift + B)
     const fullAction = () => {
       this.toggle("full");
       return true;
@@ -111,16 +107,13 @@ export class PrivacyMode extends CRABS_Base {
       readonly: false,
       defaultKeyCombo: {
         key: "KeyB",
-        modifiers: new Set(["Control", "Shift", "Alt"]),
+        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
       },
     });
   }
 
   public toggle(mode: "left" | "full"): void {
-    const active = this.isVisible || this.isSuspended;
-
-    // Toggle off if currently active in the exact same mode
-    if (active && this.currentMode === mode) {
+    if ((this.isVisible || this.isSuspended) && this.currentMode === mode) {
       this.isVisible = false;
       this.isSuspended = false;
       this.currentMode = null;
@@ -129,7 +122,6 @@ export class PrivacyMode extends CRABS_Base {
       return;
     }
 
-    // Activate or switch mode
     this.currentMode = mode;
     const globalWindow = window as any;
     const inMainChat =
@@ -148,10 +140,8 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = true;
         this.overlay.style.display = "block";
       }
-
       this.startMonitoring();
     } else {
-      // Full screen mode
       this.isSuspended = false;
       this.isVisible = true;
       this.overlay.style.width = "100vw";
@@ -159,8 +149,6 @@ export class PrivacyMode extends CRABS_Base {
       this.stopMonitoring();
     }
   }
-
-  // --- SCREEN TRACKING ---
 
   private startMonitoring(): void {
     this.stopMonitoring();
