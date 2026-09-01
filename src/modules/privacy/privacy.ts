@@ -32,7 +32,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("left");
         return true;
       },
-      { ctrl: true, alt: true, shift: false },
+      new Set(["Control", "Alt"]),
     );
 
     // Full Mode Keybind (Ctrl + Alt + Shift + B)
@@ -45,7 +45,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
-      { ctrl: true, alt: true, shift: true },
+      new Set(["Control", "Shift", "Alt"]),
     );
 
     this.registerNativeKeybind();
