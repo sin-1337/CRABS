@@ -394,6 +394,57 @@ export function sendFriendBeep(memberNumber: number): void {
 }
 
 /**
+ * Formats a seen timestamp into a compact, human-readable age string.
+ *
+ * @param {number} timestamp - The epoch milliseconds when the character departed.
+ * @returns {string} Formatted compact time or day offset.
+ */
+function formatCompactTime(timestamp: number): string {
+  const now = Date.now();
+  const diffMs = now - timestamp;
+  const oneDayMs = 86_400_000;
+
+  const seenDate = new Date(timestamp);
+  const nowDate = new Date(now);
+
+  const isSameDay =
+    seenDate.getDate() === nowDate.getDate() &&
+    seenDate.getMonth() === nowDate.getMonth() &&
+    seenDate.getFullYear() === nowDate.getFullYear();
+
+  // Same calendar day: Show standard clock time (e.g., "14:22" or "2:22 PM")
+  if (isSameDay) {
+    return seenDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // Previous calendar day
+  const yesterday = new Date(now - oneDayMs);
+  const isYesterday =
+    seenDate.getDate() === yesterday.getDate() &&
+    seenDate.getMonth() === yesterday.getMonth() &&
+    seenDate.getFullYear() === yesterday.getFullYear();
+
+  if (isYesterday) {
+    return "Yest.";
+  }
+
+  // Older than yesterday: Show days elapsed if under a week, or short date
+  const daysAgo = Math.floor(diffMs / oneDayMs);
+  if (daysAgo < 7) {
+    return `${daysAgo}d ago`;
+  }
+
+  // Fallback for older entries (e.g., "Sep 2")
+  return seenDate.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
  * Generates the HTML layout for the departed occupant history view using the single-row compact template.
  *
  * @param {(tpl: string, vars: Record<string, string>, wrap?: boolean) => string} templateEngine - The base template compiler method.
@@ -419,11 +470,7 @@ export function buildHistoryRoster(
       tooltip_override: "View WCE Cached Profile",
     });
 
-    const timeStr = new Date(rec.seen).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
+    const timeStr = formatCompactTime(rec.seen);
     const playerIcons = generateHistoryPlayerIcons(rec.MemberNumber);
 
     const templatevars: Record<string, string> = {
