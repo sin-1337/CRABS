@@ -1,0 +1,41 @@
+{
+    "commands": {
+        "whisper_desc": "启用 /whisper+ 命令，在地图房间中进行全局悄悄话",
+        "w_desc": "启用 /w+ 命令，在地图房间中进行全局悄悄话",
+        "crabs_desc": "打开 CRABS 列表。",
+        "roster_desc": "打开 CRABS 列表。",
+        "dropkeys_desc": "丢弃指定的钥匙：金、银或铜。也可以使用 'all'。",
+        "crab_desc": "糟了！Sin 留下了一个高度不稳定的调试命令！它非常不稳定，几乎可以做任何事情……甚至制造噪音！",
+        "unrecognized_arg": "无法识别的参数: '{arg}'。尝试 '/roster help'",
+        "dropkeys_missing_arg": "您必须提供要丢弃的钥匙，或使用 'all' 丢弃所有。",
+        "dropkeys_not_map": "钥匙仅在地图上有效...",
+        "dropkeys_dropped": "{color} 钥匙已丢弃。",
+        "dropkeys_invalid_arg": "无法理解参数 '{arg}'。",
+        "perf_status": "CRABS 性能等级: {level} (实际: ~{fps} FPS)",
+        "perf_mem_inspect": "CRABS: 内存统计信息已输出至浏览器开发者控制台 (F12)。",
+        "perf_flushed": "CRABS: 资源与绘制缓存已成功清除。",
+        "keys": {
+            "bronze": "铜",
+            "silver": "银",
+            "gold": "金"
+        },
+        "crab_easter_egg": {
+            "rave_message": "🦀 狂欢时间！ 🦀",
+            "no_args": [
+                "螃蟹很困惑。也许试着告诉它该做什么？",
+                "螃蟹对着你点击它的钳子。也许试着给它一个参数？",
+                "一只小螃蟹跑过，无视你并消失在一个洞里。它似乎想要一个命令。",
+                "你对着螃蟹大喊。它什么也没做。看起来它在等待一个特定的词。",
+                "螃蟹现在在午休。稍后再回来，带上一些指令。",
+                "错误：未找到螃蟹。请提供一个参数来定位螃蟹。"
+            ],
+            "fail_messages": [
+                "正在尝试……不，不是这个。",
+                "螃蟹看起来很困惑。'{arg}'？那甚至是一个词吗？",
+                "你试图让螃蟹 {arg}。它作为回应掐了你一下。哎哟！",
+                "螃蟹尽力尝试 {arg}，但最终只是在原地打转。",
+                "螃蟹依然无动于衷。"
+            ]
+        }
+    }
+}

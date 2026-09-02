@@ -1,0 +1,9 @@
+{
+    "header": { "title_default": "名單", "tooltip_admins": "管理員", "tooltip_players": "玩家", "tooltip_friends": "好友", "tooltip_online": "在線賬戶" },
+    "controls": { "sort_by": "排序方式", "view_grid": "網格視圖", "view_single": "單列視圖", "view_compact": "緊湊視圖", "close_dialog": "關閉名單" },
+    "sort_options": { "natural": "自然 (房間順序)", "none": "無", "role": "角色 (管理員 & VIP)", "ds": "D/s 層級", "lovers": "戀人 & 關係", "friends": "好友", "whitelist": "白名單", "blacklist": "黑名單" },
+    "status": { "unknown_person": "[未知人員]", "blind": "失明: {level}", "gag": "禁言: {level}", "deaf": "失聰: {level}" },
+    "badges": { "player": "玩家", "admin": "房間管理員", "vip": "房間白名單 / VIP" },
+    "relations": { "you": "您", "owner": "主人", "sub": "服從者", "trial": "試用期服從者", "family": "家族", "lover": "戀人", "bestfriend": "摯友", "friend": "朋友", "whitelist": "白名單", "blacklist": "黑名單", "ghost": "屏蔽" },
+    "tooltips": { "track_compass": "在地圖上追蹤玩家", "focus_player": "聚焦玩家", "copy_id": "複製會員編號" }
+}

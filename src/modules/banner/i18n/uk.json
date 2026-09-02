@@ -1,0 +1,6 @@
+{
+    "header": { "title_default": "Банер" },
+    "controls": { "close_dialog": "Закрити банер" },
+    "permissions": { "fallback_option": "Дозвіл {index}" },
+    "labels": { "item_permission": "Дозвіл предмета", "room": "Кімната", "roster_hint_prefix": "Використовуйте", "roster_hint_suffix": "щоб побачити повний вивід" }
+}

@@ -1,0 +1,9 @@
+{
+    "notification": {
+        "title": "🦀 Доступне оновлення CRABS!",
+        "message": "Версія {newVersion} ({branch}) вийшла! (У вас {currentVersion}). Оновіть сторінку, щоб застосувати оновлення."
+    },
+    "chat": {
+        "local_message": "<span style=\"color: cyan;\"><b>Оновлення CRABS:</b> Версія {newVersion} ({branch}) доступна. Перезавантажте сторінку, щоб оновити!</span>"
+    }
+}

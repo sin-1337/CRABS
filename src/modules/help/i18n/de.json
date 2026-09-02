@@ -1,0 +1,114 @@
+{
+    "header": {
+        "title_default": "Hilfe",
+        "documentation_title": "Dokumentation",
+        "view_changelog": "Änderungsprotokoll anzeigen"
+    },
+    "controls": {
+        "close_dialog": "Hilfe schließen"
+    },
+    "sections": {
+        "key_features": "Hauptmerkmale",
+        "core_commands": "Kernbefehle",
+        "interactions": "Interaktionen & Navigation",
+        "relational_icons": "Beziehungs-Icons",
+        "status_badges": "Status & Abzeichen",
+        "settings_overview": "⚙️ Detaillierte Übersicht der Einstellungen",
+        "general": "Allgemein",
+        "drawer": "Schublade",
+        "immersion": "Immersion",
+        "maps": "Karten",
+        "chat": "Chat",
+        "config": "Konfiguration"
+    },
+    "features": {
+        "drawer_title": "🗄️ Interaktive Schublade",
+        "drawer_desc": "Eine schlanke, verstaubare Roster-Schnittstelle. Vollständig ereignisgesteuert für Echtzeit-Status-Updates ohne Verzögerung.",
+        "compass_title": "🧭 Universeller Kompass & Fokus",
+        "compass_desc": "Verfolgen Sie Spieler auf Karten oder in normalen Räumen! Das Bewegen über Karten, Chatnamen oder Charaktere enthüllt einen rotierenden 3D-Indikator und einen leuchtenden Heiligenschein.",
+        "chat_title": "🔔 Chat-Hervorhebung",
+        "chat_desc": "Hebt Nachrichten hervor, die Ihren Namen oder benutzerdefinierte Wörter enthalten. Enthält Farbabstimmung, automatische Großschreibung und Ausschlussphrasen, um Fehlalarme zu vermeiden.",
+        "privacy_title": "🛡️ Privatsphäre-Modus",
+        "privacy_desc": "Ein anpassbarer \"Chef-Knopf\", der sofort den Charakterbildschirm oder das Spielfenster ausblendet. Umschalten per Tastenkombination (Standard: STRG + ALT + B).",
+        "performance_title": "⚡ Intelligente Leistung",
+        "performance_desc": "Überwacht das tatsächliche Frame-Delta. Senkt dynamisch die visuelle Qualität und die Aktualisierungsraten, um Ihre FPS bei Verzögerungsspitzen zu schonen.",
+        "blindness_title": "👁️ Immersive Blindheit",
+        "blindness_desc": "Optionale Roster-Unschärfe basierend auf Ihrem Blindheitsgrad. Respektiert vollständig die BCX \"Voll Blind\"-Regeln.",
+        "colors_title": "✨ Intelligente Farben",
+        "colors_desc": "Erkennt automatisch dunkle oder schlammige Spielernamenfarben und wendet zur besseren Lesbarkeit eine kontrastreiche Kontur an.",
+        "whisper_title": "💬 Flüstern+",
+        "whisper_desc": "Senden Sie Flüsternachrichten in Kartenräumen über jede Entfernung. Erhöht automatisch auf ein Piepen, wenn ein Freund den Raum verlässt, bevor Sie senden."
+    },
+    "commands": {
+        "roster_desc": "Öffnet das verbesserte Roster im Chat-Protokoll. Zeigt detaillierte Informationen über alle Personen im Raum.",
+        "args_label": "Argumente:",
+        "arg_count": "Zeigt nur die aktuellen Spielerzähler des Raums an.",
+        "arg_admins": "Listet nur Raumadministratoren auf.",
+        "arg_vips": "Listet nur Benutzer auf der Whitelist des Raums auf.",
+        "arg_banner": "Erzwingt ein Neuzeichnen des Rauminformationsbanners.",
+        "arg_help": "Zeigt diese Dokumentation an.",
+        "whisper_desc": "Globales Flüstern-System für Kartenräume. Umgehen Sie Reichweitenbeschränkungen, um jeden auf der Karte anzuschreiben.",
+        "dropkeys_desc": "Lassen Sie sofort bestimmte Schlüssel fallen (<span style=\"color:#cd7f32\">Bronze</span>, <span style=\"color:#c0c0c0\">Silber</span>, <span style=\"color:#ffd700\">Gold</span>) oder alle Schlüssel auf einmal."
+    },
+    "interactions": {
+        "click_badge": "<b>Klicken Sie auf das Abzeichen:</b> Öffnet den Fokusbildschirm des Charakters.",
+        "click_name": "<b>Klicken Sie auf den Spielernamen:</b> Starten Sie eine Flüstern+-Nachricht.",
+        "click_id": "<b>Klicken Sie auf die Nummer (ID):</b> Kopiert die Mitgliedsnummer des Spielers in Ihre Zwischenablage.",
+        "live_sorting": "<b>Live-Sortierung:</b> Verwenden Sie das Dropdown-Menü oben rechts in der Schublade, um Spieler nach Rollen, D/s-Familie, Liebhabern oder Freunden zu sortieren.",
+        "reverse_hover": "<b>Umgekehrtes Hovern:</b> Das Bewegen über einen Charakter in der Spielwelt hebt seine Karte im Roster hervor.",
+        "shortcuts": "<b>Tastaturkürzel:</b> <code>STRG + ALT + D</code> schaltet die Schublade um. <code>STRG + ALT + B</code> schaltet den Privatsphäre-Modus um."
+    },
+    "relations": {
+        "you": "Du",
+        "owner": "Besitzer",
+        "sub": "Submissiv",
+        "trial": "Auf Probe",
+        "lover": "Liebhaber",
+        "family": "Familie",
+        "bestfriend": "Bester Freund",
+        "friend": "Freund",
+        "whitelist": "Auf der Whitelist",
+        "blacklist": "Auf der Blacklist",
+        "ghost": "Geisterhaft"
+    },
+    "badges": {
+        "admin": "Raum-Administrator",
+        "vip": "Raum-Whitelist",
+        "player": "Raum-Gast"
+    },
+    "status": {
+        "indicators_desc": "<b>Statusanzeigen:</b> Jede Karte verfügt über drei Symbole, die anzeigen, ob ein Spieler <b>geknebelt</b>, <b>blind</b> oder <b>taub</b> ist. Diese leuchten auf und zeigen bei Berührung die Schweregrade an."
+    },
+    "settings_guide": {
+        "intro": "Greifen Sie über das {icon}-Symbol in der Schublade auf die Einstellungen zu, jetzt mit einer vollständigen <b>Tab-Schnittstelle</b>. <br><b>Schnelle Chat-Rückkehr:</b> Klicken Sie oben rechts auf das <b>Chat-Blasen-Symbol</b>, um sofort zum Spiel zurückzukehren.",
+        "general_update": "<b>Update-Benachrichtigungen:</b> Benachrichtigt Sie, wann Sie für eine neue Version aktualisieren müssen.",
+        "general_banner": "<b>Banner beim Betreten anzeigen:</b> Zeigt beim Betreten eines Raums ein Infobanner an.",
+        "general_privacy": "<b>Vollbild-Privatsphäre-Modus:</b> Blendet den gesamten Bildschirm aus, anstatt nur die Chat-Seite, wenn der Hotkey verwendet wird.",
+        "general_halo": "<b>Fokus-Heiligenschein aktivieren:</b> Zeigt bei gehoverten Avataren einen pulsierenden Heiligenschein-Effekt.",
+        "general_keybinds": "<b>Tastenkombinationen bearbeiten:</b> Direkte Verknüpfung zum Tastenkombinationsmenü des Spiels, um Ihre Hotkeys für Privatsphäre und Schublade zu ändern.",
+        "drawer_enable": "<b>Schubladen-Benutzeroberfläche aktivieren:</b> Schaltet die verschiebbare Schubladenschnittstelle ein oder aus.",
+        "drawer_toggle_cmd": "<b>/roster schaltet die Schublade um:</b> Die Eingabe von <span class=\"CRABS_help_command\">/roster</span> oder <span class=\"CRABS_help_command\">/crabs</span> öffnet die Schublade, anstatt es im Chat auszugeben.",
+        "drawer_tab": "<b>Schubladen-Tab anzeigen:</b> Schaltet den persistenten visuellen Tab am Bildschirmrand um.",
+        "drawer_logo_anim": "<b>Animiertes Tab-Logo:</b> Schaltet die Schubladen-Logo-Animation um, um Leistung zu sparen.",
+        "drawer_compact": "<b>Kompakte Höhe:</b> Begrenzt die Schublade auf 77% Höhe, wodurch die Chateingabe sichtbar bleibt.",
+        "drawer_autostow": "<b>Auto-Verstau-Optionen:</b> Schließt die Schublade automatisch nach dem Senden eines Standard-Chats oder Flüstern+.",
+        "drawer_focus": "<b>Fokus folgt der Maus:</b> Wechselt automatisch zur Seite eines Spielers, wenn Sie mit der Maus über seine Karte fahren.",
+        "drawer_autoscroll": "<b>Schublade automatisch scrollen:</b> Das Roster scrollt automatisch zu dem Charakter, über den Sie in der Spielwelt mit der Maus fahren.",
+        "immersion_lock": "<b>Hardcore-Sperre:</b> Sperrt diese Immersions-Einstellungen auf EIN, während Ihr Charakter gefesselt ist.",
+        "immersion_blind_gag": "<b>Blindheit & Knebel respektieren:</b> Verwischt die Roster-UI und deaktiviert Flüstern+ basierend auf dem Charakterstatus.",
+        "immersion_bcx": "<b>BCX-Regeln respektieren:</b> Erzwingt BCX-Einschränkungen innerhalb der CRABS-Schnittstelle.",
+        "maps_compass": "<b>Karten-Kompass anzeigen:</b> Zeigt einen Richtungspfeil auf der Karte an.",
+        "maps_superzoom": "<b>SuperZoom:</b> Schaltet die standardmäßigen Kartenzoom-Einschränkungen des Spiels frei (wird bei erkannten Konflikten automatisch deaktiviert).",
+        "chat_mentions": "<b>Erwähnungen hervorheben:</b> Benachrichtigt Sie, wenn bestimmte Wörter oder Ihr Name gesprochen werden. Passen Sie die Hervorhebungsfarbe an.",
+        "chat_caps_match": "<b>Automatische Großschreibung & Farbanpassung:</b> Schreibt Ihren Namen groß und passt ihn in Hervorhebungen an die Etikettenfarbe Ihres Charakters an.",
+        "chat_custom_words": "<b>Benutzerdefinierte Wörter & Ausschlussphrasen:</b> Fügen Sie Trigger-Wörter hinzu und verwenden Sie Platzhalter (z.B. 'pflück* eine Rose'), um Fehlalarme zu verhindern.",
+        "chat_links": "<b>Chat-Protokoll-Hover-Links:</b> Das Hovern über Namen im Chat-Protokoll löst den Fokus-Heiligenschein und den Karten-Kompass aus.",
+        "chat_whisper_elevate": "<b>Flüstern+ automatische Erhöhung:</b> Versucht, ein Flüstern+ als Standard-Piepen zu senden, wenn ein Freund den Raum verlässt.",
+        "config_cloud_sync": "<b>Cloud-Synchronisation deaktivieren:</b> Hält die Einstellungen streng lokal und verhindert die Synchronisierung über mehrere Geräte. Enthält einen Kapazitätstracker.",
+        "config_delete_server": "<b>Server-Speicherung löschen:</b> Löscht Ihre CRABS-Einstellungen vom Spieleserver.",
+        "config_export_import": "<b>Exportieren / Importieren:</b> Kopieren oder fügen Sie Ihren Einstellungs-String ein, um ihn zu sichern oder zu teilen."
+    },
+    "general": {
+        "not_applicable": "N/A"
+    }
+}

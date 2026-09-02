@@ -1,0 +1,18 @@
+{
+    "notifications": {
+        "blocked_title": "Whisper+ Blockiert",
+        "blocked_gagged": "Du kannst Whisper+ nicht verwenden, während du geknebelt bist.",
+        "sent_as_beep": "Whisper+ als Beep gesendet.",
+        "failed_title": "Whisper+ Fehlgeschlagen",
+        "sent_as_beep_regular": "Whisper sent as beep."
+    },
+    "chat": {
+        "note_to_self": "<span style=\"color:#989898\">{icon} Notiz an </span><span style=\"color:{labelColor}\">mich selbst</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "Beep an {targetName} ({memberNumber}): {message}",
+        "invalid_member": "Mitgliedsnummer ist ungültig.",
+        "blank_message": "Nachricht war leer",
+        "player_left": "Spieler hat den Raum verlassen oder ist nicht verfügbar",
+        "auto_beep_failed": " (Auto-Beep fehlgeschlagen: Ziel ist nicht auf deiner Freundesliste.)",
+        "fallback_member": "Mitglied"
+    }
+}

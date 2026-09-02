@@ -1,0 +1,18 @@
+{
+    "notifications": {
+        "blocked_title": "Whisper+ заблоковано",
+        "blocked_gagged": "Ви не можете використовувати Whisper+ під дією кляпу.",
+        "sent_as_beep": "Whisper+ надіслано як сигнал.",
+        "failed_title": "Помилка Whisper+",
+        "sent_as_beep_regular": "Whisper sent as beep."
+    },
+    "chat": {
+        "note_to_self": "<span style=\"color:#989898\">{icon} Нотатка для </span><span style=\"color:{labelColor}\">себе</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "Сигнал до {targetName} ({memberNumber}): {message}",
+        "invalid_member": "Невірний номер учасника.",
+        "blank_message": "Повідомлення порожнє",
+        "player_left": "Гравець вийшов або став недоступним",
+        "auto_beep_failed": " (Авто-сигнал не спрацював: ціль не у вашому списку друзів.)",
+        "fallback_member": "Учасник"
+    }
+}

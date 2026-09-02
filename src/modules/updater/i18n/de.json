@@ -1,0 +1,9 @@
+{
+    "notification": {
+        "title": "🦀 CRABS Update verfügbar!",
+        "message": "Version {newVersion} ({branch}) ist da! (Du hast {currentVersion}). Lade die Seite neu, um das Update anzuwenden."
+    },
+    "chat": {
+        "local_message": "<span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) ist verfügbar. Lade die Seite neu zum Aktualisieren!</span>"
+    }
+}

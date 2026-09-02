@@ -1,0 +1,41 @@
+{
+    "commands": {
+        "whisper_desc": "Active la commande /whisper+ qui fait un whisper global dans une salle de carte",
+        "w_desc": "Active la commande /w+ qui fait un whisper global dans une salle de carte",
+        "crabs_desc": "Ouvrir le Roster CRABS.",
+        "roster_desc": "Ouvrir le Roster CRABS.",
+        "dropkeys_desc": "Lâche les clés spécifiées : or, argent ou bronze. Vous pouvez aussi utiliser 'all'.",
+        "crab_desc": "Oh oh ! Sin a laissé une commande de débogage hautement volatile ! C'est hautement volatil, ça pourrait faire n'importe quoi... même faire du bruit !",
+        "unrecognized_arg": "Argument non reconnu : '{arg}'. Essayez '/roster help'",
+        "dropkeys_missing_arg": "Vous devez fournir la clé à lâcher, ou 'all' pour les lâcher toutes.",
+        "dropkeys_not_map": "Les clés ne fonctionnent que sur une carte...",
+        "dropkeys_dropped": "Clé {color} lâchée.",
+        "dropkeys_invalid_arg": "L'argument '{arg}' n'a pas été compris.",
+        "perf_status": "Niveau de performance CRABS : {level} (Actuel : ~{fps} FPS)",
+        "perf_mem_inspect": "CRABS : Statistiques de mémoire affichées dans la console développeur du navigateur (F12).",
+        "perf_flushed": "CRABS : Caches des ressources et de dessin purgés avec succès.",
+        "keys": {
+            "bronze": "Bronze",
+            "silver": "Argent",
+            "gold": "Or"
+        },
+        "crab_easter_egg": {
+            "rave_message": "🦀 C'EST L'HEURE DE LA RAVE ! 🦀",
+            "no_args": [
+                "Le crabe est confus. Peut-être essayer de lui dire quoi faire ?",
+                "Le crabe clique ses pinces vers vous. Peut-être essayer de lui donner un argument ?",
+                "Un minuscule crabe passe par là, vous ignore et disparaît dans un trou. Il semble vouloir une commande.",
+                "Vous criez sur le crabe. Il ne fait rien. Il semble attendre un mot spécifique.",
+                "Le crabe est actuellement en pause déjeuner. Réessayez plus tard avec des instructions.",
+                "ERREUR : Crabe non trouvé. Veuillez fournir un argument pour localiser le crabe."
+            ],
+            "fail_messages": [
+                "Tentative... non, pas celle-là.",
+                "Le crabe a l'air confus. '{arg}' ? Est-ce que c'est même un mot ?",
+                "Vous essayez de faire {arg} au crabe. Il vous pince en réponse. Aïe !",
+                "Le crabe fait de son mieux pour {arg}, mais il finit juste par tourner en rond.",
+                "Le crabe reste impassible."
+            ]
+        }
+    }
+}

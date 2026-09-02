@@ -1,0 +1,5 @@
+{
+    "keybinds": { "category": "CRABS 模组" },
+    "chat": { "person_not_found": "此人已不在房间内。" },
+    "tooltips": { "help": "帮助", "settings": "设置" }
+}

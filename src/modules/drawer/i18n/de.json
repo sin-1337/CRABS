@@ -1,0 +1,5 @@
+{
+    "keybinds": { "toggle_name": "Drawer umschalten", "toggle_desc": "Öffnet oder schließt die seitliche CRABS-Schublade." },
+    "header": { "title_default": "Roster", "title_help": "Hilfe" },
+    "tooltips": { "tab": "CRABS-Schublade", "help": "Hilfe", "roster": "Roster", "settings": "Einstellungen", "layout": "Layout wechseln", "close": "Schublade schließen" }
+}

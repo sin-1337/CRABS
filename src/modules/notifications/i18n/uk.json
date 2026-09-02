@@ -1,0 +1,9 @@
+{
+    "errors": {
+        "feature_disabled": "Функцію CRABS вимкнено: {hook} не вдалося.",
+        "error_title": "Помилка"
+    },
+    "clipboard": {
+        "copied": "\"{data}\" скопійовано в буфер обміну."
+    }
+}

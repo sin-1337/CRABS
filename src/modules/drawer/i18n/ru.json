@@ -1,0 +1,5 @@
+{
+    "keybinds": { "toggle_name": "Переключить панель", "toggle_desc": "Открывает или закрывает боковую панель CRABS." },
+    "header": { "title_default": "Список", "title_help": "Помощь" },
+    "tooltips": { "tab": "Панель CRABS", "help": "Помощь", "roster": "Список", "settings": "Настройки", "layout": "Изменить макет", "close": "Закрыть панель" }
+}

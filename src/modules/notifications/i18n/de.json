@@ -1,0 +1,9 @@
+{
+    "errors": {
+        "feature_disabled": "CRABS-Funktion deaktiviert: {hook} fehlgeschlagen.",
+        "error_title": "Fehler"
+    },
+    "clipboard": {
+        "copied": "\"{data}\" in die Zwischenablage kopiert."
+    }
+}

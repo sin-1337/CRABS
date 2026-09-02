@@ -1,0 +1,7 @@
+{
+    "notifications": {
+        "mention_title": "Згадка!",
+        "mention_body": "{sender} згадав вас!",
+        "unknown_sender": "Хтось"
+    }
+}

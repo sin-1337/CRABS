@@ -1,0 +1,18 @@
+{
+    "notifications": {
+        "blocked_title": "Whisper+ 已屏蔽",
+        "blocked_gagged": "口塞状态下无法使用 Whisper+。",
+        "sent_as_beep": "Whisper+ 已作为提示音发送。",
+        "failed_title": "Whisper+ 失败",
+        "sent_as_beep_regular": "Whisper sent as beep."
+    },
+    "chat": {
+        "note_to_self": "<span style=\"color:#989898\">{icon} 给 </span><span style=\"color:{labelColor}\">自己</span><span style=\"color:#989898\"> 的备注: {message}</span>",
+        "beep_to": "向 {targetName} ({memberNumber}) 发送提示音: {message}",
+        "invalid_member": "成员编号无效。",
+        "blank_message": "消息为空",
+        "player_left": "玩家已离开或变得不可用",
+        "auto_beep_failed": " (自动发送提示音失败：目标不在您的好友列表中。)",
+        "fallback_member": "成员"
+    }
+}

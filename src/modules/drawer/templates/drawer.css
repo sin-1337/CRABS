@@ -1,0 +1,231 @@
+#crabs-drawer {
+  position: fixed;
+  /* Top, Right, Width, and Height are injected dynamically by TypeScript! */
+  z-index: 99 !important;
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+
+#crabs-drawer.drawer-closed {
+  transform: translateX(calc(100% + 20px));
+}
+
+#crabs-drawer.drawer-open {
+  transform: translateX(0);
+}
+
+#drawer-tab {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  background: rgba(34, 34, 34, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  left: -44px;
+  top: 10px;
+  z-index: 99 !important;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#crabs-drawer.drawer-closed #drawer-tab {
+  transform: translateX(0);
+}
+
+.CRABS_wrapper_header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 8px;
+  gap: 4px;
+}
+
+.drawer-content #drawer-title {
+  flex: 1 1 auto;
+  margin: 0 12px;
+  text-align: center;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+@media (max-width: 850px) {
+  .drawer-content #drawer-title {
+    display: none !important;
+  }
+}
+
+/* Header Action Clickable Containers */
+.CRABS_Drawer_Help_Icon,
+.CRABS_Drawer_Settings_Icon,
+.CRABS_Drawer_Layout_Icon,
+.CRABS_Drawer_Close_Icon {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.drawer-content .CRABS_Drawer_Help_Icon,
+.drawer-content .CRABS_Drawer_Settings_Icon,
+.drawer-content .CRABS_Drawer_Layout_Icon,
+.drawer-content .CRABS_Drawer_Close_Icon {
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.drawer-content .CRABS_Drawer_Close_Icon {
+  margin-left: auto;
+}
+
+/* Header Action Internal Image Sizing */
+.drawer-content .CRABS_Drawer_Help_Icon img,
+.drawer-content .CRABS_Drawer_Settings_Icon img,
+.drawer-content .CRABS_Drawer_Layout_Icon img,
+.drawer-content .CRABS_Drawer_Close_Icon img {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  object-fit: contain;
+  display: block;
+}
+
+.drawer-content {
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  border-radius: 12px 0 0 12px;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.drawer-content.CRABS_wrapper {
+  width: 100% !important;
+  margin: 0 !important;
+  height: 100% !important;
+  box-sizing: border-box;
+}
+
+.drawer-content .CRABS_wrapper_content {
+  flex: 1;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding: 8px;
+}
+
+#crabs-drawer.drawer-closed .drawer-content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#crabs-drawer.drawer-open .drawer-content {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tab Fallback & Sizing */
+#drawer-tab::after {
+  content: "👥";
+  font-size: 20px;
+  display: none;
+}
+
+#drawer-tab img:not([src]),
+#drawer-tab img[src=""] {
+  display: none;
+}
+
+#drawer-tab img:not([src]) + ::after,
+#drawer-tab img[src=""] + ::after {
+  display: block;
+}
+
+#drawer-tab img {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: contain;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+#crabs-drawer.drawer-closed #drawer-tab img {
+  transform: rotate(270deg) translateZ(0) !important;
+}
+
+#crabs-drawer.drawer-open #drawer-tab img {
+  transform: rotate(0deg) translateZ(0) !important;
+}
+
+/* Force internal tables to behave */
+#CRABS_Drawer_Roster,
+.CRABS_roster_center_table {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+
+.CRABS_card {
+  height: auto !important;
+  margin-bottom: 8px;
+}
+
+/* Roster Controls */
+.CRABS_roster_controls {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  padding-right: 4px;
+}
+
+.CRABS_dropdown {
+  background: rgba(34, 34, 34, 0.9);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.CRABS_dropdown:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.CRABS_dropdown option {
+  background: #222;
+  color: white;
+}

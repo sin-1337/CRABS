@@ -1,0 +1,5 @@
+{
+    "keybinds": { "category": "Mod CRABS" },
+    "chat": { "person_not_found": "Cette personne n'est plus dans la salle." },
+    "tooltips": { "help": "Aide", "settings": "Paramètres" }
+}

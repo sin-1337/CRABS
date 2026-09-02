@@ -1,0 +1,5 @@
+{
+    "keybinds": { "toggle_name": "切換抽屜", "toggle_desc": "打開或關閉 CRABS 側邊抽屜。" },
+    "header": { "title_default": "名單", "title_help": "幫助" },
+    "tooltips": { "tab": "CRABS 抽屜", "help": "幫助", "roster": "名單", "settings": "設置", "layout": "切換佈局", "close": "關閉抽屜" }
+}

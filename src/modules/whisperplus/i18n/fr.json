@@ -1,0 +1,18 @@
+{
+    "notifications": {
+        "blocked_title": "Whisper+ Bloqué",
+        "blocked_gagged": "Vous ne pouvez pas utiliser Whisper+ pendant que vous êtes bâillonné.",
+        "sent_as_beep": "Whisper+ envoyé comme bip.",
+        "failed_title": "Whisper+ Échoué",
+        "sent_as_beep_regular": "Whisper sent as beep."
+    },
+    "chat": {
+        "note_to_self": "<span style=\"color:#989898\">{icon} Note pour </span><span style=\"color:{labelColor}\">moi-même</span><span style=\"color:#989898\">: {message}</span>",
+        "beep_to": "Bip à {targetName} ({memberNumber}): {message}",
+        "invalid_member": "Numéro de membre invalide.",
+        "blank_message": "Le message était vide",
+        "player_left": "Le joueur a quitté ou est devenu indisponible",
+        "auto_beep_failed": " (Bip automatique échoué : la cible n'est pas sur votre liste d'amis.)",
+        "fallback_member": "Membre"
+    }
+}

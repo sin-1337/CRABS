@@ -1,0 +1,18 @@
+{
+    "keybinds": {
+        "toggle_name": "Toggle Drawer",
+        "toggle_desc": "Opens or closes the CRABS side drawer."
+    },
+    "header": {
+        "title_default": "Roster",
+        "title_help": "Help"
+    },
+    "tooltips": {
+        "tab": "CRABS Drawer",
+        "help": "Help",
+        "roster": "Roster",
+        "settings": "Settings",
+        "layout": "Cycle Layout",
+        "close": "Close Drawer"
+    }
+}

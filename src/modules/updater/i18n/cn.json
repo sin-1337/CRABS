@@ -1,0 +1,9 @@
+{
+    "notification": {
+        "title": "🦀 CRABS 更新可用！",
+        "message": "版本 {newVersion} ({branch}) 已发布！(当前版本 {currentVersion})。刷新页面以应用更新。"
+    },
+    "chat": {
+        "local_message": "<span style=\"color: cyan;\"><b>CRABS 更新：</b> 版本 {newVersion} ({branch}) 已可用。重新加载页面以更新！</span>"
+    }
+}

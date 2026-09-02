@@ -1,0 +1,5 @@
+{
+    "keybinds": { "category": "CRABS Mod" },
+    "chat": { "person_not_found": "Цієї особи більше немає в кімнаті." },
+    "tooltips": { "help": "Допомога", "settings": "Налаштування" }
+}

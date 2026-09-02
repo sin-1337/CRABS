@@ -1,0 +1,9 @@
+{
+    "errors": {
+        "feature_disabled": "Fonctionnalité CRABS désactivée : {hook} a échoué.",
+        "error_title": "Erreur"
+    },
+    "clipboard": {
+        "copied": "\"{data}\" copié dans le presse-papiers."
+    }
+}
