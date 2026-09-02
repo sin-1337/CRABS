@@ -913,33 +913,33 @@ export class Roster extends CRABS_Base {
 
     const container = root || document;
 
-    // If History view is active, bind history specific interactions
+    // 1. History view specific handling
     if (this.isShowingHistory) {
       const cards = container.querySelectorAll<HTMLElement>(".CRABS_card");
 
       cards.forEach((card) => {
-        // Read member number from the card dataset or attribute
         const rawId =
           card.getAttribute("data-player-number") ||
           card.dataset.playerNumber ||
           card.id.replace("CRABS_card_", "");
         const targetId = Number(rawId);
-
         if (!targetId || isNaN(targetId)) return;
 
-        // 1. Badge or Left-Side Click -> Open WCE Cached Profile
-        const badge = card.querySelector<HTMLElement>(
-          ".CRABS_badge, .CRABS_player-badge, .CRABS_card_badge",
+        // ONLY target the history-specific badge class
+        const histBadge = card.querySelector<HTMLElement>(
+          ".CRABS_history-badge",
         );
-        if (badge) {
-          badge.style.cursor = "pointer";
-          badge.addEventListener("click", (e) => {
+        if (histBadge) {
+          histBadge.style.cursor = "pointer";
+          histBadge.addEventListener("click", (e) => {
             e.stopPropagation();
-            History.openWCEProfile(targetId);
+            History.openWCEProfile(targetId, (action) =>
+              this.fakePlayerCommand(action, "profiles"),
+            );
           });
         }
 
-        // 2. Name Click -> Send Friend Beep
+        // Name click sends friend beep
         const nameEl = card.querySelector<HTMLElement>(".CRABS_player-name");
         if (nameEl) {
           nameEl.style.cursor = "pointer";
@@ -950,7 +950,6 @@ export class Roster extends CRABS_Base {
         }
       });
 
-      // Bind clipboard copy on the player ID
       this.attachEvent(
         "CRABS_player-id",
         this.copyToClipboard,
@@ -961,10 +960,11 @@ export class Roster extends CRABS_Base {
         root,
       );
 
+      // Stop here so live roster listeners don't attach to history cards
       return;
     }
 
-    // Live roster event attachments continue below...
+    // 2. Original Live Roster handlers (completely untouched)
     this.attachEvent(
       "CRABS_player-badge",
       this.showPlayerFocus,

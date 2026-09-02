@@ -1,21 +1,35 @@
 /**
  * CRABS Base Module
+ *
+ * Core base class for CRABS modules inside the Bondage Club ecosystem.
+ * Handles SDK integration, safe hooking, internationalization, UI injection,
+ * keybinding registration, and color/accessibility utilities.
  */
 
-import bcModSdk, { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
 import * as baseLocales from "./i18n";
 
+/**
+ * Performance degradation tiers for dynamic optimization.
+ */
 export enum PerformanceLevel {
   NORMAL = 0,
   LOW = 1,
   CRITICAL = 2,
 }
 
+/**
+ * Supported UI language codes.
+ */
 export type SupportedLocale = "en" | "de" | "fr" | "ru" | "cn" | "tw" | "uk";
 
+/**
+ * Abstract foundational class providing common services, lifecycle management,
+ * and utilities for all CRABS feature modules.
+ */
 export abstract class CRABS_Base {
   declare CRABS: ModSDKModAPI;
 
@@ -39,22 +53,44 @@ export abstract class CRABS_Base {
     | ((key: string, tooltip: string, cssClass?: string) => string)
     | null = null;
 
+  /**
+   * Registers a global callback to trigger when a user requests help UI.
+   *
+   * @param handler - Callback function executed on help request.
+   */
   public static setHelpHandler(handler: () => void): void {
     CRABS_Base.onHelpRequested = handler;
   }
 
+  /**
+   * Registers a global delegate for dispatching notifications to the user.
+   *
+   * @param handler - Function handling the message display and optional title.
+   */
   public static setNotifyHandler(
     handler: (message: string, title?: string) => void,
   ): void {
     CRABS_Base.notifyDelegate = handler;
   }
 
+  /**
+   * Sets the global delegate for rendering SVG/HTML icons.
+   *
+   * @param renderer - Function returning rendered HTML string for an icon key.
+   */
   public static setIconRenderer(
     renderer: (key: string, tooltip: string, cssClass?: string) => string,
   ): void {
     CRABS_Base.iconRenderer = renderer;
   }
 
+  /**
+   * Initializes a module instance, sets up its namespace, and preloads translations.
+   *
+   * @param CRABS - Instance of the ModSDK API.
+   * @param namespace - Unique namespace identifier for this module's keys.
+   * @param locales - Key-value map of language codes to translation dictionaries.
+   */
   constructor(
     CRABS: ModSDKModAPI,
     namespace: string = "base",
@@ -74,6 +110,12 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Maps arbitrary language identifiers (game/browser codes) to supported locales.
+   *
+   * @param lang - Raw locale identifier string.
+   * @returns Canonical supported locale code (defaults to 'en').
+   */
   public static normalizeLocale(
     lang: string | undefined | null,
   ): SupportedLocale {
@@ -102,6 +144,12 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Resolves the current active locale, checking manual override first,
+   * then falling back to Bondage Club's runtime language settings.
+   *
+   * @returns Active normalized locale code.
+   */
   public static getActiveLocale(): SupportedLocale {
     if (CRABS_Base.userLanguageOverride) {
       return CRABS_Base.normalizeLocale(CRABS_Base.userLanguageOverride);
@@ -114,12 +162,21 @@ export abstract class CRABS_Base {
     return CRABS_Base.normalizeLocale(gameLang);
   }
 
+  /**
+   * Sets or clears a manual user language override.
+   *
+   * @param lang - Target language code, or null/'auto' to revert to game settings.
+   */
   public static setLanguageOverride(lang: string | null): void {
     CRABS_Base.userLanguageOverride = !lang || lang === "auto" ? null : lang;
   }
 
   /**
-   * Made static so external utility classes can register translations safely
+   * Registers translation dictionary data for a namespace and locale into static cache.
+   *
+   * @param namespace - Module namespace prefix.
+   * @param locale - Target locale code.
+   * @param bundle - Translation key-value map or module bundle.
    */
   public static registerTranslations(
     namespace: string,
@@ -151,6 +208,13 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Instance proxy to register module translations.
+   *
+   * @param namespace - Module namespace prefix.
+   * @param locale - Target locale code.
+   * @param bundle - Translation key-value map.
+   */
   public registerTranslations(
     namespace: string,
     locale: string,
@@ -159,6 +223,13 @@ export abstract class CRABS_Base {
     CRABS_Base.registerTranslations(namespace, locale, bundle);
   }
 
+  /**
+   * Recursively traverses an object tree using dot notation.
+   *
+   * @param obj - Root translation bundle.
+   * @param key - Dot-delimited path key (e.g., 'dialogue.title').
+   * @returns Resolved string value, or undefined if not found.
+   */
   private static resolveKey(obj: any, key: string): string | undefined {
     if (!obj) return undefined;
     const parts = key.split(".");
@@ -173,6 +244,14 @@ export abstract class CRABS_Base {
     return typeof current === "string" ? current : undefined;
   }
 
+  /**
+   * Translates a dot-notated key using fallback chains (tw -> cn -> en -> raw key)
+   * and interpolates bracket tokens `{token}`.
+   *
+   * @param key - Full dot-notated translation path.
+   * @param params - Optional key-value substitutions for string templates.
+   * @returns Localized and interpolated string.
+   */
   public static translate(
     key: string,
     params?: Record<string, string | number>,
@@ -197,6 +276,13 @@ export abstract class CRABS_Base {
     return text;
   }
 
+  /**
+   * Instance helper for localized strings scoped to current module's namespace.
+   *
+   * @param key - Scoped or fully qualified localization key.
+   * @param params - Optional interpolation parameters.
+   * @returns Localized text.
+   */
   public t(key: string, params?: Record<string, string | number>): string {
     const fullKey = key.startsWith(`${this.moduleNamespace}.`)
       ? key
@@ -204,6 +290,14 @@ export abstract class CRABS_Base {
     return CRABS_Base.translate(fullKey, params);
   }
 
+  /**
+   * Wraps SDK hook registration with failure-isolation safeguards.
+   * Automatically disables faulty hooks to prevent base game crashes.
+   *
+   * @param targetFunction - Global function path to hook.
+   * @param priority - Execution priority inside the SDK chain.
+   * @param callback - Hook handler executing custom logic and calling next().
+   */
   protected safeHook(
     targetFunction: string,
     priority: number,
@@ -266,6 +360,16 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Registers a keybinding with the game's KeyManager, handling retries if unavailable.
+   *
+   * @param id - Unique binding ID.
+   * @param actionName - Display name of the action.
+   * @param description - Detailed description of the shortcut.
+   * @param key - Target key code.
+   * @param actionCallback - Handler returning boolean indicating handling state.
+   * @param modifiers - Set of active modifier keys required (defaults to Ctrl+Alt).
+   */
   public static registerKeybind(
     id: string,
     actionName: string,
@@ -320,15 +424,36 @@ export abstract class CRABS_Base {
     });
   }
 
-  public fakePlayerCommand(action: string = "all"): void {
-    for (const [_, command] of Commands.entries()) {
-      if (command.Tag === `crabs`) {
+  /**
+   * Triggers registered chat commands programmatically.
+   *
+   * @param action - Subcommand string argument (defaults to 'all').
+   * @param tag - The command tag to execute (defaults to 'crabs').
+   */
+  public fakePlayerCommand(
+    action: string = "all",
+    tag: string = "crabs",
+  ): boolean {
+    const globalWindow = window as any;
+    const list = globalWindow.Commands || Commands;
+
+    if (!Array.isArray(list)) return false;
+
+    for (const [_, command] of list.entries()) {
+      if (command.Tag === tag && typeof command.Action === "function") {
         command.Action(action);
-        break;
+        return true;
       }
     }
+    return false;
   }
 
+  /**
+   * Strips zalgo/combining diacritical Unicode marks and normalizes text layout.
+   *
+   * @param text - Raw input string.
+   * @returns Cleaned and normalized string.
+   */
   public cleanZalgoAndNormalize(text: string): string {
     if (!text) return "";
     return text
@@ -340,6 +465,11 @@ export abstract class CRABS_Base {
       .normalize("NFKC");
   }
 
+  /**
+   * Determines if the client is operating on a mobile device or small viewport.
+   *
+   * @returns True if screen width is <= 768px or user agent matches mobile profiles.
+   */
   protected isMobileView(): boolean {
     if (window.innerWidth <= 768) return true;
     const nav = navigator as any;
@@ -350,6 +480,11 @@ export abstract class CRABS_Base {
     );
   }
 
+  /**
+   * Focuses on a character in the room by member number, opening their preferences.
+   *
+   * @param MemberNumber - Account ID of the target player.
+   */
   public showPlayerFocus(MemberNumber: number): void {
     const character = ChatRoomCharacter.find(
       (characterItem) => characterItem.MemberNumber === MemberNumber,
@@ -362,11 +497,11 @@ export abstract class CRABS_Base {
     }
   }
 
-  protected detectMod(targetmod: string): boolean {
-    const modlist = bcModSdk.getModsInfo();
-    return modlist.filter((modInfo) => modInfo.name === targetmod).length > 0;
-  }
-
+  /**
+   * Writes text data to the system clipboard and notifies user upon success.
+   *
+   * @param data - Plaintext content to copy.
+   */
   public async copyToClipboard(data: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(data);
@@ -380,6 +515,11 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Removes a DOM element by ID if present.
+   *
+   * @param elementId - ID of the target DOM element.
+   */
   public closeElement(elementId: string): void {
     if (elementId) {
       const existing = document.getElementById(elementId);
@@ -387,6 +527,9 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Navigates the player's UI directly into the CRABS preference subscreen.
+   */
   public async openSettings(): Promise<void> {
     const screen = window as any;
 
@@ -426,6 +569,17 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Attaches event listeners across DOM elements matching an ID or class query.
+   *
+   * @param selectorName - Class name or element ID to target.
+   * @param callback - Event handler function.
+   * @param data - Optional dataset key to pass directly to callback.
+   * @param callbackArgument - Fixed argument to supply to callback if defined.
+   * @param event - DOM event type (e.g., 'click', 'contextmenu').
+   * @param findBy - Selector lookup strategy ('class' or 'id').
+   * @param root - Optional scope container for the query.
+   */
   public attachEvent(
     selectorName: string,
     callback: (val?: any) => void,
@@ -462,6 +616,14 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Sanitizes and injects HTML templates into the game chat log,
+   * wiring default control hooks (Help, Settings, Close).
+   *
+   * @param output - Raw HTML string to sanitize and display.
+   * @param elementId - Optional ID to assign to the wrapper element.
+   * @param root - Optional container scope for binding standard controls.
+   */
   public buildui(
     output?: string,
     elementId?: string,
@@ -524,6 +686,16 @@ export abstract class CRABS_Base {
     );
   }
 
+  /**
+   * Replaces template placeholders `{{key}}` and translation tokens `{{t:key}}`.
+   * Optionally nests within the global wrapper layout.
+   *
+   * @param template - HTML template string.
+   * @param templateArguments - Variable substitution mappings.
+   * @param wrapper - Whether to wrap inside `wrappertemplate`.
+   * @param wrapperArgs - Variable substitutions for the wrapper template.
+   * @returns Fully rendered template string.
+   */
   protected template(
     template: string,
     templateArguments: Record<string, string>,
@@ -575,6 +747,13 @@ export abstract class CRABS_Base {
     return template;
   }
 
+  /**
+   * Converts a 6-digit hexadecimal color string into an RGBA format string.
+   *
+   * @param hex - Hexadecimal color code (e.g., '#ffffff' or 'ffffff').
+   * @param alpha - Target alpha channel transparency value (0 to 1).
+   * @returns Formatted `rgba(r, g, b, a)` string.
+   */
   protected convertColor(hex: string, alpha: number = 0): string {
     hex = hex.replace(/^#/, "");
     const red = parseInt(hex.slice(0, 2), 16);
@@ -589,6 +768,12 @@ export abstract class CRABS_Base {
     willReadFrequently: true,
   });
 
+  /**
+   * Calculates the perceptual luminance of a CSS color string via canvas rasterization.
+   *
+   * @param color - Valid CSS color string.
+   * @returns Perceived brightness score between 0 and 255.
+   */
   protected getColorBrightness(color: string): number {
     if (!color) return 255;
     if (this.colorBrightnessCache.has(color))
@@ -612,6 +797,13 @@ export abstract class CRABS_Base {
     }
   }
 
+  /**
+   * Generates a high-contrast, brightened outline color for a given CSS color,
+   * ensuring UI readability across varying chat backgrounds.
+   *
+   * @param color - Source CSS color string.
+   * @returns High-contrast RGBA border/outline color string.
+   */
   protected getBrightOutlineColor(color: string): string {
     if (!this.canvasContext) return "rgba(255,255,255,0.8)";
 

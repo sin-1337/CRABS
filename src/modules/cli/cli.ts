@@ -1,15 +1,13 @@
 import bcModSDK from "bondage-club-mod-sdk";
-import {
-  WhisperPlus,
-  Roster,
-  Help,
-  Drawer,
-  Settings,
-  Assets,
-  Setup,
-  Notification,
-  Performance,
-} from "../index";
+import { WhisperPlus } from "../whisperplus";
+import { Roster } from "../roster";
+import { Help } from "../help";
+import { Drawer } from "../drawer";
+import { Settings } from "../settings";
+import { Assets } from "../assets";
+import { Setup } from "../setup";
+import { Notification } from "../notifications";
+import { Performance } from "../performance";
 import { CRABS_Base } from "../base";
 import * as locales from "./i18n";
 

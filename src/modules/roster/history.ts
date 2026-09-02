@@ -259,15 +259,16 @@ export function removeRejoinedCharacter(memberNumber: number): void {
 }
 
 /**
- * Accesses Bondage Club Enhanced (WCE) to display a historical profile sheet.
- * Extracts the data directly from WCE's IndexedDB cache.
+ * Triggers WCE's /profiles command for a specific player number.
  *
  * @param {number | string} memberInput - The target character's member number.
- * @returns {Promise<void>}
+ * @param {(action: string, tag: string) => void} [runCommand] - Base instance command execution callback.
+ * @returns {void}
  */
-export async function openWCEProfile(
+export function openWCEProfile(
   memberInput: number | string,
-): Promise<void> {
+  runCommand?: (action: string, tag: string) => void,
+): void {
   const globalWindow = window as any;
   const memberNumber = Number(memberInput);
 
@@ -295,92 +296,15 @@ export async function openWCEProfile(
     return;
   }
 
-  // Close the CRABS drawer so the sheet renders without overlay obstruction
+  // Close the drawer so the chat log is unobstructed
   const drawer = document.getElementById("crabs-drawer");
   if (drawer) {
     drawer.classList.remove("drawer-open");
     drawer.classList.add("drawer-closed");
   }
 
-  // Direct IndexedDB extraction matching WCE's internal openCharacter logic
-  try {
-    const req = indexedDB.open("bce-past-profiles");
-
-    req.onsuccess = (evt: any) => {
-      const db = evt.target.result;
-      if (!db.objectStoreNames.contains("profiles")) {
-        globalWindow.$?.notify?.(
-          "WCE past profiles database not found.",
-          "error",
-        );
-        return;
-      }
-
-      const tx = db.transaction("profiles", "readonly");
-      const store = tx.objectStore("profiles");
-
-      // Strict numeric type matching the indexed keyPath
-      const getReq = store.get(memberNumber);
-
-      getReq.onsuccess = () => {
-        const profile = getReq.result;
-        if (!profile) {
-          globalWindow.$?.notify?.(
-            `No WCE profile cached for #${memberNumber}`,
-            "warn",
-          );
-          return;
-        }
-
-        try {
-          const bundle =
-            typeof profile.characterBundle === "string"
-              ? JSON.parse(profile.characterBundle)
-              : profile.characterBundle;
-
-          if (globalWindow.CurrentScreen === "ChatRoom") {
-            if (typeof globalWindow.ChatRoomHideElements === "function") {
-              globalWindow.ChatRoomHideElements();
-            }
-            if (globalWindow.ChatRoomData) {
-              globalWindow.ChatRoomBackground =
-                globalWindow.ChatRoomData.Background;
-            }
-          }
-
-          // Build character instance from WCE profile bundle
-          const charInstance = globalWindow.CharacterLoadOnline(
-            bundle,
-            memberNumber,
-          );
-          charInstance.BCESeen = profile.seen;
-
-          // Load profile sheet (DO NOT call CommonSetScreen here, it overwrites selection)
-          globalWindow.InformationSheetLoadCharacter(charInstance);
-        } catch (loadErr) {
-          console.error("CRABS: Error rendering character sheet", loadErr);
-          globalWindow.$?.notify?.(
-            "Failed to render cached profile sheet.",
-            "error",
-          );
-        }
-      };
-
-      getReq.onerror = (e: any) => {
-        console.error("CRABS: Error querying profile from WCE IndexedDB", e);
-        globalWindow.$?.notify?.(
-          "Failed to load cached profile data.",
-          "error",
-        );
-      };
-    };
-
-    req.onerror = (e: any) => {
-      console.error("CRABS: Error opening WCE IndexedDB", e);
-      globalWindow.$?.notify?.("Could not open WCE database.", "error");
-    };
-  } catch (err) {
-    console.error("CRABS: Failed reading WCE profile", err);
+  if (runCommand) {
+    runCommand(memberNumber.toString(), "profiles");
   }
 }
 
@@ -489,6 +413,7 @@ export function buildHistoryRoster(
     const badgeIcon = Assets.printimage({
       key: "history" as any,
       tooltip_override: "View WCE Cached Profile",
+      css_class_override: "CRABS_history-badge",
     });
 
     const timeStr = formatCompactTime(rec.seen);
