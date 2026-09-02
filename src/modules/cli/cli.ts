@@ -42,11 +42,31 @@ export class CLI extends CRABS_Base {
     this.registerCommands();
   }
 
+  /**
+   * Helper to open the drawer to a specific tab when rosterOpensDrawer is enabled.
+   */
+  private openDrawerTab(tabName?: string): void {
+    Drawer.updateVisibility();
+    if (tabName && typeof (Drawer as any).openTab === "function") {
+      (Drawer as any).openTab(tabName);
+    } else if (tabName && typeof (Drawer as any).switchTab === "function") {
+      (Drawer as any).switchTab(tabName);
+      Drawer.open();
+    } else {
+      Drawer.toggle();
+    }
+  }
+
   private argcheck(commandArguments: string): boolean {
     const splitArgs = commandArguments.toLowerCase().split(" ");
     const arg = splitArgs[0];
+    const opensDrawer = Settings.instance.data.rosterOpensDrawer;
 
     if (arg === "help") {
+      if (opensDrawer) {
+        this.openDrawerTab("help");
+        return false;
+      }
       this.help.buildui(this.help.showHelp(), "CRABS_Help");
       const helpButton = document.getElementById("CRABS_Help_Icon");
       if (helpButton) helpButton.style.display = "none";
@@ -159,13 +179,24 @@ export class CLI extends CRABS_Base {
         Tag: "roster",
         Description: this.t("roster_desc"),
         Action: (commandArguments: string) => {
-          if (Settings.instance.data.rosterOpensDrawer && !commandArguments) {
-            Drawer.updateVisibility();
-            Drawer.toggle();
+          const trimmed = commandArguments.trim().toLowerCase();
+          const opensDrawer = Settings.instance.data.rosterOpensDrawer;
+
+          // If drawer mode is on and there are no arguments, open default roster drawer
+          if (opensDrawer && !trimmed) {
+            this.openDrawerTab("roster");
             return;
           }
 
+          // If valid command arguments are passed, evaluate through argcheck
           if (this.argcheck(commandArguments)) {
+            // If it's a valid roster view argument and drawer mode is active, display in drawer
+            if (opensDrawer) {
+              this.openDrawerTab("roster");
+              return;
+            }
+
+            // Chat log fallback rendering
             this.roster.buildui(
               this.roster.buildroster(commandArguments),
               "CRABS_Roster",

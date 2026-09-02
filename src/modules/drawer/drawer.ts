@@ -154,6 +154,22 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
+   * Opens the drawer and immediately routes to the Help tab.
+   */
+  public openHelp(): void {
+    this.showingHelp = true;
+    this.open();
+  }
+
+  /**
+   * Static accessor to show the Help screen inside the drawer.
+   */
+  public static openHelp(): void {
+    Drawer.updateVisibility();
+    Drawer._instance?.openHelp();
+  }
+
+  /**
    * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
    *
    * @returns {void}

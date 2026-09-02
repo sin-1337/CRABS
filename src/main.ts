@@ -3,21 +3,24 @@
 
 import bcModSDK from "bondage-club-mod-sdk";
 import {
+  Assets,
   Banner,
-  WhisperPlus,
-  Roster,
-  Help,
+  ChatManager,
+  CLI,
   Drawer,
+  Help,
+  Notification,
+  Performance,
+  PrivacyMode,
+  Roster,
   Settings,
   Setup,
   Updater,
-  ChatManager,
-  PrivacyMode,
-  Performance,
-  CLI,
+  WhisperPlus,
 } from "./modules";
+import { CRABS_Base } from "./modules/base";
 
-// register the mod
+// Register the mod
 const CRABS = bcModSDK.registerMod({
   name: __NICKNAME__,
   fullName: __NAME__,
@@ -25,8 +28,34 @@ const CRABS = bcModSDK.registerMod({
   repository: "https://github.com/sin-1337/CRABS",
 });
 
-// print version early, so you know what version is running even if it fails.
+// Print version early, so you know what version is running even if it fails
 console.log(`CRABS v${__VERSION__} Loading`); // do not remove
+
+// Wire Base class static delegates to prevent circular dependencies
+CRABS_Base.setIconRenderer((key, tooltip, cssClass) =>
+  Assets.printimage({
+    key: key as any,
+    tooltip_override: tooltip,
+    css_class_override: cssClass,
+  }),
+);
+
+CRABS_Base.setNotifyHandler((message, title) =>
+  Notification.send({ message, title }),
+);
+
+CRABS_Base.setHelpHandler(() => {
+  if (Settings.instance?.data?.rosterOpensDrawer) {
+    Drawer.openHelp();
+  } else {
+    for (const [_, command] of Commands.entries()) {
+      if (command.Tag === "crabs") {
+        command.Action("help");
+        break;
+      }
+    }
+  }
+});
 
 // Initialize all core modules
 const SETTINGS = new Settings(CRABS);
@@ -56,5 +85,5 @@ new CLI({
 WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
 
-// print version and confirm load success in console
-console.log(`CRABS v${__VERSION__} Loaded`);
+// Print version and confirm load success in console
+console.log(`CRABS v${__VERSION__} Loaded`); // do not remove
