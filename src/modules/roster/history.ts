@@ -264,9 +264,6 @@ export function removeRejoinedCharacter(memberNumber: number): void {
  * @param {number} memberNumber - The member number whose cached profile should be viewed.
  * @returns {Promise<void>} Resolves when the retrieval attempt finishes or aborts.
  */
-/**
- * Accesses Bondage Club Enhanced (WCE) IndexedDB storage to display a historical profile sheet.
- */
 export async function openWCEProfile(memberNumber: number): Promise<void> {
   const globalWindow = window as any;
 
@@ -287,7 +284,8 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
   }
 
   try {
-    const req = indexedDB.open("bce-past-profiles");
+    // Open explicit WCE database version (31)
+    const req = indexedDB.open("bce-past-profiles", 31);
 
     req.onsuccess = (evt: any) => {
       const db = evt.target.result;
@@ -319,13 +317,14 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
               ? JSON.parse(profile.characterBundle)
               : profile.characterBundle;
 
-          // Close the CRABS drawer so the sheet is unobstructed
+          // Close the CRABS drawer cleanly
           const drawer = document.getElementById("crabs-drawer");
           if (drawer) {
             drawer.classList.remove("drawer-open");
             drawer.classList.add("drawer-closed");
           }
 
+          // Preserve background and chat state
           if (globalWindow.CurrentScreen === "ChatRoom") {
             if (typeof globalWindow.ChatRoomHideElements === "function") {
               globalWindow.ChatRoomHideElements();
@@ -336,15 +335,28 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
             }
           }
 
-          // Build character from saved bundle
+          // Build character from the saved WCE bundle
           const charInstance = globalWindow.CharacterLoadOnline(
             bundle,
             memberNumber,
           );
           charInstance.BCESeen = profile.seen;
 
+          // Ensure proper screen transition state
+          globalWindow.InformationSheetPreviousScreen =
+            globalWindow.CurrentScreen;
+          globalWindow.InformationSheetSelection = charInstance;
+          globalWindow.CurrentCharacter = charInstance;
+
           // Load profile sheet
           globalWindow.InformationSheetLoadCharacter(charInstance);
+
+          // Force transition to the Character/InformationSheet screen if not already switched
+          if (typeof globalWindow.CommonSetScreen === "function") {
+            globalWindow.CommonSetScreen("Character", "InformationSheet");
+          } else {
+            globalWindow.CurrentScreen = "InformationSheet";
+          }
         } catch (loadErr) {
           console.error("CRABS: Error rendering character sheet", loadErr);
           globalWindow.$?.notify?.(
@@ -353,9 +365,18 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
           );
         }
       };
+
+      getReq.onerror = (e: any) => {
+        console.error("CRABS: Error querying profile from WCE IndexedDB", e);
+        globalWindow.$?.notify?.(
+          "Failed to load cached profile data.",
+          "error",
+        );
+      };
     };
 
-    req.onerror = () => {
+    req.onerror = (e: any) => {
+      console.error("CRABS: Error opening WCE IndexedDB", e);
       globalWindow.$?.notify?.("Could not open WCE database.", "error");
     };
   } catch (err) {
