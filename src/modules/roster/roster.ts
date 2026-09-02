@@ -318,7 +318,7 @@ export class Roster extends CRABS_Base {
       const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
 
       iconsHTML += Assets.printimage({
-        key: "lover",
+        key: "lover_extended",
         tooltip_override: tooltip,
         css_class_override: "CRABS_icon",
       });
