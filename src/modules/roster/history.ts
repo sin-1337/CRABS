@@ -17,7 +17,7 @@
 import { Assets } from "../assets";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
-import rostercardssingletemplate from "./templates/roster_cards_single.html";
+import rosterhistorytemplate from "./templates/roster_history_card.html";
 
 /**
  * Represents an entry in the historical room occupant cache.
@@ -413,7 +413,7 @@ export function buildHistoryRoster(
     const badgeIcon = Assets.printimage({
       key: "history" as any,
       tooltip_override: "View WCE Cached Profile",
-      css_class_override: "CRABS_history-badge",
+      css_class_override: "CRABS_history_badge",
     });
 
     const timeStr = formatCompactTime(rec.seen);
@@ -433,7 +433,7 @@ export function buildHistoryRoster(
       CompassBlock: "",
     };
 
-    rowsHtml += templateEngine(rostercardssingletemplate, templatevars, false);
+    rowsHtml += templateEngine(rosterhistorytemplate, templatevars, false);
   }
 
   return `

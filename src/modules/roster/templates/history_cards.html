@@ -1,0 +1,30 @@
+<div class="CRABS_history_card" 
+     id="CRABS_history_{{PlayerNumber}}" 
+     data-player-number="{{PlayerNumber}}" 
+     style="border-left: 4px solid {{LabelColorBorder}}; --player-color: {{LabelColor}}; padding: 4px; display: flex; align-items: center; gap: 8px;">
+  <div class="CRABS_card_badge CRABS_history_badge" data-player-number="{{PlayerNumber}}" style="cursor: pointer;">
+    {{Badge}}
+  </div>
+  <div class="CRABS_card_main" style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+    <div class="CRABS_player-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div class="CRABS_overflow-wrapper" style="flex: 1; min-width: 0; display: flex; align-items: baseline;">
+        <div class="CRABS_overflow-scroll" style="display: flex; gap: 4px; align-items: baseline; padding-left: 1px;">
+          <span class="CRABS_history_name" style="color: {{LabelColor}} !important; -webkit-text-fill-color: {{LabelColor}} !important; {{LabelShadow}} font-weight: bold; cursor: pointer;" data-player-number="{{PlayerNumber}}">
+            {{PlayerName}}
+          </span>
+          <div class="CRABS_player-id" style="color: {{LabelColor}} !important; {{LabelShadow}}" data-player-number="{{PlayerNumber}}">
+            ({{PlayerNumber}})
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="CRABS_card_details" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px; width: 100%;">
+      <div class="CRABS_player-icons">
+        {{PlayerIcons}}
+      </div>
+      <div class="CRABS_status-icons" style="display: flex; gap: 2px;">
+        {{StatusIcons}}
+      </div>
+    </div>
+  </div>
+</div>

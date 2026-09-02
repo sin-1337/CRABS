@@ -911,45 +911,36 @@ export class Roster extends CRABS_Base {
   ): void {
     super.buildui(output, elementId, root);
 
-    const container = root || document;
-
-    // 1. History view specific handling
+    // ─────────────────────────────────────────────────────────────
+    // BRANCH A: History View
+    // ─────────────────────────────────────────────────────────────
     if (this.isShowingHistory) {
-      const cards = container.querySelectorAll<HTMLElement>(".CRABS_card");
+      // 1. Badge Click -> Open WCE Profile
+      this.attachEvent(
+        "CRABS_history_badge",
+        (num) =>
+          History.openWCEProfile(num, (action, tag) =>
+            this.fakePlayerCommand(action, tag),
+          ),
+        "playerNumber",
+        undefined,
+        "click",
+        "class",
+        root,
+      );
 
-      cards.forEach((card) => {
-        const rawId =
-          card.getAttribute("data-player-number") ||
-          card.dataset.playerNumber ||
-          card.id.replace("CRABS_card_", "");
-        const targetId = Number(rawId);
-        if (!targetId || isNaN(targetId)) return;
+      // 2. Name Click -> Send Friend Beep
+      this.attachEvent(
+        "CRABS_history_name",
+        (num) => History.sendFriendBeep(Number(num)),
+        "playerNumber",
+        undefined,
+        "click",
+        "class",
+        root,
+      );
 
-        // ONLY target the history-specific badge class
-        const histBadge = card.querySelector<HTMLElement>(
-          ".CRABS_history-badge",
-        );
-        if (histBadge) {
-          histBadge.style.cursor = "pointer";
-          histBadge.addEventListener("click", (e) => {
-            e.stopPropagation();
-            History.openWCEProfile(targetId, (action) =>
-              this.fakePlayerCommand(action, "profiles"),
-            );
-          });
-        }
-
-        // Name click sends friend beep
-        const nameEl = card.querySelector<HTMLElement>(".CRABS_player-name");
-        if (nameEl) {
-          nameEl.style.cursor = "pointer";
-          nameEl.addEventListener("click", (e) => {
-            e.stopPropagation();
-            History.sendFriendBeep(targetId);
-          });
-        }
-      });
-
+      // 3. ID Click -> Copy ID
       this.attachEvent(
         "CRABS_player-id",
         this.copyToClipboard,
@@ -960,14 +951,12 @@ export class Roster extends CRABS_Base {
         root,
       );
 
-      // Stop here so live roster listeners don't attach to history cards
-      return;
+      return; // Stop here. Live roster events will not process.
     }
 
-    // 2. Original Live Roster handlers (completely untouched)
     this.attachEvent(
       "CRABS_player-badge",
-      this.showPlayerFocus,
+      (num) => this.showPlayerFocus(num), // Passes the string from the dataset to base.ts
       "playerNumber",
       undefined,
       "click",

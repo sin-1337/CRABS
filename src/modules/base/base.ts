@@ -481,14 +481,17 @@ export abstract class CRABS_Base {
   }
 
   /**
-   * Focuses on a character in the room by member number, opening their preferences.
+   * Opens a target character's focus screen or outputs a local missing message.
    *
-   * @param MemberNumber - Account ID of the target player.
+   * @param {number | string} MemberNumber - Target character's member number.
+   * @returns {void}
    */
-  public showPlayerFocus(MemberNumber: number): void {
+  public showPlayerFocus(MemberNumber: number | string): void {
+    const targetId = Number(MemberNumber);
     const character = ChatRoomCharacter.find(
-      (characterItem) => characterItem.MemberNumber === MemberNumber,
+      (characterItem) => characterItem.MemberNumber === targetId,
     );
+
     if (character) {
       ChatRoomStatusUpdate("Preference");
       ChatRoomFocusCharacter(character);
