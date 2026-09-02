@@ -885,7 +885,7 @@ export class Roster extends CRABS_Base {
     };
 
     let wrappervars = {
-      TitleBar: `CRABS: ${this.t("header.title_default")}`,
+      TitleBar: `${this.t("header.title_default")}`,
       Close: Assets.printimage({
         key: "close",
         tooltip_override: this.t("controls.close_dialog"),
