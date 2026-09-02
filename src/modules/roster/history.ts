@@ -259,13 +259,27 @@ export function removeRejoinedCharacter(memberNumber: number): void {
 }
 
 /**
- * Accesses Bondage Club Enhanced (WCE) IndexedDB storage to display a historical profile sheet.
+ * Accesses Bondage Club Enhanced (WCE) to display a historical profile sheet.
  *
- * @param {number} memberNumber - The member number whose cached profile should be viewed.
- * @returns {Promise<void>} Resolves when the retrieval attempt finishes or aborts.
+ * Checks if WCE's /profiles command is available to delegate directly.
+ * Otherwise, queries IndexedDB ("bce-past-profiles") with strict numeric type coercion.
+ *
+ * @param {number | string} memberInput - The target character's member number.
+ * @returns {Promise<void>}
  */
-export async function openWCEProfile(memberNumber: number): Promise<void> {
+export async function openWCEProfile(
+  memberInput: number | string,
+): Promise<void> {
   const globalWindow = window as any;
+  const memberNumber = Number(memberInput);
+
+  if (isNaN(memberNumber)) {
+    console.warn(
+      "CRABS: Invalid member number passed to openWCEProfile",
+      memberInput,
+    );
+    return;
+  }
 
   if (!CrossMod.isWCEInstalled()) {
     globalWindow.$?.notify?.(
@@ -283,9 +297,37 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
     return;
   }
 
+  // Close the CRABS drawer so the sheet renders without overlay obstruction
+  const drawer = document.getElementById("crabs-drawer");
+  if (drawer) {
+    drawer.classList.remove("drawer-open");
+    drawer.classList.add("drawer-closed");
+  }
+
+  // Primary Path: Execute via WCE's registered /profiles command
+  if (Array.isArray(globalWindow.Commands)) {
+    const profileCmd = globalWindow.Commands.find(
+      (c: any) => c.Tag === "profiles",
+    );
+    if (profileCmd && typeof profileCmd.Action === "function") {
+      // Execute WCE command filtered to this exact member number
+      profileCmd.Action(memberNumber.toString());
+
+      // Find the injected WCE link in chat and trigger its click handler
+      setTimeout(() => {
+        const links =
+          document.querySelectorAll<HTMLAnchorElement>("a.bce-profile-open");
+        if (links.length > 0) {
+          links[links.length - 1].click();
+        }
+      }, 50);
+      return;
+    }
+  }
+
+  // Fallback Path: Direct IndexedDB extraction
   try {
-    // Open explicit WCE database version (31)
-    const req = indexedDB.open("bce-past-profiles", 31);
+    const req = indexedDB.open("bce-past-profiles");
 
     req.onsuccess = (evt: any) => {
       const db = evt.target.result;
@@ -299,6 +341,8 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
 
       const tx = db.transaction("profiles", "readonly");
       const store = tx.objectStore("profiles");
+
+      // Strict numeric type matching the indexed keyPath
       const getReq = store.get(memberNumber);
 
       getReq.onsuccess = () => {
@@ -317,14 +361,6 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
               ? JSON.parse(profile.characterBundle)
               : profile.characterBundle;
 
-          // Close the CRABS drawer cleanly
-          const drawer = document.getElementById("crabs-drawer");
-          if (drawer) {
-            drawer.classList.remove("drawer-open");
-            drawer.classList.add("drawer-closed");
-          }
-
-          // Preserve background and chat state
           if (globalWindow.CurrentScreen === "ChatRoom") {
             if (typeof globalWindow.ChatRoomHideElements === "function") {
               globalWindow.ChatRoomHideElements();
@@ -335,28 +371,15 @@ export async function openWCEProfile(memberNumber: number): Promise<void> {
             }
           }
 
-          // Build character from the saved WCE bundle
+          // Build character instance from WCE profile bundle
           const charInstance = globalWindow.CharacterLoadOnline(
             bundle,
             memberNumber,
           );
           charInstance.BCESeen = profile.seen;
 
-          // Ensure proper screen transition state
-          globalWindow.InformationSheetPreviousScreen =
-            globalWindow.CurrentScreen;
-          globalWindow.InformationSheetSelection = charInstance;
-          globalWindow.CurrentCharacter = charInstance;
-
-          // Load profile sheet
+          // Load profile sheet (DO NOT call CommonSetScreen here, it overwrites selection)
           globalWindow.InformationSheetLoadCharacter(charInstance);
-
-          // Force transition to the Character/InformationSheet screen if not already switched
-          if (typeof globalWindow.CommonSetScreen === "function") {
-            globalWindow.CommonSetScreen("Character", "InformationSheet");
-          } else {
-            globalWindow.CurrentScreen = "InformationSheet";
-          }
         } catch (loadErr) {
           console.error("CRABS: Error rendering character sheet", loadErr);
           globalWindow.$?.notify?.(

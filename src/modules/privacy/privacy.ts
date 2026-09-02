@@ -45,7 +45,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
-      new Set(["Ctrl", "Shift", "Alt"]),
+      new Set(["Ctrl", "Shift"]),
     );
 
     this.registerNativeKeybind();

@@ -911,24 +911,43 @@ export class Roster extends CRABS_Base {
   ): void {
     super.buildui(output, elementId, root);
 
+    const container = root || document;
+
     // If History view is active, bind history specific interactions
     if (this.isShowingHistory) {
-      const badges = (root || document).querySelectorAll(".CRABS_player-badge");
-      badges.forEach((el) => {
-        el.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const targetId = Number(el.getAttribute("data-player-number"));
-          if (targetId) History.openWCEProfile(targetId);
-        });
-      });
+      const cards = container.querySelectorAll<HTMLElement>(".CRABS_card");
 
-      const names = (root || document).querySelectorAll(".CRABS_player-name");
-      names.forEach((el) => {
-        el.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const targetId = Number(el.getAttribute("data-player-number"));
-          if (targetId) History.sendFriendBeep(targetId);
-        });
+      cards.forEach((card) => {
+        // Read member number from the card dataset or attribute
+        const rawId =
+          card.getAttribute("data-player-number") ||
+          card.dataset.playerNumber ||
+          card.id.replace("CRABS_card_", "");
+        const targetId = Number(rawId);
+
+        if (!targetId || isNaN(targetId)) return;
+
+        // 1. Badge or Left-Side Click -> Open WCE Cached Profile
+        const badge = card.querySelector<HTMLElement>(
+          ".CRABS_badge, .CRABS_player-badge, .CRABS_card_badge",
+        );
+        if (badge) {
+          badge.style.cursor = "pointer";
+          badge.addEventListener("click", (e) => {
+            e.stopPropagation();
+            History.openWCEProfile(targetId);
+          });
+        }
+
+        // 2. Name Click -> Send Friend Beep
+        const nameEl = card.querySelector<HTMLElement>(".CRABS_player-name");
+        if (nameEl) {
+          nameEl.style.cursor = "pointer";
+          nameEl.addEventListener("click", (e) => {
+            e.stopPropagation();
+            History.sendFriendBeep(targetId);
+          });
+        }
       });
 
       // Bind clipboard copy on the player ID
@@ -945,6 +964,7 @@ export class Roster extends CRABS_Base {
       return;
     }
 
+    // Live roster event attachments continue below...
     this.attachEvent(
       "CRABS_player-badge",
       this.showPlayerFocus,
