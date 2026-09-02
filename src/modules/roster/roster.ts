@@ -354,7 +354,7 @@ export class Roster extends CRABS_Base {
     // Use Helper
     const stats = this.getHeaderStats();
 
-    updateText("#drawer-title", `CRABS: ${stats.currentRoomName}`);
+    updateText("#drawer-title", `${stats.currentRoomName}`);
     updateText(
       "#CRABS_header_admins",
       `${stats.adminInRoom}/${stats.totalAdmins}`,

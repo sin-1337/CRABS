@@ -52,6 +52,15 @@
   gap: 4px;
 }
 
+/* Perfectly center title regardless of icon imbalance */
+.CRABS_wrapper_header.help-active #drawer-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: calc(100% - 240px);
+}
+
 .drawer-content #drawer-title {
   flex: 1 1 auto;
   margin: 0 12px;

@@ -516,6 +516,9 @@ export class Drawer extends CRABS_Base {
   public refresh(): void {
     const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
     const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
+    const header = this.instance?.querySelector(
+      ".CRABS_wrapper_header",
+    ) as HTMLElement;
     const helpIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_Help_Icon",
     );
@@ -534,9 +537,16 @@ export class Drawer extends CRABS_Base {
 
     if (content && isRoomReady) {
       const roomName = ChatRoomData.Name || this.t("header.title_default");
-      const rosterTitle = `CRABS: ${roomName}`;
-      const helpTitle = `CRABS: ${this.t("header.title_help")}`;
-      const historyTitle = `CRABS: ${roomName} (History)`;
+      const rosterTitle = `${roomName}`;
+      const helpTitle = `${this.t("header.title_help")}`;
+      const historyTitle = `${roomName} (History)`;
+
+      // Ensure class state is clean across all view transitions
+      if (this.showingHelp) {
+        header?.classList.add("help-active");
+      } else {
+        header?.classList.remove("help-active");
+      }
 
       if (this.showingHelp) {
         if (title && title.textContent !== helpTitle)
