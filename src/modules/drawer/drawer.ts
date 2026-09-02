@@ -321,20 +321,21 @@ export class Drawer extends CRABS_Base {
           this.updateVisibility();
           this.syncToChat();
 
-          if (
-            this.isOpen &&
-            !this.showingHelp &&
-            !this.rosterModule.isShowingHistory
-          ) {
+          if (this.isOpen && !this.showingHelp) {
             if (this.rosterModule.isDirty) {
-              const rosterRoot = this.instance?.querySelector(
-                ".CRABS_roster_center_table",
-              ) as HTMLElement;
-
-              if (rosterRoot) {
-                this.rosterModule.updateRosterUI(this.instance!);
-              } else {
+              if (this.rosterModule.isShowingHistory) {
+                // Live refresh the history tab when someone leaves or joins
                 this.refresh();
+              } else {
+                const rosterRoot = this.instance?.querySelector(
+                  ".CRABS_roster_center_table",
+                ) as HTMLElement;
+
+                if (rosterRoot) {
+                  this.rosterModule.updateRosterUI(this.instance!);
+                } else {
+                  this.refresh();
+                }
               }
 
               this.rosterModule.isDirty = false;

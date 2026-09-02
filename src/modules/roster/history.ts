@@ -146,13 +146,48 @@ function persistHistory(): void {
  * @returns {string} Compiled HTML string representing the relationship icons.
  */
 function generateHistoryPlayerIcons(memberNumber: number): string {
+  const globalWindow = window as any;
+  const player = globalWindow.Player;
+
+  // Fully-stubbed proxy matching Character helper contract
   const charProxy: any = {
     MemberNumber: memberNumber,
     IsPlayer: () => false,
+    IsOwnedByPlayer: () => {
+      if (!player) return false;
+      if (typeof player.IsOwnerOf === "function")
+        return player.IsOwnerOf(charProxy);
+      return player.Ownership?.MemberNumber === memberNumber;
+    },
+    IsOwnerOfPlayer: () => {
+      if (!player) return false;
+      if (typeof player.IsOwnedBy === "function")
+        return player.IsOwnedBy(charProxy);
+      return player.OwnerNumber ? player.OwnerNumber() === memberNumber : false;
+    },
+    IsLoverOfPlayer: () => {
+      if (!player) return false;
+      return player.GetLoversNumbers
+        ? player.GetLoversNumbers().includes(memberNumber)
+        : false;
+    },
+    IsInFamilyOfPlayer: () => {
+      if (!player?.IsInFamilyOfMemberNumber) return false;
+      return player.IsInFamilyOfMemberNumber(memberNumber);
+    },
   };
 
-  let iconsHTML = Icons.setIcons(charProxy);
+  let iconsHTML = "";
+  try {
+    iconsHTML = Icons.setIcons(charProxy);
+  } catch (err) {
+    console.warn(
+      "CRABS: Failed evaluating relationship icons for history proxy",
+      err,
+    );
+  }
 
+  // AFC Lovers check
   if (typeof memberNumber === "number" && CrossMod.isAFCLover(memberNumber)) {
     const afcRoom = CrossMod.getAFCLoverRoom(memberNumber);
     const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";

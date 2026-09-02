@@ -506,15 +506,28 @@ export class Roster extends CRABS_Base {
       10,
       (args: any, next: Function) => {
         const data = args[0];
-        const targetId = data?.SourceMemberNumber;
+        const targetId =
+          typeof data === "number"
+            ? data
+            : data?.SourceMemberNumber || data?.MemberNumber;
 
-        // Capture leaving character data before base game splices them out
-        if (targetId && typeof ChatRoomCharacter !== "undefined") {
-          const leavingChar = ChatRoomCharacter.find(
+        const globalWindow = window as any;
+        const characters = globalWindow.ChatRoomCharacter || [];
+
+        if (targetId) {
+          const leavingChar = characters.find(
             (c: any) => c.MemberNumber === targetId,
           );
           if (leavingChar) {
             History.recordHistoryCharacter(leavingChar);
+          } else {
+            // If already removed from array, salvage from ChatRoomData.Character
+            const fallback = globalWindow.ChatRoomData?.Character?.find(
+              (c: any) => c.MemberNumber === targetId,
+            );
+            if (fallback) {
+              History.recordHistoryCharacter(fallback);
+            }
           }
         }
 
