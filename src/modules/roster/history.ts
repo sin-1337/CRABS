@@ -260,9 +260,7 @@ export function removeRejoinedCharacter(memberNumber: number): void {
 
 /**
  * Accesses Bondage Club Enhanced (WCE) to display a historical profile sheet.
- *
- * Checks if WCE's /profiles command is available to delegate directly.
- * Otherwise, queries IndexedDB ("bce-past-profiles") with strict numeric type coercion.
+ * Extracts the data directly from WCE's IndexedDB cache.
  *
  * @param {number | string} memberInput - The target character's member number.
  * @returns {Promise<void>}
@@ -304,28 +302,7 @@ export async function openWCEProfile(
     drawer.classList.add("drawer-closed");
   }
 
-  // Primary Path: Execute via WCE's registered /profiles command
-  if (Array.isArray(globalWindow.Commands)) {
-    const profileCmd = globalWindow.Commands.find(
-      (c: any) => c.Tag === "profiles",
-    );
-    if (profileCmd && typeof profileCmd.Action === "function") {
-      // Execute WCE command filtered to this exact member number
-      profileCmd.Action(memberNumber.toString());
-
-      // Find the injected WCE link in chat and trigger its click handler
-      setTimeout(() => {
-        const links =
-          document.querySelectorAll<HTMLAnchorElement>("a.bce-profile-open");
-        if (links.length > 0) {
-          links[links.length - 1].click();
-        }
-      }, 50);
-      return;
-    }
-  }
-
-  // Fallback Path: Direct IndexedDB extraction
+  // Direct IndexedDB extraction matching WCE's internal openCharacter logic
   try {
     const req = indexedDB.open("bce-past-profiles");
 
