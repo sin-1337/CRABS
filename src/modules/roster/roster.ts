@@ -242,10 +242,6 @@ export class Roster extends CRABS_Base {
     });
   }
 
-  /* ====================================================================
-   * HELPER METHODS FOR CONSOLIDATION
-   * ==================================================================== */
-
   /**
    * Generates the consolidated header stats to avoid duplicating logic.
    */
@@ -325,8 +321,6 @@ export class Roster extends CRABS_Base {
 
     return iconsHTML;
   }
-
-  /* ==================================================================== */
 
   /**
    * Updates the DOM elements within the roster without a full redraw.
