@@ -605,7 +605,8 @@ export class Drawer extends CRABS_Base {
       } else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
         this.openSettings();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
-        // Layout cycle sequence: Default Grid -> Single Column -> Compact Single Column
+        if (this.showingHelp) return;
+
         const layouts = [
           "layout-grid",
           "layout-mobile-stack",
@@ -616,8 +617,6 @@ export class Drawer extends CRABS_Base {
           layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
 
         this.rosterModule.layoutMode = nextLayout;
-
-        // Re-render the drawer and update the active layout icon
         this.refresh();
 
         const table = this.instance?.querySelector(
