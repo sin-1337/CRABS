@@ -108,6 +108,12 @@ export abstract class Assets {
         toolTipKey: "tooltips.help",
         class: "CRABS_Help_Icon",
       },
+      history: {
+        file: "history.svg",
+        altKey: "alt.history",
+        toolTipKey: "tooltips.history",
+        class: "CRABS_History_Icon",
+      },
       settings: {
         file: "settings.svg",
         altKey: "alt.settings",
@@ -164,6 +170,12 @@ export abstract class Assets {
       },
       lover: {
         file: "lover.svg",
+        altKey: "alt.lover",
+        toolTipKey: "tooltips.lover",
+        class: "CRABS_icon",
+      },
+      lover_extended: {
+        file: "lover_extended.svg",
         altKey: "alt.lover",
         toolTipKey: "tooltips.lover",
         class: "CRABS_icon",

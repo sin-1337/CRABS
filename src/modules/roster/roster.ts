@@ -471,9 +471,19 @@ export class Roster extends CRABS_Base {
     this.safeHook("ChatRoomSync", 10, (args: any, next: Function) => {
       const result = next(args);
       const data = args[0];
-      if (data?.Character?.length) {
-        data.Character.forEach((c: any) => History.recordHistoryCharacter(c));
+
+      // Reconciles room name: restores cache if same room, purges if new room
+      if (data?.Name) {
+        History.syncRoomContext(data.Name);
       }
+
+      // If active occupants were in history (e.g. from a rejoinder), remove them
+      if (Array.isArray(data?.Character)) {
+        data.Character.forEach((c: any) => {
+          if (c?.MemberNumber) History.removeRejoinedCharacter(c.MemberNumber);
+        });
+      }
+
       this.isDirty = true;
       return result;
     });
@@ -481,20 +491,46 @@ export class Roster extends CRABS_Base {
     this.safeHook("ChatRoomSyncMemberJoin", 10, (args: any, next: Function) => {
       const result = next(args);
       const data = args[0];
-      if (data?.Character) {
-        History.recordHistoryCharacter(data.Character);
+
+      // Remove from departed history if they step back into the room
+      if (data?.Character?.MemberNumber) {
+        History.removeRejoinedCharacter(data.Character.MemberNumber);
       }
+
       this.isDirty = true;
       return result;
     });
 
-    this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
+    this.safeHook(
+      "ChatRoomSyncMemberLeave",
+      10,
+      (args: any, next: Function) => {
+        const data = args[0];
+        const targetId = data?.SourceMemberNumber;
+
+        // Capture leaving character data before base game splices them out
+        if (targetId && typeof ChatRoomCharacter !== "undefined") {
+          const leavingChar = ChatRoomCharacter.find(
+            (c: any) => c.MemberNumber === targetId,
+          );
+          if (leavingChar) {
+            History.recordHistoryCharacter(leavingChar);
+          }
+        }
+
+        const result = next(args);
+        this.isDirty = true;
+        return result;
+      },
+    );
+
     this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
     this.safeHook("TranslationLoad", 10, flagDirty);
 
     this.safeHook("ChatRoomMessage", 10, (args: any, next: Function) => {
       const result = next(args);
       const data = args[0];
+
       if (data && (data.Type === "Action" || data.Type === "Server")) {
         this.isDirty = true;
       }
@@ -504,6 +540,7 @@ export class Roster extends CRABS_Base {
     this.safeHook("ServerSend", 10, (args, next) => {
       const result = next(args);
       const messageType = args[0];
+
       if (messageType === "AccountUpdate") {
         this.isDirty = true;
       }
@@ -880,6 +917,17 @@ export class Roster extends CRABS_Base {
           if (targetId) History.sendFriendBeep(targetId);
         });
       });
+
+      // Bind clipboard copy on the player ID
+      this.attachEvent(
+        "CRABS_player-id",
+        this.copyToClipboard,
+        "playerNumber",
+        undefined,
+        "click",
+        "class",
+        root,
+      );
 
       return;
     }

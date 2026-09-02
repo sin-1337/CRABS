@@ -321,7 +321,11 @@ export class Drawer extends CRABS_Base {
           this.updateVisibility();
           this.syncToChat();
 
-          if (this.isOpen && !this.showingHelp) {
+          if (
+            this.isOpen &&
+            !this.showingHelp &&
+            !this.rosterModule.isShowingHistory
+          ) {
             if (this.rosterModule.isDirty) {
               const rosterRoot = this.instance?.querySelector(
                 ".CRABS_roster_center_table",

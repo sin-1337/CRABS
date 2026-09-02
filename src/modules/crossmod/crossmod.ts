@@ -30,6 +30,30 @@ export abstract class CrossMod {
   }
 
   /* ══════════════════════════════════════════════════════════════════════
+   *  WCE (Bondage Club Enhanced) Integration
+   * ══════════════════════════════════════════════════════════════════════ */
+
+  /**
+   * Checks if WCE / BCE is installed and active.
+   */
+  static isWCEInstalled(): boolean {
+    return (
+      CrossMod.detectMod("Bondage Club Enhanced") ||
+      CrossMod.detectMod("WCE") ||
+      typeof (window as any).fbcSettings !== "undefined"
+    );
+  }
+
+  /**
+   * Checks if WCE's past profiles tracking feature is actively enabled.
+   */
+  static isWCEPastProfilesEnabled(): boolean {
+    if (!CrossMod.isWCEInstalled()) return false;
+    const settings = (window as any).fbcSettings;
+    return !!settings && settings.pastProfiles !== false;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
    *  BCX Integration
    * ══════════════════════════════════════════════════════════════════════ */
   /** Static reference to the BCX Mod API instance. */
