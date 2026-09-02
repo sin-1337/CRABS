@@ -23,8 +23,6 @@ export interface CliDependencies {
 }
 
 export class CLI extends CRABS_Base {
-  protected moduleNamespace = "cli";
-
   private whisperPlus: WhisperPlus;
   private roster: Roster;
   private help: Help;
@@ -32,13 +30,8 @@ export class CLI extends CRABS_Base {
   private performance: Performance;
 
   constructor(deps: CliDependencies) {
-    // Pass mod instance and namespace into base class constructor
-    super(deps.crabs, "cli");
-
-    // Register CLI's i18n bundles under the "cli" namespace
-    for (const [lang, bundle] of Object.entries(locales)) {
-      this.registerTranslations("cli", lang, bundle);
-    }
+    // Base constructor assigns this.moduleNamespace = "cli" and registers all locales
+    super(deps.crabs, "cli", locales);
 
     this.whisperPlus = deps.whisperPlus;
     this.roster = deps.roster;

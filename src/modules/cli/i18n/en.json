@@ -1,5 +1,5 @@
 {
-    "commands": {
+    "cli": {
         "whisper_desc": "Enables the /whisper+ command that does global whisper in a map room",
         "w_desc": "Enables the /w+ command that does global whisper in a map room",
         "crabs_desc": "Open the CRABS Roster.",

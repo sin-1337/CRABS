@@ -1,5 +1,5 @@
 {
-    "commands": {
+    "cli": {
         "whisper_desc": "启用 /whisper+ 命令，在地图房间中进行全局悄悄话",
         "w_desc": "启用 /w+ 命令，在地图房间中进行全局悄悄话",
         "crabs_desc": "打开 CRABS 列表。",
