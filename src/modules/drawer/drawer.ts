@@ -379,6 +379,11 @@ export class Drawer extends CRABS_Base {
         tooltip_override: this.t("tooltips.layout"),
         css_class_override: "CRABS_Drawer_Layout_Icon",
       }),
+      History: Assets.printimage({
+        key: "history" as any,
+        tooltip_override: "Toggle Room History",
+        css_class_override: "CRABS_Drawer_History_Icon",
+      }),
       TabIcon: Assets.printimage({
         key: logoKey,
         tooltip_override: this.t("tooltips.tab"),
@@ -515,6 +520,9 @@ export class Drawer extends CRABS_Base {
     const sortContainer = this.instance?.querySelector(
       "#CRABS_sort_container",
     ) as HTMLElement;
+    const historyIconContainer = this.instance?.querySelector(
+      ".CRABS_Drawer_History_Icon",
+    ) as HTMLElement;
 
     const isRoomReady =
       typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
@@ -523,6 +531,7 @@ export class Drawer extends CRABS_Base {
       const roomName = ChatRoomData.Name || this.t("header.title_default");
       const rosterTitle = `CRABS: ${roomName}`;
       const helpTitle = `CRABS: ${this.t("header.title_help")}`;
+      const historyTitle = `CRABS: ${roomName} (History)`;
 
       if (this.showingHelp) {
         if (title && title.textContent !== helpTitle)
@@ -540,11 +549,42 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "roster");
         }
 
-        // Hide roster-specific controls when displaying Help
+        // Hide roster & history controls when viewing Help
+        if (sortContainer) sortContainer.style.display = "none";
+        if (layoutIconContainer) layoutIconContainer.style.display = "none";
+        if (historyIconContainer)
+          historyIconContainer.setAttribute("data-active", "false");
+
+        content.innerHTML = this.helpModule.showHelp(false);
+      } else if (this.rosterModule.isShowingHistory) {
+        if (title && title.textContent !== historyTitle)
+          title.textContent = historyTitle;
+
+        // Reset help icon if returning from help view
+        if (
+          helpIconContainer &&
+          helpIconContainer.getAttribute("data-icon") !== "help"
+        ) {
+          helpIconContainer.innerHTML = Assets.printimage({
+            key: "help",
+            tooltip_override: this.t("tooltips.help"),
+            css_class_override: "CRABS_Drawer_Help_Icon",
+          });
+          helpIconContainer.setAttribute("data-icon", "help");
+        }
+
+        // Toggle button states for History mode
+        if (historyIconContainer)
+          historyIconContainer.setAttribute("data-active", "true");
         if (sortContainer) sortContainer.style.display = "none";
         if (layoutIconContainer) layoutIconContainer.style.display = "none";
 
-        content.innerHTML = this.helpModule.showHelp(false);
+        content.innerHTML = this.rosterModule.buildHistory();
+        this.rosterModule.initScrollingOverflow();
+
+        if (this.instance) {
+          this.rosterModule.buildui(undefined, undefined, this.instance);
+        }
       } else {
         if (title && title.textContent !== rosterTitle)
           title.textContent = rosterTitle;
@@ -561,7 +601,9 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        // Restore and sync roster controls
+        // Restore active roster controls
+        if (historyIconContainer)
+          historyIconContainer.setAttribute("data-active", "false");
         if (sortContainer) sortContainer.style.display = "flex";
         if (layoutIconContainer) {
           layoutIconContainer.style.display = "flex";
@@ -616,12 +658,23 @@ export class Drawer extends CRABS_Base {
       const target = event.target as HTMLElement;
 
       if (target.closest(".CRABS_Drawer_Help_Icon")) {
+        if (this.rosterModule.isShowingHistory) {
+          this.rosterModule.isShowingHistory = false;
+        }
         this.showingHelp = !this.showingHelp;
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
         this.openSettings();
+      } else if (target.closest(".CRABS_Drawer_History_Icon")) {
+        if (this.showingHelp) {
+          this.showingHelp = false;
+        }
+        this.rosterModule.isShowingHistory =
+          !this.rosterModule.isShowingHistory;
+        this.refresh();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
-        if (this.showingHelp) return;
+        // Prevent layout cycling if Help or History view is active
+        if (this.showingHelp || this.rosterModule.isShowingHistory) return;
 
         const layouts = [
           "layout-grid",
@@ -644,8 +697,9 @@ export class Drawer extends CRABS_Base {
         }
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
-        if (this.showingHelp) {
+        if (this.showingHelp || this.rosterModule.isShowingHistory) {
           this.showingHelp = false;
+          this.rosterModule.isShowingHistory = false;
           this.refresh();
         } else {
           this.close();

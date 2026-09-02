@@ -11,6 +11,7 @@ import rostercardssingletemplate from "./templates/roster_cards_single.html";
 import * as Icons from "./icons";
 import * as Compass from "./compass";
 import * as Sorting from "./sorting";
+import * as History from "./history";
 import * as Immersion from "./immersion";
 import * as locales from "./i18n";
 import { CrossMod } from "../crossmod";
@@ -49,6 +50,9 @@ export class Roster extends CRABS_Base {
     Compass.autoPaginateToPlayer(targetId);
   }
 
+  // are we on the history page
+  public isShowingHistory: boolean = false;
+
   /** Tracks the user's selected roster layout. Defaults to 2-column grid. */
   public currentLayoutMode: string =
     localStorage.getItem("CRABS_RosterLayout") || "layout-grid";
@@ -78,6 +82,7 @@ export class Roster extends CRABS_Base {
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "roster", locales);
+    History.loadHistory();
     this.loadFriendList();
     this.setupEventHooks();
 
@@ -463,8 +468,26 @@ export class Roster extends CRABS_Base {
       return result;
     };
 
-    this.safeHook("ChatRoomSync", 10, flagDirty);
-    this.safeHook("ChatRoomSyncMemberJoin", 10, flagDirty);
+    this.safeHook("ChatRoomSync", 10, (args: any, next: Function) => {
+      const result = next(args);
+      const data = args[0];
+      if (data?.Character?.length) {
+        data.Character.forEach((c: any) => History.recordHistoryCharacter(c));
+      }
+      this.isDirty = true;
+      return result;
+    });
+
+    this.safeHook("ChatRoomSyncMemberJoin", 10, (args: any, next: Function) => {
+      const result = next(args);
+      const data = args[0];
+      if (data?.Character) {
+        History.recordHistoryCharacter(data.Character);
+      }
+      this.isDirty = true;
+      return result;
+    });
+
     this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
     this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
     this.safeHook("TranslationLoad", 10, flagDirty);
@@ -472,7 +495,6 @@ export class Roster extends CRABS_Base {
     this.safeHook("ChatRoomMessage", 10, (args: any, next: Function) => {
       const result = next(args);
       const data = args[0];
-
       if (data && (data.Type === "Action" || data.Type === "Server")) {
         this.isDirty = true;
       }
@@ -482,13 +504,22 @@ export class Roster extends CRABS_Base {
     this.safeHook("ServerSend", 10, (args, next) => {
       const result = next(args);
       const messageType = args[0];
-
-      // AccountUpdate covers AFC's saveSharedSettings() triggers natively!
       if (messageType === "AccountUpdate") {
         this.isDirty = true;
       }
       return result;
     });
+  }
+
+  /**
+   * Generates history HTML using the delegated history module.
+   */
+  public buildHistory(): string {
+    return History.buildHistoryRoster(
+      this.template.bind(this),
+      this.cleanZalgoAndNormalize.bind(this),
+      this.convertColor.bind(this),
+    );
   }
 
   /**
@@ -829,6 +860,29 @@ export class Roster extends CRABS_Base {
     root?: HTMLElement,
   ): void {
     super.buildui(output, elementId, root);
+
+    // If History view is active, bind history specific interactions
+    if (this.isShowingHistory) {
+      const badges = (root || document).querySelectorAll(".CRABS_player-badge");
+      badges.forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = Number(el.getAttribute("data-player-number"));
+          if (targetId) History.openWCEProfile(targetId);
+        });
+      });
+
+      const names = (root || document).querySelectorAll(".CRABS_player-name");
+      names.forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = Number(el.getAttribute("data-player-number"));
+          if (targetId) History.sendFriendBeep(targetId);
+        });
+      });
+
+      return;
+    }
 
     this.attachEvent(
       "CRABS_player-badge",
