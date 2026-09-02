@@ -362,7 +362,7 @@ export class Drawer extends CRABS_Base {
     const chatRoomData = globalWindow.ChatRoomData;
 
     const roomName = chatRoomData?.Name || this.t("header.title_default");
-    const title = `CRABS: ${roomName}`;
+    const title = `${roomName}`;
 
     const logoKey = Settings.instance.data.animatedCrabsLogo
       ? "animated_logo"
