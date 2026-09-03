@@ -45,7 +45,7 @@ export class PrivacyMode extends CRABS_Base {
         this.toggle("full");
         return true;
       },
-      new Set(["Ctrl", "Shift", "Alt"]),
+      new Set(["Ctrl", "Shift"]),
     );
 
     this.registerNativeKeybind();
@@ -77,20 +77,22 @@ export class PrivacyMode extends CRABS_Base {
       value: { EN: "Toggle Privacy Mode (Half)" },
     });
 
-    globalWindow.KeyManager.registerKeybinding({
-      id: "crabs_privacy_half",
-      action: halfAction,
-      description: {
-        EN: "Blanks out the left side (canvas) of the chat room.",
-      },
-      contextIds: [],
-      categoryId: "crabs",
-      readonly: false,
-      defaultKeyCombo: {
-        key: "KeyB",
-        modifiers: new Set(["Ctrl", "Alt"]),
-      },
-    });
+    if (!globalWindow.KeyManager.getKeybinding("crabs_privacy_half")) {
+      globalWindow.KeyManager.registerKeybinding({
+        id: "crabs_privacy_half",
+        action: halfAction,
+        description: {
+          EN: "Blanks out the left side (canvas) of the chat room.",
+        },
+        contextIds: [],
+        categoryId: "crabs",
+        readonly: false,
+        defaultKeyCombo: {
+          key: "KeyB",
+          modifiers: new Set(["Ctrl", "Alt"]),
+        },
+      });
+    }
 
     const fullAction = () => {
       this.toggle("full");
@@ -100,18 +102,20 @@ export class PrivacyMode extends CRABS_Base {
       value: { EN: "Toggle Privacy Mode (Full)" },
     });
 
-    globalWindow.KeyManager.registerKeybinding({
-      id: "crabs_privacy_full",
-      action: fullAction,
-      description: { EN: "Blanks out the entire screen." },
-      contextIds: [],
-      categoryId: "crabs",
-      readonly: false,
-      defaultKeyCombo: {
-        key: "KeyB",
-        modifiers: new Set(["Ctrl", "Shift", "Alt"]),
-      },
-    });
+    if (!globalWindow.KeyManager.getKeybinding("crabs_privacy_full")) {
+      globalWindow.KeyManager.registerKeybinding({
+        id: "crabs_privacy_full",
+        action: fullAction,
+        description: { EN: "Blanks out the entire screen." },
+        contextIds: [],
+        categoryId: "crabs",
+        readonly: false,
+        defaultKeyCombo: {
+          key: "KeyB",
+          modifiers: new Set(["Ctrl", "Shift", "Alt"]),
+        },
+      });
+    }
   }
 
   public toggle(mode: "left" | "full"): void {

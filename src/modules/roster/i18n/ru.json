@@ -1,9 +1,56 @@
 {
-    "header": { "title_default": "Список", "tooltip_admins": "Админы", "tooltip_players": "Игроки", "tooltip_friends": "Друзья", "tooltip_online": "Онлайн-аккаунты" },
-    "controls": { "sort_by": "Сортировать по", "view_grid": "Вид сеткой", "view_single": "Вид одним столбцом", "view_compact": "Компактный вид", "close_dialog": "Закрыть список" },
-    "sort_options": { "natural": "Естественный (порядок в комнате)", "none": "Нет", "role": "Роль (Админы и VIP)", "ds": "Иерархия D/s", "lovers": "Возлюбленные и отношения", "friends": "Друзья", "whitelist": "В белом списке", "blacklist": "В черном списке" },
-    "status": { "unknown_person": "[Неизвестный человек]", "blind": "Слепота: {level}", "gag": "Кляп: {level}", "deaf": "Глухота: {level}" },
-    "badges": { "player": "Игрок", "admin": "Администратор комнаты", "vip": "Белый список / VIP комнаты" },
-    "relations": { "you": "Вы", "owner": "Владелец", "sub": "Сабмиссив", "trial": "Сабмиссив на испытательном сроке", "family": "Семья", "lover": "Возлюбленный", "bestfriend": "Лучший друг", "friend": "Друг", "whitelist": "В белом списке", "blacklist": "В черном списке", "ghost": "Игнорируемый" },
-    "tooltips": { "track_compass": "Отслеживать игрока на карте", "focus_player": "Фокус на игроке", "copy_id": "Копировать номер члена" }
+    "header": {
+        "title_default": "Список игроков",
+        "tooltip_admins": "Администраторы",
+        "tooltip_players": "Игроки",
+        "tooltip_friends": "Друзья",
+        "tooltip_online": "Аккаунты онлайн"
+    },
+    "controls": {
+        "sort_by": "Сортировка",
+        "view_grid": "Сетка",
+        "view_single": "В одну колонку",
+        "view_compact": "Компактный вид",
+        "close_dialog": "Закрыть список"
+    },
+    "sort_options": {
+        "natural": "Обычный (порядок в комнате)",
+        "none": "Нет",
+        "role": "Роль (Админы и VIP)",
+        "ds": "Иерархия D/s",
+        "lovers": "Любовные отношения",
+        "friends": "Друзья",
+        "whitelist": "Белый список",
+        "blacklist": "Черный список"
+    },
+    "status": {
+        "unknown_person": "[Неизвестный]",
+        "blind": "Слепота: {level}",
+        "gag": "Кляп: {level}",
+        "deaf": "Глухота: {level}"
+    },
+    "badges": {
+        "player": "Игрок",
+        "admin": "Администратор комнаты",
+        "vip": "Белый список / VIP комнаты"
+    },
+    "relations": {
+        "you": "Вы",
+        "owner": "Владелец",
+        "sub": "Сабмиссив",
+        "trial": "Испытательный срок",
+        "family": "Семья",
+        "lover": "Любовник",
+        "bestfriend": "Лучший друг",
+        "friend": "Друг",
+        "whitelist": "В белом списке",
+        "blacklist": "В черном списке",
+        "ghost": "В призрачном списке"
+    },
+    "tooltips": {
+        "track_compass": "Отслеживать игрока на карте",
+        "focus_player": "Фокус на игроке",
+        "copy_id": "Скопировать номер игрока",
+        "view_profile": "Посмотреть профиль"
+    }
 }

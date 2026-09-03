@@ -5,11 +5,9 @@
  * exporting them for easy access throughout the mod.
  */
 
-// Sub-folders
+export { CLI } from "./cli";
 export { Roster } from "./roster";
 export { Settings } from "./settings";
-
-// Root modules
 export { Assets } from "./assets";
 export { Banner } from "./banner";
 export { CRABS_Base, PerformanceLevel } from "./base";

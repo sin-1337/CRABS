@@ -1,9 +1,56 @@
 {
-    "header": { "title_default": "名单", "tooltip_admins": "管理员", "tooltip_players": "玩家", "tooltip_friends": "好友", "tooltip_online": "在线账户" },
-    "controls": { "sort_by": "排序方式", "view_grid": "网格视图", "view_single": "单列视图", "view_compact": "紧凑视图", "close_dialog": "关闭名单" },
-    "sort_options": { "natural": "自然 (房间顺序)", "none": "无", "role": "角色 (管理员 & VIP)", "ds": "D/s 层级", "lovers": "恋人 & 关系", "friends": "好友", "whitelist": "白名单", "blacklist": "黑名单" },
-    "status": { "unknown_person": "[未知人员]", "blind": "失明: {level}", "gag": "禁言: {level}", "deaf": "失聪: {level}" },
-    "badges": { "player": "玩家", "admin": "房间管理员", "vip": "房间白名单 / VIP" },
-    "relations": { "you": "您", "owner": "主人", "sub": "服从者", "trial": "试用期服从者", "family": "家族", "lover": "恋人", "bestfriend": "挚友", "friend": "朋友", "whitelist": "白名单", "blacklist": "黑名单", "ghost": "屏蔽" },
-    "tooltips": { "track_compass": "在地图上追踪玩家", "focus_player": "聚焦玩家", "copy_id": "复制会员编号" }
+    "header": {
+        "title_default": "名册",
+        "tooltip_admins": "管理员",
+        "tooltip_players": "玩家",
+        "tooltip_friends": "好友",
+        "tooltip_online": "在线账号"
+    },
+    "controls": {
+        "sort_by": "排序方式",
+        "view_grid": "网格视图",
+        "view_single": "单列视图",
+        "view_compact": "紧凑视图",
+        "close_dialog": "关闭名册"
+    },
+    "sort_options": {
+        "natural": "默认（房间顺序）",
+        "none": "无",
+        "role": "权限（管理员与VIP）",
+        "ds": "D/s 等级",
+        "lovers": "伴侣与关系",
+        "friends": "好友",
+        "whitelist": "白名单",
+        "blacklist": "黑名单"
+    },
+    "status": {
+        "unknown_person": "[未知人员]",
+        "blind": "目盲: {level}",
+        "gag": "堵嘴: {level}",
+        "deaf": "耳聋: {level}"
+    },
+    "badges": {
+        "player": "玩家",
+        "admin": "房间管理员",
+        "vip": "房间白名单 / VIP"
+    },
+    "relations": {
+        "you": "你",
+        "owner": "主人",
+        "sub": "奴隶/女仆",
+        "trial": "试用期奴隶",
+        "family": "家族",
+        "lover": "伴侣",
+        "bestfriend": "挚友",
+        "friend": "好友",
+        "whitelist": "白名单",
+        "blacklist": "黑名单",
+        "ghost": "幽灵名单"
+    },
+    "tooltips": {
+        "track_compass": "在地图上追踪玩家",
+        "focus_player": "聚焦玩家",
+        "copy_id": "复制会员编号",
+        "view_profile": "查看档案"
+    }
 }

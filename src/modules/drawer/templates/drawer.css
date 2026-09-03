@@ -52,6 +52,15 @@
   gap: 4px;
 }
 
+/* Perfectly center title regardless of icon imbalance */
+.CRABS_wrapper_header.help-active #drawer-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: calc(100% - 240px);
+}
+
 .drawer-content #drawer-title {
   flex: 1 1 auto;
   margin: 0 12px;
@@ -76,6 +85,7 @@
 .CRABS_Drawer_Help_Icon,
 .CRABS_Drawer_Settings_Icon,
 .CRABS_Drawer_Layout_Icon,
+.CRABS_Drawer_History_Icon,
 .CRABS_Drawer_Close_Icon {
   position: relative;
   z-index: 2;
@@ -85,6 +95,7 @@
 .drawer-content .CRABS_Drawer_Help_Icon,
 .drawer-content .CRABS_Drawer_Settings_Icon,
 .drawer-content .CRABS_Drawer_Layout_Icon,
+.drawer-content .CRABS_Drawer_History_Icon,
 .drawer-content .CRABS_Drawer_Close_Icon {
   width: 44px !important;
   height: 44px !important;
@@ -96,14 +107,10 @@
   box-sizing: border-box;
 }
 
-.drawer-content .CRABS_Drawer_Close_Icon {
-  margin-left: auto;
-}
-
-/* Header Action Internal Image Sizing */
 .drawer-content .CRABS_Drawer_Help_Icon img,
 .drawer-content .CRABS_Drawer_Settings_Icon img,
 .drawer-content .CRABS_Drawer_Layout_Icon img,
+.drawer-content .CRABS_Drawer_History_Icon img,
 .drawer-content .CRABS_Drawer_Close_Icon img {
   width: 32px !important;
   height: 32px !important;
@@ -111,6 +118,11 @@
   max-height: 32px !important;
   object-fit: contain;
   display: block;
+}
+
+/* Highlight history button when history view is active */
+.CRABS_Drawer_History_Icon[data-active="true"] img {
+  filter: brightness(1.3) drop-shadow(0 0 4px #ff5555) !important;
 }
 
 .drawer-content {

@@ -1,5 +1,5 @@
 {
-    "commands": {
+    "cli": {
         "whisper_desc": "Aktiviert den /whisper+ Befehl für globale Whispers in einem Kartenraum",
         "w_desc": "Aktiviert den /w+ Befehl für globale Whispers in einem Kartenraum",
         "crabs_desc": "Öffnet die CRABS Roster.",

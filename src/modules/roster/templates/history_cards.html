@@ -1,0 +1,28 @@
+<div class="CRABS_history_card" 
+     id="CRABS_history_{{PlayerNumber}}" 
+     data-player-number="{{PlayerNumber}}" 
+     style="border-left: 4px solid {{LabelColorBorder}}; --player-color: {{LabelColor}};">
+  <div class="CRABS_card_badge CRABS_history_badge" data-player-number="{{PlayerNumber}}" data-tooltip-pos="down">
+    {{Badge}}
+  </div>
+  <div class="CRABS_history_main">
+    <div class="CRABS_overflow-wrapper">
+      <div class="CRABS_overflow-scroll">
+        <span class="CRABS_history_name" style="color: {{LabelColor}} !important; -webkit-text-fill-color: {{LabelColor}} !important; {{LabelShadow}}" data-player-number="{{PlayerNumber}}">
+          {{PlayerName}}
+        </span>
+        <span class="CRABS_player-id" style="color: {{LabelColor}} !important; {{LabelShadow}}" data-player-number="{{PlayerNumber}}">
+          ({{PlayerNumber}})
+        </span>
+      </div>
+    </div>
+    <div class="CRABS_history_meta">
+      <div class="CRABS_player-icons">
+        {{PlayerIcons}}
+      </div>
+      <div class="CRABS_status-icons">
+        {{StatusIcons}}
+      </div>
+    </div>
+  </div>
+</div>

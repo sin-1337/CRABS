@@ -11,7 +11,7 @@
  */
 
 import { CRABS_Base } from "../base";
-import { cn, de, en, fr, ru, tw, uk } from "./i18n";
+import * as locales from "./i18n";
 
 type ImageStore = {
   readonly basePath: string;
@@ -39,11 +39,8 @@ export abstract class Assets {
   private static init(): void {
     if (Assets.isInitialized) return;
 
-    const normLang = CRABS_Base.normalizeLocale("en");
-    const translations = (CRABS_Base as any).translations;
-    if (translations) {
-      if (!translations[normLang]) translations[normLang] = {};
-      translations[normLang]["assets"] = en;
+    for (const [lang, bundle] of Object.entries(locales)) {
+      CRABS_Base.registerTranslations("assets", lang, bundle);
     }
     Assets.isInitialized = true;
   }
@@ -111,6 +108,12 @@ export abstract class Assets {
         toolTipKey: "tooltips.help",
         class: "CRABS_Help_Icon",
       },
+      history: {
+        file: "history.svg",
+        altKey: "alt.history",
+        toolTipKey: "tooltips.history",
+        class: "CRABS_History_Icon",
+      },
       settings: {
         file: "settings.svg",
         altKey: "alt.settings",
@@ -167,6 +170,12 @@ export abstract class Assets {
       },
       lover: {
         file: "lover.svg",
+        altKey: "alt.lover",
+        toolTipKey: "tooltips.lover",
+        class: "CRABS_icon",
+      },
+      lover_extended: {
+        file: "lover_extended.svg",
         altKey: "alt.lover",
         toolTipKey: "tooltips.lover",
         class: "CRABS_icon",

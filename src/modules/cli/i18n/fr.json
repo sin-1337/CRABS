@@ -1,5 +1,5 @@
 {
-    "commands": {
+    "cli": {
         "whisper_desc": "Active la commande /whisper+ qui fait un whisper global dans une salle de carte",
         "w_desc": "Active la commande /w+ qui fait un whisper global dans une salle de carte",
         "crabs_desc": "Ouvrir le Roster CRABS.",

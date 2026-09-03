@@ -1,4 +1,6 @@
-/* --- THE HEADER --- */
+/* =========================================================
+   1. THE HEADER & ROOM STATUS
+   ========================================================= */
 
 .CRABS_room-status {
   display: flex;
@@ -9,17 +11,16 @@
   font-size: 1.2rem;
 }
 
-/* Base Cell Style */
 .CRABS_status_cell {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 4px;
-  position: relative; /* Anchor for virtual divider */
+  position: relative;
 }
 
-/* The Virtual Divider (Pseudo-element) */
+/* Virtual Divider */
 .CRABS_status_cell::after {
   content: "";
   position: absolute;
@@ -29,30 +30,24 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Logic: Hide the divider on the absolute last item */
-.CRABS_status_cell:last-child::after {
-  display: none;
+.CRABS_status_cell:last-child::after,
+.CRABS_map-keys-container::after {
+  display: none !important;
 }
 
-/* Logic: If Map Keys are HIDDEN, hide the divider on the 4th cell (Online Count) */
+/* If map keys are inactive, hide divider after 4th cell (Online Count) */
 .CRABS_room-status:not(:has(.CRABS_map-keys-container[data-map-active="true"]))
   .CRABS_status_cell:nth-child(4)::after {
   display: none;
 }
 
-/* The Map Keys Container specific logic */
 .CRABS_map-keys-container {
-  display: none !important; /* Force hide */
+  display: none !important;
   flex: 1;
 }
 
 .CRABS_map-keys-container[data-map-active="true"] {
   display: flex !important;
-}
-
-/* Ensure the map container NEVER shows a divider to its right */
-.CRABS_map-keys-container::after {
-  display: none !important;
 }
 
 .CRABS_roster_table_shrink {
@@ -80,7 +75,10 @@
   width: 100%;
 }
 
-/* --- DEFAULT GRID LAYOUT (2 Columns) --- */
+/* =========================================================
+   2. CARDS (Shared Base: Live & History)
+   ========================================================= */
+
 .CRABS_card-container {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -88,8 +86,8 @@
   width: 100%;
 }
 
-/* --- THE PLAYER CARDS --- */
-.CRABS_card {
+.CRABS_card,
+.CRABS_history_card {
   display: flex;
   align-items: center;
   border-radius: 8px;
@@ -101,7 +99,6 @@
   position: relative;
   background-color: transparent;
   z-index: 1;
-
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -109,13 +106,16 @@
 }
 
 .CRABS_card:hover,
-.CRABS_card.CRABS_simulated-hover {
+.CRABS_card.CRABS_simulated-hover,
+.CRABS_history_card:hover {
   z-index: 99;
-  transform: translateY(-2px); /* Lifts the card up */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow when lifted */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.CRABS_card::after {
+/* Gradient bottom border line */
+.CRABS_card::after,
+.CRABS_history_card::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -136,11 +136,16 @@
 }
 
 .CRABS_card:hover::after,
-.CRABS_card.CRABS_simulated-hover::after {
-  left: 5px; /* Expands to the left edge */
-  right: 5px; /* Expands to the right edge */
-  opacity: 1; /* Brightens */
+.CRABS_card.CRABS_simulated-hover::after,
+.CRABS_history_card:hover::after {
+  left: 5px;
+  right: 5px;
+  opacity: 1;
 }
+
+/* =========================================================
+   3. BADGES & GLOW EFFECTS
+   ========================================================= */
 
 .CRABS_card_badge {
   width: 42px;
@@ -151,7 +156,8 @@
   margin-right: 6px;
 }
 
-.CRABS_card_badge img {
+.CRABS_card_badge img,
+.CRABS_card_badge svg {
   width: 38px;
   height: 38px;
   object-fit: contain;
@@ -160,8 +166,18 @@
     filter 0.2s ease;
 }
 
+.CRABS_player-badge,
+.CRABS_history_badge {
+  cursor: pointer;
+}
+
+.CRABS_player-badge img:hover {
+  filter: brightness(1.5);
+}
+
 .CRABS_card:hover .CRABS_card_badge img,
-.CRABS_card.CRABS_simulated-hover .CRABS_card_badge img {
+.CRABS_card.CRABS_simulated-hover .CRABS_card_badge img,
+.CRABS_history_card:hover .CRABS_history_badge img {
   animation: crabs-badge-glow 1.2s infinite alternate ease-in-out;
 }
 
@@ -176,12 +192,21 @@
   }
 }
 
-.CRABS_card_info {
-  flex: 1;
+/* =========================================================
+   4. CARD TEXT, OVERFLOW & ICONS
+   ========================================================= */
+
+.CRABS_player-header {
   display: flex;
-  flex-direction: column;
-  min-width: 0;
-  justify-content: center;
+  flex-direction: row;
+  align-items: baseline;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.CRABS_player-header:hover {
+  z-index: 20;
 }
 
 .CRABS_card_details {
@@ -198,7 +223,6 @@
   z-index: 20;
 }
 
-/* --- SCROLLING TEXT & OVERFLOW --- */
 .CRABS_overflow-wrapper {
   overflow: hidden;
   width: 100%;
@@ -207,27 +231,33 @@
   display: flex;
 }
 
-.CRABS_player-badge {
-  cursor: pointer;
+.CRABS_overflow-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  width: max-content;
+  position: relative;
+  transition: transform 4s linear;
 }
 
-.CRABS_player-badge img:hover {
-  filter: brightness(1.5);
+.CRABS_overflow-wrapper.scrolling:hover .CRABS_overflow-scroll {
+  transform: translateX(var(--scroll-distance, -100%));
 }
 
-.CRABS_player-name {
+.CRABS_player-name,
+.CRABS_history_name {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
   letter-spacing: 0.3px;
   line-height: 1.3;
   white-space: nowrap;
   -webkit-font-smoothing: antialiased;
+  cursor: pointer;
 }
 
-.CRABS_player-name:hover {
+.CRABS_player-name:hover,
+.CRABS_history_name:hover {
   filter: brightness(1.5);
   text-decoration: underline;
-  cursor: pointer;
 }
 
 .CRABS_player-id {
@@ -244,37 +274,11 @@
   text-decoration: underline;
 }
 
-.CRABS_overflow-scroll {
-  display: inline-block;
-  white-space: nowrap;
-  width: max-content;
-  position: relative;
-  transition: transform 4s linear;
-}
-
-.CRABS_overflow-wrapper.scrolling:hover .CRABS_overflow-scroll {
-  transform: translateX(var(--scroll-distance, -100%));
-}
-
-/* --- ICONS & STATUSES --- */
 .CRABS_key-icons,
 .CRABS_player-icons {
   height: 1.5rem;
   min-height: 1.5rem;
   line-height: 1.5rem;
-}
-
-.CRABS_player-header {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  width: 100%;
-  position: relative;
-  z-index: 10;
-}
-
-.CRABS_player-header:hover {
-  z-index: 20;
 }
 
 .CRABS_status-frame {
@@ -294,7 +298,7 @@
   filter: var(--brightness, brightness(0.2));
 }
 
-/* --- COMPASS TOGGLE --- */
+/* Compass Toggle */
 .CRABS_track-compass {
   display: flex;
   align-items: center;
@@ -329,20 +333,20 @@
 }
 
 /* =========================================================
-   LAYOUT MODIFIERS (Class overrides on .CRABS_roster_center_table)
+   5. LAYOUT MODIFIERS
    ========================================================= */
 
-/* --- Option 1: 2-Column Grid Explicit Modifier --- */
+/* Option 1: 2-Column Grid */
 .CRABS_roster_center_table.layout-grid .CRABS_card-container {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 2px !important;
 }
 
-/* --- Option 2: Single Column / Mobile Stack --- */
+/* Option 2: Single Column / Mobile Stack */
 .CRABS_roster_center_table.layout-mobile-stack .CRABS_roster_table_shrink {
   width: 100% !important;
-  max-width: 96% !important; /* Matches default header shrink */
+  max-width: 96% !important;
 }
 
 .CRABS_roster_center_table.layout-mobile-stack .CRABS_card-container {
@@ -356,7 +360,6 @@
   width: 100% !important;
   min-height: 44px !important;
   padding: 4px 8px !important;
-  box-sizing: border-box !important;
 }
 
 .CRABS_roster_center_table.layout-mobile-stack .CRABS_player-name,
@@ -368,7 +371,7 @@
   min-height: 1.4rem !important;
 }
 
-/* --- Option 3: Ultra-Compact Single Column --- */
+/* Option 3: Ultra-Compact Single Column (Live & History) */
 .CRABS_roster_center_table.layout-compact .CRABS_roster_table_shrink {
   width: 100% !important;
   max-width: 96% !important;
@@ -381,25 +384,41 @@
   width: 100% !important;
 }
 
-.CRABS_roster_center_table.layout-compact .CRABS_card {
+.CRABS_roster_center_table.layout-compact .CRABS_card,
+.CRABS_roster_center_table.layout-compact .CRABS_history_card {
   width: 100% !important;
   min-height: 36px !important;
+  max-height: 36px !important;
   padding: 2px 6px !important;
-  box-sizing: border-box !important;
+  overflow: visible !important; /* Prevents tooltip clipping */
 }
 
-.CRABS_roster_center_table.layout-compact .CRABS_card_badge {
+.CRABS_roster_center_table.layout-compact .CRABS_card_badge,
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge {
   width: 28px !important;
+  height: 28px !important;
   margin-right: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-.CRABS_roster_center_table.layout-compact .CRABS_card_badge img {
+.CRABS_roster_center_table.layout-compact .CRABS_card_badge img,
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge img,
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge svg {
   width: 24px !important;
   height: 24px !important;
 }
 
+/* Ensure clicks hit the container on history badge */
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge img,
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge svg {
+  pointer-events: none !important;
+}
+
 .CRABS_roster_center_table.layout-compact .CRABS_player-name,
-.CRABS_roster_center_table.layout-compact .CRABS_player-id {
+.CRABS_roster_center_table.layout-compact .CRABS_player-id,
+.CRABS_roster_center_table.layout-compact .CRABS_history_name {
   font-size: 1rem !important;
 }
 
@@ -418,4 +437,69 @@
 .CRABS_roster_center_table.layout-compact .CRABS_track-compass svg {
   height: 1.1rem !important;
   width: 1.1rem !important;
+}
+
+/* =========================================================
+   6. DEDICATED HISTORY ROW STRUCTURE
+   ========================================================= */
+
+.CRABS_history_main {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  gap: 8px !important;
+}
+
+.CRABS_history_meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+.CRABS_history_meta .CRABS_player-icons,
+.CRABS_history_meta .CRABS_status-icons {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 1.1rem !important;
+  line-height: 1.1rem !important;
+}
+
+/* =========================================================
+   TOOLTIP POSITIONING FIX
+   ========================================================= */
+
+/* Ensure the hovered badge stays in front of subsequent rows */
+.CRABS_history_badge {
+  position: relative !important;
+}
+
+.CRABS_history_badge:hover {
+  z-index: 99999 !important;
+}
+
+.CRABS_history_card:hover {
+  z-index: 1000 !important;
+}
+
+/* Force tooltip pseudo-elements or child containers to render below the badge */
+.CRABS_history_badge[data-tooltip-pos="down"]::after,
+.CRABS_history_badge[data-tooltip-pos="down"] .CRABS_tooltip,
+.CRABS_history_badge:hover::after {
+  top: 100% !important;
+  bottom: auto !important;
+  margin-top: 4px !important;
+  z-index: 99999 !important;
+}
+
+.CRABS_history_badge[data-tooltip-pos="down"]::before,
+.CRABS_history_badge:hover::before {
+  top: 100% !important;
+  bottom: auto !important;
+  border-bottom-color: rgba(0, 0, 0, 0.85) !important;
+  border-top-color: transparent !important;
 }

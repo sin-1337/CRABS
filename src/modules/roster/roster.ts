@@ -11,6 +11,7 @@ import rostercardssingletemplate from "./templates/roster_cards_single.html";
 import * as Icons from "./icons";
 import * as Compass from "./compass";
 import * as Sorting from "./sorting";
+import * as History from "./history";
 import * as Immersion from "./immersion";
 import * as locales from "./i18n";
 import { CrossMod } from "../crossmod";
@@ -49,6 +50,9 @@ export class Roster extends CRABS_Base {
     Compass.autoPaginateToPlayer(targetId);
   }
 
+  // are we on the history page
+  public isShowingHistory: boolean = false;
+
   /** Tracks the user's selected roster layout. Defaults to 2-column grid. */
   public currentLayoutMode: string =
     localStorage.getItem("CRABS_RosterLayout") || "layout-grid";
@@ -78,6 +82,7 @@ export class Roster extends CRABS_Base {
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "roster", locales);
+    History.loadHistory();
     this.loadFriendList();
     this.setupEventHooks();
 
@@ -242,10 +247,6 @@ export class Roster extends CRABS_Base {
     });
   }
 
-  /* ====================================================================
-   * HELPER METHODS FOR CONSOLIDATION
-   * ==================================================================== */
-
   /**
    * Generates the consolidated header stats to avoid duplicating logic.
    */
@@ -317,7 +318,7 @@ export class Roster extends CRABS_Base {
       const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
 
       iconsHTML += Assets.printimage({
-        key: "lover",
+        key: "lover_extended",
         tooltip_override: tooltip,
         css_class_override: "CRABS_icon",
       });
@@ -325,8 +326,6 @@ export class Roster extends CRABS_Base {
 
     return iconsHTML;
   }
-
-  /* ==================================================================== */
 
   /**
    * Updates the DOM elements within the roster without a full redraw.
@@ -355,7 +354,7 @@ export class Roster extends CRABS_Base {
     // Use Helper
     const stats = this.getHeaderStats();
 
-    updateText("#drawer-title", `CRABS: ${stats.currentRoomName}`);
+    updateText("#drawer-title", `${stats.currentRoomName}`);
     updateText(
       "#CRABS_header_admins",
       `${stats.adminInRoom}/${stats.totalAdmins}`,
@@ -469,9 +468,75 @@ export class Roster extends CRABS_Base {
       return result;
     };
 
-    this.safeHook("ChatRoomSync", 10, flagDirty);
-    this.safeHook("ChatRoomSyncMemberJoin", 10, flagDirty);
-    this.safeHook("ChatRoomSyncMemberLeave", 10, flagDirty);
+    this.safeHook("ChatRoomSync", 10, (args: any, next: Function) => {
+      const result = next(args);
+      const data = args[0];
+
+      // Reconciles room name: restores cache if same room, purges if new room
+      if (data?.Name) {
+        History.syncRoomContext(data.Name);
+      }
+
+      // If active occupants were in history (e.g. from a rejoinder), remove them
+      if (Array.isArray(data?.Character)) {
+        data.Character.forEach((c: any) => {
+          if (c?.MemberNumber) History.removeRejoinedCharacter(c.MemberNumber);
+        });
+      }
+
+      this.isDirty = true;
+      return result;
+    });
+
+    this.safeHook("ChatRoomSyncMemberJoin", 10, (args: any, next: Function) => {
+      const result = next(args);
+      const data = args[0];
+
+      // Remove from departed history if they step back into the room
+      if (data?.Character?.MemberNumber) {
+        History.removeRejoinedCharacter(data.Character.MemberNumber);
+      }
+
+      this.isDirty = true;
+      return result;
+    });
+
+    this.safeHook(
+      "ChatRoomSyncMemberLeave",
+      10,
+      (args: any, next: Function) => {
+        const data = args[0];
+        const targetId =
+          typeof data === "number"
+            ? data
+            : data?.SourceMemberNumber || data?.MemberNumber;
+
+        const globalWindow = window as any;
+        const characters = globalWindow.ChatRoomCharacter || [];
+
+        if (targetId) {
+          const leavingChar = characters.find(
+            (c: any) => c.MemberNumber === targetId,
+          );
+          if (leavingChar) {
+            History.recordHistoryCharacter(leavingChar);
+          } else {
+            // If already removed from array, salvage from ChatRoomData.Character
+            const fallback = globalWindow.ChatRoomData?.Character?.find(
+              (c: any) => c.MemberNumber === targetId,
+            );
+            if (fallback) {
+              History.recordHistoryCharacter(fallback);
+            }
+          }
+        }
+
+        const result = next(args);
+        this.isDirty = true;
+        return result;
+      },
+    );
+
     this.safeHook("ChatRoomSyncCharacter", 10, flagDirty);
     this.safeHook("TranslationLoad", 10, flagDirty);
 
@@ -489,12 +554,23 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const messageType = args[0];
 
-      // AccountUpdate covers AFC's saveSharedSettings() triggers natively!
       if (messageType === "AccountUpdate") {
         this.isDirty = true;
       }
       return result;
     });
+  }
+
+  /**
+   * Generates history HTML using the delegated history module.
+   */
+  public buildHistory(): string {
+    return History.buildHistoryRoster(
+      this.template.bind(this),
+      this.cleanZalgoAndNormalize.bind(this),
+      this.convertColor.bind(this),
+      this.getLabelShadow.bind(this),
+    );
   }
 
   /**
@@ -810,7 +886,7 @@ export class Roster extends CRABS_Base {
     };
 
     let wrappervars = {
-      TitleBar: `CRABS: ${this.t("header.title_default")}`,
+      TitleBar: `${this.t("header.title_default")}`,
       Close: Assets.printimage({
         key: "close",
         tooltip_override: this.t("controls.close_dialog"),
@@ -819,6 +895,21 @@ export class Roster extends CRABS_Base {
     };
 
     return this.template(rostertemplate, templatevars, wrapper, wrappervars);
+  }
+
+  /**
+   * Evaluates text color using base methods and generates a CSS text-shadow if needed.
+   */
+  public getLabelShadow(labelColor: string): string {
+    const brightness = this.getColorBrightness(labelColor);
+
+    // If the color is too dark, apply the bright outline
+    if (brightness < 70) {
+      const outlineColor = this.getBrightOutlineColor(labelColor);
+      return `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`;
+    }
+
+    return "text-shadow: none !important; -webkit-text-stroke: 0px;";
   }
 
   /**
@@ -836,9 +927,36 @@ export class Roster extends CRABS_Base {
   ): void {
     super.buildui(output, elementId, root);
 
+    // ─────────────────────────────────────────────────────────────
+    // History View Event Routing
+    // ─────────────────────────────────────────────────────────────
+    this.attachEvent(
+      "CRABS_history_badge",
+      (num) => History.openWCEProfile(num),
+      "playerNumber",
+      undefined,
+      "click",
+      "class",
+      root,
+    );
+
+    this.attachEvent(
+      "CRABS_history_name",
+      (num) => History.sendFriendBeep(Number(num)),
+      "playerNumber",
+      undefined,
+      "click",
+      "class",
+      root,
+    );
+
+    // ─────────────────────────────────────────────────────────────
+    // Live Roster Event Routing (Normal behavior)
+    // ─────────────────────────────────────────────────────────────
+
     this.attachEvent(
       "CRABS_player-badge",
-      this.showPlayerFocus,
+      (num) => this.showPlayerFocus(num),
       "playerNumber",
       undefined,
       "click",

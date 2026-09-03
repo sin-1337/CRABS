@@ -30,6 +30,45 @@ export abstract class CrossMod {
   }
 
   /* ══════════════════════════════════════════════════════════════════════
+   *  WCE (Bondage Club Enhanced) Integration
+   * ══════════════════════════════════════════════════════════════════════ */
+
+  /**
+   * Checks if WCE / BCE is installed and active.
+   */
+  static isWCEInstalled(): boolean {
+    return (
+      CrossMod.detectMod("Bondage Club Enhanced") ||
+      CrossMod.detectMod("WCE") ||
+      typeof (window as any).fbcSettings !== "undefined"
+    );
+  }
+
+  /**
+   * Checks if WCE's past profiles tracking feature is actively enabled.
+   */
+  static isWCEPastProfilesEnabled(): boolean {
+    if (!CrossMod.isWCEInstalled()) return false;
+
+    // Method 1: Check if WCE exposed its settings object globally (legacy fallback)
+    const settings = (window as any).fbcSettings;
+    if (typeof settings !== "undefined") {
+      return settings.pastProfiles !== false;
+    }
+
+    // Method 2: Bulletproof fallback.
+    // WCE only registers the /profiles command if the setting is enabled.
+    const globalWindow = window as any;
+    const commandsList = globalWindow.Commands;
+
+    if (Array.isArray(commandsList)) {
+      return commandsList.some((cmd: any) => cmd.Tag === "profiles");
+    }
+
+    return false;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
    *  BCX Integration
    * ══════════════════════════════════════════════════════════════════════ */
   /** Static reference to the BCX Mod API instance. */

@@ -50,6 +50,7 @@
     "tooltips": {
         "track_compass": "Track Player on Map",
         "focus_player": "Focus Player",
-        "copy_id": "Copy Member Number"
+        "copy_id": "Copy Member Number",
+        "view_profile": "Show Profile"
     }
 }
