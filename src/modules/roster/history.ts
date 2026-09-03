@@ -17,7 +17,7 @@
 import { Assets } from "../assets";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
-import rosterhistorytemplate from "./templates/history_card.html";
+import rosterhistorytemplate from "./templates/history_cards.html";
 
 /**
  * Represents an entry in the historical room occupant cache.
