@@ -14,7 +14,6 @@ import * as Sorting from "./sorting";
 import * as History from "./history";
 import * as Immersion from "./immersion";
 import * as locales from "./i18n";
-import { CrossMod } from "../crossmod";
 
 /**
  * Class representing the enhanced player roster and related map features.
@@ -304,30 +303,6 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Generates the compiled icons string for a character including cross-mod data.
-   */
-  private generatePlayerIcons(character: any): string {
-    let iconsHTML = Icons.setIcons(character);
-
-    // CROSS-MOD: AFC Lovers dynamic DOM update
-    if (
-      typeof character.MemberNumber === "number" &&
-      CrossMod.isAFCLover(character.MemberNumber)
-    ) {
-      const afcRoom = CrossMod.getAFCLoverRoom(character.MemberNumber);
-      const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
-
-      iconsHTML += Assets.printimage({
-        key: "lover_extended",
-        tooltip_override: tooltip,
-        css_class_override: "CRABS_icon",
-      });
-    }
-
-    return iconsHTML;
-  }
-
-  /**
    * Updates the DOM elements within the roster without a full redraw.
    *
    * @param {HTMLElement} root - The parent container element for the roster.
@@ -444,7 +419,7 @@ export class Roster extends CRABS_Base {
         ) as HTMLElement;
         if (iconContainer) {
           // Use Helper
-          const newIconHTML = this.generatePlayerIcons(character);
+          const newIconHTML = Icons.setIcons(character);
 
           if (iconContainer.dataset.lastIcons !== newIconHTML) {
             iconContainer.innerHTML = DOMPurify.sanitize(newIconHTML);
@@ -827,7 +802,7 @@ export class Roster extends CRABS_Base {
       const badge = Icons.setbadge(character);
 
       // Use Helper
-      const playerIcons = this.generatePlayerIcons(character);
+      const playerIcons = Icons.setIcons(character);
 
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
 

@@ -166,6 +166,7 @@ export function setIcons(character: any): string {
     character.Ownership?.MemberNumber === playerWindow?.MemberNumber &&
     character.Ownership?.Stage === 0;
 
+  // D/s & Family
   if (
     typeof playerWindow?.OwnerNumber === "function" &&
     playerWindow.OwnerNumber() === memberNum
@@ -197,31 +198,34 @@ export function setIcons(character: any): string {
       }) + " ";
   }
 
+  // Relationship Hierarchy: Lover -> Extended Lover -> Best Friend -> Friend
   if (playerWindow?.GetLoversNumbers?.().includes(memberNum)) {
     playerIcons +=
       Assets.printimage({
         key: "lover",
         tooltip_override: CRABS_Base.translate("roster.relations.lover"),
       }) + " ";
+  } else if (CrossMod.isAFCLover(memberNum)) {
+    const afcRoom = CrossMod.getAFCLoverRoom(memberNum);
+    const tooltip = afcRoom ? `AFC Lover (Room: ${afcRoom})` : "AFC Lover";
+
+    playerIcons +=
+      Assets.printimage({
+        key: "lover_extended",
+        tooltip_override: tooltip,
+        css_class_override: "CRABS_icon",
+      }) + " ";
   } else {
-    if (CrossMod.detectMod("BCTweaks")) {
-      if (
-        playerWindow?.BCT?.bctSettings?.bestFriendsList?.includes(memberNum)
-      ) {
-        playerIcons +=
-          Assets.printimage({
-            key: "bestfriend",
-            tooltip_override: CRABS_Base.translate(
-              "roster.relations.bestfriend",
-            ),
-          }) + " ";
-      } else if (playerWindow?.FriendList?.includes(memberNum)) {
-        playerIcons +=
-          Assets.printimage({
-            key: "friend",
-            tooltip_override: CRABS_Base.translate("roster.relations.friend"),
-          }) + " ";
-      }
+    const isBCTBestFriend =
+      CrossMod.detectMod("BCTweaks") &&
+      playerWindow?.BCT?.bctSettings?.bestFriendsList?.includes(memberNum);
+
+    if (isBCTBestFriend) {
+      playerIcons +=
+        Assets.printimage({
+          key: "bestfriend",
+          tooltip_override: CRABS_Base.translate("roster.relations.bestfriend"),
+        }) + " ";
     } else if (playerWindow?.FriendList?.includes(memberNum)) {
       playerIcons +=
         Assets.printimage({
@@ -231,6 +235,7 @@ export function setIcons(character: any): string {
     }
   }
 
+  // Lists
   if (playerWindow?.WhiteList?.includes(memberNum)) {
     playerIcons +=
       Assets.printimage({

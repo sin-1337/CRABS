@@ -57,29 +57,40 @@ export function calculateSortScore(
       )
         return 4;
       return 5;
+
     case "lovers":
+      // 1. Native Lover
       if (player?.GetLoversNumbers && player.GetLoversNumbers().includes(mNum))
         return 1;
-      if (isBestFriend) return 2;
-      if (player?.FriendList && player.FriendList.includes(mNum)) return 3;
-      return 4;
+      // 2. AFC Extended Lover
+      if (CrossMod.isAFCLover(mNum)) return 2;
+      // 3. Best Friend
+      if (isBestFriend) return 3;
+      // 4. Friend
+      if (player?.FriendList && player.FriendList.includes(mNum)) return 4;
+      return 5;
+
     case "friends":
       if (isBestFriend) return 1;
       if (player?.FriendList && player.FriendList.includes(mNum)) return 2;
       return 3;
+
     case "whitelist":
       if (player?.WhiteList && player.WhiteList.includes(mNum)) return 1;
       if (player?.BlackList && player.BlackList.includes(mNum)) return 3;
       return 2;
+
     case "blacklist":
       if (player?.BlackList && player.BlackList.includes(mNum)) return 1;
       if (player?.WhiteList && player.WhiteList.includes(mNum)) return 2;
       return 3;
+
     case "role":
       if (chatRoomData?.Admin && chatRoomData.Admin.includes(mNum)) return 1;
       if (chatRoomData?.Whitelist && chatRoomData.Whitelist.includes(mNum))
         return 2;
       return 3;
+
     default:
       return naturalIndex;
   }
