@@ -470,25 +470,36 @@
 }
 
 /* =========================================================
-   TOOLTIP UN-CLIPPING (Force parents to show overflow)
+   TOOLTIP POSITIONING FIX
    ========================================================= */
 
-.CRABS_roster_center_table,
-.CRABS_roster_table_shrink,
-.CRABS_card-container {
-  overflow: visible !important;
-}
-
-.CRABS_history_card {
-  overflow: visible !important;
-  z-index: 10;
-}
-
+/* Ensure the hovered badge stays in front of subsequent rows */
 .CRABS_history_badge {
-  overflow: visible !important;
+  position: relative !important;
 }
 
-/* Ensure the tooltip renders above all nearby chat elements */
 .CRABS_history_badge:hover {
-  z-index: 9999 !important;
+  z-index: 99999 !important;
+}
+
+.CRABS_history_card:hover {
+  z-index: 1000 !important;
+}
+
+/* Force tooltip pseudo-elements or child containers to render below the badge */
+.CRABS_history_badge[data-tooltip-pos="down"]::after,
+.CRABS_history_badge[data-tooltip-pos="down"] .CRABS_tooltip,
+.CRABS_history_badge:hover::after {
+  top: 100% !important;
+  bottom: auto !important;
+  margin-top: 4px !important;
+  z-index: 99999 !important;
+}
+
+.CRABS_history_badge[data-tooltip-pos="down"]::before,
+.CRABS_history_badge:hover::before {
+  top: 100% !important;
+  bottom: auto !important;
+  border-bottom-color: rgba(0, 0, 0, 0.85) !important;
+  border-top-color: transparent !important;
 }
