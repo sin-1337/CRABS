@@ -272,15 +272,10 @@ export function openWCEProfile(
   const globalWindow = window as any;
   const memberNumber = Number(memberInput);
 
-  if (isNaN(memberNumber)) {
-    console.warn(
-      "CRABS: Invalid member number passed to openWCEProfile",
-      memberInput,
-    );
-    return;
-  }
+  if (isNaN(memberNumber)) return;
 
   if (!CrossMod.isWCEInstalled()) {
+    console.warn("[CRABS] WCE is not installed.");
     globalWindow.$?.notify?.(
       "Bondage Club Enhanced (WCE) is not installed.",
       "warning",
@@ -289,8 +284,9 @@ export function openWCEProfile(
   }
 
   if (!CrossMod.isWCEPastProfilesEnabled()) {
+    console.warn("[CRABS] WCE Past Profiles disabled.");
     globalWindow.$?.notify?.(
-      "WCE 'Past Profiles' is disabled. Enable it in WCE settings to record profiles.",
+      "WCE 'Past Profiles' is disabled in settings.",
       "warning",
     );
     return;
@@ -303,6 +299,7 @@ export function openWCEProfile(
   }
 
   if (runCommand) {
+    console.log(`[CRABS] Executing /profiles ${memberNumber}`);
     runCommand(memberNumber.toString(), "profiles");
   }
 }

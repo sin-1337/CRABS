@@ -468,3 +468,27 @@
   height: 1.1rem !important;
   line-height: 1.1rem !important;
 }
+
+/* =========================================================
+   TOOLTIP UN-CLIPPING (Force parents to show overflow)
+   ========================================================= */
+
+.CRABS_roster_center_table,
+.CRABS_roster_table_shrink,
+.CRABS_card-container {
+  overflow: visible !important;
+}
+
+.CRABS_history_card {
+  overflow: visible !important;
+  z-index: 10;
+}
+
+.CRABS_history_badge {
+  overflow: visible !important;
+}
+
+/* Ensure the tooltip renders above all nearby chat elements */
+.CRABS_history_badge:hover {
+  z-index: 9999 !important;
+}

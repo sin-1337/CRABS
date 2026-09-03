@@ -914,46 +914,29 @@ export class Roster extends CRABS_Base {
     // ─────────────────────────────────────────────────────────────
     // History View Event Routing
     // ─────────────────────────────────────────────────────────────
-    if (this.isShowingHistory) {
-      // History Badge -> Trigger WCE /profiles
-      this.attachEvent(
-        "CRABS_history_badge",
-        (num) => {
-          History.openWCEProfile(num, (action, tag) =>
-            this.fakePlayerCommand(action, tag),
-          );
-        },
-        "playerNumber",
-        undefined,
-        "click",
-        "class",
-        root,
-      );
+    this.attachEvent(
+      "CRABS_history_badge",
+      (num) => {
+        History.openWCEProfile(num, (action, tag) =>
+          this.fakePlayerCommand(action, tag),
+        );
+      },
+      "playerNumber",
+      undefined,
+      "click",
+      "class",
+      root,
+    );
 
-      // History Name -> Send Friend Beep
-      this.attachEvent(
-        "CRABS_history_name",
-        (num) => History.sendFriendBeep(Number(num)),
-        "playerNumber",
-        undefined,
-        "click",
-        "class",
-        root,
-      );
-
-      // ID -> Copy to Clipboard
-      this.attachEvent(
-        "CRABS_player-id",
-        this.copyToClipboard,
-        "playerNumber",
-        undefined,
-        "click",
-        "class",
-        root,
-      );
-
-      return;
-    }
+    this.attachEvent(
+      "CRABS_history_name",
+      (num) => History.sendFriendBeep(Number(num)),
+      "playerNumber",
+      undefined,
+      "click",
+      "class",
+      root,
+    );
 
     // ─────────────────────────────────────────────────────────────
     // Live Roster Event Routing (Normal behavior)
