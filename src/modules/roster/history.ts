@@ -15,6 +15,7 @@
  */
 
 import { Assets } from "../assets";
+import { CRABS_Base } from "../base";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
 import historycardstemplate from "./templates/history_cards.html";
@@ -478,6 +479,7 @@ export function buildHistoryRoster(
     const labelColor = rec.LabelColor || "#FFFFFF";
     const badgeIcon = Assets.printimage({
       key: "history" as any,
+      tooltip_override: CRABS_Base.translate("roster.tooltips.view_profile"),
       css_class_override: "CRABS_history_badge_img",
     });
 

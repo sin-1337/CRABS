@@ -1,9 +1,56 @@
 {
-    "header": { "title_default": "Roster", "tooltip_admins": "Admins", "tooltip_players": "Joueurs", "tooltip_friends": "Amis", "tooltip_online": "Comptes en ligne" },
-    "controls": { "sort_by": "Trier par", "view_grid": "Vue en grille", "view_single": "Vue en colonne unique", "view_compact": "Vue compacte", "close_dialog": "Fermer le Roster" },
-    "sort_options": { "natural": "Naturel (Ordre de la salle)", "none": "Aucun", "role": "Rôle (Admins & VIPs)", "ds": "Hiérarchie D/s", "lovers": "Amants & Relations", "friends": "Amis", "whitelist": "Liste blanche", "blacklist": "Liste noire" },
-    "status": { "unknown_person": "[Personne inconnue]", "blind": "Aveugle : {level}", "gag": "Bâillon : {level}", "deaf": "Sourd : {level}" },
-    "badges": { "player": "Joueur", "admin": "Administrateur de salle", "vip": "Liste blanche / VIP de salle" },
-    "relations": { "you": "Vous", "owner": "Propriétaire", "sub": "Soumis", "trial": "Soumis à l'essai", "family": "Famille", "lover": "Amant", "bestfriend": "Meilleur ami", "friend": "Ami", "whitelist": "Liste blanche", "blacklist": "Liste noire", "ghost": "Sur liste noire (Fantôme)" },
-    "tooltips": { "track_compass": "Suivre le joueur sur la carte", "focus_player": "Focaliser le joueur", "copy_id": "Copier le numéro de membre" }
+    "header": {
+        "title_default": "Registre",
+        "tooltip_admins": "Administrateurs",
+        "tooltip_players": "Joueurs",
+        "tooltip_friends": "Amis",
+        "tooltip_online": "Comptes en ligne"
+    },
+    "controls": {
+        "sort_by": "Trier par",
+        "view_grid": "Vue en grille",
+        "view_single": "Vue sur une colonne",
+        "view_compact": "Vue compacte",
+        "close_dialog": "Fermer le registre"
+    },
+    "sort_options": {
+        "natural": "Naturel (Ordre du salon)",
+        "none": "Aucun",
+        "role": "Rôle (Admins & VIP)",
+        "ds": "Hiérarchie D/s",
+        "lovers": "Amants & Relations",
+        "friends": "Amis",
+        "whitelist": "Liste blanche",
+        "blacklist": "Liste noire"
+    },
+    "status": {
+        "unknown_person": "[Personne inconnue]",
+        "blind": "Aveugle : {level}",
+        "gag": "Bâillon : {level}",
+        "deaf": "Sourd : {level}"
+    },
+    "badges": {
+        "player": "Joueur",
+        "admin": "Administrateur du salon",
+        "vip": "Liste blanche / VIP du salon"
+    },
+    "relations": {
+        "you": "Vous",
+        "owner": "Propriétaire",
+        "sub": "Soumis(e)",
+        "trial": "Soumis(e) à l'essai",
+        "family": "Famille",
+        "lover": "Amant(e)",
+        "bestfriend": "Meilleur(e) ami(e)",
+        "friend": "Ami(e)",
+        "whitelist": "Sur liste blanche",
+        "blacklist": "Sur liste noire",
+        "ghost": "Sur liste fantôme"
+    },
+    "tooltips": {
+        "track_compass": "Suivre le joueur sur la carte",
+        "focus_player": "Cibler le joueur",
+        "copy_id": "Copier le numéro de membre",
+        "view_profile": "Voir le profil en cache"
+    }
 }
