@@ -569,6 +569,7 @@ export class Roster extends CRABS_Base {
       this.template.bind(this),
       this.cleanZalgoAndNormalize.bind(this),
       this.convertColor.bind(this),
+      this.getLabelShadow.bind(this),
     );
   }
 
@@ -894,6 +895,21 @@ export class Roster extends CRABS_Base {
     };
 
     return this.template(rostertemplate, templatevars, wrapper, wrappervars);
+  }
+
+  /**
+   * Evaluates text color using base methods and generates a CSS text-shadow if needed.
+   */
+  public getLabelShadow(labelColor: string): string {
+    const brightness = this.getColorBrightness(labelColor);
+
+    // If the color is too dark, apply the bright outline
+    if (brightness < 70) {
+      const outlineColor = this.getBrightOutlineColor(labelColor);
+      return `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`;
+    }
+
+    return "text-shadow: none !important; -webkit-text-stroke: 0px;";
   }
 
   /**

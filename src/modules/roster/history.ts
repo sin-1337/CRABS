@@ -401,6 +401,7 @@ export function buildHistoryRoster(
   ) => string,
   cleanName: (name: string) => string,
   convertColor: (color: string, alpha: number) => string,
+  getLabelShadow: (color: string) => string, // <-- Add the parameter
 ): string {
   let rowsHtml = "";
 
@@ -408,7 +409,6 @@ export function buildHistoryRoster(
     const labelColor = rec.LabelColor || "#FFFFFF";
     const badgeIcon = Assets.printimage({
       key: "history" as any,
-      tooltip_override: "View WCE Cached Profile",
       css_class_override: "CRABS_history_badge_img",
     });
 
@@ -420,7 +420,7 @@ export function buildHistoryRoster(
       Badge: badgeIcon || "📜",
       LabelColorBorder: `${convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
-      LabelShadow: "text-shadow: none !important; -webkit-text-stroke: 0px;",
+      LabelShadow: getLabelShadow(labelColor), // <-- Call your base logic
       PlayerName: cleanName(
         rec.Nickname || rec.Name || `Member ${rec.MemberNumber}`,
       ),
