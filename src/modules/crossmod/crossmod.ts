@@ -49,8 +49,23 @@ export abstract class CrossMod {
    */
   static isWCEPastProfilesEnabled(): boolean {
     if (!CrossMod.isWCEInstalled()) return false;
+
+    // Method 1: Check if WCE exposed its settings object globally (legacy fallback)
     const settings = (window as any).fbcSettings;
-    return !!settings && settings.pastProfiles !== false;
+    if (typeof settings !== "undefined") {
+      return settings.pastProfiles !== false;
+    }
+
+    // Method 2: Bulletproof fallback.
+    // WCE only registers the /profiles command if the setting is enabled.
+    const globalWindow = window as any;
+    const commandsList = globalWindow.Commands;
+
+    if (Array.isArray(commandsList)) {
+      return commandsList.some((cmd: any) => cmd.Tag === "profiles");
+    }
+
+    return false;
   }
 
   /* ══════════════════════════════════════════════════════════════════════
