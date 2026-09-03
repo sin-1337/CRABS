@@ -961,7 +961,7 @@ export class Roster extends CRABS_Base {
 
     this.attachEvent(
       "CRABS_player-badge",
-      (num) => this.showPlayerFocus(num), // Passes the string from the dataset to base.ts
+      (num) => this.showPlayerFocus(num),
       "playerNumber",
       undefined,
       "click",
