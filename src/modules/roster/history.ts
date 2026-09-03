@@ -259,23 +259,25 @@ export function removeRejoinedCharacter(memberNumber: number): void {
 }
 
 /**
- * Triggers WCE's /profiles command for a specific player number.
+ * Accesses Bondage Club Enhanced (WCE) to display a historical profile sheet.
+ * Extracts the data directly from WCE's IndexedDB cache.
  *
  * @param {number | string} memberInput - The target character's member number.
- * @param {(action: string, tag: string) => void} [runCommand] - Base instance command execution callback.
  * @returns {void}
  */
-export function openWCEProfile(
-  memberInput: number | string,
-  runCommand?: (action: string, tag: string) => void,
-): void {
+export function openWCEProfile(memberInput: number | string): void {
   const globalWindow = window as any;
   const memberNumber = Number(memberInput);
 
-  if (isNaN(memberNumber)) return;
+  if (isNaN(memberNumber)) {
+    console.warn(
+      "CRABS: Invalid member number passed to openWCEProfile",
+      memberInput,
+    );
+    return;
+  }
 
   if (!CrossMod.isWCEInstalled()) {
-    console.warn("[CRABS] WCE is not installed.");
     globalWindow.$?.notify?.(
       "Bondage Club Enhanced (WCE) is not installed.",
       "warning",
@@ -283,24 +285,91 @@ export function openWCEProfile(
     return;
   }
 
-  if (!CrossMod.isWCEPastProfilesEnabled()) {
-    console.warn("[CRABS] WCE Past Profiles disabled.");
-    globalWindow.$?.notify?.(
-      "WCE 'Past Profiles' is disabled in settings.",
-      "warning",
-    );
-    return;
-  }
-
+  // Close the CRABS drawer so the sheet renders without overlay obstruction
   const drawer = document.getElementById("crabs-drawer");
   if (drawer) {
     drawer.classList.remove("drawer-open");
     drawer.classList.add("drawer-closed");
   }
 
-  if (runCommand) {
-    console.log(`[CRABS] Executing /profiles ${memberNumber}`);
-    runCommand(memberNumber.toString(), "profiles");
+  try {
+    const req = indexedDB.open("bce-past-profiles");
+
+    req.onsuccess = (evt: any) => {
+      const db = evt.target.result;
+      if (!db.objectStoreNames.contains("profiles")) {
+        globalWindow.$?.notify?.(
+          "WCE past profiles database not found.",
+          "error",
+        );
+        return;
+      }
+
+      const tx = db.transaction("profiles", "readonly");
+      const store = tx.objectStore("profiles");
+
+      // Strict numeric type matching the indexed keyPath
+      const getReq = store.get(memberNumber);
+
+      getReq.onsuccess = () => {
+        const profile = getReq.result;
+        if (!profile) {
+          globalWindow.$?.notify?.(
+            `No WCE profile cached for #${memberNumber}`,
+            "warn",
+          );
+          return;
+        }
+
+        try {
+          const bundle =
+            typeof profile.characterBundle === "string"
+              ? JSON.parse(profile.characterBundle)
+              : profile.characterBundle;
+
+          if (globalWindow.CurrentScreen === "ChatRoom") {
+            if (typeof globalWindow.ChatRoomHideElements === "function") {
+              globalWindow.ChatRoomHideElements();
+            }
+            if (globalWindow.ChatRoomData) {
+              globalWindow.ChatRoomBackground =
+                globalWindow.ChatRoomData.Background;
+            }
+          }
+
+          // Build character instance from WCE profile bundle
+          const charInstance = globalWindow.CharacterLoadOnline(
+            bundle,
+            memberNumber,
+          );
+          charInstance.BCESeen = profile.seen;
+
+          // Load profile sheet natively
+          globalWindow.InformationSheetLoadCharacter(charInstance);
+        } catch (loadErr) {
+          console.error("CRABS: Error rendering character sheet", loadErr);
+          globalWindow.$?.notify?.(
+            "Failed to render cached profile sheet.",
+            "error",
+          );
+        }
+      };
+
+      getReq.onerror = (e: any) => {
+        console.error("CRABS: Error querying profile from WCE IndexedDB", e);
+        globalWindow.$?.notify?.(
+          "Failed to load cached profile data.",
+          "error",
+        );
+      };
+    };
+
+    req.onerror = (e: any) => {
+      console.error("CRABS: Error opening WCE IndexedDB", e);
+      globalWindow.$?.notify?.("Could not open WCE database.", "error");
+    };
+  } catch (err) {
+    console.error("CRABS: Failed reading WCE profile", err);
   }
 }
 

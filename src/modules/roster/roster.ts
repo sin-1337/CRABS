@@ -932,11 +932,7 @@ export class Roster extends CRABS_Base {
     // ─────────────────────────────────────────────────────────────
     this.attachEvent(
       "CRABS_history_badge",
-      (num) => {
-        History.openWCEProfile(num, (action, tag) =>
-          this.fakePlayerCommand(action, tag),
-        );
-      },
+      (num) => History.openWCEProfile(num),
       "playerNumber",
       undefined,
       "click",
