@@ -912,16 +912,17 @@ export class Roster extends CRABS_Base {
     super.buildui(output, elementId, root);
 
     // ─────────────────────────────────────────────────────────────
-    // BRANCH A: History View
+    // History View Event Routing
     // ─────────────────────────────────────────────────────────────
     if (this.isShowingHistory) {
-      // 1. Badge Click -> Open WCE Profile
+      // History Badge -> Trigger WCE /profiles
       this.attachEvent(
         "CRABS_history_badge",
-        (num) =>
+        (num) => {
           History.openWCEProfile(num, (action, tag) =>
             this.fakePlayerCommand(action, tag),
-          ),
+          );
+        },
         "playerNumber",
         undefined,
         "click",
@@ -929,7 +930,7 @@ export class Roster extends CRABS_Base {
         root,
       );
 
-      // 2. Name Click -> Send Friend Beep
+      // History Name -> Send Friend Beep
       this.attachEvent(
         "CRABS_history_name",
         (num) => History.sendFriendBeep(Number(num)),
@@ -940,7 +941,7 @@ export class Roster extends CRABS_Base {
         root,
       );
 
-      // 3. ID Click -> Copy ID
+      // ID -> Copy to Clipboard
       this.attachEvent(
         "CRABS_player-id",
         this.copyToClipboard,
@@ -951,8 +952,12 @@ export class Roster extends CRABS_Base {
         root,
       );
 
-      return; // Stop here. Live roster events will not process.
+      return;
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Live Roster Event Routing (Normal behavior)
+    // ─────────────────────────────────────────────────────────────
 
     this.attachEvent(
       "CRABS_player-badge",

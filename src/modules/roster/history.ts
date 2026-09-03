@@ -296,7 +296,6 @@ export function openWCEProfile(
     return;
   }
 
-  // Close the drawer so the chat log is unobstructed
   const drawer = document.getElementById("crabs-drawer");
   if (drawer) {
     drawer.classList.remove("drawer-open");
@@ -413,7 +412,7 @@ export function buildHistoryRoster(
     const badgeIcon = Assets.printimage({
       key: "history" as any,
       tooltip_override: "View WCE Cached Profile",
-      css_class_override: "CRABS_history_badge",
+      css_class_override: "CRABS_history_badge_img",
     });
 
     const timeStr = formatCompactTime(rec.seen);
@@ -433,7 +432,7 @@ export function buildHistoryRoster(
       CompassBlock: "",
     };
 
-    rowsHtml += templateEngine(rosterhistorytemplate, templatevars, false);
+    rowsHtml += templateEngine(historycardstemplate, templatevars, false);
   }
 
   return `
