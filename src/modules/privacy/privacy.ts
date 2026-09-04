@@ -1,13 +1,6 @@
-/**
- * CRABS Privacy Module
- *
- * Provides privacy blackout overlays for the game viewport:
- * - Half Privacy ("left"): Masks the left canvas/character view while preserving UI accessibility
- * - Full Privacy ("full"): Fullscreen blackout covering all visuals and interfaces
- */
-
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import "./templates/privacy.css";
 
 export class PrivacyMode extends CRABS_Base {
   private isVisible: boolean = false;
@@ -20,13 +13,6 @@ export class PrivacyMode extends CRABS_Base {
     super(CRABS);
     this.overlay = document.createElement("div");
     this.overlay.id = "CRABS-privacy-overlay";
-    this.overlay.style.display = "none";
-    this.overlay.style.position = "fixed";
-    this.overlay.style.top = "0";
-    this.overlay.style.left = "0";
-    this.overlay.style.bottom = "0";
-    this.overlay.style.backgroundColor = "black";
-    this.overlay.style.pointerEvents = "none";
     document.body.appendChild(this.overlay);
 
     CRABS_Base.registerKeybind(
@@ -140,11 +126,9 @@ export class PrivacyMode extends CRABS_Base {
       globalWindow.CurrentScreen === "ChatRoom" &&
       globalWindow.CurrentCharacter === null;
 
-    if (mode === "left") {
-      this.overlay.setAttribute("data-mode", "left");
-      this.overlay.style.zIndex = "98";
-      this.overlay.style.width = "50vw";
+    this.overlay.setAttribute("data-mode", mode);
 
+    if (mode === "left") {
       if (!inMainChat) {
         this.isVisible = false;
         this.isSuspended = true;
@@ -156,11 +140,8 @@ export class PrivacyMode extends CRABS_Base {
       }
       this.startMonitoring();
     } else {
-      this.overlay.setAttribute("data-mode", "full");
-      this.overlay.style.zIndex = "999999";
       this.isSuspended = false;
       this.isVisible = true;
-      this.overlay.style.width = "100vw";
       this.overlay.style.display = "block";
       this.stopMonitoring();
     }
