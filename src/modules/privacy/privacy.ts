@@ -1,6 +1,7 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/privacy.css";
+import * as locales from "./i18n";
 
 export class PrivacyMode extends CRABS_Base {
   private isVisible: boolean = false;
@@ -9,8 +10,12 @@ export class PrivacyMode extends CRABS_Base {
   private overlay: HTMLDivElement;
   private monitorTimer: number | null = null;
 
+  // Title Obfuscation State
+  private originalTitle: string = "";
+  private titleLockInterval: number | null = null;
+
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "privacy", locales);
     this.overlay = document.createElement("div");
     this.overlay.id = "CRABS-privacy-overlay";
     document.body.appendChild(this.overlay);
@@ -117,6 +122,7 @@ export class PrivacyMode extends CRABS_Base {
       this.overlay.style.display = "none";
       this.overlay.removeAttribute("data-mode");
       this.stopMonitoring();
+      this.restoreTitle();
       return;
     }
 
@@ -133,17 +139,50 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = false;
         this.isSuspended = true;
         this.overlay.style.display = "none";
+        this.restoreTitle();
       } else {
         this.isSuspended = false;
         this.isVisible = true;
         this.overlay.style.display = "block";
+        this.obfuscateTitle();
       }
       this.startMonitoring();
     } else {
       this.isSuspended = false;
       this.isVisible = true;
       this.overlay.style.display = "block";
+      this.obfuscateTitle();
       this.stopMonitoring();
+    }
+  }
+
+  private obfuscateTitle(): void {
+    if (this.titleLockInterval !== null) return;
+
+    const spoofedTitle = this.t("window.title") || "Blank.html";
+
+    if (document.title !== spoofedTitle) {
+      this.originalTitle = document.title;
+    }
+
+    document.title = spoofedTitle;
+
+    this.titleLockInterval = window.setInterval(() => {
+      const currentSpoof = this.t("window.title") || "Blank.html";
+      if (document.title !== currentSpoof) {
+        document.title = currentSpoof;
+      }
+    }, 250);
+  }
+
+  private restoreTitle(): void {
+    if (this.titleLockInterval !== null) {
+      window.clearInterval(this.titleLockInterval);
+      this.titleLockInterval = null;
+    }
+
+    if (this.originalTitle) {
+      document.title = this.originalTitle;
     }
   }
 
@@ -162,10 +201,12 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = false;
         this.isSuspended = true;
         this.overlay.style.display = "none";
+        this.restoreTitle();
       } else if (inMainChat && this.isSuspended) {
         this.isSuspended = false;
         this.isVisible = true;
         this.overlay.style.display = "block";
+        this.obfuscateTitle();
       }
     }, 200);
   }
