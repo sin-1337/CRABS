@@ -118,42 +118,68 @@ export abstract class CrossMod {
   /* ══════════════════════════════════════════════════════════════════════
    *  AFC Integration
    * ══════════════════════════════════════════════════════════════════════ */
+
   /**
-   * Initializes and returns the AFC API instance.
-   *
-   * @returns {any | null} The AFC API instance or null if unavailable.
+   * Initializes and returns the AFC API instance or global settings container.
    */
   protected static getAfcApi(): any | null {
-    // Change "AFC" to the exact name the mod uses to register with ModSDK
     if (!CrossMod.detectMod("AFC")) return null;
-    return (window as any).Liko?.AFC || null;
+    const win = window as any;
+    return win.Liko?.AFC || win.AFC || null;
   }
 
   /**
-   * Safely retrieves all registered lovers from the AFC mod API.
-   *
-   * @returns {any[]} Array of AFC lover objects, or empty array if unavailable.
+   * Safely retrieves all registered lovers from the AFC mod API or shared settings.
    */
   static getAFCLovers(): any[] {
     const api = CrossMod.getAfcApi();
+
+    // 1. Live API method (if exposed on Liko.AFC or window.AFC)
     if (api && typeof api.getLovers === "function") {
       return api.getLovers() || [];
     }
+
+    // 2. Direct reference to AFC's runtime shared settings cache
+    if (api && api.sharedSettings?.lovers) {
+      return api.sharedSettings.lovers;
+    }
+
+    // 3. Fallback to BC storage objects
+    const win = window as any;
+    const afcSettings =
+      win.Player?.OnlineSharedSettings?.AFC ||
+      win.Player?.OnlineSettings?.AFC ||
+      win.AFCSettings;
+
+    if (Array.isArray(afcSettings?.lovers)) {
+      return afcSettings.lovers;
+    }
+
     return [];
   }
 
   /**
-   * Checks if a specific player is recognized as a lover under AFC.
-   *
-   * @param {number} memberNumber - The member number to check.
-   * @returns {boolean} True if the player is an AFC lover.
+   * Checks if a specific player is recognized strictly as an AFC extended lover
+   * (and not already registered as a base-game native lover).
    */
-  static isAFCLover(memberNumber: number): boolean {
+  static isAFCExtendedLover(memberNumber: number): boolean {
+    const win = window as any;
+    const isNative = win.Player?.Lovership?.some(
+      (l: any) => (l.MemberNumber ?? l.memberNumber) === memberNumber,
+    );
+    if (isNative) return false;
+
     const lovers = CrossMod.getAFCLovers();
     return lovers.some(
-      (l: any) =>
-        l.memberNumber === memberNumber || l.MemberNumber === memberNumber,
+      (l: any) => (l.memberNumber ?? l.MemberNumber) === memberNumber,
     );
+  }
+
+  /**
+   * Backward-compatible alias for isAFCExtendedLover.
+   */
+  static isAFCLover(memberNumber: number): boolean {
+    return CrossMod.isAFCExtendedLover(memberNumber);
   }
 
   /**
@@ -167,6 +193,13 @@ export abstract class CrossMod {
     if (api && typeof api.getLoverRoom === "function") {
       return api.getLoverRoom(memberNumber);
     }
+
+    // Direct fallback to AFC's loversPrivateRoom state object if exposed
+    const win = window as any;
+    if (win.AFCLoversPrivateRoom?.[memberNumber]) {
+      return win.AFCLoversPrivateRoom[memberNumber];
+    }
+
     return null;
   }
 }
