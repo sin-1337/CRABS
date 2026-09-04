@@ -18,6 +18,7 @@ import { Assets } from "../assets";
 import { CRABS_Base } from "../base";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
+import { calculateSortScore } from "./sorting";
 import historycardstemplate from "./templates/history_cards.html";
 
 /**
@@ -112,6 +113,31 @@ export function loadHistory(): HistoryRecord[] {
     historyCache = [];
   }
   return historyCache;
+}
+
+/**
+ * Creates a lightweight character stub
+ */
+function createHistorySortProxy(rec: HistoryRecord): any {
+  const globalWindow = window as any;
+  const player = globalWindow.Player;
+  const mNum = rec.MemberNumber;
+
+  return {
+    MemberNumber: mNum,
+    IsPlayer: () => false,
+    IsOwnedByPlayer: (_playerNum: number) => {
+      if (!player) return false;
+      if (typeof player.IsOwnerOf === "function") {
+        return player.IsOwnerOf({ MemberNumber: mNum });
+      }
+      return player.Ownership?.MemberNumber === mNum;
+    },
+    Ownership: {
+      Stage:
+        player?.Ownership?.MemberNumber === mNum ? player.Ownership.Stage : 0,
+    },
+  };
 }
 
 /**
@@ -471,11 +497,36 @@ export function buildHistoryRoster(
   ) => string,
   cleanName: (name: string) => string,
   convertColor: (color: string, alpha: number) => string,
-  getLabelShadow: (color: string) => string, // <-- Add the parameter
+  getLabelShadow: (color: string) => string,
+  sortMode: string = "natural", // <-- Add sortMode parameter
 ): string {
+  // Clone historyCache so sorting does not mutate the raw chronological cache
+  const records = [...historyCache];
+
+  // Natural/None in history means most recently departed first
+  if (sortMode === "natural" || sortMode === "none") {
+    records.sort((a, b) => b.seen - a.seen);
+  } else {
+    // Map with original indices, calculate scores, then sort
+    const scored = records.map((rec, index) => ({
+      rec,
+      score: calculateSortScore(createHistorySortProxy(rec), sortMode, index),
+    }));
+
+    scored.sort((a, b) => {
+      if (a.score !== b.score) {
+        return a.score - b.score;
+      }
+      // Tiebreaker: Most recently departed first
+      return b.rec.seen - a.rec.seen;
+    });
+
+    records.splice(0, records.length, ...scored.map((item) => item.rec));
+  }
+
   let rowsHtml = "";
 
-  for (const rec of historyCache) {
+  for (const rec of records) {
     const labelColor = rec.LabelColor || "#FFFFFF";
     const badgeIcon = Assets.printimage({
       key: "history" as any,
@@ -491,7 +542,7 @@ export function buildHistoryRoster(
       Badge: badgeIcon || "📜",
       LabelColorBorder: `${convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
-      LabelShadow: getLabelShadow(labelColor), // <-- Call your base logic
+      LabelShadow: getLabelShadow(labelColor),
       PlayerName: cleanName(
         rec.Nickname || rec.Name || `Member ${rec.MemberNumber}`,
       ),

@@ -1,5 +1,7 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import "./templates/privacy.css";
+import * as locales from "./i18n";
 
 export class PrivacyMode extends CRABS_Base {
   private isVisible: boolean = false;
@@ -9,20 +11,13 @@ export class PrivacyMode extends CRABS_Base {
   private monitorTimer: number | null = null;
 
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "privacy", locales);
     this.overlay = document.createElement("div");
     this.overlay.id = "CRABS-privacy-overlay";
-    this.overlay.style.display = "none";
-    this.overlay.style.position = "fixed";
-    this.overlay.style.top = "0";
-    this.overlay.style.left = "0";
-    this.overlay.style.bottom = "0";
-    this.overlay.style.backgroundColor = "black";
-    this.overlay.style.zIndex = "999999";
-    this.overlay.style.pointerEvents = "none";
     document.body.appendChild(this.overlay);
 
-    // Pass the Set here to prevent CRABS_Base from defaulting to Ctrl+Alt
+    this.setupTitleHook();
+
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
       "Privacy Mode (Half)",
@@ -35,7 +30,6 @@ export class PrivacyMode extends CRABS_Base {
       new Set(["Ctrl", "Alt"]),
     );
 
-    // Pass the Set here as well to ensure Shift is respected in the base registry
     CRABS_Base.registerKeybind(
       "crabs_privacy_full",
       "Privacy Mode (Full)",
@@ -51,7 +45,28 @@ export class PrivacyMode extends CRABS_Base {
     this.registerNativeKeybind();
   }
 
-  private registerNativeKeybind() {
+  /**
+   * Hooks into the game's notification updater to suppress
+   * and replace the title while Privacy Mode is active.
+   */
+  private setupTitleHook(): void {
+    this.safeHook(
+      "NotificationTitleUpdate",
+      10,
+      (args: any[], next: (args: any[]) => any) => {
+        if (this.isVisible) {
+          const spoofedTitle = this.t("window.title") || "Blank.html";
+          if (document.title !== spoofedTitle) {
+            document.title = spoofedTitle;
+          }
+          return null; // Suppresses native title update execution
+        }
+        return next(args);
+      },
+    );
+  }
+
+  private registerNativeKeybind(): void {
     const globalWindow = window as any;
 
     if (
@@ -124,7 +139,9 @@ export class PrivacyMode extends CRABS_Base {
       this.isSuspended = false;
       this.currentMode = null;
       this.overlay.style.display = "none";
+      this.overlay.removeAttribute("data-mode");
       this.stopMonitoring();
+      this.syncTitle();
       return;
     }
 
@@ -134,9 +151,9 @@ export class PrivacyMode extends CRABS_Base {
       globalWindow.CurrentScreen === "ChatRoom" &&
       globalWindow.CurrentCharacter === null;
 
-    if (mode === "left") {
-      this.overlay.style.width = "50vw";
+    this.overlay.setAttribute("data-mode", mode);
 
+    if (mode === "left") {
       if (!inMainChat) {
         this.isVisible = false;
         this.isSuspended = true;
@@ -150,9 +167,22 @@ export class PrivacyMode extends CRABS_Base {
     } else {
       this.isSuspended = false;
       this.isVisible = true;
-      this.overlay.style.width = "100vw";
       this.overlay.style.display = "block";
       this.stopMonitoring();
+    }
+
+    this.syncTitle();
+  }
+
+  /**
+   * Forces the game to immediately evaluate NotificationTitleUpdate.
+   */
+  private syncTitle(): void {
+    const globalWindow = window as any;
+    if (typeof globalWindow.NotificationTitleUpdate === "function") {
+      globalWindow.NotificationTitleUpdate();
+    } else if (this.isVisible) {
+      document.title = this.t("window.title") || "Blank.html";
     }
   }
 
@@ -171,10 +201,12 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = false;
         this.isSuspended = true;
         this.overlay.style.display = "none";
+        this.syncTitle();
       } else if (inMainChat && this.isSuspended) {
         this.isSuspended = false;
         this.isVisible = true;
         this.overlay.style.display = "block";
+        this.syncTitle();
       }
     }, 200);
   }

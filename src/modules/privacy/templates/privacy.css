@@ -1,0 +1,25 @@
+/* ==========================================================================
+   CRABS Privacy Mode Overlay Stylesheet
+   ========================================================================== */
+
+#CRABS-privacy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #000000;
+  pointer-events: none;
+  display: none;
+}
+
+/* Half Privacy (Canvas Curtain) */
+#CRABS-privacy-overlay[data-mode="left"] {
+  width: 50vw;
+  z-index: 98;
+}
+
+/* Full Privacy (Complete Blackout) */
+#CRABS-privacy-overlay[data-mode="full"] {
+  width: 100vw;
+  z-index: 999999;
+}
