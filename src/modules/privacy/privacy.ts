@@ -1,3 +1,11 @@
+/**
+ * CRABS Privacy Module
+ *
+ * Provides privacy blackout overlays for the game viewport:
+ * - Half Privacy ("left"): Masks the left canvas/character view while preserving UI accessibility
+ * - Full Privacy ("full"): Fullscreen blackout covering all visuals and interfaces
+ */
+
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 
@@ -18,11 +26,9 @@ export class PrivacyMode extends CRABS_Base {
     this.overlay.style.left = "0";
     this.overlay.style.bottom = "0";
     this.overlay.style.backgroundColor = "black";
-    this.overlay.style.zIndex = "999999";
     this.overlay.style.pointerEvents = "none";
     document.body.appendChild(this.overlay);
 
-    // Pass the Set here to prevent CRABS_Base from defaulting to Ctrl+Alt
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
       "Privacy Mode (Half)",
@@ -35,7 +41,6 @@ export class PrivacyMode extends CRABS_Base {
       new Set(["Ctrl", "Alt"]),
     );
 
-    // Pass the Set here as well to ensure Shift is respected in the base registry
     CRABS_Base.registerKeybind(
       "crabs_privacy_full",
       "Privacy Mode (Full)",
@@ -51,7 +56,7 @@ export class PrivacyMode extends CRABS_Base {
     this.registerNativeKeybind();
   }
 
-  private registerNativeKeybind() {
+  private registerNativeKeybind(): void {
     const globalWindow = window as any;
 
     if (
@@ -124,6 +129,7 @@ export class PrivacyMode extends CRABS_Base {
       this.isSuspended = false;
       this.currentMode = null;
       this.overlay.style.display = "none";
+      this.overlay.removeAttribute("data-mode");
       this.stopMonitoring();
       return;
     }
@@ -135,6 +141,8 @@ export class PrivacyMode extends CRABS_Base {
       globalWindow.CurrentCharacter === null;
 
     if (mode === "left") {
+      this.overlay.setAttribute("data-mode", "left");
+      this.overlay.style.zIndex = "98";
       this.overlay.style.width = "50vw";
 
       if (!inMainChat) {
@@ -148,6 +156,8 @@ export class PrivacyMode extends CRABS_Base {
       }
       this.startMonitoring();
     } else {
+      this.overlay.setAttribute("data-mode", "full");
+      this.overlay.style.zIndex = "999999";
       this.isSuspended = false;
       this.isVisible = true;
       this.overlay.style.width = "100vw";
