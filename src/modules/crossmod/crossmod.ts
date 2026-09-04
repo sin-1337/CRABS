@@ -133,12 +133,19 @@ export abstract class CrossMod {
    */
   static getAFCLovers(): any[] {
     const api = CrossMod.getAfcApi();
+
+    // 1. Live API method (if exposed on Liko.AFC or window.AFC)
     if (api && typeof api.getLovers === "function") {
       return api.getLovers() || [];
     }
 
+    // 2. Direct reference to AFC's runtime shared settings cache
+    if (api && api.sharedSettings?.lovers) {
+      return api.sharedSettings.lovers;
+    }
+
+    // 3. Fallback to BC storage objects
     const win = window as any;
-    // AFC stores synced data under OnlineSharedSettings, with common local fallbacks
     const afcSettings =
       win.Player?.OnlineSharedSettings?.AFC ||
       win.Player?.OnlineSettings?.AFC ||

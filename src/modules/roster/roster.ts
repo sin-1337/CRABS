@@ -529,7 +529,8 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const messageType = args[0];
 
-      if (messageType === "AccountUpdate") {
+      // Some mods push shared settings via AccountUpdate or ChatRoomChat
+      if (messageType === "AccountUpdate" || messageType === "ChatRoomChat") {
         this.isDirty = true;
       }
       return result;
