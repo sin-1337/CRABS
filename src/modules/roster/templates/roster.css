@@ -470,7 +470,7 @@
 }
 
 /* =========================================================
-   TOOLTIP POSITIONING FIX
+   HISTORY TOOLTIP POSITIONING FIX
    ========================================================= */
 
 /* Ensure the hovered badge stays in front of subsequent rows */
@@ -486,20 +486,28 @@
   z-index: 1000 !important;
 }
 
-/* Force tooltip pseudo-elements or child containers to render below the badge */
+/* 1. Shift the tooltip body to the right instead of centering it */
 .CRABS_history_badge[data-tooltip-pos="down"]::after,
 .CRABS_history_badge[data-tooltip-pos="down"] .CRABS_tooltip,
 .CRABS_history_badge:hover::after {
   top: 100% !important;
   bottom: auto !important;
+  left: 0 !important; /* Anchor to left edge of the badge */
+  right: auto !important;
+  transform: none !important; /* Removes the default translateX(-50%) */
   margin-top: 4px !important;
   z-index: 99999 !important;
+  white-space: nowrap !important;
 }
 
+/* 2. Keep the arrow centered directly beneath the badge icon */
 .CRABS_history_badge[data-tooltip-pos="down"]::before,
 .CRABS_history_badge:hover::before {
   top: 100% !important;
   bottom: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   border-bottom-color: rgba(0, 0, 0, 0.85) !important;
   border-top-color: transparent !important;
+  z-index: 100000 !important;
 }

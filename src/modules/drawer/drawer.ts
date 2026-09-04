@@ -522,9 +522,9 @@ export class Drawer extends CRABS_Base {
     const helpIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_Help_Icon",
     );
-    const layoutIconContainer = this.instance?.querySelector(
+    const layoutIcons = this.instance?.querySelectorAll(
       ".CRABS_Drawer_Layout_Icon",
-    ) as HTMLElement;
+    );
     const sortContainer = this.instance?.querySelector(
       "#CRABS_sort_container",
     ) as HTMLElement;
@@ -541,13 +541,28 @@ export class Drawer extends CRABS_Base {
       const helpTitle = `${this.t("header.title_help")}`;
       const historyTitle = this.t("header.title_history") || "History";
 
-      // Ensure class state is clean across all view transitions
-      if (this.showingHelp) {
-        header?.classList.add("help-active");
-      } else {
-        header?.classList.remove("help-active");
-      }
+      // Track view state cleanly on the header
+      header?.classList.toggle("help-active", this.showingHelp);
+      header?.classList.toggle(
+        "history-active",
+        !this.showingHelp && this.rosterModule.isShowingHistory,
+      );
 
+      // Toggle all layout icon instances with !important
+      const setLayoutVisible = (visible: boolean) => {
+        layoutIcons?.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          if (visible) {
+            htmlEl.style.setProperty("visibility", "visible", "important");
+            htmlEl.style.setProperty("pointer-events", "auto", "important");
+            htmlEl.removeAttribute("data-hidden");
+          } else {
+            htmlEl.style.setProperty("visibility", "hidden", "important");
+            htmlEl.style.setProperty("pointer-events", "none", "important");
+            htmlEl.setAttribute("data-hidden", "true");
+          }
+        });
+      };
       if (this.showingHelp) {
         if (title && title.textContent !== helpTitle)
           title.textContent = helpTitle;
@@ -564,18 +579,18 @@ export class Drawer extends CRABS_Base {
           helpIconContainer.setAttribute("data-icon", "roster");
         }
 
-        // Hide roster & history controls when viewing Help
-        if (sortContainer) sortContainer.style.display = "none";
-        if (layoutIconContainer) layoutIconContainer.style.display = "none";
+        // Hide roster, sort, and layout controls
+        if (sortContainer)
+          sortContainer.style.setProperty("display", "none", "important");
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "false");
+        setLayoutVisible(false);
 
         content.innerHTML = this.helpModule.showHelp(false);
       } else if (this.rosterModule.isShowingHistory) {
         if (title && title.textContent !== historyTitle)
           title.textContent = historyTitle;
 
-        // Reset help icon if returning from help view
         if (
           helpIconContainer &&
           helpIconContainer.getAttribute("data-icon") !== "help"
@@ -591,8 +606,9 @@ export class Drawer extends CRABS_Base {
         // Toggle button states for History mode
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "true");
-        if (sortContainer) sortContainer.style.display = "flex";
-        if (layoutIconContainer) layoutIconContainer.style.display = "none";
+        if (sortContainer)
+          sortContainer.style.setProperty("display", "flex", "important");
+        setLayoutVisible(false);
 
         content.innerHTML = this.rosterModule.buildHistory();
         this.rosterModule.initScrollingOverflow();
@@ -619,15 +635,18 @@ export class Drawer extends CRABS_Base {
         // Restore active roster controls
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "false");
-        if (sortContainer) sortContainer.style.display = "flex";
-        if (layoutIconContainer) {
-          layoutIconContainer.style.display = "flex";
-          layoutIconContainer.innerHTML = Assets.printimage({
+        if (sortContainer)
+          sortContainer.style.setProperty("display", "flex", "important");
+
+        // Restore layout icon only on roster view
+        setLayoutVisible(true);
+        layoutIcons?.forEach((el) => {
+          (el as HTMLElement).innerHTML = Assets.printimage({
             key: this.getLayoutIconKey() as any,
             tooltip_override: this.t("tooltips.layout"),
             css_class_override: "CRABS_Drawer_Layout_Icon",
           });
-        }
+        });
 
         content.innerHTML = this.rosterModule.buildroster("all", false);
         this.rosterModule.initScrollingOverflow();

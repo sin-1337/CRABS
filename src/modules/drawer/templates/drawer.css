@@ -120,6 +120,13 @@
   display: block;
 }
 
+.CRABS_wrapper_header.help-active .CRABS_Drawer_Layout_Icon,
+.CRABS_wrapper_header.history-active .CRABS_Drawer_Layout_Icon,
+.CRABS_Drawer_Layout_Icon[data-hidden="true"] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* Highlight history button when history view is active */
 .CRABS_Drawer_History_Icon[data-active="true"] img {
   filter: brightness(1.3) drop-shadow(0 0 4px #ff5555) !important;
