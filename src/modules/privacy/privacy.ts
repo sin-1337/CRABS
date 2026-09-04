@@ -10,15 +10,13 @@ export class PrivacyMode extends CRABS_Base {
   private overlay: HTMLDivElement;
   private monitorTimer: number | null = null;
 
-  // Title Obfuscation State
-  private originalTitle: string = "";
-  private titleLockInterval: number | null = null;
-
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "privacy", locales);
     this.overlay = document.createElement("div");
     this.overlay.id = "CRABS-privacy-overlay";
     document.body.appendChild(this.overlay);
+
+    this.setupTitleHook();
 
     CRABS_Base.registerKeybind(
       "crabs_privacy_half",
@@ -45,6 +43,27 @@ export class PrivacyMode extends CRABS_Base {
     );
 
     this.registerNativeKeybind();
+  }
+
+  /**
+   * Hooks into the game's notification updater to suppress
+   * and replace the title while Privacy Mode is active.
+   */
+  private setupTitleHook(): void {
+    this.safeHook(
+      "NotificationTitleUpdate",
+      10,
+      (args: any[], next: (args: any[]) => any) => {
+        if (this.isVisible) {
+          const spoofedTitle = this.t("window.title") || "Blank.html";
+          if (document.title !== spoofedTitle) {
+            document.title = spoofedTitle;
+          }
+          return null; // Suppresses native title update execution
+        }
+        return next(args);
+      },
+    );
   }
 
   private registerNativeKeybind(): void {
@@ -122,7 +141,7 @@ export class PrivacyMode extends CRABS_Base {
       this.overlay.style.display = "none";
       this.overlay.removeAttribute("data-mode");
       this.stopMonitoring();
-      this.restoreTitle();
+      this.syncTitle();
       return;
     }
 
@@ -139,50 +158,31 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = false;
         this.isSuspended = true;
         this.overlay.style.display = "none";
-        this.restoreTitle();
       } else {
         this.isSuspended = false;
         this.isVisible = true;
         this.overlay.style.display = "block";
-        this.obfuscateTitle();
       }
       this.startMonitoring();
     } else {
       this.isSuspended = false;
       this.isVisible = true;
       this.overlay.style.display = "block";
-      this.obfuscateTitle();
       this.stopMonitoring();
     }
+
+    this.syncTitle();
   }
 
-  private obfuscateTitle(): void {
-    if (this.titleLockInterval !== null) return;
-
-    const spoofedTitle = this.t("window.title") || "Blank.html";
-
-    if (document.title !== spoofedTitle) {
-      this.originalTitle = document.title;
-    }
-
-    document.title = spoofedTitle;
-
-    this.titleLockInterval = window.setInterval(() => {
-      const currentSpoof = this.t("window.title") || "Blank.html";
-      if (document.title !== currentSpoof) {
-        document.title = currentSpoof;
-      }
-    }, 250);
-  }
-
-  private restoreTitle(): void {
-    if (this.titleLockInterval !== null) {
-      window.clearInterval(this.titleLockInterval);
-      this.titleLockInterval = null;
-    }
-
-    if (this.originalTitle) {
-      document.title = this.originalTitle;
+  /**
+   * Forces the game to immediately evaluate NotificationTitleUpdate.
+   */
+  private syncTitle(): void {
+    const globalWindow = window as any;
+    if (typeof globalWindow.NotificationTitleUpdate === "function") {
+      globalWindow.NotificationTitleUpdate();
+    } else if (this.isVisible) {
+      document.title = this.t("window.title") || "Blank.html";
     }
   }
 
@@ -201,12 +201,12 @@ export class PrivacyMode extends CRABS_Base {
         this.isVisible = false;
         this.isSuspended = true;
         this.overlay.style.display = "none";
-        this.restoreTitle();
+        this.syncTitle();
       } else if (inMainChat && this.isSuspended) {
         this.isSuspended = false;
         this.isVisible = true;
         this.overlay.style.display = "block";
-        this.obfuscateTitle();
+        this.syncTitle();
       }
     }, 200);
   }
