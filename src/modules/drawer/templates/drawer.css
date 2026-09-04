@@ -52,6 +52,24 @@
   gap: 4px;
 }
 
+/* Prevent blue text selection on double-clicks inside the drawer */
+.drawer-open,
+.drawer-closed,
+.CRABS_wrapper_header,
+.CRABS_card-container,
+.CRABS_card,
+.CRABS_history_card,
+.CRABS_player-badge,
+.CRABS_history_badge,
+.CRABS_player-name,
+.CRABS_player-id,
+.CRABS_history_name {
+  -webkit-user-select: none; /* Safari / WebKit */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE / Edge */
+  user-select: none; /* Standard */
+}
+
 /* Perfectly center title regardless of icon imbalance */
 .CRABS_wrapper_header.help-active #drawer-title {
   position: absolute;
