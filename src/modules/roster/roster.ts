@@ -71,8 +71,18 @@ export class Roster extends CRABS_Base {
   private isFetching: boolean = false;
   public isDirty: boolean = true;
 
-  private currentSortMode: string =
+  private currentRosterSortMode: string =
     localStorage.getItem("CRABS_SortMode") || "natural";
+
+  private currentHistorySortMode: string =
+    localStorage.getItem("CRABS_HistorySortMode") || "natural";
+
+  /** Helper to get the active sort mode based on current view */
+  public get activeSortMode(): string {
+    return this.isShowingHistory
+      ? this.currentHistorySortMode
+      : this.currentRosterSortMode;
+  }
 
   /**
    * Creates an instance of the Roster module and initializes map and state hooks.
@@ -546,6 +556,7 @@ export class Roster extends CRABS_Base {
       this.cleanZalgoAndNormalize.bind(this),
       this.convertColor.bind(this),
       this.getLabelShadow.bind(this),
+      this.currentHistorySortMode,
     );
   }
 
@@ -772,7 +783,8 @@ export class Roster extends CRABS_Base {
       isStandard: boolean;
     }[] = [];
 
-    const effectiveSortMode = wrapper ? "role" : this.currentSortMode;
+    // Live roster uses currentRosterSortMode
+    const effectiveSortMode = wrapper ? "role" : this.currentRosterSortMode;
 
     for (let characterIndex in ChatRoomData.Character) {
       const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
@@ -1001,17 +1013,28 @@ export class Roster extends CRABS_Base {
         }
       });
 
-      dropdown.value = this.currentSortMode;
+      // Sync dropdown value to whichever view is currently active
+      dropdown.value = this.activeSortMode;
 
       dropdown.onchange = (e) => {
-        this.currentSortMode = (e.target as HTMLSelectElement).value;
-        localStorage.setItem("CRABS_SortMode", this.currentSortMode);
+        const selectedMode = (e.target as HTMLSelectElement).value;
+
+        if (this.isShowingHistory) {
+          this.currentHistorySortMode = selectedMode;
+          localStorage.setItem("CRABS_HistorySortMode", selectedMode);
+        } else {
+          this.currentRosterSortMode = selectedMode;
+          localStorage.setItem("CRABS_SortMode", selectedMode);
+        }
 
         const drawerRosterContainer = document.getElementById(
           "CRABS_Drawer_Roster",
         );
         if (drawerRosterContainer) {
-          const updatedHtml = this.buildroster("all", false);
+          const updatedHtml = this.isShowingHistory
+            ? this.buildHistory()
+            : this.buildroster("all", false);
+
           drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, {
             USE_PROFILES: { html: true },
           });

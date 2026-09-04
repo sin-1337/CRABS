@@ -539,7 +539,7 @@ export class Drawer extends CRABS_Base {
       const roomName = ChatRoomData.Name || this.t("header.title_default");
       const rosterTitle = `${roomName}`;
       const helpTitle = `${this.t("header.title_help")}`;
-      const historyTitle = `${roomName} (History)`;
+      const historyTitle = this.t("header.title_history") || "History";
 
       // Ensure class state is clean across all view transitions
       if (this.showingHelp) {
@@ -591,7 +591,7 @@ export class Drawer extends CRABS_Base {
         // Toggle button states for History mode
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "true");
-        if (sortContainer) sortContainer.style.display = "none";
+        if (sortContainer) sortContainer.style.display = "flex";
         if (layoutIconContainer) layoutIconContainer.style.display = "none";
 
         content.innerHTML = this.rosterModule.buildHistory();

@@ -5,7 +5,8 @@
     },
     "header": {
         "title_default": "Roster",
-        "title_help": "Help"
+        "title_help": "Help",
+        "title_history": "History"
     },
     "tooltips": {
         "tab": "CRABS Drawer",
