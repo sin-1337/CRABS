@@ -58,10 +58,7 @@ export class ChatManager extends CRABS_Base {
 
       while (node) {
         const parent = node.parentElement;
-        if (
-          !parent?.classList.contains("ChatMessageName") &&
-          !parent?.classList.contains("chat-room-metadata")
-        ) {
+        if (!parent?.classList.contains("chat-room-metadata")) {
           const raw = node.nodeValue || "";
           const normalized = this.cleanZalgoAndNormalize(raw);
           if (raw !== normalized) {
