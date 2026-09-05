@@ -9,6 +9,7 @@ export class Setup extends CRABS_Base {
   private crabsLastRoomID: number | null = null;
   private rosterModule: Roster;
   private bannerModule: Banner;
+  private bannerTimer: any = null;
 
   constructor(CRABS: ModSDKModAPI, roster: Roster, banner: Banner) {
     super(CRABS);
@@ -20,25 +21,19 @@ export class Setup extends CRABS_Base {
 
   private initHooks(): void {
     // Runs at Priority -10000 to guarantee it fires AFTER FUSAM/BCX but BEFORE the Base Game.
-    // If an older mod strips the Custom object, this reconstructs it right before the render loop.
     this.safeHook(
       "ChatRoomRun",
       -10000,
       (args: any[], next: (args: any[]) => any) => {
         try {
-          // @ts-ignore: We must bypass 'window' because 'let' globals do not attach to it
           if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
-            // @ts-ignore
             if (!ChatRoomData.Custom) {
-              // @ts-ignore
               ChatRoomData.Custom = { SizeMode: 0 };
-              // @ts-ignore
             } else if (typeof ChatRoomData.Custom.SizeMode === "undefined") {
-              // @ts-ignore
               ChatRoomData.Custom.SizeMode = 0;
             }
           }
-        } catch (e) {} // Failsafe
+        } catch (e) {}
 
         return next(args);
       },
@@ -52,7 +47,7 @@ export class Setup extends CRABS_Base {
       const message = chatInput?.value?.toLowerCase().trim() || "";
       const result = next(args);
 
-      if (Settings.instance?.data.closeDrawerOnChat) {
+      if (Settings.instance?.data?.closeDrawerOnChat) {
         if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
           Drawer.close();
         }
@@ -60,7 +55,25 @@ export class Setup extends CRABS_Base {
       return result;
     });
 
-    // Handle Room Joins and UI Recovery
+    // Authoritative room entry hook
+    this.safeHook("ChatRoomSync", 10, (args, next) => {
+      const result = next(args);
+
+      if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
+        if (ChatRoomData.ID !== this.crabsLastRoomID) {
+          this.crabsLastRoomID = ChatRoomData.ID;
+          Drawer.updateVisibility();
+          Settings.instance?.syncGameState();
+
+          if (Settings.instance?.data?.showBanner) {
+            this.queueBanner(ChatRoomData.ID);
+          }
+        }
+      }
+      return result;
+    });
+
+    // Handle UI Recovery when returning to ChatRoom screen
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
       const result = next(args);
 
@@ -70,14 +83,14 @@ export class Setup extends CRABS_Base {
         (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
 
       if (inChatRoom) {
-        // Just joined a new room
+        // Fallback room transition check if ChatRoomSync didn't trigger it
         if (ChatRoomData.ID !== this.crabsLastRoomID) {
           this.crabsLastRoomID = ChatRoomData.ID;
           Drawer.updateVisibility();
           Settings.instance?.syncGameState();
 
-          if (Settings.instance?.data.showBanner) {
-            this.drawbanner();
+          if (Settings.instance?.data?.showBanner) {
+            this.queueBanner(ChatRoomData.ID);
           }
         }
 
@@ -89,7 +102,7 @@ export class Setup extends CRABS_Base {
           !isFocused &&
           drawerElement &&
           drawerElement.style.display === "none" &&
-          !Settings.instance?.data.enableDrawer
+          !Settings.instance?.data?.enableDrawer
         ) {
           Drawer.updateVisibility();
         }
@@ -132,13 +145,51 @@ export class Setup extends CRABS_Base {
     };
   }
 
-  public drawbanner(): void | boolean {
-    if (typeof Player === "undefined" || Player.LastChatRoom === null)
+  /**
+   * Queues the banner to draw, polling for the chat log DOM to be fully initialized.
+   * This prevents the banner from being wiped by BC's internal log clearing.
+   */
+  private queueBanner(roomId: number, attempts: number = 0): void {
+    if (this.bannerTimer) clearTimeout(this.bannerTimer);
+
+    // Timeout after 15 attempts (~3 seconds) to prevent infinite loops
+    if (attempts > 15) return;
+
+    this.bannerTimer = setTimeout(() => {
+      // Abort if we left or changed rooms during the timeout
+      if (
+        typeof ChatRoomData === "undefined" ||
+        !ChatRoomData ||
+        ChatRoomData.ID !== roomId
+      ) {
+        return;
+      }
+
+      const chat = document.getElementById("TextAreaChatLog");
+
+      // Wait for the DOM element to exist AND contain children.
+      // BC inserts welcome messages on join; if it's empty, the game hasn't finished clearing it.
+      if (chat && chat.children.length > 0) {
+        this.drawbanner();
+      } else {
+        this.queueBanner(roomId, attempts + 1);
+      }
+    }, 200);
+  }
+
+  public drawbanner(): boolean {
+    if (
+      typeof ChatRoomData === "undefined" ||
+      !ChatRoomData ||
+      Object.keys(ChatRoomData).length === 0
+    ) {
       return false;
+    }
 
     const extraData = {
       RosterCounters: this.rosterModule.buildroster("count", false),
     };
     this.bannerModule.drawBanner(extraData);
+    return true;
   }
 }
