@@ -218,6 +218,12 @@
   }
 }
 
+.CRABS_history_badge.CRABS_disabled,
+.CRABS_history_badge.CRABS_disabled * {
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
 /* =========================================================
    4. CARD TEXT, OVERFLOW & ICONS
    ========================================================= */

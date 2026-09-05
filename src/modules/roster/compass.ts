@@ -420,7 +420,7 @@ export function drawCompass(
 }
 
 /**
- * Renders the custom indicator arrow to the left of the character's nameplate.
+ * Renders the custom indicator arrow next to the character's nameplate.
  */
 export function drawNameIndicator(
   character: any,
@@ -429,23 +429,28 @@ export function drawNameIndicator(
   getColorBrightness: (color: string) => number,
 ): void {
   const globalWindow = window as any;
-  const canvasContext = (
-    globalWindow.MainCanvas as HTMLCanvasElement
-  )?.getContext("2d");
-  if (!canvasContext) return;
+  const canvas = globalWindow.MainCanvas as HTMLCanvasElement | undefined;
+  const canvasContext = canvas?.getContext("2d");
+  if (!canvasContext || !character) return;
 
+  // Use the exact text BC draws to the screen
   const currentName =
     typeof globalWindow.CharacterNickname === "function"
-      ? globalWindow.CharacterNickname(character).normalize("NFKC")
-      : character.Name || "";
+      ? globalWindow.CharacterNickname(character)
+      : character.Nickname || character.Name || "";
 
   let cachedData = nameWidthCache.get(character.MemberNumber);
 
   if (!cachedData || cachedData.name !== currentName) {
-    canvasContext.font = "36px sans-serif";
+    canvasContext.save();
+    // BC draws character names with bold 30px Arial
+    canvasContext.font = "bold 30px Arial";
+    const measuredWidth = canvasContext.measureText(currentName).width;
+    canvasContext.restore();
+
     cachedData = {
       name: currentName,
-      width: canvasContext.measureText(currentName).width,
+      width: measuredWidth,
     };
     nameWidthCache.set(character.MemberNumber, cachedData);
   }
@@ -456,17 +461,26 @@ export function drawNameIndicator(
 
   const scale = 0.6;
   const textWidth = cachedData.width;
-  const padding = 10;
+  const padding = 8;
   const arrowWidth = 40 * scale;
 
-  let angle = 0;
-  let tipX = x - textWidth / 2 - padding;
-  let finalArrowX = tipX - arrowWidth / 2;
+  // Check left screen edge boundary
+  // If placing the arrow to the left would push it off-canvas (< 10px), flip it to the right
+  const idealTipXLeft = x - textWidth / 2 - padding;
+  const isLeftEdge = idealTipXLeft - arrowWidth < 10;
 
-  if (finalArrowX - arrowWidth / 2 < 10) {
+  let angle: number;
+  let finalArrowX: number;
+
+  if (isLeftEdge) {
+    // Flip arrow to the right of the name: pointing left toward the last character
     angle = Math.PI;
-    tipX = x + textWidth / 2 + padding;
-    finalArrowX = tipX + arrowWidth / 2;
+    const tipXRight = x + textWidth / 2 + padding;
+    finalArrowX = tipXRight + arrowWidth / 2;
+  } else {
+    // Standard: arrow to the left of the name: pointing right toward the first character
+    angle = 0;
+    finalArrowX = idealTipXLeft - arrowWidth / 2;
   }
 
   drawIndicator(
