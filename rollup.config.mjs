@@ -15,7 +15,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
-const BUILD_VERSION = "3.0.0.86";
+const BUILD_VERSION = "3.0.0.87";
 const BUILD_BRANCH = "Alpha";
 
 // Dynamic target resolution for test mode
