@@ -312,13 +312,6 @@ export function openWCEProfile(memberInput: number | string): void {
     return;
   }
 
-  // Close the CRABS drawer so the sheet renders without overlay obstruction
-  const drawer = document.getElementById("crabs-drawer");
-  if (drawer) {
-    drawer.classList.remove("drawer-open");
-    drawer.classList.add("drawer-closed");
-  }
-
   try {
     const req = indexedDB.open("bce-past-profiles");
 
@@ -346,6 +339,13 @@ export function openWCEProfile(memberInput: number | string): void {
             "warn",
           );
           return;
+        }
+
+        // Close the CRABS drawer so the sheet renders without overlay obstruction
+        const drawer = document.getElementById("crabs-drawer");
+        if (drawer) {
+          drawer.classList.remove("drawer-open");
+          drawer.classList.add("drawer-closed");
         }
 
         try {
@@ -498,16 +498,13 @@ export function buildHistoryRoster(
   cleanName: (name: string) => string,
   convertColor: (color: string, alpha: number) => string,
   getLabelShadow: (color: string) => string,
-  sortMode: string = "natural", // <-- Add sortMode parameter
+  sortMode: string = "natural",
 ): string {
-  // Clone historyCache so sorting does not mutate the raw chronological cache
   const records = [...historyCache];
 
-  // Natural/None in history means most recently departed first
   if (sortMode === "natural" || sortMode === "none") {
     records.sort((a, b) => b.seen - a.seen);
   } else {
-    // Map with original indices, calculate scores, then sort
     const scored = records.map((rec, index) => ({
       rec,
       score: calculateSortScore(createHistorySortProxy(rec), sortMode, index),
@@ -517,21 +514,28 @@ export function buildHistoryRoster(
       if (a.score !== b.score) {
         return a.score - b.score;
       }
-      // Tiebreaker: Most recently departed first
       return b.rec.seen - a.rec.seen;
     });
 
     records.splice(0, records.length, ...scored.map((item) => item.rec));
   }
 
+  // Check if WCE is present and past profiles tracking (/profiles) is active
+  const canShowProfiles = CrossMod.isWCEPastProfilesEnabled();
+
   let rowsHtml = "";
 
   for (const rec of records) {
     const labelColor = rec.LabelColor || "#FFFFFF";
+
     const badgeIcon = Assets.printimage({
       key: "history" as any,
-      tooltip_override: CRABS_Base.translate("roster.tooltips.view_profile"),
-      css_class_override: "CRABS_history_badge_img",
+      tooltip_override: canShowProfiles
+        ? CRABS_Base.translate("roster.tooltips.view_profile")
+        : false,
+      css_class_override: canShowProfiles
+        ? "CRABS_history_badge_img"
+        : "CRABS_history_badge_img CRABS_history_badge_disabled",
     });
 
     const timeStr = formatCompactTime(rec.seen);
@@ -540,6 +544,9 @@ export function buildHistoryRoster(
     const templatevars: Record<string, string> = {
       PlayerNumber: `${rec.MemberNumber}`,
       Badge: badgeIcon || "📜",
+      BadgeInteractiveClass: canShowProfiles
+        ? "CRABS_clickable"
+        : "CRABS_disabled",
       LabelColorBorder: `${convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
       LabelShadow: getLabelShadow(labelColor),

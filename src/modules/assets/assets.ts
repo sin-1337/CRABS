@@ -13,19 +13,6 @@
 import { CRABS_Base } from "../base";
 import * as locales from "./i18n";
 
-type ImageStore = {
-  readonly basePath: string;
-  readonly image: {
-    readonly [key: string]: {
-      readonly file: string;
-      readonly subdir?: string;
-      readonly altKey?: string;
-      readonly toolTipKey?: string;
-      readonly class?: string;
-    };
-  };
-};
-
 /**
  * Static class for managing and retrieving mod assets.
  */
@@ -365,10 +352,13 @@ export abstract class Assets {
 
   protected static readonly AUDIO: AudioStore = {
     basePath: "https://sin-1337.github.io/CRABS/audio/",
-    rave: {
-      file: "Rave.mp3",
+
+    audio: {
+      rave: {
+        file: "Rave.mp3",
+      },
     },
-  };
+  } as const;
 
   /**
    * Returns the full URL for a given image asset key.
@@ -405,7 +395,7 @@ export abstract class Assets {
     key,
     css_class_override,
     css_style = "",
-    tooltip_override = "",
+    tooltip_override,
     alt_override,
     data,
   }: PrintImage): string {
@@ -430,7 +420,18 @@ export abstract class Assets {
       : "";
 
     const css_class = css_class_override || imgData.class || "";
-    const tooltip = tooltip_override || defaultTooltip;
+
+    // If explicitly null or false, suppress the tooltip entirely.
+    // If undefined, fall back to defaultTooltip.
+    let tooltip = "";
+    if (tooltip_override === false) {
+      tooltip = "";
+    } else if (tooltip_override !== undefined) {
+      tooltip = tooltip_override;
+    } else {
+      tooltip = defaultTooltip;
+    }
+
     const alt = alt_override || defaultAlt;
 
     let html = "";
@@ -458,9 +459,9 @@ export abstract class Assets {
    * @returns {void}
    */
   public static PlayAudio(
-    key: Exclude<keyof typeof Assets.AUDIO, "basePath">,
+    key: Exclude<keyof typeof Assets.AUDIO.audio, "basePath">,
   ): void {
-    const audioObj = Assets.AUDIO[key];
+    const audioObj = Assets.AUDIO.audio[key];
 
     if (audioObj && typeof audioObj === "object" && "file" in audioObj) {
       const url = `${Assets.AUDIO.basePath}${audioObj.file}`;
