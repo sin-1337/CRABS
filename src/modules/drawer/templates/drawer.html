@@ -10,21 +10,22 @@
         <div class="CRABS_Drawer_Layout_Icon" style="cursor: pointer; display: flex; align-items: center;">{{Layout}}</div>
         <div class="CRABS_Drawer_History_Icon" style="cursor: pointer; display: flex; align-items: center;" data-active="false">{{History}}</div>
       </div>
-      
       <div id="drawer-title">
         {{TitleBar}}
       </div>
       <div class="header-right-icons" style="display: flex; align-items: center; gap: 8px; z-index: 2; flex-shrink: 0;">
         <div id="CRABS_sort_container" style="display: flex; align-items: center; gap: 4px; font-size: 1.2rem; font-weight: bold;">
-          Sort:
+          <div id="CRABS_Drawer_Sort_Icon_Container">
+            {{SortIcon}}
+          </div>
           <select id="CRABS_sort_dropdown" class="CRABS_dropdown">
-            <option value="natural">Room</option>
-            <option value="role">Admins</option>
-            <option value="ds">D/s</option>
-            <option value="lovers">Lovers</option>
-            <option value="friends">Friends</option>
-            <option value="whitelist">Whitelist</option>
-            <option value="blacklist">Blacklist</option>
+            <option value="natural">{{t:roster.sort_options.natural}}</option>
+            <option value="role">{{t:roster.sort_options.role}}</option>
+            <option value="ds">{{t:roster.sort_options.ds}}</option>
+            <option value="lovers">{{t:roster.sort_options.lovers}}</option>
+            <option value="friends">{{t:roster.sort_options.friends}}</option>
+            <option value="whitelist">{{t:roster.sort_options.whitelist}}</option>
+            <option value="blacklist">{{t:roster.sort_options.blacklist}}</option>
           </select>
         </div>
         <div class="CRABS_Drawer_Close_Icon">{{Close}}</div>

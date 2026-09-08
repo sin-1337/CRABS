@@ -368,35 +368,35 @@ export class Drawer extends CRABS_Base {
       ? "animated_logo"
       : "static_logo";
 
+    // Notice we REMOVED all tooltip_overrides so the Assets module auto-translates them!
     const templateVars = {
       Help: Assets.printimage({
         key: "help",
-        tooltip_override: this.t("tooltips.help"),
         css_class_override: "CRABS_Drawer_Help_Icon",
       }),
       Settings: Assets.printimage({
         key: "settings",
-        tooltip_override: this.t("tooltips.settings"),
         css_class_override: "CRABS_Drawer_Settings_Icon",
       }),
       Layout: Assets.printimage({
         key: this.getLayoutIconKey() as any,
-        tooltip_override: this.t("tooltips.layout"),
         css_class_override: "CRABS_Drawer_Layout_Icon",
       }),
       History: Assets.printimage({
         key: "history" as any,
-        tooltip_override: "Toggle Room History",
         css_class_override: "CRABS_Drawer_History_Icon",
       }),
       TabIcon: Assets.printimage({
         key: logoKey,
-        tooltip_override: this.t("tooltips.tab"),
+      }),
+      SortIcon: Assets.printimage({
+        key: "sort",
+        tooltip_override: this.t("tooltips.layout"),
+        css_class_override: "CRABS_Drawer_Sort_Icon",
       }),
       TitleBar: title,
       Close: Assets.printimage({
         key: "close",
-        tooltip_override: this.t("tooltips.close"),
         css_class_override: "CRABS_Drawer_Close_Icon",
       }),
     };
@@ -519,18 +519,70 @@ export class Drawer extends CRABS_Base {
     const header = this.instance?.querySelector(
       ".CRABS_wrapper_header",
     ) as HTMLElement;
+
+    // Grab all icon containers
     const helpIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_Help_Icon",
-    );
+    ) as HTMLElement;
+    const settingsIconContainer = this.instance?.querySelector(
+      ".CRABS_Drawer_Settings_Icon",
+    ) as HTMLElement;
     const layoutIcons = this.instance?.querySelectorAll(
       ".CRABS_Drawer_Layout_Icon",
     );
-    const sortContainer = this.instance?.querySelector(
-      "#CRABS_sort_container",
-    ) as HTMLElement;
     const historyIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_History_Icon",
     ) as HTMLElement;
+    const sortIconContainer = this.instance?.querySelector(
+      "#CRABS_Drawer_Sort_Icon_Container",
+    ) as HTMLElement;
+    const closeIconContainer = this.instance?.querySelector(
+      ".CRABS_Drawer_Close_Icon",
+    ) as HTMLElement;
+    const sortContainer = this.instance?.querySelector(
+      "#CRABS_sort_container",
+    ) as HTMLElement;
+    const sortDropdown = this.instance?.querySelector(
+      "#CRABS_sort_dropdown",
+    ) as HTMLSelectElement;
+
+    // Force re-render of static elements so live language changes take effect immediately
+    if (settingsIconContainer)
+      settingsIconContainer.innerHTML = Assets.printimage({
+        key: "settings",
+        css_class_override: "CRABS_Drawer_Settings_Icon",
+      });
+    if (closeIconContainer)
+      closeIconContainer.innerHTML = Assets.printimage({
+        key: "close",
+        css_class_override: "CRABS_Drawer_Close_Icon",
+      });
+    if (sortIconContainer)
+      sortIconContainer.innerHTML = Assets.printimage({
+        key: "sort",
+        css_class_override: "CRABS_Drawer_Sort_Icon",
+      });
+    if (historyIconContainer && !this.rosterModule.isShowingHistory) {
+      historyIconContainer.innerHTML = Assets.printimage({
+        key: "history" as any,
+        css_class_override: "CRABS_Drawer_History_Icon",
+      });
+    }
+
+    // Rebuild Dropdown options dynamically on language change
+    if (sortDropdown) {
+      const currentSort = sortDropdown.value || "natural";
+      sortDropdown.innerHTML = `
+        <option value="natural">${this.t("roster.sort_options.natural")}</option>
+        <option value="role">${this.t("roster.sort_options.role")}</option>
+        <option value="ds">${this.t("roster.sort_options.ds")}</option>
+        <option value="lovers">${this.t("roster.sort_options.lovers")}</option>
+        <option value="friends">${this.t("roster.sort_options.friends")}</option>
+        <option value="whitelist">${this.t("roster.sort_options.whitelist")}</option>
+        <option value="blacklist">${this.t("roster.sort_options.blacklist")}</option>
+      `;
+      sortDropdown.value = currentSort;
+    }
 
     const isRoomReady =
       typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
@@ -541,14 +593,12 @@ export class Drawer extends CRABS_Base {
       const helpTitle = `${this.t("header.title_help")}`;
       const historyTitle = this.t("header.title_history") || "History";
 
-      // Track view state cleanly on the header
       header?.classList.toggle("help-active", this.showingHelp);
       header?.classList.toggle(
         "history-active",
         !this.showingHelp && this.rosterModule.isShowingHistory,
       );
 
-      // Toggle all layout icon instances with !important
       const setLayoutVisible = (visible: boolean) => {
         layoutIcons?.forEach((el) => {
           const htmlEl = el as HTMLElement;
@@ -563,23 +613,19 @@ export class Drawer extends CRABS_Base {
           }
         });
       };
+
       if (this.showingHelp) {
         if (title && title.textContent !== helpTitle)
           title.textContent = helpTitle;
 
-        if (
-          helpIconContainer &&
-          helpIconContainer.getAttribute("data-icon") !== "roster"
-        ) {
+        if (helpIconContainer) {
           helpIconContainer.innerHTML = Assets.printimage({
             key: "roster",
-            tooltip_override: this.t("tooltips.roster"),
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
           helpIconContainer.setAttribute("data-icon", "roster");
         }
 
-        // Hide roster, sort, and layout controls
         if (sortContainer)
           sortContainer.style.setProperty("display", "none", "important");
         if (historyIconContainer)
@@ -591,19 +637,14 @@ export class Drawer extends CRABS_Base {
         if (title && title.textContent !== historyTitle)
           title.textContent = historyTitle;
 
-        if (
-          helpIconContainer &&
-          helpIconContainer.getAttribute("data-icon") !== "help"
-        ) {
+        if (helpIconContainer) {
           helpIconContainer.innerHTML = Assets.printimage({
             key: "help",
-            tooltip_override: this.t("tooltips.help"),
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
           helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        // Toggle button states for History mode
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "true");
         if (sortContainer)
@@ -620,30 +661,24 @@ export class Drawer extends CRABS_Base {
         if (title && title.textContent !== rosterTitle)
           title.textContent = rosterTitle;
 
-        if (
-          helpIconContainer &&
-          helpIconContainer.getAttribute("data-icon") !== "help"
-        ) {
+        if (helpIconContainer) {
           helpIconContainer.innerHTML = Assets.printimage({
             key: "help",
-            tooltip_override: this.t("tooltips.help"),
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
           helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        // Restore active roster controls
         if (historyIconContainer)
           historyIconContainer.setAttribute("data-active", "false");
         if (sortContainer)
           sortContainer.style.setProperty("display", "flex", "important");
 
-        // Restore layout icon only on roster view
         setLayoutVisible(true);
         layoutIcons?.forEach((el) => {
           (el as HTMLElement).innerHTML = Assets.printimage({
             key: this.getLayoutIconKey() as any,
-            tooltip_override: this.t("tooltips.layout"),
+            tooltip_override: this.t("tooltips.layout"), // <--- Add this back
             css_class_override: "CRABS_Drawer_Layout_Icon",
           });
         });

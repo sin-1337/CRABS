@@ -189,10 +189,28 @@
 .CRABS_Drawer_Settings_Icon,
 .CRABS_Drawer_Layout_Icon,
 .CRABS_Drawer_History_Icon,
+.CRABS_Drawer_Sort_Icon,
 .CRABS_Drawer_Close_Icon {
   position: relative;
   z-index: 2;
   pointer-events: auto;
+}
+
+.CRABS_Drawer_Sort_Icon {
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.CRABS_Drawer_Sort_Icon img {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+  display: block;
+  opacity: 0.85;
 }
 
 .drawer-content .CRABS_Drawer_Help_Icon,

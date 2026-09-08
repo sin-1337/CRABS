@@ -26,9 +26,7 @@ export abstract class Assets {
   private static init(): void {
     if (Assets.isInitialized) return;
 
-    for (const [_, bundle] of Object.entries(locales)) {
-      CRABS_Base.registerTranslations("assets", bundle);
-    }
+    CRABS_Base.registerTranslations("assets", locales);
     Assets.isInitialized = true;
   }
 
@@ -76,6 +74,12 @@ export abstract class Assets {
         altKey: "alt.error",
         toolTipKey: "tooltips.error",
         class: "CRABS_error_icon",
+      },
+      sort: {
+        file: "sort.svg",
+        altKey: "alt.sort",
+        toolTipKey: "tooltips.sort",
+        class: "CRABS_Sort_Icon",
       },
       close: {
         file: "close.svg",

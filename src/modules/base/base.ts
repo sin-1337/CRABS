@@ -10,7 +10,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
-import * as baseLocales from "./i18n.json";
+import baseLocales from "./i18n.json";
 export enum PerformanceLevel {
   NORMAL = 0,
   LOW = 1,
@@ -168,10 +168,20 @@ export abstract class CRABS_Base {
     namespace: string,
     bundle: Record<string, any>,
   ): void {
-    const rawData =
+    let rawData =
       bundle && typeof bundle === "object" && "default" in bundle
         ? bundle.default
         : bundle;
+
+    // VERY IMPORTANT: Unwraps double namespaces from the migration script
+    if (
+      rawData &&
+      typeof rawData === "object" &&
+      namespace in rawData &&
+      Object.keys(rawData).length === 1
+    ) {
+      rawData = rawData[namespace];
+    }
 
     CRABS_Base.translations[namespace] = {
       ...(CRABS_Base.translations[namespace] || {}),
@@ -224,6 +234,16 @@ export abstract class CRABS_Base {
       entry = CRABS_Base.resolveKey(CRABS_Base.translations["base"], parts);
     }
 
+    // 🔴 DEBUG CHECK
+    if (!entry) {
+      console.warn(
+        `[CRABS i18n MISS] Key: "${key}", Namespace: "${namespace}", subPath:`,
+        subPath,
+        "Available in namespace:",
+        Object.keys(CRABS_Base.translations[namespace] || {}),
+      );
+    }
+
     let text: string | undefined = undefined;
 
     if (entry) {
@@ -249,9 +269,11 @@ export abstract class CRABS_Base {
   }
 
   public t(key: string, params?: Record<string, string | number>): string {
-    const fullKey = key.startsWith(`${this.moduleNamespace}.`)
-      ? key
-      : `${this.moduleNamespace}.${key}`;
+    // Check if the key already starts with a known, registered namespace
+    const namespace = key.split(".")[0];
+    const isCrossModule = namespace && CRABS_Base.translations[namespace];
+
+    const fullKey = isCrossModule ? key : `${this.moduleNamespace}.${key}`;
     return CRABS_Base.translate(fullKey, params);
   }
 
