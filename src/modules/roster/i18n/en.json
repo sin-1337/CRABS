@@ -48,7 +48,7 @@
         "ghost": "Ghostlisted"
     },
     "tooltips": {
-        "track_compass": "Track Player on Map",
+        "track_compass": "Track Player",
         "focus_player": "Focus Player",
         "copy_id": "Copy Member Number",
         "view_profile": "Show Profile"
