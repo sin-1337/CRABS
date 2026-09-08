@@ -15,7 +15,6 @@
  */
 
 import { Assets } from "../assets";
-import { CRABS_Base } from "../base";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
 import { calculateSortScore } from "./sorting";

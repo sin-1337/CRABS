@@ -410,8 +410,8 @@ export class Settings extends CRABS_Base {
     const createCheck = (
       cat: ComponentCategory,
       setting: string,
-      labelKey: string,
-      hintKey: string,
+      labelKey: string | (() => string),
+      hintKey: string | (() => string),
       indent = 0,
       extraDisable?: () => boolean,
       onChange?: (val: boolean) => void,
@@ -427,12 +427,17 @@ export class Settings extends CRABS_Base {
         this.save();
       };
 
+      const getLabel =
+        typeof labelKey === "function" ? labelKey : () => this.t(labelKey);
+      const getHint =
+        typeof hintKey === "function" ? hintKey : () => this.t(hintKey);
+
       this.registry.push({
         category: cat,
         indent,
         widget: new CheckboxWidget(
-          () => this.t(labelKey),
-          () => this.t(hintKey),
+          getLabel,
+          getHint,
           isDisabled,
           getVal,
           setVal,
@@ -792,8 +797,19 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Maps",
       "showMapCompass",
-      "maps.compass_label",
-      "maps.compass_hint",
+      () => {
+        const base = this.t("maps.compass_label");
+        return this.isCompassBlocked()
+          ? `${base} [Disabled by room admin]`
+          : base;
+      },
+      () => {
+        return this.isCompassBlocked()
+          ? "Disabled: Room administrator has prohibited location and compass sharing."
+          : this.t("maps.compass_hint");
+      },
+      0,
+      () => this.isCompassBlocked(), // Greys out widget in UI
     );
     createCheck(
       "Maps",
