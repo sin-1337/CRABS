@@ -1,0 +1,73 @@
+{
+  "header": {
+    "title_default": {
+      "en": "Banner",
+      "cn": "横幅",
+      "de": "Banner",
+      "fr": "Bannière",
+      "ru": "Баннер",
+      "tw": "橫幅",
+      "uk": "Банер"
+    }
+  },
+  "controls": {
+    "close_dialog": {
+      "en": "Close Banner",
+      "cn": "关闭横幅",
+      "de": "Banner schließen",
+      "fr": "Fermer la bannière",
+      "ru": "Закрыть баннер",
+      "tw": "關閉橫幅",
+      "uk": "Закрити банер"
+    }
+  },
+  "permissions": {
+    "fallback_option": {
+      "en": "Permission {index}",
+      "cn": "权限 {index}",
+      "de": "Berechtigung {index}",
+      "fr": "Permission {index}",
+      "ru": "Разрешение {index}",
+      "tw": "權限 {index}",
+      "uk": "Дозвіл {index}"
+    }
+  },
+  "labels": {
+    "item_permission": {
+      "en": "Item Permission",
+      "cn": "物品权限",
+      "de": "Objektberechtigung",
+      "fr": "Permission de l'objet",
+      "ru": "Разрешение предмета",
+      "tw": "物品權限",
+      "uk": "Дозвіл предмета"
+    },
+    "room": {
+      "en": "Room",
+      "cn": "房间",
+      "de": "Raum",
+      "fr": "Salle",
+      "ru": "Комната",
+      "tw": "房間",
+      "uk": "Кімната"
+    },
+    "roster_hint_prefix": {
+      "en": "Use",
+      "cn": "使用",
+      "de": "Verwende",
+      "fr": "Utilisez",
+      "ru": "Используйте",
+      "tw": "使用",
+      "uk": "Використовуйте"
+    },
+    "roster_hint_suffix": {
+      "en": "to see the full output",
+      "cn": "查看完整输出",
+      "de": "um die vollständige Ausgabe zu sehen",
+      "fr": "pour voir l'affichage complet",
+      "ru": "чтобы увидеть полный вывод",
+      "tw": "查看完整輸出",
+      "uk": "щоб побачити повний вивід"
+    }
+  }
+}

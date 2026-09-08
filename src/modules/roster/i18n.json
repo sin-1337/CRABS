@@ -1,0 +1,376 @@
+{
+    "header": {
+        "title_default": {
+            "en": "Roster",
+            "cn": "名册",
+            "de": "Namensliste",
+            "fr": "Registre",
+            "ru": "Список игроков",
+            "tw": "名冊",
+            "uk": "Список гравців"
+        },
+        "tooltip_admins": {
+            "en": "Admins",
+            "cn": "管理员",
+            "de": "Admins",
+            "fr": "Administrateurs",
+            "ru": "Администраторы",
+            "tw": "管理員",
+            "uk": "Адміністратори"
+        },
+        "tooltip_players": {
+            "en": "Players",
+            "cn": "玩家",
+            "de": "Spieler",
+            "fr": "Joueurs",
+            "ru": "Игроки",
+            "tw": "玩家",
+            "uk": "Гравці"
+        },
+        "tooltip_friends": {
+            "en": "Friends",
+            "cn": "好友",
+            "de": "Freunde",
+            "fr": "Amis",
+            "ru": "Друзья",
+            "tw": "好友",
+            "uk": "Друзі"
+        },
+        "tooltip_online": {
+            "en": "Online Accounts",
+            "cn": "在线账号",
+            "de": "Online-Konten",
+            "fr": "Comptes en ligne",
+            "ru": "Аккаунты онлайн",
+            "tw": "線上帳號",
+            "uk": "Облікові записи онлайн"
+        }
+    },
+    "controls": {
+        "sort_by": {
+            "en": "Sort By",
+            "cn": "排序方式",
+            "de": "Sortieren nach",
+            "fr": "Trier par",
+            "ru": "Сортировка",
+            "tw": "排序方式",
+            "uk": "Сортувати за"
+        },
+        "view_grid": {
+            "en": "Grid View",
+            "cn": "网格视图",
+            "de": "Rasteransicht",
+            "fr": "Vue en grille",
+            "ru": "Сетка",
+            "tw": "網格檢視",
+            "uk": "Сітка"
+        },
+        "view_single": {
+            "en": "Single Column View",
+            "cn": "单列视图",
+            "de": "Einspaltige Ansicht",
+            "fr": "Vue sur une colonne",
+            "ru": "В одну колонку",
+            "tw": "單欄檢視",
+            "uk": "В один стовпчик"
+        },
+        "view_compact": {
+            "en": "Compact View",
+            "cn": "紧凑视图",
+            "de": "Kompakte Ansicht",
+            "fr": "Vue compacte",
+            "ru": "Компактный вид",
+            "tw": "緊湊檢視",
+            "uk": "Компактний вигляд"
+        },
+        "close_dialog": {
+            "en": "Close Roster",
+            "cn": "关闭名册",
+            "de": "Namensliste schließen",
+            "fr": "Fermer le registre",
+            "ru": "Закрыть список",
+            "tw": "關閉名冊",
+            "uk": "Закрити список"
+        }
+    },
+    "sort_options": {
+        "natural": {
+            "en": "Natural (Chronological)",
+            "cn": "默认（按时间顺序）",
+            "de": "Natürlich (Chronologisch)",
+            "fr": "Naturel (Chronologique)",
+            "ru": "Обычный (хронологический)",
+            "tw": "預設（按時間順序）",
+            "uk": "Звичайний (хронологічний)"
+        },
+        "none": {
+            "en": "None",
+            "cn": "无",
+            "de": "Keine",
+            "fr": "Aucun",
+            "ru": "Нет",
+            "tw": "無",
+            "uk": "Немає"
+        },
+        "role": {
+            "en": "Role (Admins & VIPs)",
+            "cn": "权限（管理员与VIP）",
+            "de": "Rolle (Admins & VIPs)",
+            "fr": "Rôle (Admins & VIP)",
+            "ru": "Роль (Админы и VIP)",
+            "tw": "權限（管理員與VIP）",
+            "uk": "Роль (Адміни та VIP)"
+        },
+        "ds": {
+            "en": "D/s Hierarchy",
+            "cn": "D/s 等级",
+            "de": "D/s-Hierarchie",
+            "fr": "Hiérarchie D/s",
+            "ru": "Иерархия D/s",
+            "tw": "D/s 等級",
+            "uk": "Ієрархія D/s"
+        },
+        "lovers": {
+            "en": "Lovers & Relationships",
+            "cn": "伴侣与关系",
+            "de": "Geliebte & Beziehungen",
+            "fr": "Amants & Relations",
+            "ru": "Любовные отношения",
+            "tw": "伴侶與關係",
+            "uk": "Кохані та стосунки"
+        },
+        "friends": {
+            "en": "Friends",
+            "cn": "好友",
+            "de": "Freunde",
+            "fr": "Amis",
+            "ru": "Друзья",
+            "tw": "好友",
+            "uk": "Друзі"
+        },
+        "whitelist": {
+            "en": "Whitelisted",
+            "cn": "白名单",
+            "de": "Auf Whitelist",
+            "fr": "Liste blanche",
+            "ru": "Белый список",
+            "tw": "白名單",
+            "uk": "Білий список"
+        },
+        "blacklist": {
+            "en": "Blacklisted",
+            "cn": "黑名单",
+            "de": "Auf Blacklist",
+            "fr": "Liste noire",
+            "ru": "Черный список",
+            "tw": "黑名單",
+            "uk": "Чорний список"
+        }
+    },
+    "status": {
+        "unknown_person": {
+            "en": "[Unknown Person]",
+            "cn": "[未知人员]",
+            "de": "[Unbekannte Person]",
+            "fr": "[Personne inconnue]",
+            "ru": "[Неизвестный]",
+            "tw": "[未知人員]",
+            "uk": "[Невідома особа]"
+        },
+        "blind": {
+            "en": "Blind: {level}",
+            "cn": "目盲: {level}",
+            "de": "Blind: {level}",
+            "fr": "Aveugle : {level}",
+            "ru": "Слепота: {level}",
+            "tw": "目盲: {level}",
+            "uk": "Сліпота: {level}"
+        },
+        "gag": {
+            "en": "Gag: {level}",
+            "cn": "堵嘴: {level}",
+            "de": "Knebel: {level}",
+            "fr": "Bâillon : {level}",
+            "ru": "Кляп: {level}",
+            "tw": "口塞: {level}",
+            "uk": "Кляп: {level}"
+        },
+        "deaf": {
+            "en": "Deaf: {level}",
+            "cn": "耳聋: {level}",
+            "de": "Taub: {level}",
+            "fr": "Sourd : {level}",
+            "ru": "Глухота: {level}",
+            "tw": "失聰: {level}",
+            "uk": "Глухота: {level}"
+        }
+    },
+    "badges": {
+        "player": {
+            "en": "Player",
+            "cn": "玩家",
+            "de": "Spieler",
+            "fr": "Joueur",
+            "ru": "Игрок",
+            "tw": "玩家",
+            "uk": "Гравець"
+        },
+        "admin": {
+            "en": "Room Administrator",
+            "cn": "房间管理员",
+            "de": "Raum-Administrator",
+            "fr": "Administrateur du salon",
+            "ru": "Администратор комнаты",
+            "tw": "房間管理員",
+            "uk": "Адміністратор кімнати"
+        },
+        "vip": {
+            "en": "Room Whitelist / VIP",
+            "cn": "房间白名单 / VIP",
+            "de": "Raum-Whitelist / VIP",
+            "fr": "Liste blanche / VIP du salon",
+            "ru": "Белый список / VIP комнаты",
+            "tw": "房間白名單 / VIP",
+            "uk": "Білий список / VIP кімнати"
+        }
+    },
+    "relations": {
+        "you": {
+            "en": "You",
+            "cn": "你",
+            "de": "Du",
+            "fr": "Vous",
+            "ru": "Вы",
+            "tw": "你",
+            "uk": "Ви"
+        },
+        "owner": {
+            "en": "Owner",
+            "cn": "主人",
+            "de": "Besitzer",
+            "fr": "Propriétaire",
+            "ru": "Владелец",
+            "tw": "主人",
+            "uk": "Власник"
+        },
+        "sub": {
+            "en": "Submissive",
+            "cn": "奴隶/女仆",
+            "de": "Sub",
+            "fr": "Soumis(e)",
+            "ru": "Сабмиссив",
+            "tw": "奴隸/女僕",
+            "uk": "Сабмісів"
+        },
+        "trial": {
+            "en": "Trial Submissive",
+            "cn": "试用期奴隶",
+            "de": "Probe-Sub",
+            "fr": "Soumis(e) à l'essai",
+            "ru": "Испытательный срок",
+            "tw": "實習奴隸",
+            "uk": "Випробувальний термін"
+        },
+        "family": {
+            "en": "Family",
+            "cn": "家族",
+            "de": "Familie",
+            "fr": "Famille",
+            "ru": "Семья",
+            "tw": "家族",
+            "uk": "Сім'я"
+        },
+        "lover": {
+            "en": "Lover",
+            "cn": "伴侣",
+            "de": "Geliebte(r)",
+            "fr": "Amant(e)",
+            "ru": "Любовник",
+            "tw": "伴侶",
+            "uk": "Коханий(-а)"
+        },
+        "bestfriend": {
+            "en": "Best Friend",
+            "cn": "挚友",
+            "de": "Beste(r) Freund(in)",
+            "fr": "Meilleur(e) ami(e)",
+            "ru": "Лучший друг",
+            "tw": "摯友",
+            "uk": "Найкращий друг"
+        },
+        "friend": {
+            "en": "Friend",
+            "cn": "好友",
+            "de": "Freund(in)",
+            "fr": "Ami(e)",
+            "ru": "Друг",
+            "tw": "好友",
+            "uk": "Друг"
+        },
+        "whitelist": {
+            "en": "Whitelisted",
+            "cn": "白名单",
+            "de": "Auf Whitelist",
+            "fr": "Sur liste blanche",
+            "ru": "В белом списке",
+            "tw": "白名單",
+            "uk": "У білому списку"
+        },
+        "blacklist": {
+            "en": "Blacklisted",
+            "cn": "黑名单",
+            "de": "Auf Blacklist",
+            "fr": "Sur liste noire",
+            "ru": "В черном списке",
+            "tw": "黑名單",
+            "uk": "У чорному списку"
+        },
+        "ghost": {
+            "en": "Ghostlisted",
+            "cn": "幽灵名单",
+            "de": "Auf Ghostlist",
+            "fr": "Sur liste fantôme",
+            "ru": "В призрачном списке",
+            "tw": "幽靈名單",
+            "uk": "У примарному списку"
+        }
+    },
+    "tooltips": {
+        "track_compass": {
+            "en": "Track Player",
+            "cn": "追踪玩家",
+            "de": "Spieler verfolgen",
+            "fr": "Pister la joueuse",
+            "ru": "Отслеживать игрока",
+            "tw": "追蹤玩家",
+            "uk": "Відстежувати гравця"
+        },
+        "focus_player": {
+            "en": "Focus Player",
+            "cn": "聚焦玩家",
+            "de": "Spieler fokussieren",
+            "fr": "Cibler le joueur",
+            "ru": "Фокус на игроке",
+            "tw": "聚焦玩家",
+            "uk": "Фокус на гравцеві"
+        },
+        "copy_id": {
+            "en": "Copy Member Number",
+            "cn": "复制会员编号",
+            "de": "Mitgliedsnummer kopieren",
+            "fr": "Copier le numéro de membre",
+            "ru": "Скопировать номер игрока",
+            "tw": "複製會員編號",
+            "uk": "Скопіювати номер гравця"
+        },
+        "view_profile": {
+            "en": "Show Profile",
+            "cn": "查看档案",
+            "de": "Profil anzeigen",
+            "fr": "Voir le profil",
+            "ru": "Посмотреть профиль",
+            "tw": "檢視檔案",
+            "uk": "Переглянути профіль"
+        }
+    }
+}

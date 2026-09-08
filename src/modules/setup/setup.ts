@@ -6,6 +6,7 @@ import { Roster } from "../roster";
 import { Banner } from "../banner";
 
 export class Setup extends CRABS_Base {
+  public static instance: Setup | null = null;
   private crabsLastRoomID: number | null = null;
   private rosterModule: Roster;
   private bannerModule: Banner;
@@ -13,10 +14,16 @@ export class Setup extends CRABS_Base {
 
   constructor(CRABS: ModSDKModAPI, roster: Roster, banner: Banner) {
     super(CRABS);
+    Setup.instance = this;
     this.rosterModule = roster;
     this.bannerModule = banner;
     this.initHooks();
     this.hookNativeExit();
+  }
+
+  // Static helper to redraw banner from anywhere
+  public static redrawBanner(): void {
+    Setup.instance?.drawbanner(true);
   }
 
   private initHooks(): void {
@@ -54,6 +61,17 @@ export class Setup extends CRABS_Base {
       }
       return result;
     });
+
+    // Hook translation event so that we can react to it
+    this.safeHook(
+      "TranslationLoad",
+      10,
+      (args: any, next: (args: any[]) => any) => {
+        const result = next(args);
+        this.drawbanner(true);
+        return result;
+      },
+    );
 
     // Authoritative room entry hook
     this.safeHook("ChatRoomSync", 10, (args, next) => {
@@ -177,13 +195,25 @@ export class Setup extends CRABS_Base {
     }, 200);
   }
 
-  public drawbanner(): boolean {
+  public drawbanner(onlyIfPresent: boolean = false): boolean {
     if (
       typeof ChatRoomData === "undefined" ||
       !ChatRoomData ||
       Object.keys(ChatRoomData).length === 0
     ) {
       return false;
+    }
+
+    const existing = document.getElementById("CRABS_Banner");
+
+    // If we only wanted to refresh an existing banner and none exists, abort
+    if (onlyIfPresent && !existing) {
+      return false;
+    }
+
+    // Clean up previous instance before redrawing
+    if (existing) {
+      existing.remove();
     }
 
     const extraData = {

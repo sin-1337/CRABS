@@ -1,0 +1,33 @@
+{
+  "errors": {
+    "feature_disabled": {
+      "en": "CRABS Feature disabled: {hook} failed.",
+      "cn": "CRABS 功能已禁用：{hook} 失败。",
+      "de": "CRABS-Funktion deaktiviert: {hook} fehlgeschlagen.",
+      "fr": "Fonctionnalité CRABS désactivée : {hook} a échoué.",
+      "ru": "Функция CRABS отключена: {hook} не удалось.",
+      "tw": "CRABS 功能已停用：{hook} 失敗。",
+      "uk": "Функцію CRABS вимкнено: {hook} не вдалося."
+    },
+    "error_title": {
+      "en": "Error",
+      "cn": "错误",
+      "de": "Fehler",
+      "fr": "Erreur",
+      "ru": "Ошибка",
+      "tw": "錯誤",
+      "uk": "Помилка"
+    }
+  },
+  "clipboard": {
+    "copied": {
+      "en": "\"{data}\" copied to clipboard.",
+      "cn": "\"{data}\" 已复制到剪贴板。",
+      "de": "\"{data}\" in die Zwischenablage kopiert.",
+      "fr": "\"{data}\" copié dans le presse-papiers.",
+      "ru": "\"{data}\" скопировано в буфер обмена.",
+      "tw": "\"{data}\" 已複製到剪貼簿。",
+      "uk": "\"{data}\" скопійовано в буфер обміну."
+    }
+  }
+}

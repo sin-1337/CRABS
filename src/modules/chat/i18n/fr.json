@@ -1,7 +1,0 @@
-{
-    "notifications": {
-        "mention_title": "Mentionné !",
-        "mention_body": "{sender} vous a mentionné !",
-        "unknown_sender": "Quelqu'un"
-    }
-}

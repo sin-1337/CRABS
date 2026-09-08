@@ -1,0 +1,1093 @@
+{
+    "tabs": {
+        "general": {
+            "en": "General",
+            "cn": "通用",
+            "de": "Allgemein",
+            "fr": "Général",
+            "ru": "Общие",
+            "tw": "通用",
+            "uk": "Загальні"
+        },
+        "drawer": {
+            "en": "Drawer",
+            "cn": "抽屉",
+            "de": "Schublade",
+            "fr": "Tiroir",
+            "ru": "Выдвижная панель",
+            "tw": "抽屜",
+            "uk": "Панель"
+        },
+        "immersion": {
+            "en": "Immersion",
+            "cn": "沉浸模式",
+            "de": "Immersion",
+            "fr": "Immersion",
+            "ru": "Погружение",
+            "tw": "沉浸模式",
+            "uk": "Занурення"
+        },
+        "maps": {
+            "en": "Maps",
+            "cn": "地图",
+            "de": "Karten",
+            "fr": "Cartes",
+            "ru": "Карты",
+            "tw": "地圖",
+            "uk": "Карти"
+        },
+        "chat": {
+            "en": "Chat",
+            "cn": "聊天",
+            "de": "Chat",
+            "fr": "Chat",
+            "ru": "Чат",
+            "tw": "聊天",
+            "uk": "Чат"
+        },
+        "config": {
+            "en": "Config",
+            "cn": "配置",
+            "de": "Konfiguration",
+            "fr": "Config",
+            "ru": "Конфигурация",
+            "tw": "配置",
+            "uk": "Конфігурація"
+        }
+    },
+    "nav": {
+        "title": {
+            "en": "- CRABS Mod Settings -",
+            "cn": "- CRABS 模组设置 -",
+            "de": "- CRABS Mod Einstellungen -",
+            "fr": "- Paramètres du Mod CRABS -",
+            "ru": "- Настройки CRABS Mod -",
+            "tw": "- CRABS 模組設置 -",
+            "uk": "- Налаштування CRABS Mod -"
+        },
+        "back": {
+            "en": "Back",
+            "cn": "返回",
+            "de": "Zurück",
+            "fr": "Retour",
+            "ru": "Назад",
+            "tw": "返回",
+            "uk": "Назад"
+        },
+        "chat": {
+            "en": "Return to Chat",
+            "cn": "返回聊天",
+            "de": "Zurück zum Chat",
+            "fr": "Retour au Chat",
+            "ru": "Вернуться в чат",
+            "tw": "返回聊天",
+            "uk": "Повернутися до чату"
+        },
+        "no_chat": {
+            "en": "Not in a Chat Room",
+            "cn": "不在聊天室中",
+            "de": "Nicht in einem Chatraum",
+            "fr": "Pas dans un salon de chat",
+            "ru": "Не в комнате чата",
+            "tw": "不在聊天室中",
+            "uk": "Не в кімнаті чату"
+        },
+        "restore_defaults": {
+            "en": "Restore Defaults",
+            "cn": "恢复默认值",
+            "de": "Standardeinstellungen wiederherstellen",
+            "fr": "Restaurer les paramètres par défaut",
+            "ru": "Восстановить значения по умолчанию",
+            "tw": "恢復默認值",
+            "uk": "Відновити за замовчуванням"
+        },
+        "confirm_reset_title": {
+            "en": "Restore Default Settings?",
+            "cn": "恢复默认设置？",
+            "de": "Standardeinstellungen wiederherstellen?",
+            "fr": "Restaurer les paramètres par défaut ?",
+            "ru": "Восстановить настройки по умолчанию?",
+            "tw": "恢復默認設置？",
+            "uk": "Відновити налаштування за замовчуванням?"
+        },
+        "confirm": {
+            "en": "Confirm",
+            "cn": "确认",
+            "de": "Bestätigen",
+            "fr": "Confirmer",
+            "ru": "Подтвердить",
+            "tw": "確認",
+            "uk": "Підтвердити"
+        },
+        "cancel": {
+            "en": "Cancel",
+            "cn": "取消",
+            "de": "Abbrechen",
+            "fr": "Annuler",
+            "ru": "Отмена",
+            "tw": "取消",
+            "uk": "Скасувати"
+        }
+    },
+    "language": {
+        "auto": {
+            "en": "Auto",
+            "cn": "Auto",
+            "de": "Auto",
+            "fr": "Auto",
+            "ru": "Auto",
+            "tw": "Auto",
+            "uk": "Auto"
+        },
+        "en": {
+            "en": "English",
+            "cn": "English",
+            "de": "English",
+            "fr": "English",
+            "ru": "English",
+            "tw": "English",
+            "uk": "English"
+        },
+        "de": {
+            "en": "Deutsch",
+            "cn": "Deutsch",
+            "de": "Deutsch",
+            "fr": "Deutsch",
+            "ru": "Deutsch",
+            "tw": "Deutsch",
+            "uk": "Deutsch"
+        },
+        "fr": {
+            "en": "Français",
+            "cn": "Français",
+            "de": "Français",
+            "fr": "Français",
+            "ru": "Français",
+            "tw": "Français",
+            "uk": "Français"
+        },
+        "ru": {
+            "en": "Русский",
+            "cn": "Русский",
+            "de": "Русский",
+            "fr": "Русский",
+            "ru": "Русский",
+            "tw": "Русский",
+            "uk": "Русский"
+        },
+        "cn": {
+            "en": "中文",
+            "cn": "中文",
+            "de": "中文",
+            "fr": "中文",
+            "ru": "中文",
+            "tw": "中文",
+            "uk": "中文"
+        },
+        "tw": {
+            "en": "繁體中文",
+            "cn": "繁體中文",
+            "de": "繁體中文",
+            "fr": "繁體中文",
+            "ru": "繁體中文",
+            "tw": "繁體中文",
+            "uk": "繁體中文"
+        },
+        "uk": {
+            "en": "Українська",
+            "cn": "Українська",
+            "de": "Українська",
+            "fr": "Українська",
+            "ru": "Українська",
+            "tw": "Українська",
+            "uk": "Українська"
+        }
+    },
+    "general": {
+        "language_label": {
+            "en": "Mod Language",
+            "cn": "模组语言",
+            "de": "Mod-Sprache",
+            "fr": "Langue du Mod",
+            "ru": "Язык мода",
+            "tw": "模組語言",
+            "uk": "Мова мода"
+        },
+        "language_hint": {
+            "en": "Explicitly override CRABS display language or sync automatically with the game.",
+            "cn": "显式覆盖 CRABS 显示语言或与游戏自动同步。",
+            "de": "Überschreibe explizit die CRABS-Anzeigesprache oder synchronisiere sie automatisch mit dem Spiel.",
+            "fr": "Remplace explicitement la langue d'affichage de CRABS ou synchronise automatiquement avec le jeu.",
+            "ru": "Явно переопределите язык отображения CRABS или синхронізируйте его с языком игры.",
+            "tw": "顯式覆蓋 CRABS 顯示語言或與遊戲自動同步。",
+            "uk": "Явно переозначте мову відображення CRABS або синхронізуйте її з мовою гри."
+        },
+        "check_updates_label": {
+            "en": "Notify me about updates",
+            "cn": "通知我更新",
+            "de": "Mich über Updates benachrichtigen",
+            "fr": "Me prévenir des mises à jour",
+            "ru": "Уведомлять об обновлениях",
+            "tw": "通知我更新",
+            "uk": "Сповіщати про оновлення"
+        },
+        "check_updates_hint": {
+            "en": "Periodically check for CRABS updates, and notify me.",
+            "cn": "定期检查 CRABS 更新并通知我。",
+            "de": "Regelmäßig auf CRABS-Updates prüfen und mich benachrichtigen.",
+            "fr": "Vérifier périodiquement les mises à jour de CRABS et me prévenir.",
+            "ru": "Периодически проверять наличие обновлений CRABS и уведомлять меня.",
+            "tw": "定期檢查 CRABS 更新並通知我。",
+            "uk": "Періодично перевіряти наявність оновлень CRABS і сповіщати мене."
+        },
+        "perf_mode_label": {
+            "en": "Performance Mode",
+            "cn": "性能模式",
+            "de": "Leistungsmodus",
+            "fr": "Mode Performance",
+            "ru": "Режим производительности",
+            "tw": "性能模式",
+            "uk": "Режим продуктивності"
+        },
+        "perf_mode_hint": {
+            "en": "Applies performance optimizations to the base game.",
+            "cn": "对基础游戏应用性能优化。",
+            "de": "Wendet Leistungsoptimierungen auf das Basisspiel an.",
+            "fr": "Applique des optimisations de performance au jeu de base.",
+            "ru": "Применяет оптимизацию производительности к базовой игре.",
+            "tw": "對基礎遊戲應用性能優化。",
+            "uk": "Застосовує оптимізацію продуктивності до базової гри."
+        },
+        "banner_label": {
+            "en": "Show Banner on Entry",
+            "cn": "进入时显示横幅",
+            "de": "Banner beim Eintritt anzeigen",
+            "fr": "Afficher la bannière à l'entrée",
+            "ru": "Показывать баннер при входе",
+            "tw": "進入時顯示橫幅",
+            "uk": "Показувати банер при вході"
+        },
+        "banner_hint": {
+            "en": "Display info banner on room join.",
+            "cn": "进入房间时显示信息横幅。",
+            "de": "Zeige Informationsbanner beim Betreten des Raums.",
+            "fr": "Afficher la bannière d'information lors de l'entrée dans la pièce.",
+            "ru": "Показывать информационный баннер при входе в комнату.",
+            "tw": "進入房間時顯示信息橫幅。",
+            "uk": "Показувати інформаційний банер при вході в кімнату."
+        },
+        "privacy_full_label": {
+            "en": "Full-Screen Privacy Mode",
+            "cn": "全屏隐私模式",
+            "de": "Vollbild-Privatmodus",
+            "fr": "Mode Privé Plein Écran",
+            "ru": "Полноэкранный режим приватности",
+            "tw": "全屏隱私模式",
+            "uk": "Повноекранний режим приватності"
+        },
+        "privacy_full_hint": {
+            "en": "If enabled, the Privacy Mode hotkey blanks the entire screen instead of just the left side.",
+            "cn": "如果启用，隐私模式快捷键将清空整个屏幕，而不仅仅是左侧。",
+            "de": "Wenn aktiviert, blendet der Privatmodus-Hotkey den gesamten Bildschirm aus, statt nur die linke Seite.",
+            "fr": "Si activé, le raccourci du Mode Privé vide tout l'écran au lieu de seulement le côté gauche.",
+            "ru": "Если включено, горячая клавиша режима приватности скрывает весь экран, а не только левую часть.",
+            "tw": "如果啟用，隱私模式快捷鍵將清空整個屏幕，而不僅僅是左側。",
+            "uk": "Якщо увімкнено, гаряча клавіша режиму приватності приховує весь екран, а не лише ліву частину."
+        },
+        "halo_label": {
+            "en": "Enable Focus Halo",
+            "cn": "启用焦点光环",
+            "de": "Fokus-Halo aktivieren",
+            "fr": "Activer le Halo de Focus",
+            "ru": "Включить ореол фокуса",
+            "tw": "啟用焦點光環",
+            "uk": "Увімкнути ореол фокусу"
+        },
+        "halo_hint": {
+            "en": "Show a pulsing halo effect on character avatars when you mouse over them in the roster or chat.",
+            "cn": "在列表或聊天中鼠标悬停在角色头像上时，显示脉冲光环效果。",
+            "de": "Zeige einen pulsierenden Halo-Effekt auf Charakter-Avataren, wenn du mit der Maus in der Roster oder im Chat darüber fährst.",
+            "fr": "Afficher un effet de halo pulsé sur les avatars des personnages lorsque vous passez votre souris dessus dans le roster ou le chat.",
+            "ru": "Показывать пульсирующий ореол на аватарах персонажей при наведении мыши в списке или чате.",
+            "tw": "在列表或聊天中滑鼠懸停在角色頭像上時，顯示脈衝光環效果。",
+            "uk": "Показувати пульсуючий ореол на аватарах персонажів при наведенні миші у списку або чаті."
+        },
+        "edit_keybinds_label": {
+            "en": "Edit Keybinds",
+            "cn": "编辑快捷键",
+            "de": "Tastenbelegungen bearbeiten",
+            "fr": "Modifier les Raccourcis",
+            "ru": "Редактировать горячие клавиши",
+            "tw": "編輯快捷鍵",
+            "uk": "Редагувати гарячі клавіші"
+        },
+        "edit_keybinds_hint": {
+            "en": "Open the game's Keybindings menu to change the Privacy Mode and Drawer hotkeys.",
+            "cn": "打开游戏快捷键菜单以更改隐私模式和抽屉快捷键。",
+            "de": "Öffne das Tastenbelegungsmenü des Spiels, um die Hotkeys für Privatmodus und Schublade zu ändern.",
+            "fr": "Ouvrir le menu des raccourcis du jeu pour changer les raccourcis du Mode Privé et du Tiroir.",
+            "ru": "Открыть меню горячих клавиш игры, чтобы изменить клавиши для режима приватности и панели.",
+            "tw": "打開遊戲快捷鍵菜單以更改隱私模式和抽屜快捷鍵。",
+            "uk": "Відкрити меню гарячих клавіш гри, щоб змінити клавіші для режиму приватності та панелі."
+        },
+        "drawer_toggle_bind": {
+            "en": "Crabs drawer toggle: {bind}",
+            "cn": "Crabs 抽屉切换: {bind}",
+            "de": "Crabs Schublade umschalten: {bind}",
+            "fr": "Basculer le tiroir Crabs : {bind}",
+            "ru": "Переключение панели Crabs: {bind}",
+            "tw": "Crabs 抽屜切換: {bind}",
+            "uk": "Перемикання панелі Crabs: {bind}"
+        },
+        "privacy_toggle_bind": {
+            "en": "Privacy mode: {bind}",
+            "cn": "隐私模式: {bind}",
+            "de": "Privatmodus: {bind}",
+            "fr": "Mode privé : {bind}",
+            "ru": "Режим приватности: {bind}",
+            "tw": "隱私模式: {bind}",
+            "uk": "Режим приватності: {bind}"
+        },
+        "privacy_half_bind": {
+            "en": "Privacy (Half): {bind}",
+            "cn": "隐私模式 (半屏): {bind}",
+            "de": "Privatsphäre (Halb): {bind}",
+            "fr": "Confidentialité (Moitié) : {bind}",
+            "ru": "Приватность (половина): {bind}",
+            "tw": "隱私模式 (半螢幕): {bind}",
+            "uk": "Приватність (половина): {bind}"
+        },
+        "privacy_full_bind": {
+            "en": "Privacy (Full): {bind}",
+            "cn": "隐私模式 (全屏): {bind}",
+            "de": "Privatsphäre (Voll): {bind}",
+            "fr": "Confidentialité (Plein écran) : {bind}",
+            "ru": "Приватность (полный экран): {bind}",
+            "tw": "隱私模式 (全螢幕): {bind}",
+            "uk": "Приватність (повний екран): {bind}"
+        },
+        "unbound": {
+            "en": "Unbound",
+            "cn": "未绑定",
+            "de": "Nicht belegt",
+            "fr": "Non lié",
+            "ru": "Не назначено",
+            "tw": "未綁定",
+            "uk": "Не призначено"
+        }
+    },
+    "drawer": {
+        "enable_label": {
+            "en": "Enable Drawer UI",
+            "cn": "启用抽屉 UI",
+            "de": "Schubladen-UI aktivieren",
+            "fr": "Activer l'UI du Tiroir",
+            "ru": "Включить интерфейс панели",
+            "tw": "啟用抽屜 UI",
+            "uk": "Увімкнути інтерфейс панелі"
+        },
+        "enable_hint": {
+            "en": "Enable the sliding drawer interface on the edge of the screen.",
+            "cn": "在屏幕边缘启用滑动抽屉界面。",
+            "de": "Aktiviere die gleitende Schubladenschnittstelle am Bildschirmrand.",
+            "fr": "Activer l'interface du tiroir coulissant sur le bord de l'écran.",
+            "ru": "Включить выдвигающуюся панель на краю экрана.",
+            "tw": "在屏幕邊緣啟用滑動抽屜界面。",
+            "uk": "Увімкнути висувну панель на краю екрана."
+        },
+        "roster_cmd_label": {
+            "en": "/roster toggles drawer",
+            "cn": "/roster 切换抽屉",
+            "de": "/roster schaltet Schublade um",
+            "fr": "/roster bascule le tiroir",
+            "ru": "/roster переключает панель",
+            "tw": "/roster 切換抽屜",
+            "uk": "/roster перемикає панель"
+        },
+        "roster_cmd_hint": {
+            "en": "Toggle drawer via /roster or /crabs commands.",
+            "cn": "通过 /roster 或 /crabs 命令切换抽屉。",
+            "de": "Schublade über /roster- oder /crabs-Befehle umschalten.",
+            "fr": "Basculer le tiroir via les commandes /roster ou /crabs.",
+            "ru": "Переключать панель командами /roster или /crabs.",
+            "tw": "通過 /roster 或 /crabs 命令切換抽屜。",
+            "uk": "Перемикати панель командами /roster або /crabs."
+        },
+        "tab_label": {
+            "en": "Show Drawer Tab",
+            "cn": "显示抽屉标签",
+            "de": "Schubladen-Tab anzeigen",
+            "fr": "Afficher l'onglet du Tiroir",
+            "ru": "Показывать вкладку панели",
+            "tw": "顯示抽屜標籤",
+            "uk": "Показувати вкладку панелі"
+        },
+        "tab_hint": {
+            "en": "Display the CRABS drawer tab on the edge of the screen.",
+            "cn": "在屏幕边缘显示 CRABS 抽屉标签。",
+            "de": "Zeige den CRABS-Schubladen-Tab am Bildschirmrand.",
+            "fr": "Afficher l'onglet du tiroir CRABS sur le bord de l'écran.",
+            "ru": "Отображать вкладку панели CRABS на краю экрана.",
+            "tw": "在屏幕邊緣顯示 CRABS 抽屜標籤。",
+            "uk": "Відображати вкладку панелі CRABS на краю екрана."
+        },
+        "animated_logo_label": {
+            "en": "Animated Tab Logo",
+            "cn": "动画标签 Logo",
+            "de": "Animiertes Tab-Logo",
+            "fr": "Logo de l'onglet animé",
+            "ru": "Анимированный логотип вкладки",
+            "tw": "動畫標籤 Logo",
+            "uk": "Анімований логотип вкладки"
+        },
+        "animated_logo_hint": {
+            "en": "Use the animated logo when performance is optimal.",
+            "cn": "在性能最佳时使用动画 Logo。",
+            "de": "Verwende das animierte Logo, wenn die Leistung optimal ist.",
+            "fr": "Utiliser le logo animé lorsque la performance est optimale.",
+            "ru": "Использовать анимированный логотип, если производительность оптимальна.",
+            "tw": "在性能最佳時使用動畫 Logo。",
+            "uk": "Використовувати анімований логотип, якщо продуктивність оптимальна."
+        },
+        "compact_label": {
+            "en": "Compact Height",
+            "cn": "紧凑高度",
+            "de": "Kompakte Höhe",
+            "fr": "Hauteur compacte",
+            "ru": "Компактная высота",
+            "tw": "緊湊高度",
+            "uk": "Компактная висота"
+        },
+        "compact_hint": {
+            "en": "Drawer has a 77% height limit.",
+            "cn": "抽屉有 77% 的高度限制。",
+            "de": "Die Schublade hat eine Höhenbegrenzung von 77%.",
+            "fr": "Le tiroir a une limite de hauteur de 77%.",
+            "ru": "Панель ограничена по высоте 77%.",
+            "tw": "抽屜有 77% 的高度限制。",
+            "uk": "Панель обмежена по висоті 77%."
+        },
+        "close_whisper_label": {
+            "en": "Auto-stow on Whisper+",
+            "cn": "Whisper+ 后自动收起",
+            "de": "Auto-Verstauen bei Whisper+",
+            "fr": "Auto-rangement sur Whisper+",
+            "ru": "Авто-скрытие при Whisper+",
+            "tw": "Whisper+ 後自動收起",
+            "uk": "Авто-приховування при Whisper+"
+        },
+        "close_whisper_hint": {
+            "en": "Close drawer after sending a whisper+ message.",
+            "cn": "发送 whisper+ 消息后关闭抽屉。",
+            "de": "Schublade schließen, nachdem eine Whisper+-Nachricht gesendet wurde.",
+            "fr": "Fermer le tiroir après l'envoi d'un message whisper+.",
+            "ru": "Закрыть панель после отправки сообщения whisper+.",
+            "tw": "發送 whisper+ 消息後關閉抽屜。",
+            "uk": "Закрити панель після надсилання повідомлення whisper+."
+        },
+        "close_chat_label": {
+            "en": "Auto-stow on Chat",
+            "cn": "聊天后自动收起",
+            "de": "Auto-Verstauen bei Chat",
+            "fr": "Auto-rangement sur Chat",
+            "ru": "Авто-скрытие при чате",
+            "tw": "聊天後自動收起",
+            "uk": "Авто-приховування при чаті"
+        },
+        "close_chat_hint": {
+            "en": "Close drawer after sending a message.",
+            "cn": "发送消息后关闭抽屉。",
+            "de": "Schublade schließen, nachdem eine Nachricht gesendet wurde.",
+            "fr": "Fermer le tiroir après l'envoi d'un message.",
+            "ru": "Закрыть панель после отправки сообщения.",
+            "tw": "發送消息後關閉抽屜。",
+            "uk": "Закрити панель після надсилання повідомлення."
+        },
+        "focus_hover_label": {
+            "en": "Focus follows mouse",
+            "cn": "焦点跟随鼠标",
+            "de": "Fokus folgt Maus",
+            "fr": "Le focus suit la souris",
+            "ru": "Фокус следует за мышью",
+            "tw": "焦點跟隨滑鼠",
+            "uk": "Фокус слідує за мишею"
+        },
+        "focus_hover_hint": {
+            "en": "When you mouse over a player's card, change the page they are on.",
+            "cn": "当鼠标悬停在玩家卡片上时，更改他们所在的页面。",
+            "de": "Wenn du mit der Maus über die Karte eines Spielers fährst, ändere die Seite, auf der sie sich befinden.",
+            "fr": "Lorsque vous passez votre souris sur la carte d'un joueur, changez la page où il se trouve.",
+            "ru": "При наведении мыши на карточку игрока изменить страницу, на которой он находится.",
+            "tw": "當滑鼠懸停在玩家卡片上時，更改他們所在的頁面。",
+            "uk": "При наведенні миші на картку гравця змінити сторінку, на якій він знаходиться."
+        },
+        "auto_scroll_label": {
+            "en": "Auto-Scroll drawer",
+            "cn": "自动滚动抽屉",
+            "de": "Schublade automatisch scrollen",
+            "fr": "Auto-défilement du tiroir",
+            "ru": "Авто-прокрутка панели",
+            "tw": "自動滾動抽屜",
+            "uk": "Авто-прокрутка панелі"
+        },
+        "auto_scroll_hint": {
+            "en": "Automatically scroll the drawer roster to the character matching the avatar your mouse is over.",
+            "cn": "自动将抽屉列表滚动到与鼠标悬停的头像相对应的角色。",
+            "de": "Scrolle die Schubladen-Roster automatisch zu dem Charakter, der dem Avatar entspricht, über dem sich deine Maus befindet.",
+            "fr": "Défiler automatiquement le roster du tiroir vers le personnage correspondant à l'avatar sur lequel se trouve votre souris.",
+            "ru": "Автоматически прокручивать список панели к персонажу, соответствующему аватару под вашей мышью.",
+            "tw": "自動將抽屜列表滾動到與滑鼠懸停的頭像相對應的角色。",
+            "uk": "Автоматично прокручувати список панелі до персонажа, що відповідає аватару під вашою мишею."
+        }
+    },
+    "immersion": {
+        "lock_label": {
+            "en": "Hardcore Lock",
+            "cn": "硬核锁定",
+            "de": "Hardcore-Sperre",
+            "fr": "Verrouillage Hardcore",
+            "ru": "Хардкорная блокировка",
+            "tw": "硬核鎖定",
+            "uk": "Хардкорне блокування"
+        },
+        "lock_hint": {
+            "en": "Locks settings ON while bound.",
+            "cn": "绑定时将设置锁定为开启。",
+            "de": "Sperrt Einstellungen EIN, während gebunden.",
+            "fr": "Verrouille les paramètres sur ON pendant qu'ils sont liés.",
+            "ru": "Блокирует настройки во включенном состоянии при привязке.",
+            "tw": "綁定時將設置鎖定為開啟。",
+            "uk": "Блокує налаштування у ввімкненому стані при прив'язці."
+        },
+        "blind_label": {
+            "en": "Respect Blindness",
+            "cn": "尊重失明",
+            "de": "Blindheit respektieren",
+            "fr": "Respecter la Cécité",
+            "ru": "Уважать слепоту",
+            "tw": "尊重失明",
+            "uk": "Поважати сліпоту"
+        },
+        "blind_hint": {
+            "en": "Blurred roster when blind.",
+            "cn": "失明时列表模糊。",
+            "de": "Verschwommene Roster bei Blindheit.",
+            "fr": "Roster flou lorsque aveugle.",
+            "ru": "Размытый список при слепоте.",
+            "tw": "失明時列表模糊。",
+            "uk": "Розмитий список при сліпоті."
+        },
+        "gag_label": {
+            "en": "Respect Gags",
+            "cn": "尊重口塞",
+            "de": "Knebel respektieren",
+            "fr": "Respecter les Bâillons",
+            "ru": "Уважать кляпы",
+            "tw": "尊重口塞",
+            "uk": "Поважати кляпи"
+        },
+        "gag_hint": {
+            "en": "No Whisper+ when gagged.",
+            "cn": "口塞时无 Whisper+。",
+            "de": "Kein Whisper+, wenn geknebelt.",
+            "fr": "Pas de Whisper+ si bâillonné.",
+            "ru": "Нет Whisper+, если есть кляп.",
+            "tw": "口塞時無 Whisper+。",
+            "uk": "Немає Whisper+, якщо є кляп."
+        },
+        "bcx_label": {
+            "en": "Respect BCX Rules",
+            "cn": "尊重 BCX 规则",
+            "de": "BCX-Regeln respektieren",
+            "fr": "Respecter les règles BCX",
+            "ru": "Уважать правила BCX",
+            "tw": "尊重 BCX 規則",
+            "uk": "Поважати правила BCX"
+        },
+        "bcx_hint": {
+            "en": "BCX integration.",
+            "cn": "BCX 集成。",
+            "de": "BCX-Integration.",
+            "fr": "Intégration BCX.",
+            "ru": "Интеграция с BCX.",
+            "tw": "BCX 集成。",
+            "uk": "Інтеграція з BCX."
+        }
+    },
+    "maps": {
+        "compass_label": {
+            "en": "Show Map Compass",
+            "cn": "显示地图指南针",
+            "de": "Kartenkompass anzeigen",
+            "fr": "Afficher la boussole de carte",
+            "ru": "Показывать компас карты",
+            "tw": "顯示地圖指南針",
+            "uk": "Показувати компас карти"
+        },
+        "compass_hint": {
+            "en": "Show a directional arrow on map.",
+            "cn": "在地图上显示方向箭头。",
+            "de": "Zeige einen Richtungspfeil auf der Karte.",
+            "fr": "Afficher une flèche directionnelle sur la carte.",
+            "ru": "Показывать стрелку направления на карте.",
+            "tw": "在地圖上顯示方向箭頭。",
+            "uk": "Показувати стрілку напрямку на карті."
+        },
+        "superzoom_label": {
+            "en": "SuperZoom",
+            "cn": "超级缩放",
+            "de": "SuperZoom",
+            "fr": "SuperZoom",
+            "ru": "Суперзум",
+            "tw": "超級縮放",
+            "uk": "Суперзум"
+        },
+        "superzoom_hint": {
+            "en": "Unlock map zoom limits.",
+            "cn": "解锁地图缩放限制。",
+            "de": "Schalte Karten-Zoom-Limits frei.",
+            "fr": "Déverrouiller les limites de zoom de la carte.",
+            "ru": "Разблокировать лимиты масштабирования карты.",
+            "tw": "解鎖地圖縮放限制。",
+            "uk": "Розблокувати ліміти масштабування карти."
+        }
+    },
+    "chat": {
+        "mentions_label": {
+            "en": "Highlight Mentions",
+            "cn": "高亮提及",
+            "de": "Erwähnungen hervorheben",
+            "fr": "Mettre en surbrillance les mentions",
+            "ru": "Подсвечивать упоминания",
+            "tw": "高亮提及",
+            "uk": "Підсвічувати згадки"
+        },
+        "mentions_hint": {
+            "en": "Highlights chat messages containing your name or nickname.",
+            "cn": "高亮包含您的姓名或昵称的聊天消息。",
+            "de": "Hebt Chatnachrichten hervor, die deinen Namen oder Spitznamen enthalten.",
+            "fr": "Met en surbrillance les messages de chat contenant votre nom ou surnom.",
+            "ru": "Подсвечивать сообщения в чате, содержащие ваше имя или никнейм.",
+            "tw": "高亮包含您的姓名或暱稱的聊天消息。",
+            "uk": "Підсвічувати повідомлення в чаті, що містять ваше ім'я або нікнейм."
+        },
+        "notifications_label": {
+            "en": "Desktop Notifications",
+            "cn": "桌面通知",
+            "de": "Desktop-Benachrichtigungen",
+            "fr": "Notifications Bureau",
+            "ru": "Уведомления на рабочем столе",
+            "tw": "桌面通知",
+            "uk": "Сповіщення на робочому столі"
+        },
+        "notifications_hint": {
+            "en": "Get an OS alert when mentioned (only triggers if the game is tabbed out or minimized).",
+            "cn": "被提及并获得 OS 提醒（仅当游戏处于标签页外或最小化时触发）。",
+            "de": "Erhalte eine OS-Warnung bei Erwähnung (löst nur aus, wenn das Spiel minimiert ist oder in einem anderen Tab läuft).",
+            "fr": "Recevoir une alerte OS en cas de mention (ne se déclenche que si le jeu est en arrière-plan ou réduit).",
+            "ru": "Получать системное уведомление при упоминании (срабатывает только если игра свернута или неактивна).",
+            "tw": "被提及並獲得 OS 提醒（僅當遊戲處於標籤頁外或最小化時觸發）。",
+            "uk": "Отримувати системне сповіщення при згадці (спрацьовує тільки якщо гра згорнута або неактивна)."
+        },
+        "caps_label": {
+            "en": "Auto-Capitalize My Name",
+            "cn": "自动大写我的名字",
+            "de": "Meinen Namen automatisch großschreiben",
+            "fr": "Auto-Capitaliser mon nom",
+            "ru": "Авто-заглавные для моего имени",
+            "tw": "自動大寫我的名字",
+            "uk": "Авто-заголовні для мого імені"
+        },
+        "caps_hint": {
+            "en": "Forces the first letter of your name(s) to be capitalized when highlighted.",
+            "cn": "高亮显示时强制将您的姓名首字母大写。",
+            "de": "Erzwingt, dass der erste Buchstabe deines Namens/deiner Namen großgeschrieben wird, wenn hervorgehoben.",
+            "fr": "Force la première lettre de votre nom à être capitalisée lorsqu'elle est mise en surbrillance.",
+            "ru": "Принудительно делает первую букву вашего имени заглавной при подсветке.",
+            "tw": "高亮顯示時強制將您的姓名首字母大寫。",
+            "uk": "Примусово робить першу літеру вашого імені заголовною при підсвічуванні."
+        },
+        "color_match_label": {
+            "en": "Inline Name Coloring",
+            "cn": "内联姓名着色",
+            "de": "Inline-Namensfärbung",
+            "fr": "Coloration du nom en ligne",
+            "ru": "Цвет имени в строке",
+            "tw": "內聯姓名著色",
+            "uk": "Колір імені в рядку"
+        },
+        "color_match_hint": {
+            "en": "Colors your name in highlighted messages to match your character's actual label color.",
+            "cn": "在被高亮的消息中将您的姓名着色，以匹配您角色实际的标签颜色。",
+            "de": "Färbt deinen Namen in hervorgehobenen Nachrichten passend zur tatsächlichen Label-Farbe deines Charakters.",
+            "fr": "Colore votre nom dans les messages mis en surbrillance pour correspondre à la couleur réelle du label de votre personnage.",
+            "ru": "Раскрашивает ваше имя в подсвеченных сообщениях в соответствии с реальным цветом ярлыка вашего персонажа.",
+            "tw": "在被高亮的消息中將您的姓名著色，以匹配您角色實際的標籤顏色。",
+            "uk": "Розфарбовує ваше ім'я у підсвічених повідомленнях відповідно до реального кольору ярлика вашого персонажа."
+        },
+        "custom_words_label": {
+            "en": "Custom Words",
+            "cn": "自定义词汇",
+            "de": "Benutzerdefinierte Wörter",
+            "fr": "Mots personnalisés",
+            "ru": "Пользовательские слова",
+            "tw": "自定義詞彙",
+            "uk": "Користувацькі слова"
+        },
+        "custom_words_hint": {
+            "en": "Comma-separated list of extra words to trigger highlights.",
+            "cn": "用于触发高亮的额外词汇列表（逗号分隔）。",
+            "de": "Kommagetrennte Liste zusätzlicher Wörter, um Hervorhebungen auszulösen.",
+            "fr": "Liste séparée par des virgules de mots supplémentaires pour déclencher les surbrillances.",
+            "ru": "Список дополнительных слов через запятую для запуска подсветки.",
+            "tw": "用於觸發高亮的額外詞彙列表（逗號分隔）。",
+            "uk": "Список додаткових слів через кому для запуску підсвічування."
+        },
+        "ignore_phrases_label": {
+            "en": "Exclusion Phrases",
+            "cn": "排除短语",
+            "de": "Ausschlussphrasen",
+            "fr": "Phrases d'exclusion",
+            "ru": "Фразы исключения",
+            "tw": "排除短語",
+            "uk": "Фрази виключення"
+        },
+        "ignore_phrases_hint": {
+            "en": "One phrase per line. Use * as a wildcard (e.g., 'pick* a rose').",
+            "cn": "每行一个短语。使用 * 作为通配符（例如 'pick* a rose'）。",
+            "de": "Eine Phrase pro Zeile. Verwende * als Platzhalter (z.B. 'pflück* eine rose').",
+            "fr": "Une phrase par ligne. Utilisez * comme joker (ex: 'cueillir* une rose').",
+            "ru": "Одна фраза на строку. Используйте * как маску (напр., 'сорвать* розу').",
+            "tw": "每行一個短語。使用 * 作為通配符（例如 'pick* a rose'）。",
+            "uk": "Одна фраза на рядок. Використовуйте * як маску (напр., 'зірвати* троянду')."
+        },
+        "highlight_color_label": {
+            "en": "Highlight Color",
+            "cn": "高亮颜色",
+            "de": "Hervorhebungsfarbe",
+            "fr": "Couleur de surbrillance",
+            "ru": "Цвет подсветки",
+            "tw": "高亮顏色",
+            "uk": "Колір підсвічування"
+        },
+        "highlight_color_hint": {
+            "en": "Pick a custom color for chat highlights.",
+            "cn": "为聊天高亮选择自定义颜色。",
+            "de": "Wähle eine benutzerdefinierte Farbe für Chathervorhebungen.",
+            "fr": "Choisir une couleur personnalisée pour les surbrillances du chat.",
+            "ru": "Выберите пользовательский цвет для подсветки в чате.",
+            "tw": "為聊天高亮選擇自定義顏色。",
+            "uk": "Виберіть користувацький колір для підсвічування в чаті."
+        },
+        "auto_beep_label": {
+            "en": "Whisper+ Autoelevate to Beep",
+            "cn": "Whisper+ 自动提升为提示音",
+            "de": "Whisper+ Autoelevate zu Beep",
+            "fr": "Auto-élévation Whisper+ vers Beep",
+            "ru": "Whisper+ Авто-повышение до Beep",
+            "tw": "Whisper+ 自動提升為提示音",
+            "uk": "Whisper+ Авто-підвищення до Beep"
+        },
+        "auto_beep_hint": {
+            "en": "Attempt to send Whisper+ as a beep if a friend leaves the room before you hit send.",
+            "cn": "如果朋友在您发送之前离开房间，尝试将 Whisper+ 作为提示音发送。",
+            "de": "Versuche, Whisper+ als Beep zu senden, wenn ein Freund den Raum verlässt, bevor du auf Senden drückst.",
+            "fr": "Tenter d'envoyer Whisper+ comme un beep si un ami quitte la pièce avant que vous ne cliquiez sur envoyer.",
+            "ru": "Попытаться отправить Whisper+ как Beep, если друг вышел из комнаты до нажатия вами кнопки отправить.",
+            "tw": "如果朋友在您發送之前離開房間，嘗試將 Whisper+ 作為提示音發送。",
+            "uk": "Спробувати надіслати Whisper+ як Beep, якщо друг вийшов з кімнати до натискання вами кнопки відправити."
+        },
+        "whisper_plus_always_on_label": {
+            "en": "Always Use Whisper+",
+            "cn": "始终使用 Whisper+",
+            "de": "Immer Whisper+ verwenden",
+            "fr": "Toujours utiliser Whisper+",
+            "ru": "Всегда использовать Whisper+",
+            "tw": "始終使用 Whisper+",
+            "uk": "Завжди використовувати Whisper+"
+        },
+        "whisper_plus_always_on_hint": {
+            "en": "Automatically upgrades standard /whisper commands and quick replies to Whisper+.",
+            "cn": "自动将标准 /whisper 命令和快速回复升级为 Whisper+。",
+            "de": "Rüstet Standard-/whisper-Befehle und Schnellantworten automatisch auf Whisper+ auf.",
+            "fr": "Améliore automatiquement les commandes /whisper standard et les réponses rapides en Whisper+.",
+            "ru": "Автоматически улучшает стандартные команды /whisper и быстрые ответы до Whisper+.",
+            "tw": "自動將標準 /whisper 命令和快速回覆升級為 Whisper+。",
+            "uk": "Автоматично покращує стандартні команди /whisper та швидкі відповіді до Whisper+."
+        },
+        "auto_beep_regular_whisper_label": {
+            "en": "Auto Beep on Regular Whispers",
+            "cn": "常规 Whisper 自动转提示音",
+            "de": "Auto-Beep bei regulären Whispers",
+            "fr": "Auto-Beep sur Whispers normaux",
+            "ru": "Авто-Beep для обычных Whisper",
+            "tw": "一般 Whisper 自動轉提示音",
+            "uk": "Авто-Beep для звичайних Whisper"
+        },
+        "auto_beep_regular_whisper_hint": {
+            "en": "Allows standard /whisper commands to automatically send as an account beep if a friend leaves the room.",
+            "cn": "如果朋友离开房间，允许标准 /whisper 命令自动作为账号提示音发送。",
+            "de": "Erlaubt es, dass Standard-/whisper-Befehle automatisch als Account-Beep gesendet werden, wenn ein Freund den Raum verlässt.",
+            "fr": "Permet aux commandes /whisper standard d'être envoyées automatiquement sous forme de beep si un ami quitte la pièce.",
+            "ru": "Позволяет стандартным командам /whisper автоматически отправляться как Beep аккаунта, если друг выходит из комнаты.",
+            "tw": "如果朋友離開房間，允許標準 /whisper 命令自動作為帳號提示音發送。",
+            "uk": "Дозволяє стандартним командам /whisper автоматично надсилатися як Beep акаунта, якщо друг виходить з кімнати."
+        },
+        "hover_links_label": {
+            "en": "Chat Log Hover Links",
+            "cn": "聊天记录悬停链接",
+            "de": "Chat-Log-Hover-Links",
+            "fr": "Liens au survol du log de chat",
+            "ru": "Ссылки при наведении в логе чата",
+            "tw": "聊天記錄懸停鏈接",
+            "uk": "Посилання при наведенні в лозі чату"
+        },
+        "hover_links_hint": {
+            "en": "Mousing over names in the chat log triggers the roster focus halo and map compass.",
+            "cn": "在聊天记录中鼠标悬停在姓名上会触发列表焦点光环和地图指南针。",
+            "de": "Das Bewegen der Maus über Namen im Chat-Log löst den Roster-Fokus-Halo und den Kartenkompass aus.",
+            "fr": "Passer la souris sur les noms dans le log de chat déclenche le halo de focus du roster et la boussole de carte.",
+            "ru": "Наведение мыши на имена в логе чата активирует ореол фокусу и компас карты.",
+            "tw": "在聊天記錄中滑鼠懸停在姓名上會觸發列表焦點光環和地圖指南針。",
+            "uk": "Наведення миші на імена в лозі чату активує ореол фокусу та компас карти."
+        },
+        "normalize_font_label": {
+            "en": "Normalize Font on Hover",
+            "cn": "悬停时规范化字体",
+            "de": "Schrift bei Hover normalisieren",
+            "fr": "Normaliser la police au survol",
+            "ru": "Нормализовать шрифт при наведении",
+            "tw": "懸停時規範化字體",
+            "uk": "Нормалізувати шрифт при наведенні"
+        },
+        "normalize_font_hint": {
+            "en": "Temporarily converts fancy/styled Unicode fonts in chat messages to standard text while hovering over them.",
+            "cn": "鼠标悬停在聊天消息上时，暂时将花哨/风格化的 Unicode 字体转换为标准文本。",
+            "de": "Konvertiert vorübergehend ausgefallene/gestylte Unicode-Schriften in Chatnachrichten zu Standardtext, während du mit der Maus darüberfährst.",
+            "fr": "Convertit temporairement les polices Unicode fantaisistes/stylisées dans les messages de chat en texte standard lorsque vous passez la souris dessus.",
+            "ru": "Временно преобразует необычные/стилизованные шрифты Unicode в сообщениях чата в обычный текст при наведении на них мыши.",
+            "tw": "滑鼠懸停在聊天消息上時，暫時將花哨/風格化的 Unicode 字體轉換為標準文本。",
+            "uk": "Тимчасово перетворює незвичні/стилізовані шрифти Unicode у повідомленнях чату на звичайний текст при наведенні на них миші."
+        }
+    },
+    "config": {
+        "local_only_label": {
+            "en": "Disable Cloud Sync",
+            "cn": "禁用云同步",
+            "de": "Cloud-Synchronisierung deaktivieren",
+            "fr": "Désactiver la synchro Cloud",
+            "ru": "Отключить облачную синхронизацию",
+            "tw": "禁用雲同步",
+            "uk": "Вимкнути хмарну синхронізацію"
+        },
+        "local_only_hint": {
+            "en": "If checked, settings are only saved to this browser and will not sync across your devices.",
+            "cn": "如果勾选，设置仅保存在此浏览器中，不会跨设备同步。",
+            "de": "Wenn aktiviert, werden Einstellungen nur in diesem Browser gespeichert und nicht über deine Geräte hinweg synchronisiert.",
+            "fr": "Si coché, les paramètres ne sont sauvegardés que sur ce navigateur et ne seront pas synchronisés sur vos appareils.",
+            "ru": "Если включено, настройки сохраняются только в этом браузере и не будут синхронизироваться между вашими устройствами.",
+            "tw": "如果勾選，設置僅保存在此瀏覽器中，不會跨設備同步。",
+            "uk": "Якщо ввімкнено, налаштування зберігаються тільки в цьому браузері і не будуть синхронізуватися між вашими пристроями."
+        },
+        "cloud_disabled": {
+            "en": "Cloud Storage: Disabled (Local Only)",
+            "cn": "云存储: 已禁用 (仅限本地)",
+            "de": "Cloud-Speicher: Deaktiviert (Nur lokal)",
+            "fr": "Stockage Cloud : Désactivé (Local uniquement)",
+            "ru": "Облачное хранилище: Отключено (Только локально)",
+            "tw": "雲存儲: 已禁用 (僅限本地)",
+            "uk": "Хмарне сховище: Вимкнено (Тільки локально)"
+        },
+        "cloud_status": {
+            "en": "Cloud Storage: {size} / {limit} bytes [{percent}%] {status}",
+            "cn": "云存储: {size} / {limit} 字节 [{percent}%] {status}",
+            "de": "Cloud-Speicher: {size} / {limit} Bytes [{percent}%] {status}",
+            "fr": "Stockage Cloud : {size} / {limit} octets [{percent}%] {status}",
+            "ru": "Облачное хранилище: {size} / {limit} байт [{percent}%] {status}",
+            "tw": "雲存儲: {size} / {limit} 字節 [{percent}%] {status}",
+            "uk": "Хмарне сховище: {size} / {limit} байт [{percent}%] {status}"
+        },
+        "status_truncate": {
+            "en": "🔴 (Will truncate on save)",
+            "cn": "🔴 (保存时将截断)",
+            "de": "🔴 (Wird beim Speichern gekürzt)",
+            "fr": "🔴 (Sera tronqué lors de la sauvegarde)",
+            "ru": "🔴 (Будет усечено при сохранении)",
+            "tw": "🔴 (保存時將截斷)",
+            "uk": "🔴 (Буде урізано при збереженні)"
+        },
+        "status_nearing": {
+            "en": "🟡 (Nearing capacity)",
+            "cn": "🟡 (接近容量)",
+            "de": "🟡 (Kapazität fast erreicht)",
+            "fr": "🟡 (Capacité presque atteinte)",
+            "ru": "🟡 (Почти достигнут лимит)",
+            "tw": "🟡 (接近容量)",
+            "uk": "🟡 (Майже досягнуто ліміт)"
+        },
+        "cloud_hint": {
+            "en": "Shows how much server allowance is used. Exceeding this will truncate new items from the server sync.",
+            "cn": "显示服务器余量使用了多少。超过此值将导致服务器同步中截断新项目。",
+            "de": "Zeigt, wie viel des Serverkontingents genutzt wird. Das Überschreiten führt dazu, dass neue Elemente von der Serversynchronisierung abgeschnitten werden.",
+            "fr": "Montre combien de l'allocation serveur est utilisée. Dépasser cela tronquera les nouveaux éléments de la synchronisation serveur.",
+            "ru": "Показывает, сколько места на сервере используется. Превышение приведет к усечению новых элементов при синхронизации.",
+            "tw": "顯示伺服器餘量使用了多少。超過此值將導致伺服器同步中截斷新項目。",
+            "uk": "Показує, скільки місця на сервері використовується. Перевищення призведе до урізання нових елементів при синхронізації."
+        },
+        "delete_server_label": {
+            "en": "Delete Server Save",
+            "cn": "删除服务器保存",
+            "de": "Server-Speicherstand löschen",
+            "fr": "Supprimer la sauvegarde serveur",
+            "ru": "Удалить сохранение на сервере",
+            "tw": "刪除伺服器保存",
+            "uk": "Видалити збереження на сервері"
+        },
+        "delete_server_hint": {
+            "en": "Wipes your CRABS settings from the game server.",
+            "cn": "从游戏服务器清除您的 CRABS 设置。",
+            "de": "Löscht deine CRABS-Einstellungen vom Spieleserver.",
+            "fr": "Efface vos paramètres CRABS du serveur de jeu.",
+            "ru": "Стирает ваши настройки CRABS с сервера игры.",
+            "tw": "從遊戲伺服器清除您的 CRABS 設置。",
+            "uk": "Стирає ваші налаштування CRABS з сервера гри."
+        },
+        "export_label": {
+            "en": "Export to Clipboard",
+            "cn": "导出到剪贴板",
+            "de": "In die Zwischenablage exportieren",
+            "fr": "Exporter vers le presse-papiers",
+            "ru": "Экспорт в буфер обмена",
+            "tw": "導出到剪貼簿",
+            "uk": "Експорт у буфер обміну"
+        },
+        "export_hint": {
+            "en": "Copy your settings string to share or backup.",
+            "cn": "复制您的设置字符串以分享或备份。",
+            "de": "Kopiere deinen Einstellungs-String zum Teilen oder für ein Backup.",
+            "fr": "Copier votre chaîne de paramètres pour partager ou sauvegarder.",
+            "ru": "Скопировать строку настроек для обмена или резервной копии.",
+            "tw": "複製您的設置字符串以分享或備份。",
+            "uk": "Скопіювати рядок налаштувань для обміну або резервної копії."
+        },
+        "import_label": {
+            "en": "Import from Clipboard",
+            "cn": "从剪贴板导入",
+            "de": "Aus der Zwischenablage importieren",
+            "fr": "Importer depuis le presse-papiers",
+            "ru": "Импорт из буфера обмена",
+            "tw": "從剪貼簿導入",
+            "uk": "Імпорт з буфера обміну"
+        },
+        "import_hint": {
+            "en": "Paste a settings string to overwrite current config.",
+            "cn": "粘贴设置字符串以覆盖当前配置。",
+            "de": "Füge einen Einstellungs-String ein, um die aktuelle Konfiguration zu überschreiben.",
+            "fr": "Coller une chaîne de paramètres pour écraser la configuration actuelle.",
+            "ru": "Вставить строку настроек для перезаписи текущей конфигурации.",
+            "tw": "粘貼設置字符串以覆蓋當前配置。",
+            "uk": "Вставити рядок налаштувань для перезапису поточної конфігурації."
+        }
+    },
+    "notifications": {
+        "cloud_both_limit": {
+            "en": "Cloud Sync: Dropped invalid long strings AND reached 8KB storage limit. Excess kept local.",
+            "cn": "云同步: 已丢弃无效的长字符串并达到 8KB 存储限制。超出的部分仅保留在本地。",
+            "de": "Cloud-Synchronisierung: Ungültige lange Strings wurden verworfen UND das 8KB-Speicherlimit wurde erreicht. Überschüssiges wurde lokal behalten.",
+            "fr": "Sync Cloud : Suppression des chaînes longues invalides ET limite de stockage 8KB atteinte. L'excès est conservé localement.",
+            "ru": "Облачная синхронизация: Отброшены недопустимые длинные строки И достигнут лимит хранения 8 КБ. Излишек сохранен только локально.",
+            "tw": "雲同步: 已丟棄無效的長字符串並達到 8KB 存儲限制。超出的部分僅保留在本地。",
+            "uk": "Хмарна синхронізація: Відкинуто неприпустимі довгі рядки І досягнуто ліміт зберігання 8 КБ. Надлишок збережено тільки локально."
+        },
+        "cloud_capacity_limit": {
+            "en": "Cloud Sync capacity reached (8KB). Excess words/phrases kept local only.",
+            "cn": "已达到云同步容量 (8KB)。超出的词汇/短语仅保留在本地。",
+            "de": "Cloud-Synchronisierungskapazität erreicht (8KB). Überschüssige Wörter/Phrasen wurden nur lokal behalten.",
+            "fr": "Capacité de sync Cloud atteinte (8KB). Mots/phrases en excès conservés localement seulement.",
+            "ru": "Лимит облачной синхронизации достигнут (8 КБ). Лишние слова/фразы сохранены только локально.",
+            "tw": "已達到雲同步容量 (8KB)。超出的詞彙/短語僅保留在本地。",
+            "uk": "Ліміт хмарної синхронізації досягнуто (8 КБ). Зайві слова/фразы збережено тільки локально."
+        },
+        "cloud_invalid_items": {
+            "en": "Cloud Sync: Dropped individual words/phrases that exceeded character limits. Kept local.",
+            "cn": "云同步: 已丢弃超过字符限制的单个词汇/短语。已保留在本地。",
+            "de": "Cloud-Synchronisierung: Einzelne Wörter/Phrasen wurden verworfen, da sie die Zeichenbegrenzungen überschritten haben. Lokal behalten.",
+            "fr": "Sync Cloud : Suppression des mots/phrases individuels dépassant les limites de caractères. Conservés localement.",
+            "ru": "Облачная синхронизация: Отброшены отдельные слова/фразы, превышающие лимиты символов. Сохранены локально.",
+            "tw": "雲同步: 已丟棄超過字符限制的單個詞彙/短語。已保留在本地。",
+            "uk": "Хмарна синхронізація: Відкинуто окремі слова/фрази, що перевищують ліміти символів. Збережено локально."
+        },
+        "server_cleared": {
+            "en": "Server save successfully cleared!",
+            "cn": "服务器保存已成功清除！",
+            "de": "Server-Speicherstand erfolgreich gelöscht!",
+            "fr": "Sauvegarde serveur effacée avec succès !",
+            "ru": "Сохранение на сервере успешно очищено!",
+            "tw": "伺服器保存已成功清除！",
+            "uk": "Збереження на сервері успішно очищено!"
+        },
+        "server_clear_failed": {
+            "en": "Clear failed: {error}",
+            "cn": "清除失败: {error}",
+            "de": "Löschen fehlgeschlagen: {error}",
+            "fr": "Échec de l'effacement : {error}",
+            "ru": "Ошибка очистки: {error}",
+            "tw": "清除失敗: {error}",
+            "uk": "Помилка очищення: {error}"
+        },
+        "config_exported": {
+            "en": "Config copied to clipboard!",
+            "cn": "配置已复制到剪贴板！",
+            "de": "Konfiguration in die Zwischenablage kopiert!",
+            "fr": "Configuration copiée dans le presse-papiers !",
+            "ru": "Конфигурация скопирована в буфер обмена!",
+            "tw": "配置已複製到剪貼簿！",
+            "uk": "Конфігурацію скопійовано в буфер обміну!"
+        },
+        "export_failed": {
+            "en": "Failed to copy config to clipboard.",
+            "cn": "复制配置到剪贴板失败。",
+            "de": "Kopieren der Konfiguration in die Zwischenablage fehlgeschlagen.",
+            "fr": "Échec de la copie de la configuration dans le presse-papiers.",
+            "ru": "Не удалось скопировать конфигурацию в буфер обмена.",
+            "tw": "複製配置到剪貼簿失敗。",
+            "uk": "Не вдалося скопіювати конфігурацію в буфер обміну."
+        },
+        "import_prompt": {
+            "en": "Paste your CRABS settings string here:",
+            "cn": "在此处粘贴您的 CRABS 设置字符串:",
+            "de": "Füge deinen CRABS-Einstellungs-String hier ein:",
+            "fr": "Collez votre chaîne de paramètres CRABS ici :",
+            "ru": "Вставьте строку настроек CRABS здесь:",
+            "tw": "在此處粘貼您的 CRABS 設置字符串:",
+            "uk": "Вставте рядок налаштувань CRABS тут:"
+        },
+        "import_success": {
+            "en": "Config imported successfully!",
+            "cn": "配置导入成功！",
+            "de": "Konfiguration erfolgreich importiert!",
+            "fr": "Configuration importée avec succès !",
+            "ru": "Конфигурация успешно импортирована!",
+            "tw": "配置導入成功！",
+            "uk": "Конфігурацію успішно імпортовано!"
+        },
+        "import_unrecognized": {
+            "en": "Import failed. Unrecognized settings format.",
+            "cn": "导入失败。无法识别的设置格式。",
+            "de": "Import fehlgeschlagen. Nicht erkanntes Einstellungsformat.",
+            "fr": "Import échoué. Format de paramètres non reconnu.",
+            "ru": "Импорт не удался. Нераспознанный формат настроек.",
+            "tw": "導入失敗。無法識別的設置格式。",
+            "uk": "Імпорт не вдався. Нерозпізнаний формат налаштувань."
+        },
+        "import_invalid": {
+            "en": "Import failed. Invalid or corrupted string.",
+            "cn": "导入失败。字符串无效或损坏。",
+            "de": "Import fehlgeschlagen. Ungültiger oder beschädigter String.",
+            "fr": "Import échoué. Chaîne invalide ou corrompue.",
+            "ru": "Импорт не удался. Недопустимая или поврежденная строка.",
+            "tw": "導入失敗。字符串無效或損壞。",
+            "uk": "Імпорт не вдався. Неприпустимий або пошкоджений рядок."
+        }
+    }
+}

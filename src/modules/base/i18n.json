@@ -1,0 +1,44 @@
+{
+  "keybinds": {
+    "category": {
+      "en": "CRABS Mod",
+      "cn": "CRABS 模组",
+      "de": "CRABS Mod",
+      "fr": "Mod CRABS",
+      "ru": "CRABS Mod",
+      "tw": "CRABS 模組",
+      "uk": "CRABS Mod"
+    }
+  },
+  "chat": {
+    "person_not_found": {
+      "en": "This person is no longer in the room.",
+      "cn": "此人已不在房间内。",
+      "de": "Diese Person ist nicht mehr im Raum.",
+      "fr": "Cette personne n'est plus dans la salle.",
+      "ru": "Этого человека больше нет в комнате.",
+      "tw": "此人已不在房間內。",
+      "uk": "Цієї особи більше немає в кімнаті."
+    }
+  },
+  "tooltips": {
+    "help": {
+      "en": "Help",
+      "cn": "帮助",
+      "de": "Hilfe",
+      "fr": "Aide",
+      "ru": "Помощь",
+      "tw": "幫助",
+      "uk": "Допомога"
+    },
+    "settings": {
+      "en": "Settings",
+      "cn": "设置",
+      "de": "Einstellungen",
+      "fr": "Paramètres",
+      "ru": "Настройки",
+      "tw": "設定",
+      "uk": "Налаштування"
+    }
+  }
+}

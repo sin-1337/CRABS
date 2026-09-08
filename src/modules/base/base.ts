@@ -10,8 +10,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import DOMPurify from "dompurify";
 import "./templates/base.css";
 import wrappertemplate from "./templates/wrapper.html";
-import * as baseLocales from "./i18n";
-
+import baseLocales from "./i18n.json";
 export enum PerformanceLevel {
   NORMAL = 0,
   LOW = 1,
@@ -53,19 +52,19 @@ export abstract class CRABS_Base {
   constructor(
     CRABS: ModSDKModAPI,
     namespace: string = "base",
-    locales: Record<string, any> = {},
+    bundle: Record<string, any> = {},
   ) {
     this.CRABS = CRABS;
     this.moduleNamespace = namespace;
 
-    if (!CRABS_Base.translations["en"]?.["base"]) {
-      for (const [lang, bundle] of Object.entries(baseLocales)) {
-        CRABS_Base.registerTranslations("base", lang, bundle);
-      }
+    // Register base translations if not already loaded
+    if (!CRABS_Base.translations["base"]) {
+      CRABS_Base.registerTranslations("base", baseLocales);
     }
 
-    for (const [lang, bundle] of Object.entries(locales)) {
-      CRABS_Base.registerTranslations(namespace, lang, bundle);
+    // Register module translations
+    if (namespace !== "base" && bundle && Object.keys(bundle).length > 0) {
+      CRABS_Base.registerTranslations(namespace, bundle);
     }
   }
 
@@ -167,54 +166,51 @@ export abstract class CRABS_Base {
 
   public static registerTranslations(
     namespace: string,
-    locale: string,
     bundle: Record<string, any>,
   ): void {
-    const normLocale = CRABS_Base.normalizeLocale(locale);
-    if (!CRABS_Base.translations[normLocale]) {
-      CRABS_Base.translations[normLocale] = {};
-    }
-
-    const rawData =
+    let rawData =
       bundle && typeof bundle === "object" && "default" in bundle
         ? bundle.default
         : bundle;
 
+    // VERY IMPORTANT: Unwraps double namespaces from the migration script
     if (
       rawData &&
       typeof rawData === "object" &&
       namespace in rawData &&
       Object.keys(rawData).length === 1
     ) {
-      CRABS_Base.translations[normLocale][namespace] = rawData[namespace];
-    } else {
-      CRABS_Base.translations[normLocale][namespace] = {
-        ...(CRABS_Base.translations[normLocale][namespace] || {}),
-        ...rawData,
-      };
+      rawData = rawData[namespace];
     }
+
+    CRABS_Base.translations[namespace] = {
+      ...(CRABS_Base.translations[namespace] || {}),
+      ...rawData,
+    };
   }
 
   public registerTranslations(
     namespace: string,
-    locale: string,
     bundle: Record<string, any>,
   ): void {
-    CRABS_Base.registerTranslations(namespace, locale, bundle);
+    CRABS_Base.registerTranslations(namespace, bundle);
   }
 
-  private static resolveKey(obj: any, key: string): string | undefined {
-    if (!obj) return undefined;
-    const parts = key.split(".");
+  private static resolveKey(
+    obj: any,
+    keyPath: string[],
+  ): Record<string, string> | undefined {
     let current = obj;
-    for (const part of parts) {
+    for (const part of keyPath) {
       if (current && typeof current === "object" && part in current) {
         current = current[part];
       } else {
         return undefined;
       }
     }
-    return typeof current === "string" ? current : undefined;
+    return typeof current === "object" && current !== null
+      ? current
+      : undefined;
   }
 
   public static translate(
@@ -222,17 +218,48 @@ export abstract class CRABS_Base {
     params?: Record<string, string | number>,
   ): string {
     const active = CRABS_Base.getActiveLocale();
-    let text = CRABS_Base.resolveKey(CRABS_Base.translations[active], key);
+    const parts = key.split(".");
 
-    if ((text === undefined || text === "") && active === "tw") {
-      text = CRABS_Base.resolveKey(CRABS_Base.translations["cn"], key);
+    // Determine namespace (first token) and path within namespace
+    const namespace = parts[0];
+    const subPath = parts.slice(1);
+
+    // Look in namespace first, or check the root if unnamespaced
+    let entry = CRABS_Base.translations[namespace]
+      ? CRABS_Base.resolveKey(CRABS_Base.translations[namespace], subPath)
+      : undefined;
+
+    // Fallback: if not found, check if it was registered under 'base'
+    if (!entry && namespace !== "base" && CRABS_Base.translations["base"]) {
+      entry = CRABS_Base.resolveKey(CRABS_Base.translations["base"], parts);
     }
-    if ((text === undefined || text === "") && active !== "en") {
-      text = CRABS_Base.resolveKey(CRABS_Base.translations["en"], key);
+
+    // 🔴 DEBUG CHECK
+    if (!entry) {
+      console.warn(
+        `[CRABS i18n MISS] Key: "${key}", Namespace: "${namespace}", subPath:`,
+        subPath,
+        "Available in namespace:",
+        Object.keys(CRABS_Base.translations[namespace] || {}),
+      );
     }
+
+    let text: string | undefined = undefined;
+
+    if (entry) {
+      text = entry[active];
+      if ((text === undefined || text === "") && active === "tw") {
+        text = entry["cn"];
+      }
+      if ((text === undefined || text === "") && active !== "en") {
+        text = entry["en"];
+      }
+    }
+
     if (text === undefined || text === "") {
       return key;
     }
+
     if (params) {
       return text.replace(/\{(\w+)\}/g, (_, match) =>
         params[match] !== undefined ? String(params[match]) : `{${match}}`,
@@ -242,9 +269,11 @@ export abstract class CRABS_Base {
   }
 
   public t(key: string, params?: Record<string, string | number>): string {
-    const fullKey = key.startsWith(`${this.moduleNamespace}.`)
-      ? key
-      : `${this.moduleNamespace}.${key}`;
+    // Check if the key already starts with a known, registered namespace
+    const namespace = key.split(".")[0];
+    const isCrossModule = namespace && CRABS_Base.translations[namespace];
+
+    const fullKey = isCrossModule ? key : `${this.moduleNamespace}.${key}`;
     return CRABS_Base.translate(fullKey, params);
   }
 

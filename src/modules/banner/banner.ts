@@ -20,7 +20,7 @@ import { Settings } from "../settings";
 import { Drawer } from "../drawer";
 
 import * as Permissions from "./permissions";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 declare const __NAME__: string;
 declare const __VERSION__: string;
@@ -48,12 +48,12 @@ export class Banner extends CRABS_Base {
    * @returns {void}
    * @private
    */
-  private selectPermission(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (!target) return;
-    const newPermissionLevel = parseInt(target.value, 10);
-    Permissions.setPermissionLevel(newPermissionLevel);
-  }
+  // private selectPermission(event: Event): void {
+  //   const target = event.target as HTMLSelectElement;
+  //   if (!target) return;
+  //   const newPermissionLevel = parseInt(target.value, 10);
+  //   Permissions.setPermissionLevel(newPermissionLevel);
+  // }
 
   /**
    * Renders and displays the room information banner.

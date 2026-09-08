@@ -13,7 +13,7 @@ import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as History from "./history";
 import * as Immersion from "./immersion";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class representing the enhanced player roster and related map features.

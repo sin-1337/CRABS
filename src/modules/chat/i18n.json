@@ -1,0 +1,31 @@
+{
+  "notifications": {
+    "mention_title": {
+      "en": "Mentioned!",
+      "cn": "被提及！",
+      "de": "Erwähnt!",
+      "fr": "Mentionné !",
+      "ru": "Упоминание!",
+      "tw": "被提及！",
+      "uk": "Згадка!"
+    },
+    "mention_body": {
+      "en": "{sender} mentioned you!",
+      "cn": "{sender} 提到了你！",
+      "de": "{sender} hat dich erwähnt!",
+      "fr": "{sender} vous a mentionné !",
+      "ru": "{sender} упомянул вас!",
+      "tw": "{sender} 提到了你！",
+      "uk": "{sender} згадав вас!"
+    },
+    "unknown_sender": {
+      "en": "Someone",
+      "cn": "某人",
+      "de": "Jemand",
+      "fr": "Quelqu'un",
+      "ru": "Кто-то",
+      "tw": "某人",
+      "uk": "Хтось"
+    }
+  }
+}

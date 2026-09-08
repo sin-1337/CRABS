@@ -19,7 +19,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/help.css";
 import helptemplate from "./templates/help.html";
 
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class representing the help system and documentation viewer.

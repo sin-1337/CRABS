@@ -21,7 +21,7 @@ import { Notification } from "../notifications";
 import { Settings } from "../settings";
 import { Drawer } from "../drawer";
 
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class representing the Whisper+ enhanced messaging system.

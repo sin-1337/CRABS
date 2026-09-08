@@ -1,7 +1,7 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/privacy.css";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 export class PrivacyMode extends CRABS_Base {
   private isVisible: boolean = false;
