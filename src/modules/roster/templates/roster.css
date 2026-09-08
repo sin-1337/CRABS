@@ -177,7 +177,8 @@
 }
 
 .CRABS_card_badge img,
-.CRABS_card_badge svg {
+.CRABS_card_badge svg,
+.CRABS_card_badge .CRABS_Profile_Icon {
   width: 38px;
   height: 38px;
   object-fit: contain;
@@ -484,7 +485,10 @@
 
 .CRABS_roster_center_table.layout-compact .CRABS_card_badge img,
 .CRABS_roster_center_table.layout-compact .CRABS_history_badge img,
-.CRABS_roster_center_table.layout-compact .CRABS_history_badge svg {
+.CRABS_roster_center_table.layout-compact .CRABS_history_badge svg,
+.CRABS_roster_center_table.layout-compact
+  .CRABS_history_badge
+  .CRABS_Profile_Icon {
   width: 24px !important;
   height: 24px !important;
 }
