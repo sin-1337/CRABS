@@ -11,13 +11,13 @@ export { Settings } from "./settings";
 export { Assets } from "./assets";
 export { Banner } from "./banner";
 export { CRABS_Base, PerformanceLevel } from "./base";
-export { ChatManager } from "./chat"; // Note: file is chat.ts
+export { ChatManager } from "./chat";
 export { CrossMod } from "./crossmod";
 export { Drawer } from "./drawer";
 export { Help } from "./help";
 export { Notification } from "./notifications";
 export { Performance } from "./performance";
-export { PrivacyMode } from "./privacy"; // Note: file is privacy.ts
+export { PrivacyMode } from "./privacy";
 export { Setup } from "./setup";
 export { Updater } from "./updater";
 export { WhisperPlus } from "./whisperplus";

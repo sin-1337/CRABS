@@ -86,4 +86,4 @@ WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
 
 // Print version and confirm load success in console
-console.log(`CRABS v${__VERSION__} Loaded`); // do not remove
+console.log(`CRABS v${__VERSION__} Loaded`);
