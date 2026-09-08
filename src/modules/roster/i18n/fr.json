@@ -48,7 +48,7 @@
         "ghost": "Sur liste fantôme"
     },
     "tooltips": {
-        "track_compass": "Suivre le joueur sur la carte",
+        "track_compass": "Pister la joueuse",
         "focus_player": "Cibler le joueur",
         "copy_id": "Copier le numéro de membre",
         "view_profile": "Voir le profil"

@@ -1,56 +1,70 @@
 import { CRABS_Base } from "../base";
 
-/**
- * Updates the player's interaction permissions.
- *
- * @param {number} level - The interaction permission level (0 to 5).
- * @returns {void}
- */
+declare const Player: any;
+declare const ServerAccountUpdate: any;
+declare const ServerPlayerIsInChatRoom: () => boolean;
+declare const ServerPackItemPermissions: (items: any) => any;
+declare const ChatRoomCharacterUpdate: (C: any) => void;
+
 export function setPermissionLevel(level: number): void {
   if (typeof Player === "undefined" || !Player || isNaN(level)) return;
 
-  Player.AllowedInteractions = level;
+  const clampedLevel = Math.max(0, Math.min(5, Math.floor(level)));
+
+  Player.AllowedInteractions = clampedLevel;
+  Player.ItemPermission = clampedLevel;
+
   if (
     typeof ServerAccountUpdate !== "undefined" &&
     ServerAccountUpdate?.QueueData
   ) {
+    let packed = {};
+    if (
+      typeof ServerPackItemPermissions === "function" &&
+      Player.PermissionItems
+    ) {
+      packed = ServerPackItemPermissions(Player.PermissionItems);
+    }
+
     ServerAccountUpdate.QueueData({
-      AllowedInteractions: Player.AllowedInteractions,
+      ItemPermission: clampedLevel,
+      AllowedInteractions: clampedLevel,
+      ...packed,
     });
+  }
+
+  if (
+    typeof ServerPlayerIsInChatRoom === "function" &&
+    ServerPlayerIsInChatRoom()
+  ) {
+    if (typeof ChatRoomCharacterUpdate === "function") {
+      ChatRoomCharacterUpdate(Player);
+    }
   }
 }
 
-/**
- * Generates HTML string for the permission selection options, querying
- * the base game's InformationSheet CSV and falling back to localized strings.
- *
- * @returns {string} The HTML options string.
- */
 export function drawPermissionOptions(): string {
-  let htmlOutput: string = "";
-  let selected: number =
-    typeof Player !== "undefined" ? Player.AllowedInteractions : 0;
+  let htmlOutput = "";
+  const selected: number =
+    typeof Player !== "undefined"
+      ? (Player.AllowedInteractions ?? Player.ItemPermission ?? 0)
+      : 0;
 
-  for (let index of [0, 1, 2, 3, 4, 5]) {
-    let permission_text = CRABS_Base.translate(
-      "banner.permissions.fallback_option",
-      { index },
-    );
+  // Hardcode the native BC labels to prevent cache misses
+  const labels: Record<number, string> = {
+    0: "Everyone, no exceptions",
+    1: "Everyone, except blacklist",
+    2: "Owner, Lover, whitelist & Dominants",
+    3: "Owner, Lover and whitelist only",
+    4: "Owner and Lover only",
+    5: "Owner only",
+  };
 
-    if (typeof TextGetInScope === "function") {
-      try {
-        permission_text = (TextGetInScope as any)(
-          "Screens/Character/InformationSheet/Text_InformationSheet.csv",
-          "AllowedInteraction" + index.toString(),
-        );
-      } catch {
-        permission_text = CRABS_Base.translate(
-          "banner.permissions.fallback_option",
-          { index },
-        );
-      }
-    }
-    htmlOutput += `<option${index === selected ? " selected" : ""} value="${index}">${permission_text}</option>`;
+  for (let index = 0; index <= 5; index++) {
+    const label = labels[index];
+    const isSelected = index === selected ? " selected" : "";
+    htmlOutput += `<option${isSelected} value="${index}">${label}</option>`;
   }
+
   return htmlOutput;
 }

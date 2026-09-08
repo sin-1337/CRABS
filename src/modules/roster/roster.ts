@@ -614,11 +614,11 @@ export class Roster extends CRABS_Base {
     let r = 255,
       g = 255,
       b = 255;
-    if (this.canvasContext) {
-      this.canvasContext.clearRect(0, 0, 1, 1);
-      this.canvasContext.fillStyle = labelColor;
-      this.canvasContext.fillRect(0, 0, 1, 1);
-      const data = this.canvasContext.getImageData(0, 0, 1, 1).data;
+    if (Roster.canvasContext) {
+      Roster.canvasContext.clearRect(0, 0, 1, 1);
+      Roster.canvasContext.fillStyle = labelColor;
+      Roster.canvasContext.fillRect(0, 0, 1, 1);
+      const data = Roster.canvasContext.getImageData(0, 0, 1, 1).data;
       r = data[0];
       g = data[1];
       b = data[2];
@@ -636,10 +636,8 @@ export class Roster extends CRABS_Base {
 
     let compassBlock = "";
     if (
-      !character.IsPlayer() &&
+      !this.isCompassBlocked() &&
       Settings.instance.data.showMapCompass &&
-      typeof ChatRoomMapViewIsActive === "function" &&
-      ChatRoomMapViewIsActive() &&
       isDrawer
     ) {
       const trackedClass =

@@ -48,7 +48,7 @@
         "ghost": "幽靈名單"
     },
     "tooltips": {
-        "track_compass": "在地圖上追蹤玩家",
+        "track_compass": "追蹤玩家",
         "focus_player": "聚焦玩家",
         "copy_id": "複製會員編號",
         "view_profile": "檢視檔案"

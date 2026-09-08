@@ -24,6 +24,8 @@ import * as locales from "./i18n";
 
 declare const __NAME__: string;
 declare const __VERSION__: string;
+declare const Player: any;
+declare const ChatRoomData: any;
 
 /**
  * Class representing the room information banner.
@@ -40,33 +42,15 @@ export class Banner extends CRABS_Base {
   }
 
   /**
-   * Attaches a change handler to the permission selection element.
-   *
-   * @returns {void}
-   */
-  public attachPermissionChangeHandler(): void {
-    const select = document.getElementById(
-      "CRABS_permission_select",
-    ) as HTMLSelectElement;
-
-    if (select) {
-      select.addEventListener("change", (event: Event) => {
-        const target = event.target as HTMLSelectElement;
-        const newPermissionLevel = parseInt(target.value, 10);
-        Permissions.setPermissionLevel(newPermissionLevel);
-      });
-    }
-  }
-
-  /**
    * Processes the permission selection event and updates player permissions.
    *
-   * @param {any} event - The selection event object.
+   * @param {Event} event - The change event from the select element.
    * @returns {void}
    * @private
    */
-  private selectPermission(event: any): void {
+  private selectPermission(event: Event): void {
     const target = event.target as HTMLSelectElement;
+    if (!target) return;
     const newPermissionLevel = parseInt(target.value, 10);
     Permissions.setPermissionLevel(newPermissionLevel);
   }
@@ -87,14 +71,17 @@ export class Banner extends CRABS_Base {
       return;
     }
 
-    let templatevars: Record<string, string> = {
+    const templatevars: Record<string, string> = {
       Logo: Assets.printimage({ key: "logo" }),
-      LabelColor: `${Player.LabelColor}`,
+      LabelColor:
+        typeof Player !== "undefined" && Player?.LabelColor
+          ? `${Player.LabelColor}`
+          : "#ffffff",
       PermissionOptions: Permissions.drawPermissionOptions(),
-      RoomName: ChatRoomData.Name,
+      RoomName: ChatRoomData.Name ?? "",
     };
 
-    let wrappervars = {
+    const wrappervars = {
       TitleBar:
         typeof __NAME__ !== "undefined" && typeof __VERSION__ !== "undefined"
           ? `${__NAME__}:  ${__VERSION__}`
@@ -138,14 +125,28 @@ export class Banner extends CRABS_Base {
    */
   public override buildui(output: string, elementId?: string): void {
     super.buildui(output, elementId);
-    this.attachPermissionChangeHandler();
-    this.attachEvent(
-      "CRABS_Permission_Select",
-      this.selectPermission,
-      undefined,
-      undefined,
-      "change",
-    );
+
+    // Defer the event binding slightly to ensure the HTML is fully injected into the DOM
+    setTimeout(() => {
+      // NOTE: Ensure "CRABS_permission_select" exactly matches the ID in your banner.html
+      const select = document.getElementById(
+        "CRABS_permission_select",
+      ) as HTMLSelectElement;
+      if (select) {
+        select.addEventListener("change", (event: Event) => {
+          const target = event.target as HTMLSelectElement;
+          if (target) {
+            const newLevel = parseInt(target.value, 10);
+            Permissions.setPermissionLevel(newLevel);
+          }
+        });
+      } else {
+        console.warn(
+          "CRABS: Could not find #CRABS_permission_select in the DOM.",
+        );
+      }
+    }, 50);
+
     this.attachEvent("CRABS_banner_rosterlink", () => this.handleRosterLink());
   }
 }

@@ -48,7 +48,7 @@
         "ghost": "Auf Ghostlist"
     },
     "tooltips": {
-        "track_compass": "Spieler auf Karte verfolgen",
+        "track_compass": "Spieler verfolgen",
         "focus_player": "Spieler fokussieren",
         "copy_id": "Mitgliedsnummer kopieren",
         "view_profile": "Profil anzeigen"

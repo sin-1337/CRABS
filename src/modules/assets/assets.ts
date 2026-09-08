@@ -101,6 +101,12 @@ export abstract class Assets {
         toolTipKey: "tooltips.history",
         class: "CRABS_History_Icon",
       },
+      profile: {
+        file: "profile.svg",
+        altKey: "alt.profile",
+        toolTipKey: "tooltips.profile",
+        class: "CRABS_Profile_Icon",
+      },
       settings: {
         file: "settings.svg",
         altKey: "alt.settings",

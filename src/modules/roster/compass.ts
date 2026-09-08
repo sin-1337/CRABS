@@ -1,5 +1,6 @@
-import { PerformanceLevel } from "../base";
+import { CRABS_Base, PerformanceLevel } from "../base";
 import { Settings } from "../settings";
+import { Notification } from "../notifications";
 
 // --- State Variables ---
 
@@ -45,8 +46,11 @@ let hoverTimeout: number | null = null;
 /** Timeout to prevent scroll jittering */
 let scrollTimeout: number | null = null;
 
-/** Caches the measured width of player names to prevent off-center arrows on name changes. */
+/** Caches the measured width of player names with bounded size to prevent unbounded memory growth. */
 const nameWidthCache: Map<number, { name: string; width: number }> = new Map();
+export function clearNameWidthCache(): void {
+  nameWidthCache.clear();
+}
 
 /** Caches the indicator coordinates so it can be drawn at the absolute end of the frame. */
 export let deferredIndicator: {
@@ -68,6 +72,16 @@ export function setDeferredIndicator(
  * @param {string} playerId - the id of the player to be tracked.
  */
 export function onPlayerToggleTrack(playerId: string): void {
+  if (CRABS_Base.isCompassBlocked()) {
+    clearTracking();
+    Notification.send({
+      title: "Compass Disabled",
+      message: "Map compass and tracking are prohibited in this room.",
+      duration: 5000,
+    });
+    return;
+  }
+
   const id = parseInt(playerId, 10);
   const wasTracked = trackedMapPlayer === id;
 
@@ -103,6 +117,7 @@ export function clearTracking(): void {
 
 /**
  * Handler for when a player's entry is hovered in the roster UI.
+ * Allows hover highlight to function even if map compass is blocked.
  * @param {string} playerId - The ID of the hovered player.
  */
 export function onPlayerHover(playerId: string): void {
@@ -253,9 +268,6 @@ export function autoPaginateToPlayer(targetId: number): void {
 
 // --- Visual Math & Canvas Rendering ---
 
-/**
- * Extracts a combined string of active poses for a character.
- */
 function getCharacterPoseString(character: any): string {
   const activePoses = character.ActivePose || character.Pose || [];
   return Array.isArray(activePoses)
@@ -263,9 +275,6 @@ function getCharacterPoseString(character: any): string {
     : String(activePoses);
 }
 
-/**
- * Renders a 3D-spinning directional arrow indicator on the canvas.
- */
 export function drawIndicator(
   context: CanvasRenderingContext2D,
   x: number,
@@ -331,13 +340,18 @@ export function drawIndicator(
 
 /**
  * Draws a directional arrow pointing toward the hovered player on the map.
- * @param {Function} getColorBrightness - Callback from CRABS_Base to calculate brightness.
+ * Respects BlockLocationSharing flag and active blindness.
  */
 export function drawCompass(
   getColorBrightness: (color: string) => number,
 ): void {
-  const targetId = trackedMapPlayer || hoveredMapPlayer;
+  // Opt-out guard: suppress compass arrow on map canvas if blocked
+  if (CRABS_Base.isCompassBlocked()) {
+    if (trackedMapPlayer !== null) clearTracking();
+    return;
+  }
 
+  const targetId = trackedMapPlayer || hoveredMapPlayer;
   if (!targetId || !Settings.instance.data.showMapCompass) return;
 
   const globalWindow = window as any;
@@ -354,25 +368,27 @@ export function drawCompass(
 
   if (!target?.MapData?.Pos || !player?.MapData?.Pos) return;
 
-  let deltaX = target.MapData.Pos.X - player.MapData.Pos.X;
-  let deltaY = target.MapData.Pos.Y - player.MapData.Pos.Y;
+  const deltaX = target.MapData.Pos.X - player.MapData.Pos.X;
+  const deltaY = target.MapData.Pos.Y - player.MapData.Pos.Y;
 
   const canvasContext = (
     globalWindow.MainCanvas as HTMLCanvasElement
   )?.getContext("2d");
   if (!canvasContext) return;
 
-  let arrowX, arrowY, angle;
+  let arrowX: number, arrowY: number, angle: number;
   const scale = 0.66;
 
-  const range = globalWindow.ChatRoomMapViewPerceptionRange;
+  // Defensive fallback against 0 / NaN range
+  const rawRange = globalWindow.ChatRoomMapViewPerceptionRange;
+  const range = typeof rawRange === "number" && rawRange > 0 ? rawRange : 5;
   const tileW = 1000 / (range * 2 + 1);
-  const tileIndex =
-    target.MapData.Pos.X +
-    target.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth;
+
+  const mapWidth = globalWindow.ChatRoomMapViewWidth || 1;
+  const tileIndex = target.MapData.Pos.X + target.MapData.Pos.Y * mapWidth;
   const isVisible =
     globalWindow.ChatRoomMapViewVisibilityMask &&
-    globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
+    Boolean(globalWindow.ChatRoomMapViewVisibilityMask[tileIndex]);
 
   if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
     angle = Math.PI / 2;
@@ -419,9 +435,6 @@ export function drawCompass(
   );
 }
 
-/**
- * Renders the custom indicator arrow next to the character's nameplate.
- */
 export function drawNameIndicator(
   character: any,
   x: number,
@@ -433,7 +446,6 @@ export function drawNameIndicator(
   const canvasContext = canvas?.getContext("2d");
   if (!canvasContext || !character) return;
 
-  // Use the exact text BC draws to the screen
   const currentName =
     typeof globalWindow.CharacterNickname === "function"
       ? globalWindow.CharacterNickname(character)
@@ -443,7 +455,6 @@ export function drawNameIndicator(
 
   if (!cachedData || cachedData.name !== currentName) {
     canvasContext.save();
-    // BC draws character names with bold 30px Arial
     canvasContext.font = "bold 30px Arial";
     const measuredWidth = canvasContext.measureText(currentName).width;
     canvasContext.restore();
@@ -452,6 +463,11 @@ export function drawNameIndicator(
       name: currentName,
       width: measuredWidth,
     };
+
+    // Cap cache entries to prevent leaks across long sessions
+    if (nameWidthCache.size > 150) {
+      nameWidthCache.clear();
+    }
     nameWidthCache.set(character.MemberNumber, cachedData);
   }
 
@@ -464,8 +480,6 @@ export function drawNameIndicator(
   const padding = 8;
   const arrowWidth = 40 * scale;
 
-  // Check left screen edge boundary
-  // If placing the arrow to the left would push it off-canvas (< 10px), flip it to the right
   const idealTipXLeft = x - textWidth / 2 - padding;
   const isLeftEdge = idealTipXLeft - arrowWidth < 10;
 
@@ -473,12 +487,10 @@ export function drawNameIndicator(
   let finalArrowX: number;
 
   if (isLeftEdge) {
-    // Flip arrow to the right of the name: pointing left toward the last character
     angle = Math.PI;
     const tipXRight = x + textWidth / 2 + padding;
     finalArrowX = tipXRight + arrowWidth / 2;
   } else {
-    // Standard: arrow to the left of the name: pointing right toward the first character
     angle = 0;
     finalArrowX = idealTipXLeft - arrowWidth / 2;
   }
@@ -494,9 +506,6 @@ export function drawNameIndicator(
   );
 }
 
-/**
- * Renders a pulsating aura behind a targeted character.
- */
 export function drawFocusGlow(
   character: any,
   drawX: number,

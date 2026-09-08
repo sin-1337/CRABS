@@ -15,7 +15,6 @@
  */
 
 import { Assets } from "../assets";
-import { CRABS_Base } from "../base";
 import * as Icons from "./icons";
 import { CrossMod } from "../crossmod";
 import { calculateSortScore } from "./sorting";
@@ -529,10 +528,8 @@ export function buildHistoryRoster(
     const labelColor = rec.LabelColor || "#FFFFFF";
 
     const badgeIcon = Assets.printimage({
-      key: "history" as any,
-      tooltip_override: canShowProfiles
-        ? CRABS_Base.translate("roster.tooltips.view_profile")
-        : false,
+      key: "profile",
+      tooltip_override: canShowProfiles ? undefined : false,
       css_class_override: canShowProfiles
         ? "CRABS_history_badge_img"
         : "CRABS_history_badge_img CRABS_history_badge_disabled",
@@ -543,7 +540,7 @@ export function buildHistoryRoster(
 
     const templatevars: Record<string, string> = {
       PlayerNumber: `${rec.MemberNumber}`,
-      Badge: badgeIcon || "📜",
+      Badge: badgeIcon || "👤",
       BadgeInteractiveClass: canShowProfiles
         ? "CRABS_clickable"
         : "CRABS_disabled",
