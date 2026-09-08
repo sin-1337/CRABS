@@ -1,5 +1,0 @@
-{
-    "keybinds": { "toggle_name": "Basculer le tiroir", "toggle_desc": "Ouvre ou ferme le tiroir latéral CRABS." },
-    "header": { "title_default": "Roster", "title_help": "Aide" },
-    "tooltips": { "tab": "Tiroir CRABS", "help": "Aide", "roster": "Roster", "settings": "Paramètres", "layout": "Changer de disposition", "close": "Fermer le tiroir" }
-}

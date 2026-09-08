@@ -2,7 +2,7 @@ import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Notification } from "../notifications";
 import { Settings } from "../settings";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class handling automatic background updates.

@@ -12,7 +12,7 @@
 import { Assets } from "../assets";
 import { CRABS_Base } from "../base";
 import "./templates/notifications.css";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /** Ambient declaration for the base game's global toast engine. */
 declare const ToastManager: {
@@ -116,8 +116,8 @@ export abstract class Notification {
   private static init(): void {
     if (Notification.isInitialized) return;
 
-    for (const [lang, dict] of Object.entries(locales)) {
-      CRABS_Base.registerTranslations("notifications", lang, dict);
+    for (const [_, dict] of Object.entries(locales)) {
+      CRABS_Base.registerTranslations("notifications", dict);
     }
 
     Notification.isInitialized = true;

@@ -11,7 +11,7 @@ import {
 } from "./widgets";
 import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
 
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 const DEFAULT_SETTINGS: any = {
   languageOverride: "auto",
@@ -604,14 +604,14 @@ export class Settings extends CRABS_Base {
       "general.language_label",
       "general.language_hint",
       () => [
-        { value: "auto", text: this.t("language.auto") },
-        { value: "en", text: this.t("language.en") },
-        { value: "de", text: this.t("language.de") },
-        { value: "fr", text: this.t("language.fr") },
-        { value: "ru", text: this.t("language.ru") },
-        { value: "cn", text: this.t("language.cn") },
-        { value: "tw", text: this.t("language.tw") },
-        { value: "uk", text: this.t("language.uk") },
+        { value: "auto", text: `🌐 ${this.t("language.auto")}` },
+        { value: "en", text: `🇬🇧 ${this.t("language.en")}` },
+        { value: "de", text: `🇩🇪 ${this.t("language.de")}` },
+        { value: "fr", text: `🇫🇷 ${this.t("language.fr")}` },
+        { value: "ru", text: `🇷🇺 ${this.t("language.ru")}` },
+        { value: "cn", text: `🇨🇳 ${this.t("language.cn")}` },
+        { value: "tw", text: `🇹🇼 ${this.t("language.tw")}` },
+        { value: "uk", text: `🇺🇦 ${this.t("language.uk")}` },
       ],
       0,
       undefined,

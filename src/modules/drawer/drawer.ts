@@ -21,7 +21,7 @@ import { Help } from "../help";
 import { WhisperPlus } from "../whisperplus";
 import { Settings } from "../settings";
 
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class representing the side drawer UI.

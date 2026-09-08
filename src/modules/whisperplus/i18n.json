@@ -1,0 +1,114 @@
+{
+  "notifications": {
+    "blocked_title": {
+      "en": "Whisper+ Blocked",
+      "cn": "Whisper+ 已屏蔽",
+      "de": "Whisper+ Blockiert",
+      "fr": "Whisper+ Bloqué",
+      "ru": "Whisper+ заблокирован",
+      "tw": "Whisper+ 已封鎖",
+      "uk": "Whisper+ заблоковано"
+    },
+    "blocked_gagged": {
+      "en": "You cannot use Whisper+ while gagged.",
+      "cn": "口塞状态下无法使用 Whisper+。",
+      "de": "Du kannst Whisper+ nicht verwenden, während du geknebelt bist.",
+      "fr": "Vous ne pouvez pas utiliser Whisper+ pendant que vous êtes bâillonné.",
+      "ru": "Вы не можете использовать Whisper+ во время действия кляпа.",
+      "tw": "口塞狀態下無法使用 Whisper+。",
+      "uk": "Ви не можете використовувати Whisper+ під дією кляпу."
+    },
+    "sent_as_beep": {
+      "en": "Whisper+ sent as beep.",
+      "cn": "Whisper+ 已作为提示音发送。",
+      "de": "Whisper+ als Beep gesendet.",
+      "fr": "Whisper+ envoyé comme bip.",
+      "ru": "Whisper+ отправлен как сигнал.",
+      "tw": "Whisper+ 已作為提示音發送。",
+      "uk": "Whisper+ надіслано як сигнал."
+    },
+    "sent_as_beep_regular": {
+      "en": "Whisper sent as beep.",
+      "cn": "Whisper sent as beep.",
+      "de": "Whisper sent as beep.",
+      "fr": "Whisper sent as beep.",
+      "ru": "Whisper sent as beep.",
+      "tw": "Whisper sent as beep.",
+      "uk": "Whisper sent as beep."
+    },
+    "failed_title": {
+      "en": "Whisper+ Failed",
+      "cn": "Whisper+ 失败",
+      "de": "Whisper+ Fehlgeschlagen",
+      "fr": "Whisper+ Échoué",
+      "ru": "Whisper+ не удалось",
+      "tw": "Whisper+ 失敗",
+      "uk": "Помилка Whisper+"
+    }
+  },
+  "chat": {
+    "note_to_self": {
+      "en": "<span style=\"color:#989898\">{icon} Note to </span><span style=\"color:{labelColor}\">self</span><span style=\"color:#989898\">: {message}</span>",
+      "cn": "<span style=\"color:#989898\">{icon} 给 </span><span style=\"color:{labelColor}\">自己</span><span style=\"color:#989898\"> 的备注: {message}</span>",
+      "de": "<span style=\"color:#989898\">{icon} Notiz an </span><span style=\"color:{labelColor}\">mich selbst</span><span style=\"color:#989898\">: {message}</span>",
+      "fr": "<span style=\"color:#989898\">{icon} Note pour </span><span style=\"color:{labelColor}\">moi-même</span><span style=\"color:#989898\">: {message}</span>",
+      "ru": "<span style=\"color:#989898\">{icon} Заметка для </span><span style=\"color:{labelColor}\">себя</span><span style=\"color:#989898\">: {message}</span>",
+      "tw": "<span style=\"color:#989898\">{icon} 給 </span><span style=\"color:{labelColor}\">自己</span><span style=\"color:#989898\"> 的備註: {message}</span>",
+      "uk": "<span style=\"color:#989898\">{icon} Нотатка для </span><span style=\"color:{labelColor}\">себе</span><span style=\"color:#989898\">: {message}</span>"
+    },
+    "beep_to": {
+      "en": "Beep to {targetName} ({memberNumber}): {message}",
+      "cn": "向 {targetName} ({memberNumber}) 发送提示音: {message}",
+      "de": "Beep an {targetName} ({memberNumber}): {message}",
+      "fr": "Bip à {targetName} ({memberNumber}): {message}",
+      "ru": "Сигнал для {targetName} ({memberNumber}): {message}",
+      "tw": "向 {targetName} ({memberNumber}) 發送提示音: {message}",
+      "uk": "Сигнал до {targetName} ({memberNumber}): {message}"
+    },
+    "invalid_member": {
+      "en": "Member number is invalid.",
+      "cn": "成员编号无效。",
+      "de": "Mitgliedsnummer ist ungültig.",
+      "fr": "Numéro de membre invalide.",
+      "ru": "Неверный номер участника.",
+      "tw": "成員編號無效。",
+      "uk": "Невірний номер учасника."
+    },
+    "blank_message": {
+      "en": "Message was blank",
+      "cn": "消息为空",
+      "de": "Nachricht war leer",
+      "fr": "Le message était vide",
+      "ru": "Сообщение пустое",
+      "tw": "訊息為空",
+      "uk": "Повідомлення порожнє"
+    },
+    "player_left": {
+      "en": "Player left or became unavailable",
+      "cn": "玩家已离开或变得不可用",
+      "de": "Spieler hat den Raum verlassen oder ist nicht verfügbar",
+      "fr": "Le joueur a quitté ou est devenu indisponible",
+      "ru": "Игрок вышел или стал недоступен",
+      "tw": "玩家已離開或變得不可用",
+      "uk": "Гравець вийшов або став недоступним"
+    },
+    "auto_beep_failed": {
+      "en": " (Auto-beep failed: Target is not on your friend list.)",
+      "cn": " (自动发送提示音失败：目标不在您的好友列表中。)",
+      "de": " (Auto-Beep fehlgeschlagen: Ziel ist nicht auf deiner Freundesliste.)",
+      "fr": " (Bip automatique échoué : la cible n'est pas sur votre liste d'amis.)",
+      "ru": " (Авто-сигнал не сработал: Цель не в вашем списке друзей.)",
+      "tw": " (自動發送提示音失敗：目標不在您的好友列表中。)",
+      "uk": " (Авто-сигнал не спрацював: ціль не у вашому списку друзів.)"
+    },
+    "fallback_member": {
+      "en": "Member",
+      "cn": "成员",
+      "de": "Mitglied",
+      "fr": "Membre",
+      "ru": "Участник",
+      "tw": "成員",
+      "uk": "Учасник"
+    }
+  }
+}

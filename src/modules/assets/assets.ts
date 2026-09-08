@@ -11,7 +11,7 @@
  */
 
 import { CRABS_Base } from "../base";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Static class for managing and retrieving mod assets.
@@ -26,8 +26,8 @@ export abstract class Assets {
   private static init(): void {
     if (Assets.isInitialized) return;
 
-    for (const [lang, bundle] of Object.entries(locales)) {
-      CRABS_Base.registerTranslations("assets", lang, bundle);
+    for (const [_, bundle] of Object.entries(locales)) {
+      CRABS_Base.registerTranslations("assets", bundle);
     }
     Assets.isInitialized = true;
   }

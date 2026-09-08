@@ -1,5 +1,3 @@
-import { CRABS_Base } from "../base";
-
 declare const Player: any;
 declare const ServerAccountUpdate: any;
 declare const ServerPlayerIsInChatRoom: () => boolean;

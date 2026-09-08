@@ -9,7 +9,7 @@ import { Setup } from "../setup";
 import { Notification } from "../notifications";
 import { Performance } from "../performance";
 import { CRABS_Base } from "../base";
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 export interface CliDependencies {
   crabs: ReturnType<typeof bcModSDK.registerMod>;
@@ -145,12 +145,27 @@ export class CLI extends CRABS_Base {
         Action: (commandArguments: string) => {
           const trimmedArgs = commandArguments.trim().toLowerCase();
 
+          // Helper to resolve localized string array with fallback
+          const getMessages = (entry?: Record<string, string[]>): string[] => {
+            if (!entry) return [];
+            const active = CRABS_Base.getActiveLocale();
+            let list = entry[active];
+            if ((!list || list.length === 0) && active === "tw")
+              list = entry["cn"];
+            if ((!list || list.length === 0) && active !== "en")
+              list = entry["en"];
+            return list || [];
+          };
+
+          const easterEgg = (locales as any).cli?.crab_easter_egg;
+
           if (!trimmedArgs) {
-            const noArgMessages: string[] =
-              (locales.en as any).crab_easter_egg?.no_args ?? [];
-            ChatRoomSendLocal(
-              noArgMessages[Math.floor(Math.random() * noArgMessages.length)],
-            );
+            const noArgMessages = getMessages(easterEgg?.no_args);
+            if (noArgMessages.length > 0) {
+              ChatRoomSendLocal(
+                noArgMessages[Math.floor(Math.random() * noArgMessages.length)],
+              );
+            }
             return;
           }
 
@@ -165,11 +180,11 @@ export class CLI extends CRABS_Base {
             return;
           }
 
-          const failTemplates: string[] =
-            (locales.en as any).crab_easter_egg?.fail_messages ?? [];
+          const failTemplates = getMessages(easterEgg?.fail_messages);
           const template =
-            failTemplates[Math.floor(Math.random() * failTemplates.length)] ||
-            "";
+            failTemplates.length > 0
+              ? failTemplates[Math.floor(Math.random() * failTemplates.length)]
+              : "";
           ChatRoomSendLocal(template.replace("{arg}", commandArguments));
         },
       },

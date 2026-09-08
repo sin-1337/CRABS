@@ -11,7 +11,7 @@ import { Settings } from "../settings";
 import type { Roster } from "../roster";
 import "./templates/chat.css";
 
-import * as locales from "./i18n";
+import locales from "./i18n.json";
 
 /**
  * Class managing chat log message hooks, highlights, and DOM hovers.

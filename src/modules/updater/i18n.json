@@ -1,0 +1,33 @@
+{
+  "notification": {
+    "title": {
+      "en": "🦀 CRABS Update Available!",
+      "cn": "🦀 CRABS 更新可用！",
+      "de": "🦀 CRABS Update verfügbar!",
+      "fr": "🦀 Mise à jour CRABS disponible !",
+      "ru": "🦀 Доступно обновление CRABS!",
+      "tw": "🦀 CRABS 更新可用！",
+      "uk": "🦀 Доступне оновлення CRABS!"
+    },
+    "message": {
+      "en": "Version {newVersion} ({branch}) is out! (You are on {currentVersion}). Refresh your page to apply the update.",
+      "cn": "版本 {newVersion} ({branch}) 已发布！(当前版本 {currentVersion})。刷新页面以应用更新。",
+      "de": "Version {newVersion} ({branch}) ist da! (Du hast {currentVersion}). Lade die Seite neu, um das Update anzuwenden.",
+      "fr": "La version {newVersion} ({branch}) est sortie ! (Vous êtes en {currentVersion}). Actualisez votre page pour appliquer la mise à jour.",
+      "ru": "Версия {newVersion} ({branch}) вышла! (У вас {currentVersion}). Обновите страницу, чтобы применить обновление.",
+      "tw": "版本 {newVersion} ({branch}) 已發佈！(目前版本 {currentVersion})。重新整理頁面以套用更新。",
+      "uk": "Версія {newVersion} ({branch}) вийшла! (У вас {currentVersion}). Оновіть сторінку, щоб застосувати оновлення."
+    }
+  },
+  "chat": {
+    "local_message": {
+      "en": "<span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) is available. Reload the page to update!</span>",
+      "cn": "<span style=\"color: cyan;\"><b>CRABS 更新：</b> 版本 {newVersion} ({branch}) 已可用。重新加载页面以更新！</span>",
+      "de": "<span style=\"color: cyan;\"><b>CRABS Update:</b> Version {newVersion} ({branch}) ist verfügbar. Lade die Seite neu zum Aktualisieren!</span>",
+      "fr": "<span style=\"color: cyan;\"><b>Mise à jour CRABS :</b> La version {newVersion} ({branch}) est disponible. Rechargez la page pour mettre à jour !</span>",
+      "ru": "<span style=\"color: cyan;\"><b>Обновление CRABS:</b> Версия {newVersion} ({branch}) доступна. Перезагрузите страницу, чтобы обновить!</span>",
+      "tw": "<span style=\"color: cyan;\"><b>CRABS 更新：</b> 版本 {newVersion} ({branch}) 已可用。重新載入頁面以更新！</span>",
+      "uk": "<span style=\"color: cyan;\"><b>Оновлення CRABS:</b> Версія {newVersion} ({branch}) доступна. Перезавантажте сторінку, щоб оновити!</span>"
+    }
+  }
+}
