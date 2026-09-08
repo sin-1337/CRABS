@@ -1,6 +1,7 @@
 import { CRABS_Base } from "../base";
 import { Notification } from "../notifications";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
+import { Setup } from "../setup";
 import {
   CheckboxWidget,
   InputWidget,
@@ -618,6 +619,9 @@ export class Settings extends CRABS_Base {
       (val) => {
         CRABS_Base.setLanguageOverride(val);
         this.layout.updateDOM(this.isMenuOpen);
+
+        // Redraw the banner in chat if it's currently showing
+        Setup.redrawBanner();
       },
     );
     createCheck(
