@@ -1,1 +1,131 @@
-{}
+{
+    "headers": {
+        "chapters": {
+            "en": "Chapters",
+            "cn": "章节",
+            "de": "Kapitel",
+            "fr": "Chapitres",
+            "ru": "Главы",
+            "tw": "章節",
+            "uk": "Розділи"
+        }
+    },
+    "chapters": {
+        "basics": {
+            "en": "Basics",
+            "cn": "基础",
+            "de": "Grundlagen",
+            "fr": "Bases",
+            "ru": "Основы",
+            "tw": "基礎",
+            "uk": "Основи"
+        },
+        "roster": {
+            "en": "Roster Drawer",
+            "cn": "花名册抽屉",
+            "de": "Raumliste",
+            "fr": "Volet de la liste",
+            "ru": "Панель списка",
+            "tw": "名冊抽屜",
+            "uk": "Панель списку"
+        }
+    },
+    "controls": {
+        "prev": {
+            "en": "Back",
+            "cn": "返回",
+            "de": "Zurück",
+            "fr": "Retour",
+            "ru": "Назад",
+            "tw": "返回",
+            "uk": "Назад"
+        },
+        "next": {
+            "en": "Next",
+            "cn": "下一步",
+            "de": "Weiter",
+            "fr": "Suivant",
+            "ru": "Далее",
+            "tw": "下一步",
+            "uk": "Далі"
+        },
+        "finish": {
+            "en": "Finish",
+            "cn": "完成",
+            "de": "Abschließen",
+            "fr": "Terminer",
+            "ru": "Завершить",
+            "tw": "完成",
+            "uk": "Завершити"
+        },
+        "close": {
+            "en": "Close Tutorial",
+            "cn": "关闭教程",
+            "de": "Tutorial schließen",
+            "fr": "Fermer le tutoriel",
+            "ru": "Закрыть обучение",
+            "tw": "關閉教學",
+            "uk": "Закрити навчальний посібник"
+        }
+    },
+    "steps": {
+        "welcome": {
+            "default": {
+                "en": "Welcome! Let's get you familiar with the mod's interface and features.",
+                "cn": "欢迎！让我们来熟悉该模组的界面和功能。",
+                "de": "Willkommen! Machen wir dich mit der Benutzeroberfläche und den Funktionen vertraut.",
+                "fr": "Bienvenue ! Découvrons ensemble l'interface et les fonctionnalités du mod.",
+                "ru": "Добро пожаловать! Давайте познакомимся с интерфейсом и возможностями мода.",
+                "tw": "歡迎！讓我們來熟悉該模組的介面和功能。",
+                "uk": "Ласкаво просимо! Ознайомимося з інтерфейсом та функціями мода."
+            },
+            "back": {
+                "en": "Going back to the start: welcome! Let's review the basics.",
+                "cn": "回到开头：欢迎！让我们重温一下基础知识。",
+                "de": "Zurück zum Anfang: Willkommen! Gehen wir die Grundlagen noch einmal durch.",
+                "fr": "Retour au début : bienvenue ! Revoyons les bases ensemble.",
+                "ru": "Возвращаемся к началу: добро пожаловать! Давайте повторим основы.",
+                "tw": "回到開頭：歡迎！讓我們重溫一下基礎知識。",
+                "uk": "Повертаючись до початку: ласкаво просимо! Повторімо основи."
+            },
+            "resume": {
+                "en": "Welcome back! Ready to jump back into the introduction?",
+                "cn": "欢迎回来！准备好重新开始介绍了吗？",
+                "de": "Willkommen zurück! Bereit, die Einführung fortzusetzen?",
+                "fr": "Bon retour ! Prêt à reprendre l'introduction ?",
+                "ru": "С возвращением! Готовы продолжить знакомство?",
+                "tw": "歡迎回來！準備好重新開始介紹了嗎？",
+                "uk": "З поверненням! Готові продовжити вступ?"
+            }
+        },
+        "roster": {
+            "default": {
+                "en": "This is the Roster drawer. It lets you monitor everyone in the room and check key states.",
+                "cn": "这是花名册抽屉。它可以让你查看房间内的所有人并确认钥匙状态。",
+                "de": "Das ist die Raumliste. Hier behältst du alle Personen im Raum und den Schlüsselstatus im Blick.",
+                "fr": "Voici le volet de la liste. Il vous permet de voir toutes les personnes présentes et l'état des clés.",
+                "ru": "Это панель списка игроков. Она позволяет следить за всеми в комнате и статусом ключей.",
+                "tw": "這是名冊抽屜。它可以讓你查看房間內的所有人並確認鑰匙狀態。",
+                "uk": "Це панель списку гравців. Вона дозволяє бачити всіх у кімнаті та перевіряти стан ключів."
+            },
+            "back": {
+                "en": "Let me repeat that: the Roster drawer tracks occupants, roles, and status effects.",
+                "cn": "让我重复一遍：花名册抽屉跟踪房间成员、权限和状态效果。",
+                "de": "Lass es mich wiederholen: Die Raumliste erfasst Teilnehmer, Rollen und Statuseffekte.",
+                "fr": "Je répète : le volet liste suit les membres de la salle, leurs rôles et leurs effets de statut.",
+                "ru": "Повторю: панель списка отслеживает участников, их роли и эффекты состояния.",
+                "tw": "讓我重複一遍：名冊抽屜追蹤房間成員、權限和狀態效果。",
+                "uk": "Повторюю: панель списку відстежує присутніх, їхні ролі та ефекти стану."
+            },
+            "resume": {
+                "en": "Now, where were we? Ah right, we were exploring the Roster drawer.",
+                "cn": "刚才讲到哪了？对了，我们正在了解花名册抽屉。",
+                "de": "Wo waren wir stehengeblieben? Ach ja, wir haben uns die Raumliste angesehen.",
+                "fr": "Où en étions-nous ? Ah oui, nous explorions le volet de la liste.",
+                "ru": "Так, на чем мы остановились? Ах да, мы осматривали панель списка игроков.",
+                "tw": "剛才講到哪了？對了，我們正在了解名冊抽屜。",
+                "uk": "Отже, на чому ми зупинилися? Ах так, ми оглядали панель списку гравців."
+            }
+        }
+    }
+}

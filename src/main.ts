@@ -17,6 +17,7 @@ import {
   Setup,
   Updater,
   WhisperPlus,
+  Tutorial,
 } from "./modules";
 import { CRABS_Base } from "./modules/base";
 
@@ -63,6 +64,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
+const TUTORIAL = new Tutorial(CRABS);
 new PrivacyMode(CRABS);
 new ChatManager(CRABS, ROSTER);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
@@ -80,6 +82,7 @@ new CLI({
   help: HELP,
   setup: SETUP,
   performance: PERFORMANCE,
+  tutorial: TUTORIAL,
 });
 
 WHISPERPLUS.setupHooks();

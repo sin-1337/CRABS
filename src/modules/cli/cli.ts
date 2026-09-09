@@ -8,6 +8,7 @@ import { Assets } from "../assets";
 import { Setup } from "../setup";
 import { Notification } from "../notifications";
 import { Performance } from "../performance";
+import { Tutorial } from "../tutorial";
 import { CRABS_Base } from "../base";
 import locales from "./i18n.json";
 
@@ -18,6 +19,7 @@ export interface CliDependencies {
   help: Help;
   setup: Setup;
   performance: Performance;
+  tutorial: Tutorial;
 }
 
 export class CLI extends CRABS_Base {
@@ -26,9 +28,9 @@ export class CLI extends CRABS_Base {
   private help: Help;
   private setup: Setup;
   private performance: Performance;
+  private tutorial: Tutorial;
 
   constructor(deps: CliDependencies) {
-    // Base constructor assigns this.moduleNamespace = "cli" and registers all locales
     super(deps.crabs, "cli", locales);
 
     this.whisperPlus = deps.whisperPlus;
@@ -36,6 +38,7 @@ export class CLI extends CRABS_Base {
     this.help = deps.help;
     this.setup = deps.setup;
     this.performance = deps.performance;
+    this.tutorial = deps.tutorial;
 
     this.registerCommands();
   }
@@ -56,9 +59,17 @@ export class CLI extends CRABS_Base {
   }
 
   private argcheck(commandArguments: string): boolean {
-    const splitArgs = commandArguments.toLowerCase().split(" ");
+    const splitArgs = commandArguments.toLowerCase().trim().split(/\s+/);
     const arg = splitArgs[0];
     const opensDrawer = Settings.instance.data.rosterOpensDrawer;
+
+    // --- Add Tutorial Here ---
+    if (arg === "tutorial") {
+      const forceRestart =
+        splitArgs[1] === "reset" || splitArgs[1] === "restart";
+      this.tutorial.startTutorial(forceRestart);
+      return false; // Returns false so the roster doesn't print
+    }
 
     if (arg === "help") {
       if (opensDrawer) {
@@ -145,7 +156,6 @@ export class CLI extends CRABS_Base {
         Action: (commandArguments: string) => {
           const trimmedArgs = commandArguments.trim().toLowerCase();
 
-          // Helper to resolve localized string array with fallback
           const getMessages = (entry?: Record<string, string[]>): string[] => {
             if (!entry) return [];
             const active = CRABS_Base.getActiveLocale();
@@ -195,21 +205,17 @@ export class CLI extends CRABS_Base {
           const trimmed = commandArguments.trim().toLowerCase();
           const opensDrawer = Settings.instance.data.rosterOpensDrawer;
 
-          // If drawer mode is on and there are no arguments, open default roster drawer
           if (opensDrawer && !trimmed) {
             this.openDrawerTab("roster");
             return;
           }
 
-          // If valid command arguments are passed, evaluate through argcheck
           if (this.argcheck(commandArguments)) {
-            // If it's a valid roster view argument and drawer mode is active, display in drawer
             if (opensDrawer) {
               this.openDrawerTab("roster");
               return;
             }
 
-            // Chat log fallback rendering
             this.roster.buildui(
               this.roster.buildroster(commandArguments),
               "CRABS_Roster",

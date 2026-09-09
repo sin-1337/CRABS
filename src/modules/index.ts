@@ -21,3 +21,4 @@ export { PrivacyMode } from "./privacy";
 export { Setup } from "./setup";
 export { Updater } from "./updater";
 export { WhisperPlus } from "./whisperplus";
+export { Tutorial } from "./tutorial";
