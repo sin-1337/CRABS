@@ -43,22 +43,6 @@ export class CLI extends CRABS_Base {
     this.registerCommands();
   }
 
-  /**
-   * Helper to open the drawer to a specific tab when rosterOpensDrawer is enabled.
-   */
-  private openDrawerTab(tabName?: string): void {
-    Drawer.updateVisibility();
-
-    if (tabName === "help") {
-      Drawer.openHelp();
-    } else if (tabName === "roster") {
-      Drawer.setShowingHelp(false);
-      Drawer.open();
-    } else {
-      Drawer.toggle();
-    }
-  }
-
   private argcheck(commandArguments: string): boolean {
     const splitArgs = commandArguments.toLowerCase().trim().split(/\s+/);
     const arg = splitArgs[0];
@@ -74,13 +58,18 @@ export class CLI extends CRABS_Base {
 
     if (arg === "help") {
       if (opensDrawer) {
-        this.openDrawerTab("help");
+        Drawer.toggle("help");
         return false;
       }
       this.help.buildui(this.help.showHelp(), "CRABS_Help");
       const helpButton = document.getElementById("CRABS_Help_Icon");
       if (helpButton) helpButton.style.display = "none";
       return false;
+    } else if (arg === "history") {
+      if (opensDrawer) {
+        Drawer.toggle("history");
+        return false;
+      }
     } else if (arg === "version") {
       ChatRoomSendLocal(
         `${__NAME__} (${__NICKNAME__}) <br>Version: ${__VERSION__}`,
@@ -148,7 +137,34 @@ export class CLI extends CRABS_Base {
         Tag: "crabs",
         Description: this.t("crabs_desc"),
         Action: (commandArguments: string) => {
-          this.commandRedirect("roster", commandArguments);
+          const trimmed = commandArguments.trim().toLowerCase();
+          const opensDrawer = Settings.instance.data.rosterOpensDrawer;
+
+          if (opensDrawer && !trimmed) {
+            Drawer.toggle("roster");
+            return;
+          }
+
+          if (this.argcheck(commandArguments)) {
+            if (opensDrawer) {
+              Drawer.toggle("roster");
+              return;
+            }
+
+            this.roster.buildui(
+              this.roster.buildroster(commandArguments),
+              "CRABS_Roster",
+            );
+            this.whisperPlus.buildui();
+            this.roster.initScrollingOverflow();
+          }
+
+          const elements = document.querySelectorAll<HTMLDivElement>(
+            "div.ChatMessageNonDialogue",
+          );
+          elements.forEach((element) => {
+            element.style.overflow = "visible";
+          });
         },
       },
       {
@@ -203,34 +219,7 @@ export class CLI extends CRABS_Base {
         Tag: "roster",
         Description: this.t("roster_desc"),
         Action: (commandArguments: string) => {
-          const trimmed = commandArguments.trim().toLowerCase();
-          const opensDrawer = Settings.instance.data.rosterOpensDrawer;
-
-          if (opensDrawer && !trimmed) {
-            this.openDrawerTab("roster");
-            return;
-          }
-
-          if (this.argcheck(commandArguments)) {
-            if (opensDrawer) {
-              this.openDrawerTab("roster");
-              return;
-            }
-
-            this.roster.buildui(
-              this.roster.buildroster(commandArguments),
-              "CRABS_Roster",
-            );
-            this.whisperPlus.buildui();
-            this.roster.initScrollingOverflow();
-          }
-
-          const elements = document.querySelectorAll<HTMLDivElement>(
-            "div.ChatMessageNonDialogue",
-          );
-          elements.forEach((element) => {
-            element.style.overflow = "visible";
-          });
+          this.commandRedirect("crabs", commandArguments);
         },
       },
       {

@@ -47,7 +47,7 @@ CRABS_Base.setNotifyHandler((message, title) =>
 
 CRABS_Base.setHelpHandler(() => {
   if (Settings.instance?.data?.rosterOpensDrawer) {
-    Drawer.openHelp();
+    Drawer.open("help");
   } else {
     for (const [_, command] of Commands.entries()) {
       if (command.Tag === "crabs") {

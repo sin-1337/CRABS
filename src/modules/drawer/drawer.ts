@@ -23,6 +23,8 @@ import { Settings } from "../settings";
 
 import locales from "./i18n.json";
 
+export type DrawerPage = "roster" | "help" | "history";
+
 /**
  * Class representing the side drawer UI.
  * Manages the sliding panel that contains the Roster, Help, and Settings access.
@@ -44,8 +46,10 @@ export class Drawer extends CRABS_Base {
   private whisperPlusModule: WhisperPlus;
   /** Observer to keep the drawer aligned with the chat log resizing. */
   private resizeObserver: ResizeObserver | null = null;
-  /** Tracks if the drawer is currently displaying the Help view instead of the Roster. */
+  /** Tracks if the drawer is currently displaying the Help view. */
   private showingHelp: boolean = false;
+  /** Tracks if the drawer is currently displaying the History view. */
+  private showingHistory: boolean = false;
   /** Counter used to throttle frame updates based on performance tier. */
   private updateTick: number = 0;
   /** Cached reference to the tab element to prevent DOM queries in the render loop */
@@ -89,38 +93,78 @@ export class Drawer extends CRABS_Base {
     this.init();
   }
 
-  /** Toggles the drawer open/closed globally. */
-  public static toggle(): void {
-    Drawer._instance?.toggle();
+  /**
+   * Toggles the drawer open/closed globally, optionally targeting a specific page.
+   * @param {DrawerPage} [page] - Optional view to toggle or switch to.
+   */
+  public static toggle(page?: DrawerPage): void {
+    Drawer._instance?.toggle(page);
   }
-  /** Opens the drawer globally. */
-  public static open(): void {
-    Drawer._instance?.open();
+
+  /**
+   * Opens the drawer globally, optionally routing to a specific page.
+   * @param {DrawerPage} [page] - Optional view to display upon opening.
+   */
+  public static open(page?: DrawerPage): void {
+    Drawer.updateVisibility();
+    Drawer._instance?.open(page);
   }
+
   /** Closes the drawer globally. */
   public static close(): void {
     Drawer._instance?.close();
   }
+
   /** Evaluates game state to determine if the drawer should be visible or hidden. */
   public static updateVisibility(): void {
     Drawer._instance?.updateVisibility();
   }
+
   /** Forces a re-render of the drawer's current content. */
   public static refresh(): void {
     Drawer._instance?.refresh();
   }
+
   /** Checks if the help menu is currently being displayed.
    * @returns {boolean} True if the help screen is active.
    */
   public static isShowingHelp(): boolean {
     return Drawer._instance?.showingHelp ?? false;
   }
+
   /** Overrides the current view state of the drawer.
    * @param {boolean} value - True to show Help, false to show Roster.
    */
   public static setShowingHelp(value: boolean): void {
-    if (Drawer._instance) Drawer._instance.showingHelp = value;
+    if (Drawer._instance) {
+      Drawer._instance.showingHelp = value;
+      if (value) {
+        Drawer._instance.showingHistory = false;
+        Drawer._instance.rosterModule.isShowingHistory = false;
+      }
+    }
   }
+
+  /** Checks if the history menu is currently being displayed.
+   * @returns {boolean} True if the history screen is active.
+   */
+  public static isShowingHistory(): boolean {
+    return Drawer._instance?.showingHistory ?? false;
+  }
+
+  /** Overrides the current history view state of the drawer.
+   * @param {boolean} value - True to show History, false to return to Roster.
+   */
+  public static setShowingHistory(value: boolean): void {
+    if (Drawer._instance) {
+      Drawer._instance.showingHistory = value;
+      Drawer._instance.rosterModule.isShowingHistory = value;
+      if (value) {
+        Drawer._instance.showingHelp = false;
+      }
+    }
+  }
+
   /** Triggers the easter egg visual effect on the drawer tab. */
   public static RaveTab(): void {
     Drawer._instance?.RaveTab();
@@ -151,22 +195,6 @@ export class Drawer extends CRABS_Base {
       default:
         return "menu_cards";
     }
-  }
-
-  /**
-   * Opens the drawer and immediately routes to the Help tab.
-   */
-  public openHelp(): void {
-    this.showingHelp = true;
-    this.open();
-  }
-
-  /**
-   * Static accessor to show the Help screen inside the drawer.
-   */
-  public static openHelp(): void {
-    Drawer.updateVisibility();
-    Drawer._instance?.openHelp();
   }
 
   /**
@@ -323,7 +351,7 @@ export class Drawer extends CRABS_Base {
 
           if (this.isOpen && !this.showingHelp) {
             if (this.rosterModule.isDirty) {
-              if (this.rosterModule.isShowingHistory) {
+              if (this.showingHistory) {
                 // Live refresh the history tab when someone leaves or joins
                 this.refresh();
               } else {
@@ -368,7 +396,6 @@ export class Drawer extends CRABS_Base {
       ? "animated_logo"
       : "static_logo";
 
-    // Notice we REMOVED all tooltip_overrides so the Assets module auto-translates them!
     const templateVars = {
       Help: Assets.printimage({
         key: "help",
@@ -562,7 +589,7 @@ export class Drawer extends CRABS_Base {
         key: "sort",
         css_class_override: "CRABS_Drawer_Sort_Icon",
       });
-    if (historyIconContainer && !this.rosterModule.isShowingHistory) {
+    if (historyIconContainer && !this.showingHistory) {
       historyIconContainer.innerHTML = Assets.printimage({
         key: "history" as any,
         css_class_override: "CRABS_Drawer_History_Icon",
@@ -596,7 +623,7 @@ export class Drawer extends CRABS_Base {
       header?.classList.toggle("help-active", this.showingHelp);
       header?.classList.toggle(
         "history-active",
-        !this.showingHelp && this.rosterModule.isShowingHistory,
+        !this.showingHelp && this.showingHistory,
       );
 
       const setLayoutVisible = (visible: boolean) => {
@@ -633,7 +660,7 @@ export class Drawer extends CRABS_Base {
         setLayoutVisible(false);
 
         content.innerHTML = this.helpModule.showHelp(false);
-      } else if (this.rosterModule.isShowingHistory) {
+      } else if (this.showingHistory) {
         if (title && title.textContent !== historyTitle)
           title.textContent = historyTitle;
 
@@ -678,7 +705,7 @@ export class Drawer extends CRABS_Base {
         layoutIcons?.forEach((el) => {
           (el as HTMLElement).innerHTML = Assets.printimage({
             key: this.getLayoutIconKey() as any,
-            tooltip_override: this.t("tooltips.layout"), // <--- Add this back
+            tooltip_override: this.t("tooltips.layout"),
             css_class_override: "CRABS_Drawer_Layout_Icon",
           });
         });
@@ -727,7 +754,8 @@ export class Drawer extends CRABS_Base {
       const target = event.target as HTMLElement;
 
       if (target.closest(".CRABS_Drawer_Help_Icon")) {
-        if (this.rosterModule.isShowingHistory) {
+        if (this.showingHistory) {
+          this.showingHistory = false;
           this.rosterModule.isShowingHistory = false;
         }
         this.showingHelp = !this.showingHelp;
@@ -738,12 +766,12 @@ export class Drawer extends CRABS_Base {
         if (this.showingHelp) {
           this.showingHelp = false;
         }
-        this.rosterModule.isShowingHistory =
-          !this.rosterModule.isShowingHistory;
+        this.showingHistory = !this.showingHistory;
+        this.rosterModule.isShowingHistory = this.showingHistory;
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
         // Prevent layout cycling if Help or History view is active
-        if (this.showingHelp || this.rosterModule.isShowingHistory) return;
+        if (this.showingHelp || this.showingHistory) return;
 
         const layouts = [
           "layout-grid",
@@ -766,8 +794,9 @@ export class Drawer extends CRABS_Base {
         }
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
-        if (this.showingHelp || this.rosterModule.isShowingHistory) {
+        if (this.showingHelp || this.showingHistory) {
           this.showingHelp = false;
+          this.showingHistory = false;
           this.rosterModule.isShowingHistory = false;
           this.refresh();
         } else {
@@ -778,21 +807,49 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Alternates the drawer's state between open and closed.
+   * Alternates the drawer's state between open and closed, or switches to a target page.
+   * - If closed: opens directly to the requested page.
+   * - If open on the requested page: closes the drawer.
+   * - If open on a different page: switches view without closing.
+   * - If no page specified: standard toggle behavior.
    *
+   * @param {DrawerPage} [page] - The specific view to target.
    * @returns {void}
    */
-  public toggle(): void {
-    this.isOpen ? this.close() : this.open();
+  public toggle(page?: DrawerPage): void {
+    if (!page) {
+      this.isOpen ? this.close() : this.open();
+      return;
+    }
+
+    const isCurrentPage =
+      (page === "help" && this.showingHelp) ||
+      (page === "history" && this.showingHistory) ||
+      (page === "roster" && !this.showingHelp && !this.showingHistory);
+
+    if (this.isOpen && isCurrentPage) {
+      this.close();
+      return;
+    }
+
+    this.open(page);
   }
 
   /**
-   * Opens the drawer and refreshes content.
+   * Opens the drawer and refreshes content, optionally routing to a specific page.
    *
+   * @param {DrawerPage} [page] - Optional view to route to ("roster", "help", or "history").
    * @returns {void}
    */
-  public open(): void {
+  public open(page?: DrawerPage): void {
     if (!this.instance) return;
+
+    if (page) {
+      this.showingHelp = page === "help";
+      this.showingHistory = page === "history";
+      this.rosterModule.isShowingHistory = page === "history";
+    }
+
     this.refresh();
     this.isOpen = true;
     this.instance.classList.remove("drawer-closed");
