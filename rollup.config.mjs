@@ -10,6 +10,7 @@ import { string } from "rollup-plugin-string";
 import postcss from "rollup-plugin-postcss";
 import replace from "@rollup/plugin-replace";
 
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -26,6 +27,44 @@ const targetBranch = process.env.OUT_DIR ? "Test" : BUILD_BRANCH;
 const targetOutputFile = process.env.OUT_DIR
   ? `${process.env.OUT_DIR}/bundle.js`
   : `../Live/CRABS/${BUILD_BRANCH}/bundle.js`;
+
+// Helper plugin to resolve bare "*.html", "*.css", and "*.json" imports
+const resolveModuleAssets = () => ({
+  name: "resolve-module-assets",
+  resolveId(source, importer) {
+    const isAsset =
+      source.endsWith(".html") ||
+      source.endsWith(".css") ||
+      source.endsWith(".json");
+    if (isAsset && !source.startsWith(".") && !source.startsWith("/")) {
+      if (importer) {
+        const importerDir = path.dirname(importer);
+
+        const localTemplate = path.join(importerDir, "templates", source);
+        if (fs.existsSync(localTemplate)) return localTemplate;
+
+        const localFile = path.join(importerDir, source);
+        if (fs.existsSync(localFile)) return localFile;
+      }
+
+      const modulesDir = path.resolve(__dirname, "src/modules");
+      if (fs.existsSync(modulesDir)) {
+        const modules = fs.readdirSync(modulesDir);
+        for (const mod of modules) {
+          const modPath = path.join(modulesDir, mod);
+          if (!fs.statSync(modPath).isDirectory()) continue;
+
+          const templateCandidate = path.join(modPath, "templates", source);
+          if (fs.existsSync(templateCandidate)) return templateCandidate;
+
+          const rootCandidate = path.join(modPath, source);
+          if (fs.existsSync(rootCandidate)) return rootCandidate;
+        }
+      }
+    }
+    return null;
+  },
+});
 
 export default {
   input: "src/main.ts",
@@ -63,18 +102,18 @@ window.CRABS_Loaded = false;
       },
     }),
     progress({ clearLine: true }),
+    resolveModuleAssets(),
     resolve({
       browser: true,
-      moduleDirectories: [
+      modulePaths: [
         path.resolve(__dirname, "src"),
         path.resolve(__dirname, "src/modules"),
-        "node_modules",
       ],
     }),
     json(),
     postcss({
-      inject: true, // Inline <style> tag into output JS
-      minimize: true, // Minify CSS
+      inject: true,
+      minimize: true,
       sourceMap: false,
     }),
     string({
