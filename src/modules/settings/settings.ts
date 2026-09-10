@@ -265,17 +265,17 @@ export class Settings extends CRABS_Base {
 
     if (hitCapacityLimit && hadInvalidItems) {
       Notification.send({
-        message: this.t("notifications.cloud_both_limit"),
+        message: this.t("settings.notifications.cloud_both_limit"),
         title: "CRABS Storage",
       });
     } else if (hitCapacityLimit) {
       Notification.send({
-        message: this.t("notifications.cloud_capacity_limit"),
+        message: this.t("settings.notifications.cloud_capacity_limit"),
         title: "CRABS Storage",
       });
     } else if (hadInvalidItems) {
       Notification.send({
-        message: this.t("notifications.cloud_invalid_items"),
+        message: this.t("settings.notifications.cloud_invalid_items"),
         title: "CRABS Storage",
       });
     }
@@ -311,12 +311,14 @@ export class Settings extends CRABS_Base {
       localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
       this.layout.updateDOM(this.isMenuOpen);
 
-      Notification.send({ message: this.t("notifications.server_cleared") });
+      Notification.send({
+        message: this.t("settings.notifications.server_cleared"),
+      });
     } catch (e: any) {
       console.error("Failed to delete server data", e);
       const errorMessage = e instanceof Error ? e.message : "Unknown error";
       Notification.send({
-        message: this.t("notifications.server_clear_failed", {
+        message: this.t("settings.notifications.server_clear_failed", {
           error: errorMessage,
         }),
         title: "CRABS Error",
@@ -346,11 +348,13 @@ export class Settings extends CRABS_Base {
       const encoded = btoa(str);
       navigator.clipboard.writeText(encoded);
 
-      Notification.send({ message: this.t("notifications.config_exported") });
+      Notification.send({
+        message: this.t("settings.notifications.config_exported"),
+      });
     } catch (e) {
       console.error("Export failed", e);
       Notification.send({
-        message: this.t("notifications.export_failed"),
+        message: this.t("settings.notifications.export_failed"),
         title: "CRABS Error",
       });
     }
@@ -361,7 +365,7 @@ export class Settings extends CRABS_Base {
 
     try {
       const text = globalWindow.prompt(
-        this.t("notifications.import_prompt"),
+        this.t("settings.notifications.import_prompt"),
         "",
       );
 
@@ -377,17 +381,19 @@ export class Settings extends CRABS_Base {
         this.save();
         this.layout.updateDOM(this.isMenuOpen);
 
-        Notification.send({ message: this.t("notifications.import_success") });
+        Notification.send({
+          message: this.t("settings.notifications.import_success"),
+        });
       } else {
         Notification.send({
-          message: this.t("notifications.import_unrecognized"),
+          message: this.t("settings.notifications.import_unrecognized"),
           title: "CRABS Error",
         });
       }
     } catch (e) {
       console.error("Import failed", e);
       Notification.send({
-        message: this.t("notifications.import_invalid"),
+        message: this.t("settings.notifications.import_invalid"),
         title: "CRABS Error",
       });
     }
@@ -561,7 +567,7 @@ export class Settings extends CRABS_Base {
       const globalWindow = window as any;
       const bind = globalWindow.KeyManager?.getKeybinding(bindId);
 
-      if (!bind || !bind.keyCombo) return this.t("general.unbound");
+      if (!bind || !bind.keyCombo) return this.t("settings.general.unbound");
 
       const mods = Array.from(bind.keyCombo.modifiers || []).join("+");
       let keyText = "";
@@ -581,7 +587,7 @@ export class Settings extends CRABS_Base {
         keyText = bind.keyCombo.char.toUpperCase();
       }
 
-      if (!keyText && !mods) return this.t("general.unbound");
+      if (!keyText && !mods) return this.t("settings.general.unbound");
       return mods && keyText ? `${mods}+${keyText}` : mods || keyText;
     };
 
@@ -602,17 +608,17 @@ export class Settings extends CRABS_Base {
     createSelect(
       "General",
       "languageOverride",
-      "general.language_label",
-      "general.language_hint",
+      "settings.general.language_label",
+      "settings.general.language_hint",
       () => [
-        { value: "auto", text: `🌐 ${this.t("language.auto")}` },
-        { value: "en", text: `🇬🇧 ${this.t("language.en")}` },
-        { value: "de", text: `🇩🇪 ${this.t("language.de")}` },
-        { value: "fr", text: `🇫🇷 ${this.t("language.fr")}` },
-        { value: "ru", text: `🇷🇺 ${this.t("language.ru")}` },
-        { value: "cn", text: `🇨🇳 ${this.t("language.cn")}` },
-        { value: "tw", text: `🇹🇼 ${this.t("language.tw")}` },
-        { value: "uk", text: `🇺🇦 ${this.t("language.uk")}` },
+        { value: "auto", text: `🌐 ${this.t("settings.language.auto")}` },
+        { value: "en", text: `🇬🇧 ${this.t("settings.language.en")}` },
+        { value: "de", text: `🇩🇪 ${this.t("settings.language.de")}` },
+        { value: "fr", text: `🇫🇷 ${this.t("settings.language.fr")}` },
+        { value: "ru", text: `🇷🇺 ${this.t("settings.language.ru")}` },
+        { value: "cn", text: `🇨🇳 ${this.t("settings.language.cn")}` },
+        { value: "tw", text: `🇹🇼 ${this.t("settings.language.tw")}` },
+        { value: "uk", text: `🇺🇦 ${this.t("settings.language.uk")}` },
       ],
       0,
       undefined,
@@ -627,37 +633,37 @@ export class Settings extends CRABS_Base {
     createCheck(
       "General",
       "checkForUpdates",
-      "general.check_updates_label",
-      "general.check_updates_hint",
+      "settings.general.check_updates_label",
+      "settings.general.check_updates_hint",
     );
     createCheck(
       "General",
       "enablePerformanceMode",
-      "general.perf_mode_label",
-      "general.perf_mode_hint",
+      "settings.general.perf_mode_label",
+      "settings.general.perf_mode_hint",
     );
     createCheck(
       "General",
       "showBanner",
-      "general.banner_label",
-      "general.banner_hint",
+      "settings.general.banner_label",
+      "settings.general.banner_hint",
     );
     createCheck(
       "General",
       "enableFocusHalo",
-      "general.halo_label",
-      "general.halo_hint",
+      "settings.general.halo_label",
+      "settings.general.halo_hint",
     );
     createButton(
       "General",
-      "general.edit_keybinds_label",
-      "general.edit_keybinds_hint",
+      "settings.general.edit_keybinds_label",
+      "settings.general.edit_keybinds_hint",
       () => this.openNativeKeybindings(),
     );
     createLabel(
       "General",
       () =>
-        this.t("general.drawer_toggle_bind", {
+        this.t("settings.general.drawer_toggle_bind", {
           bind: getBindString("crabs_drawer_toggle"),
         }),
       "",
@@ -666,7 +672,7 @@ export class Settings extends CRABS_Base {
     createLabel(
       "General",
       () =>
-        this.t("general.privacy_half_bind", {
+        this.t("settings.general.privacy_half_bind", {
           bind: getBindString("crabs_privacy_half"),
         }),
       "",
@@ -675,7 +681,7 @@ export class Settings extends CRABS_Base {
     createLabel(
       "General",
       () =>
-        this.t("general.privacy_full_bind", {
+        this.t("settings.general.privacy_full_bind", {
           bind: getBindString("crabs_privacy_full"),
         }),
       "",
@@ -772,28 +778,28 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Immersion",
       "lockImmersive",
-      "immersion.lock_label",
-      "immersion.lock_hint",
+      "settings.immersion.lock_label",
+      "settings.immersion.lock_hint",
     );
     createCheck(
       "Immersion",
       "immersiveBlind",
-      "immersion.blind_label",
-      "immersion.blind_hint",
+      "settings.immersion.blind_label",
+      "settings.immersion.blind_hint",
       1,
     );
     createCheck(
       "Immersion",
       "immersiveGag",
-      "immersion.gag_label",
-      "immersion.gag_hint",
+      "settings.immersion.gag_label",
+      "settings.immersion.gag_hint",
       1,
     );
     createCheck(
       "Immersion",
       "respectBcxRules",
-      "immersion.bcx_label",
-      "immersion.bcx_hint",
+      "settings.immersion.bcx_label",
+      "settings.immersion.bcx_hint",
       1,
     );
 
@@ -802,7 +808,7 @@ export class Settings extends CRABS_Base {
       "Maps",
       "showMapCompass",
       () => {
-        const base = this.t("maps.compass_label");
+        const base = this.t("settings.maps.compass_label");
         return this.isCompassBlocked()
           ? `${base} [Disabled by room admin]`
           : base;
@@ -810,16 +816,16 @@ export class Settings extends CRABS_Base {
       () => {
         return this.isCompassBlocked()
           ? "Disabled: Room administrator has prohibited location and compass sharing."
-          : this.t("maps.compass_hint");
+          : this.t("settings.maps.compass_hint");
       },
       0,
-      () => this.isCompassBlocked(), // Greys out widget in UI
+      () => this.isCompassBlocked(),
     );
     createCheck(
       "Maps",
       "mapSuperZoom",
-      "maps.superzoom_label",
-      "maps.superzoom_hint",
+      "settings.maps.superzoom_label",
+      "settings.maps.superzoom_hint",
       0,
       () => {
         const perceptionValue = (window as any)
@@ -839,14 +845,14 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "highlightMentions",
-      "chat.mentions_label",
-      "chat.mentions_hint",
+      "settings.chat.mentions_label",
+      "settings.chat.mentions_hint",
     );
     createCheck(
       "Chat",
       "browserNotifications",
-      "chat.notifications_label",
-      "chat.notifications_hint",
+      "settings.chat.notifications_label",
+      "settings.chat.notifications_hint",
       1,
       () => !this.data.highlightMentions,
       (enabled) => {
@@ -869,24 +875,24 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "capitalizeNames",
-      "chat.caps_label",
-      "chat.caps_hint",
+      "settings.chat.caps_label",
+      "settings.chat.caps_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createCheck(
       "Chat",
       "colorMatchNames",
-      "chat.color_match_label",
-      "chat.color_match_hint",
+      "settings.chat.color_match_label",
+      "settings.chat.color_match_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createInput(
       "Chat",
       "customHighlightWords",
-      "chat.custom_words_label",
-      "chat.custom_words_hint",
+      "settings.chat.custom_words_label",
+      "settings.chat.custom_words_hint",
       "text",
       1,
       () => !this.data.highlightMentions,
@@ -894,16 +900,16 @@ export class Settings extends CRABS_Base {
     createTextArea(
       "Chat",
       "ignorePhrases",
-      "chat.ignore_phrases_label",
-      "chat.ignore_phrases_hint",
+      "settings.chat.ignore_phrases_label",
+      "settings.chat.ignore_phrases_hint",
       1,
       () => !this.data.highlightMentions,
     );
     createInput(
       "Chat",
       "highlightColor",
-      "chat.highlight_color_label",
-      "chat.highlight_color_hint",
+      "settings.chat.highlight_color_label",
+      "settings.chat.highlight_color_hint",
       "color",
       1,
       () => !this.data.highlightMentions,
@@ -911,14 +917,14 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "autoBeepOnLeave",
-      "chat.auto_beep_label",
-      "chat.auto_beep_hint",
+      "settings.chat.auto_beep_label",
+      "settings.chat.auto_beep_hint",
     );
     createCheck(
       "Chat",
       "whisperPlusAlwaysOn",
-      "chat.whisper_plus_always_on_label",
-      "chat.whisper_plus_always_on_hint",
+      "settings.chat.whisper_plus_always_on_label",
+      "settings.chat.whisper_plus_always_on_hint",
       0,
       undefined,
       (enabled) => {
@@ -931,8 +937,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "autoBeepOnRegularWhisper",
-      "chat.auto_beep_regular_whisper_label",
-      "chat.auto_beep_regular_whisper_hint",
+      "settings.chat.auto_beep_regular_whisper_label",
+      "settings.chat.auto_beep_regular_whisper_hint",
       0,
       () => this.data.whisperPlusAlwaysOn,
       (enabled) => {
@@ -945,27 +951,28 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Chat",
       "chatLogHover",
-      "chat.hover_links_label",
-      "chat.hover_links_hint",
+      "settings.chat.hover_links_label",
+      "settings.chat.hover_links_hint",
     );
     createCheck(
       "Chat",
       "normalizeFontOnHover",
-      "chat.normalize_font_label",
-      "chat.normalize_font_hint",
+      "settings.chat.normalize_font_label",
+      "settings.chat.normalize_font_hint",
     );
 
     // --- CONFIG MANAGEMENT ---
     createCheck(
       "Config",
       "localOnlyMode",
-      "config.local_only_label",
-      "config.local_only_hint",
+      "settings.config.local_only_label",
+      "settings.config.local_only_hint",
     );
     createLabel(
       "Config",
       () => {
-        if (this.data.localOnlyMode) return this.t("config.cloud_disabled");
+        if (this.data.localOnlyMode)
+          return this.t("settings.config.cloud_disabled");
 
         const size = this.getCloudPayloadSize();
         const limit = this.MAX_SERVER_PAYLOAD || 8000;
@@ -975,30 +982,37 @@ export class Settings extends CRABS_Base {
         );
 
         let status = "🟢";
-        if (size > limit) status = this.t("config.status_truncate");
-        else if (percent > 85) status = this.t("config.status_nearing");
+        if (size > limit) status = this.t("settings.config.status_truncate");
+        else if (percent > 85)
+          status = this.t("settings.config.status_nearing");
 
-        return this.t("config.cloud_status", {
+        return this.t("settings.config.cloud_status", {
           size,
           limit,
           percent,
           status,
         });
       },
-      () => this.t("config.cloud_hint"),
+      () => this.t("settings.config.cloud_hint"),
       1,
     );
     createButton(
       "Config",
-      "config.delete_server_label",
-      "config.delete_server_hint",
+      "settings.config.delete_server_label",
+      "settings.config.delete_server_hint",
       () => this.deleteServerData(),
     );
-    createButton("Config", "config.export_label", "config.export_hint", () =>
-      this.exportConfig(),
+    createButton(
+      "Config",
+      "settings.config.export_label",
+      "settings.config.export_hint",
+      () => this.exportConfig(),
     );
-    createButton("Config", "config.import_label", "config.import_hint", () =>
-      this.importConfig(),
+    createButton(
+      "Config",
+      "settings.config.import_label",
+      "settings.config.import_hint",
+      () => this.importConfig(),
     );
   }
 
@@ -1044,7 +1058,7 @@ export class Settings extends CRABS_Base {
         globalWindow.DrawEmptyRect(700, 350, 600, 300, "White");
         canvasContext.textAlign = "center";
         globalWindow.DrawText(
-          this.t("nav.confirm_reset_title"),
+          this.t("settings.nav.confirm_reset_title"),
           1000,
           430,
           "White",
@@ -1055,7 +1069,7 @@ export class Settings extends CRABS_Base {
           500,
           200,
           60,
-          this.t("nav.confirm"),
+          this.t("settings.nav.confirm"),
           "White",
           "",
         );
@@ -1064,7 +1078,7 @@ export class Settings extends CRABS_Base {
           500,
           200,
           60,
-          this.t("nav.cancel"),
+          this.t("settings.nav.cancel"),
           "White",
           "",
         );
@@ -1076,7 +1090,7 @@ export class Settings extends CRABS_Base {
           "",
           "White",
           "Icons/Exit.png",
-          this.t("nav.back"),
+          this.t("settings.nav.back"),
         );
 
         const isInChat =
@@ -1089,7 +1103,9 @@ export class Settings extends CRABS_Base {
           "",
           isInChat ? "White" : "#888888",
           "Icons/Chat.png",
-          isInChat ? this.t("nav.chat") : this.t("nav.no_chat"),
+          isInChat
+            ? this.t("settings.nav.chat")
+            : this.t("settings.nav.no_chat"),
         );
         globalWindow.DrawButton(
           1605,
@@ -1099,7 +1115,7 @@ export class Settings extends CRABS_Base {
           "",
           "#888888",
           "Icons/Reset.png",
-          this.t("nav.restore_defaults"),
+          this.t("settings.nav.restore_defaults"),
         );
       }
     } finally {
