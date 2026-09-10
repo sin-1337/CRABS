@@ -1,9 +1,26 @@
+/**
+ * CRABS Permissions Module
+ *
+ * Utilities for reading, synchronizing, and rendering Bondage Club
+ * player interaction and item permission levels.
+ *
+ * @module permissions
+ */
+
 declare const Player: any;
 declare const ServerAccountUpdate: any;
 declare const ServerPlayerIsInChatRoom: () => boolean;
 declare const ServerPackItemPermissions: (items: any) => any;
 declare const ChatRoomCharacterUpdate: (C: any) => void;
 
+/**
+ * Updates the local player's interaction and item permission levels, synchronizing
+ * changes to the account backend and notifying active chat room peers.
+ *
+ * Clamps values between 0 (Everyone, no exceptions) and 5 (Owner only).
+ *
+ * @param level - Target permission level index (0–5).
+ */
 export function setPermissionLevel(level: number): void {
   if (typeof Player === "undefined" || !Player || isNaN(level)) return;
 
@@ -41,6 +58,14 @@ export function setPermissionLevel(level: number): void {
   }
 }
 
+/**
+ * Generates `<option>` markup for a standard HTML `<select>` permission input.
+ *
+ * Pre-selects the option matching the player's current permission level, falling
+ * back to level 0 if unset or unavailable.
+ *
+ * @returns Raw HTML string containing `<option>` elements (values 0–5).
+ */
 export function drawPermissionOptions(): string {
   let htmlOutput = "";
   const selected: number =

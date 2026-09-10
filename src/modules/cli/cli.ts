@@ -306,55 +306,27 @@ export class CLI extends CRABS_Base {
         Tag: "dropkeys",
         Description: this.t("dropkeys_desc"),
         Action: (commandArguments: string) => {
-          const splitArgs = commandArguments.toLowerCase().split(" ");
-          if (splitArgs.length < 1 || !commandArguments.trim()) {
-            ChatRoomSendLocal(this.t("dropkeys_missing_arg"));
-            return;
-          }
-          if (!ChatRoomMapViewIsActive()) {
-            ChatRoomSendLocal(this.t("dropkeys_not_map"));
+          const splitArgs = commandArguments
+            .toLowerCase()
+            .split(/\s+/)
+            .filter(Boolean);
+          if (splitArgs.length === 0) {
+            (window as any).ChatRoomSendLocal?.(this.t("dropkeys_missing_arg"));
             return;
           }
 
-          for (let index = 0; index < splitArgs.length; index++) {
-            const arg = splitArgs[index];
-            if (arg === "bronze" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeyBronze) {
-                Player.MapData.PrivateState.HasKeyBronze = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.bronze"),
-                  }),
-                );
-              }
-            }
-            if (arg === "silver" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeySilver) {
-                Player.MapData.PrivateState.HasKeySilver = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.silver"),
-                  }),
-                );
-              }
-            }
-            if (arg === "gold" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeyGold) {
-                Player.MapData.PrivateState.HasKeyGold = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.gold"),
-                  }),
-                );
-              }
-            }
+          for (const arg of splitArgs) {
             if (
-              arg !== "bronze" &&
-              arg !== "silver" &&
-              arg !== "gold" &&
-              arg !== "all"
+              arg === "bronze" ||
+              arg === "silver" ||
+              arg === "gold" ||
+              arg === "all"
             ) {
-              ChatRoomSendLocal(this.t("dropkeys_invalid_arg", { arg }));
+              this.dropMapKey(arg);
+            } else {
+              (window as any).ChatRoomSendLocal?.(
+                this.t("dropkeys_invalid_arg", { arg }),
+              );
             }
           }
         },

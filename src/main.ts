@@ -1,5 +1,13 @@
-// main.ts
-// entry point for CRABS
+/**
+ * CRABS Main Entry Point
+ *
+ * Bootstraps the CRABS mod inside the Bondage Club client environment.
+ * Registers the mod with BCModSDK, wires base-class static delegates,
+ * instantiates core feature modules, binds CLI commands, and activates
+ * runtime state synchronization.
+ *
+ * @module main
+ */
 
 import bcModSDK from "bondage-club-mod-sdk";
 import {
@@ -21,7 +29,13 @@ import {
 } from "modules";
 import { CRABS_Base } from "base";
 
-// Register the mod
+// Global build-time constants injected via bundler (e.g. Rollup / esbuild / Webpack)
+declare const __NICKNAME__: string;
+declare const __NAME__: string;
+declare const __VERSION__: string;
+declare const Commands: Array<{ Tag: string; Action: (args: string) => void }>;
+
+// Register the mod instance with Bondage Club Mod SDK
 const CRABS = bcModSDK.registerMod({
   name: __NICKNAME__,
   fullName: __NAME__,
@@ -29,11 +43,15 @@ const CRABS = bcModSDK.registerMod({
   repository: "https://github.com/sin-1337/CRABS",
 });
 
-// Print version early, so you know what version is running even if it fails
-console.log(`CRABS v${__VERSION__} Loading`); // do not remove
+// Print startup banner immediately to confirm execution even if downstream components throw
+console.log(`CRABS v${__VERSION__} Loading`);
 
-// Wire Base class static delegates to prevent circular dependencies
-CRABS_Base.setIconRenderer((key, tooltip, cssClass) =>
+// ─────────────────────────────────────────────────────────────
+// Delegate Configuration
+// ─────────────────────────────────────────────────────────────
+// Wire static delegates onto CRABS_Base to decouple the base layer from concrete modules
+
+CRABS_Base.setIconRenderer((key: string, tooltip: string, cssClass?: string) =>
   Assets.printimage({
     key: key as any,
     tooltip_override: tooltip,
@@ -41,7 +59,7 @@ CRABS_Base.setIconRenderer((key, tooltip, cssClass) =>
   }),
 );
 
-CRABS_Base.setNotifyHandler((message, title) =>
+CRABS_Base.setNotifyHandler((message: string, title?: string) =>
   Notification.send({ message, title }),
 );
 
@@ -58,23 +76,27 @@ CRABS_Base.setHelpHandler(() => {
   }
 });
 
-// Initialize all core modules
+// ─────────────────────────────────────────────────────────────
+// Module Instantiation
+// ─────────────────────────────────────────────────────────────
+
 const SETTINGS = new Settings(CRABS);
 const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
 const TUTORIAL = new Tutorial(CRABS);
+
 new PrivacyMode(CRABS);
 new ChatManager(CRABS, ROSTER);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
 
-// Initialize the crash-proof Setup module to handle lifecycle hooks and room tracking
+// Lifecycle manager handling room transitions and safe hook recovery
 const SETUP = new Setup(CRABS, ROSTER, BANNER);
 new Updater(CRABS, __VERSION__);
 const PERFORMANCE = new Performance(CRABS);
 
-// Register game commands
+// Register command-line interface commands
 new CLI({
   crabs: CRABS,
   whisperPlus: WHISPERPLUS,
@@ -85,8 +107,12 @@ new CLI({
   tutorial: TUTORIAL,
 });
 
+// ─────────────────────────────────────────────────────────────
+// Post-Init Hook Activation & State Sync
+// ─────────────────────────────────────────────────────────────
+
 WHISPERPLUS.setupHooks();
 SETTINGS.syncGameState();
 
-// Print version and confirm load success in console
+// Confirm complete loading status in developer tools
 console.log(`CRABS v${__VERSION__} Loaded`);

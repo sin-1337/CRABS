@@ -1,3 +1,13 @@
+/**
+ * @fileoverview CRABS Setup & Lifecycle Module
+ *
+ * Coordinates mod bootstrap routines, cross-module UI hooks, room state synchronization,
+ * banner injection timers, native screen lifecycle integrations, and the OnlineProfile
+ * canvas font normalization controls within the Bondage Club ecosystem.
+ *
+ * @module Setup
+ */
+
 import { CRABS_Base } from "base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Drawer } from "drawer";
@@ -8,13 +18,67 @@ import { Assets } from "assets";
 
 import locals from "./i18n.json";
 
+/**
+ * Coordinate and dimension specifications for the Canvas Normalization button on the OnlineProfile screen.
+ * Places the button at X: 1410, Y: 60, directly to the left of the mod alert/warning icon slot.
+ * @constant
+ */
+const PROFILE_NORMALIZE_BTN = {
+  x: 1410,
+  y: 60,
+  width: 95,
+  height: 90,
+} as const;
+
+/**
+ * Core setup controller managing initialization hooks, global navigation event listeners,
+ * UI drawer visibility states, banner rendering dispatch, and profile screen augmentations.
+ *
+ * @extends {CRABS_Base}
+ */
 export class Setup extends CRABS_Base {
+  /**
+   * Singleton reference for global delegate calls and banner redraws.
+   * @type {Setup | null}
+   */
   public static instance: Setup | null = null;
+
+  /**
+   * Tracks the last synchronized chat room ID to prevent redundant transitions or premature banner triggers.
+   * @private
+   * @type {number | null}
+   */
   private crabsLastRoomID: number | null = null;
+
+  /**
+   * Active reference to the Roster module for counter aggregates.
+   * @private
+   * @type {Roster}
+   */
   private rosterModule: Roster;
+
+  /**
+   * Active reference to the Banner module for chat header banner creation.
+   * @private
+   * @type {Banner}
+   */
   private bannerModule: Banner;
+
+  /**
+   * Active timeout handler for room banner queuing and chat log DOM readiness polling.
+   * @private
+   * @type {any}
+   */
   private bannerTimer: any = null;
 
+  /**
+   * Constructs the Setup module instance, initializes base i18n dictionaries under the "profile" namespace,
+   * binds submodules, registers engine hooks, and intercepts native game exit points.
+   *
+   * @param {ModSDKModAPI} CRABS - The mod SDK API instance.
+   * @param {Roster} roster - Active Roster module reference.
+   * @param {Banner} banner - Active Banner module reference.
+   */
   constructor(CRABS: ModSDKModAPI, roster: Roster, banner: Banner) {
     super(CRABS, "profile", locals);
     Setup.instance = this;
@@ -24,12 +88,29 @@ export class Setup extends CRABS_Base {
     this.hookNativeExit();
   }
 
-  // Static helper to redraw banner from anywhere
+  /**
+   * Static helper allowing external submodules to trigger an immediate banner redraw.
+   *
+   * @returns {void}
+   */
   public static redrawBanner(): void {
     Setup.instance?.drawbanner(true);
   }
 
+  /**
+   * Registers all core game engine hooks via ModSDK's safeHook API, including:
+   * - Room layout compatibility patches (ChatRoomRun)
+   * - Command-line auto-stow behavior (ChatRoomSendChat)
+   * - Localization update reactions (TranslationLoad)
+   * - Authoritative room transition listeners (ChatRoomSync, ChatRoomUpdateDisplay)
+   * - Screen change and dialog focus stowing (CommonSetScreen, ChatRoomFocusCharacter, DialogLeave)
+   * - OnlineProfile canvas normalization controls (OnlineProfileRun, OnlineProfileClick, OnlineProfileUnload)
+   *
+   * @private
+   * @returns {void}
+   */
   private initHooks(): void {
+    let crabsLogoImg: HTMLImageElement | null = null;
     let profileOriginalRawText: string | null = null;
     let profileIsNormalized = false;
 
@@ -52,7 +133,7 @@ export class Setup extends CRABS_Base {
       },
     );
 
-    // Auto-stow Drawer on Chat
+    // Auto-stow Drawer on Chat message submission unless typing a mod command
     this.safeHook("ChatRoomSendChat", 10, (args, next) => {
       const chatInput = document.getElementById(
         "InputChat",
@@ -68,7 +149,7 @@ export class Setup extends CRABS_Base {
       return result;
     });
 
-    // Hook translation event so that we can react to it
+    // Hook translation event so that we can react to external language switching
     this.safeHook(
       "TranslationLoad",
       10,
@@ -156,116 +237,129 @@ export class Setup extends CRABS_Base {
       return result;
     });
 
-    // Render & Position Normalize Button on OnlineProfile
+    // 1. Draw button directly onto HTML5 canvas inside OnlineProfileRun
     this.safeHook("OnlineProfileRun", 10, (args, next) => {
       next(args);
 
       const globalWin = window as any;
       if (!globalWin.InformationSheetSelection) return;
 
-      const input = document.getElementById(
-        "DescriptionInput",
-      ) as HTMLTextAreaElement | null;
-      if (!input) return;
+      const ctx: CanvasRenderingContext2D =
+        globalWin.MainCanvas?.getContext?.("2d");
+      if (!ctx) return;
 
-      let btn = document.getElementById(
-        "crabs-profile-normalize-btn",
-      ) as HTMLButtonElement | null;
-      if (!btn) {
-        btn = document.createElement("button");
-        btn.id = "crabs-profile-normalize-btn";
-        btn.type = "button";
-        btn.title = this.t("toggle_tooltip");
-
-        const logoSrc = `${(Assets as any).IMAGES.basePath}${(Assets as any).IMAGES.image.logo.file}`;
-
-        btn.innerHTML = `
-          <img src="${logoSrc}" class="${(Assets as any).IMAGES.image.logo.class}" alt="CRABS" style="width: 28px; height: 28px; object-fit: contain; pointer-events: none;" />
-          <span style="font-weight: bold; font-size: 18px; margin-left: 6px; letter-spacing: 0.5px; pointer-events: none;">Aa</span>
-        `;
-
-        Object.assign(btn.style, {
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#1e1e24",
-          color: "#e0e0e0",
-          border: "2px solid #444",
-          borderRadius: "10px",
-          cursor: "pointer",
-          zIndex: "98",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-          transition:
-            "border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease",
-          userSelect: "none",
-          boxSizing: "border-box",
-        });
-
-        btn.addEventListener("mouseenter", () => {
-          btn!.style.borderColor = "#ff4444";
-        });
-
-        btn.addEventListener("mouseleave", () => {
-          btn!.style.borderColor = profileIsNormalized ? "#ff4444" : "#444";
-        });
-
-        btn.addEventListener("click", () => {
-          const targetInput = document.getElementById(
-            "DescriptionInput",
-          ) as HTMLTextAreaElement | null;
-          if (!targetInput) return;
-
-          if (!profileIsNormalized) {
-            profileOriginalRawText = targetInput.value;
-            const cleaned = this.cleanZalgoAndNormalize(targetInput.value);
-            targetInput.value = cleaned;
-            profileIsNormalized = true;
-
-            btn!.style.borderColor = "#ff4444";
-            btn!.style.backgroundColor = "#2e1a1a";
-          } else {
-            if (profileOriginalRawText !== null) {
-              targetInput.value = profileOriginalRawText;
-            }
-            profileIsNormalized = false;
-
-            btn!.style.borderColor = "#444";
-            btn!.style.backgroundColor = "#1e1e24";
-          }
-
-          if (globalWin.OnlineProfileMode === "Description") {
-            globalWin.OnlineProfileTextDesc = targetInput.value;
-          } else {
-            globalWin.OnlineProfileTextOwnersNotes = targetInput.value;
-          }
-        });
-
-        document.body.appendChild(btn);
+      // Ensure CRABS logo is cached
+      if (!crabsLogoImg) {
+        crabsLogoImg = new Image();
+        crabsLogoImg.crossOrigin = "anonymous";
+        crabsLogoImg.src = `${(Assets as any).IMAGES.basePath}${(Assets as any).IMAGES.image.logo.file}`;
       }
 
-      if (typeof globalWin.ElementPositionFix === "function") {
-        globalWin.ElementPositionFix(
-          "crabs-profile-normalize-btn",
-          18,
-          200,
-          60,
-          100,
-          90,
+      const { x, y, width, height } = PROFILE_NORMALIZE_BTN;
+      const isHovered =
+        typeof globalWin.MouseIn === "function" &&
+        globalWin.MouseIn(x, y, width, height);
+
+      ctx.save();
+
+      // Rounded button background & border
+      ctx.fillStyle = profileIsNormalized ? "#2e1a1a" : "#1e1e24";
+      ctx.strokeStyle =
+        isHovered || profileIsNormalized ? "#ff4444" : "#444444";
+      ctx.lineWidth = 2;
+
+      if (typeof ctx.roundRect === "function") {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, 10);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillRect(x, y, width, height);
+        ctx.strokeRect(x, y, width, height);
+      }
+
+      // Draw CRABS logo
+      if (crabsLogoImg.complete && crabsLogoImg.naturalWidth > 0) {
+        ctx.drawImage(crabsLogoImg, x + 10, y + (height - 30) / 2, 30, 30);
+      }
+
+      // Draw Aa label
+      ctx.font = "bold 22px sans-serif";
+      ctx.fillStyle = "#e0e0e0";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Aa", x + 48, y + height / 2);
+
+      ctx.restore();
+
+      // Show native BC tooltip on hover (rendered in canvas draw order)
+      if (isHovered && typeof globalWin.DrawButtonHover === "function") {
+        globalWin.DrawButtonHover(
+          x,
+          y,
+          width,
+          height,
+          this.t("profile.toggle_tooltip"),
         );
       }
     });
 
-    // Clean up DOM element when exiting profile screen
-    this.safeHook("OnlineProfileUnload", 10, (args, next) => {
-      const btn = document.getElementById("crabs-profile-normalize-btn");
-      if (btn) btn.remove();
+    // 2. Intercept clicks on canvas button inside OnlineProfileClick
+    this.safeHook("OnlineProfileClick", 10, (args, next) => {
+      const globalWin = window as any;
 
+      if (
+        typeof globalWin.MouseIn === "function" &&
+        globalWin.MouseIn(
+          PROFILE_NORMALIZE_BTN.x,
+          PROFILE_NORMALIZE_BTN.y,
+          PROFILE_NORMALIZE_BTN.width,
+          PROFILE_NORMALIZE_BTN.height,
+        )
+      ) {
+        const input = document.getElementById(
+          "DescriptionInput",
+        ) as HTMLTextAreaElement | null;
+        if (!input) return;
+
+        if (!profileIsNormalized) {
+          profileOriginalRawText = input.value;
+          const cleaned = this.cleanZalgoAndNormalize(input.value);
+          input.value = cleaned;
+          profileIsNormalized = true;
+        } else {
+          if (profileOriginalRawText !== null) {
+            input.value = profileOriginalRawText;
+          }
+          profileIsNormalized = false;
+        }
+
+        if (globalWin.OnlineProfileMode === "Description") {
+          globalWin.OnlineProfileTextDesc = input.value;
+        } else {
+          globalWin.OnlineProfileTextOwnersNotes = input.value;
+        }
+        return;
+      }
+
+      return next(args);
+    });
+
+    // 3. Reset state on profile unload
+    this.safeHook("OnlineProfileUnload", 10, (args, next) => {
       profileOriginalRawText = null;
       profileIsNormalized = false;
       return next(args);
     });
   }
 
+  /**
+   * Patches the global ChatRoomExit routine to ensure drawer states update properly
+   * whenever a player explicitly exits or disconnects from a room.
+   *
+   * @private
+   * @returns {void}
+   */
   private hookNativeExit(): void {
     const nativeChatRoomExit = (window as any).ChatRoomExit;
     (window as any).ChatRoomExit = function () {
@@ -277,7 +371,13 @@ export class Setup extends CRABS_Base {
   }
 
   /**
-   * Queues the banner to draw, polling for the chat log DOM to be fully initialized.
+   * Queues the room banner to render, polling until the chat log DOM exists and contains
+   * game-generated elements. Prevents premature injection during internal log clearing cycles.
+   *
+   * @private
+   * @param {number} roomId - Target room ID to validate against upon timeout execution.
+   * @param {number} [attempts=0] - Recursion limiter tracking retry attempts.
+   * @returns {void}
    */
   private queueBanner(roomId: number, attempts: number = 0): void {
     if (this.bannerTimer) clearTimeout(this.bannerTimer);
@@ -303,6 +403,13 @@ export class Setup extends CRABS_Base {
     }, 200);
   }
 
+  /**
+   * Compiles current roster counts and dispatches the rendering sequence to the Banner module.
+   *
+   * @public
+   * @param {boolean} [onlyIfPresent=false] - If true, aborts redraw if an existing banner element is not mounted.
+   * @returns {boolean} True if the banner was processed and dispatched, false otherwise.
+   */
   public drawbanner(onlyIfPresent: boolean = false): boolean {
     if (
       typeof ChatRoomData === "undefined" ||

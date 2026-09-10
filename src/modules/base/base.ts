@@ -671,6 +671,55 @@ export abstract class CRABS_Base {
     return template;
   }
 
+  /**
+   * Drops one or all keys currently held by the player in map mode.
+   *
+   * @param {"bronze" | "silver" | "gold" | "all"} target - The key to drop or "all".
+   * @returns {boolean} True if at least one key was dropped.
+   */
+  public dropMapKey(target: "bronze" | "silver" | "gold" | "all"): boolean {
+    const globalWindow = window as any;
+    const player = globalWindow.Player;
+
+    if (
+      typeof globalWindow.ChatRoomMapViewIsActive !== "function" ||
+      !globalWindow.ChatRoomMapViewIsActive()
+    ) {
+      if (typeof globalWindow.ChatRoomSendLocal === "function") {
+        globalWindow.ChatRoomSendLocal(this.t("dropkeys_not_map"));
+      }
+      return false;
+    }
+
+    const pState = player?.MapData?.PrivateState;
+    if (!pState) return false;
+
+    let droppedAny = false;
+
+    const tryDrop = (
+      keyProp: "HasKeyBronze" | "HasKeySilver" | "HasKeyGold",
+      colorKey: string,
+    ) => {
+      if (pState[keyProp]) {
+        pState[keyProp] = false;
+        droppedAny = true;
+        if (typeof globalWindow.ChatRoomSendLocal === "function") {
+          globalWindow.ChatRoomSendLocal(
+            this.t("dropkeys_dropped", { color: this.t(`keys.${colorKey}`) }),
+          );
+        }
+      }
+    };
+
+    if (target === "bronze" || target === "all")
+      tryDrop("HasKeyBronze", "bronze");
+    if (target === "silver" || target === "all")
+      tryDrop("HasKeySilver", "silver");
+    if (target === "gold" || target === "all") tryDrop("HasKeyGold", "gold");
+
+    return droppedAny;
+  }
+
   protected convertColor(hex: string, alpha: number = 0): string {
     hex = hex.replace(/^#/, "");
     const red = parseInt(hex.slice(0, 2), 16);

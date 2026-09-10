@@ -1,3 +1,13 @@
+/**
+ * CRABS Settings Controller
+ *
+ * Configuration state management, multi-account localStorage persistence,
+ * server account extension synchronization, import/export encoders,
+ * and preference subscreen registration.
+ *
+ * @module settings
+ */
+
 import { CRABS_Base } from "../base";
 import { Notification } from "../notifications";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -10,10 +20,13 @@ import {
   TextAreaWidget,
   SelectWidget,
 } from "./widgets";
-import { LayoutEngine, ConfiguredWidget, ComponentCategory } from "./layout";
+import { LayoutEngine } from "./layout";
 
 import locales from "./i18n.json";
 
+/**
+ * Baseline default values for all persisted CRABS mod preferences.
+ */
 const DEFAULT_SETTINGS: any = {
   languageOverride: "auto",
   showBanner: true,
@@ -51,17 +64,46 @@ const DEFAULT_SETTINGS: any = {
   normalizeFontOnHover: true,
 };
 
+/**
+ * Settings and configuration controller for CRABS.
+ *
+ * Manages player-specific configuration dictionaries, handles two-way
+ * synchronization between localStorage and Bondage Club account extension settings,
+ * enforces cloud payload size budgets, and registers the custom settings GUI
+ * into the game's native Preference screen.
+ */
 export class Settings extends CRABS_Base {
+  /** Singleton instance of the Settings controller. */
   public static instance: Settings;
+
+  /** Active configuration state dictionary. */
   public data: any;
+
+  /** Maximum allowed byte length for cloud synchronization payloads. */
   private readonly MAX_SERVER_PAYLOAD = 8000;
 
+  /** Layout engine coordinating setting tabs, widgets, and scroll states. */
   private layout: LayoutEngine;
+
+  /** Array of instantiated and categorized settings widgets. */
   private registry: ConfiguredWidget[] = [];
+
+  /** Indicates whether the CRABS preference subscreen is currently open. */
   private isMenuOpen: boolean = false;
+
+  /** Controls display of the modal reset confirmation prompt. */
   private showResetConfirm: boolean = false;
+
+  /** Root key used for localStorage persistence. */
   private readonly STORAGE_KEY = "CRABS_Settings";
 
+  /**
+   * Initializes the settings module, loads local settings, triggers cloud
+   * synchronization, hooks account login events, registers the canvas GUI,
+   * and binds mousewheel scroll listeners.
+   *
+   * @param CRABS - Instantiated ModSDK API bridge.
+   */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "settings", locales);
     Settings.instance = this;
@@ -88,6 +130,13 @@ export class Settings extends CRABS_Base {
     });
   }
 
+  /**
+   * Generates a storage key scoped to the logged-in player's member number
+   * to support multiple accounts on the same browser.
+   *
+   * @private
+   * @returns Scoped localStorage key.
+   */
   private getStorageKey(): string {
     const memberNumber = (window as any).Player?.MemberNumber;
     return memberNumber
@@ -95,6 +144,12 @@ export class Settings extends CRABS_Base {
       : this.STORAGE_KEY;
   }
 
+  /**
+   * Loads and sanitizes configuration data from localStorage.
+   *
+   * @private
+   * @returns Cleaned settings object or default values if uninitialized.
+   */
   private loadLocal(): any {
     const saved = localStorage.getItem(this.getStorageKey());
     return saved
@@ -102,6 +157,13 @@ export class Settings extends CRABS_Base {
       : { ...DEFAULT_SETTINGS };
   }
 
+  /**
+   * Calculates the JSON-serialized byte length of settings that deviate
+   * from default values for cloud storage budget tracking.
+   *
+   * @private
+   * @returns Serialized cloud payload character count.
+   */
   private getCloudPayloadSize(): number {
     if (this.data.localOnlyMode) return 0;
 
@@ -118,6 +180,12 @@ export class Settings extends CRABS_Base {
     return JSON.stringify(serverPayload).length;
   }
 
+  /**
+   * Synchronizes settings from the native player extension storage if cloud
+   * data is newer than local timestamps and local-only mode is disabled.
+   *
+   * @private
+   */
   private async syncFromServer(): Promise<void> {
     if (this.data.localOnlyMode) return;
 
@@ -163,6 +231,16 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Splits and validates delimited string lists (e.g. keywords, ignore phrases)
+   * against item length constraints.
+   *
+   * @private
+   * @param raw - Delimited raw string input.
+   * @param delimiter - Separator character or sequence.
+   * @param maxItemLength - Maximum permitted characters per entry.
+   * @returns Parsed valid items and an indicator if oversized entries were removed.
+   */
   private sanitizeList(
     raw: string,
     delimiter: string,
@@ -183,6 +261,10 @@ export class Settings extends CRABS_Base {
     };
   }
 
+  /**
+   * Persists active settings to localStorage and synchronizes non-default
+   * settings to the game account server within payload size limits.
+   */
   public save(): void {
     this.data.lastSaved = Date.now();
     localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
@@ -281,6 +363,12 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Clears mod extension configuration data stored on the game server
+   * and switches the active profile into local-only mode.
+   *
+   * @private
+   */
   private deleteServerData(): void {
     const globalWindow = window as any;
 
@@ -326,6 +414,13 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Filters unrecognized keys and ensures schema conformity against defaults.
+   *
+   * @private
+   * @param loadedData - Raw parsed configuration object.
+   * @returns Cleaned settings object containing only registered keys.
+   */
   private sanitizeData(loadedData: any): any {
     const cleanData: any = { ...DEFAULT_SETTINGS };
 
@@ -342,6 +437,11 @@ export class Settings extends CRABS_Base {
     return cleanData;
   }
 
+  /**
+   * Encodes active configuration into a Base64 string and writes it to the clipboard.
+   *
+   * @private
+   */
   private exportConfig(): void {
     try {
       const str = JSON.stringify(this.data);
@@ -360,6 +460,12 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Prompts the user for a Base64 encoded configuration string, decodes it,
+   * validates its structure, and updates active settings.
+   *
+   * @private
+   */
   private importConfig(): void {
     const globalWindow = window as any;
 
@@ -399,10 +505,21 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Checks whether the player character is currently bound or restrained.
+   *
+   * @private
+   * @returns True if restrained.
+   */
   private isRestricted(): boolean {
     return (window as any).Player?.IsRestrained?.() || false;
   }
 
+  /**
+   * Assembles and registers all settings widgets into categorized tab collections.
+   *
+   * @private
+   */
   private buildRegistry(): void {
     const isDrawerDisabled = () => !this.data.enableDrawer;
 
@@ -1016,6 +1133,12 @@ export class Settings extends CRABS_Base {
     );
   }
 
+  /**
+   * Handles mousewheel scrolling over the settings widget list viewport.
+   *
+   * @private
+   * @param event - DOM mousewheel event.
+   */
   private handleWheel(event: WheelEvent): void {
     if (!this.isMenuOpen) return;
 
@@ -1041,6 +1164,9 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Draws the active settings subscreen canvas UI and handles the reset confirmation dialog.
+   */
   public draw(): void {
     const canvasContext = (
       document.getElementById("MainCanvas") as HTMLCanvasElement
@@ -1123,6 +1249,10 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Handles canvas click interactions within the settings subscreen,
+   * routing clicks to layout tabs, reset dialog buttons, and navigation exits.
+   */
   public click(): void {
     const globalWindow = window as any;
 
@@ -1214,6 +1344,10 @@ export class Settings extends CRABS_Base {
     }
   }
 
+  /**
+   * Synchronizes runtime game engine variables (e.g. map super-zoom range limits)
+   * with active settings values.
+   */
   public syncGameState(): void {
     const perceptionValue = (window as any).ChatRoomMapViewPerceptionRangeMax;
     if (
@@ -1227,6 +1361,11 @@ export class Settings extends CRABS_Base {
       : 7;
   }
 
+  /**
+   * Registers CRABS into the game's preference subscreen extension registry.
+   *
+   * @private
+   */
   private registerExtension(): void {
     const globalWindow = window as any;
 
@@ -1273,6 +1412,10 @@ export class Settings extends CRABS_Base {
     registerHook();
   }
 
+  /**
+   * Cleans up settings subscreen DOM inputs and navigates the user directly
+   * to the native Bondage Club Keybindings preference menu.
+   */
   public openNativeKeybindings(): void {
     const globalWindow = window as any;
 
