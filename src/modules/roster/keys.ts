@@ -1,8 +1,25 @@
-import { Assets } from "../assets";
+/**
+ * CRABS Map Keys Module
+ *
+ * State evaluation, inventory extraction, tile discard action dispatching,
+ * header icon rendering, and drawer page view compilation for map keys.
+ *
+ * @module keys
+ */
 
+import { Assets } from "../assets";
+import keysPageTemplate from "./templates/roster_keys.html";
+import keyCardTemplate from "./templates/roster_keys_card.html";
+
+/** Identifies specific dungeon key tiers. */
 export type KeyType = "bronze" | "silver" | "gold";
+
+/** Target specifier for key drop actions. */
 export type DropTarget = KeyType | "all";
 
+/**
+ * Snapshot of room keys currently in the local player's possession.
+ */
 export interface KeyState {
   hasBronze: boolean;
   hasSilver: boolean;
@@ -11,7 +28,9 @@ export interface KeyState {
 }
 
 /**
- * Returns current map key possession state for the local player.
+ * Evaluates and returns the current map key possession state for the local player.
+ *
+ * @returns Active key possession flags.
  */
 export function getKeyState(): KeyState {
   const pState = (window as any).Player?.MapData?.PrivateState;
@@ -28,7 +47,12 @@ export function getKeyState(): KeyState {
 }
 
 /**
- * Drops one or all map keys currently held by the local player.
+ * Drops one or all map keys held by the local player on the current map tile,
+ * mutates private state flags, triggers server sync, and prints localized room feedback.
+ *
+ * @param target - Specific key tier to drop, or "all".
+ * @param translate - Localization lookup function.
+ * @returns True if at least one key state was successfully cleared.
  */
 export function dropMapKey(
   target: DropTarget,
@@ -44,7 +68,11 @@ export function dropMapKey(
     return false;
   }
 
-  const pState = globalWindow.Player?.MapData?.PrivateState;
+  const player = globalWindow.Player;
+  const pState = player?.MapData?.PrivateState;
+  const cleanTarget = String(target || "")
+    .toLowerCase()
+    .trim();
   if (!pState) return false;
 
   let droppedAny = false;
@@ -64,22 +92,36 @@ export function dropMapKey(
     }
   };
 
-  if (target === "bronze" || target === "all")
+  if (cleanTarget === "bronze" || cleanTarget === "all")
     tryDrop("HasKeyBronze", "bronze");
-  if (target === "silver" || target === "all")
+  if (cleanTarget === "silver" || cleanTarget === "all")
     tryDrop("HasKeySilver", "silver");
-  if (target === "gold" || target === "all") tryDrop("HasKeyGold", "gold");
+  if (cleanTarget === "gold" || cleanTarget === "all")
+    tryDrop("HasKeyGold", "gold");
+
+  if (droppedAny) {
+    // Synchronize character map data with the room/server
+    if (typeof globalWindow.ChatRoomMapViewSendPrivateState === "function") {
+      globalWindow.ChatRoomMapViewSendPrivateState();
+    } else if (typeof globalWindow.ServerSend === "function") {
+      globalWindow.ServerSend("ChatRoomChat", {
+        Type: "MapData",
+        Content: "PrivateState",
+        Dictionary: [{ MapDataPrivateState: pState }],
+      });
+    }
+  }
 
   return droppedAny;
 }
 
 /**
- * Generates the header HTML string for map keys.
+ * Generates the header icon HTML markup representing held and empty key slots.
+ *
+ * @param isMap - Whether map view mode is currently active in the room.
+ * @returns HTML string containing key icons, or empty string if not in a map room.
  */
-export function renderHeaderKeys(
-  isMap: boolean,
-  translate: (key: string, params?: Record<string, string | number>) => string,
-): string {
+export function renderHeaderKeys(isMap: boolean): string {
   if (!isMap) return "";
 
   const state = getKeyState();
@@ -96,76 +138,86 @@ export function renderHeaderKeys(
     });
   }
 
-  if (state.hasAny) {
-    return `<span class="CRABS_keys_trigger" style="cursor: pointer;" title="${translate("tooltips.manage_keys")}">${iconsHtml}</span>`;
-  }
-
   return iconsHtml;
 }
 
 /**
- * Builds the wrapped dialog HTML for dropping keys.
+ * Builds the dedicated Keys management page HTML to mount inside the roster drawer
+ * using imported HTML templates.
+ *
+ * @param templateFn - Template rendering delegate.
+ * @param translate - Localization lookup function.
+ * @returns Rendered drawer view HTML string.
  */
-export function buildKeyDropDialogHtml(
+export function buildKeysRoster(
   templateFn: (
     template: string,
     args: Record<string, string>,
     wrapper: boolean,
-    wrapperArgs?: Record<string, string>,
   ) => string,
   translate: (key: string, params?: Record<string, string | number>) => string,
-): string | null {
+): string {
   const state = getKeyState();
+
+  // If no keys held, reuse roster_keys.html with an empty placeholder inside {{Cards}}
   if (!state.hasAny) {
-    (window as any).ChatRoomSendLocal?.(translate("dropkeys_no_keys_held"));
-    return null;
+    return templateFn(
+      keysPageTemplate,
+      {
+        Prompt: "",
+        Cards: `<div style="text-align: center; padding: 40px 20px; color: #888;">${translate("keys.no_keys_held")}</div>`,
+        DropAllDisplay: "none",
+      },
+      false,
+    );
   }
 
-  const heldList: Array<{ id: KeyType; label: string }> = [];
+  const heldList: Array<{ id: KeyType; label: string; asset: string }> = [];
   if (state.hasBronze)
-    heldList.push({ id: "bronze", label: translate("keys.bronze") });
+    heldList.push({
+      id: "bronze",
+      label: translate("keys.bronze"),
+      asset: "keyBronze",
+    });
   if (state.hasSilver)
-    heldList.push({ id: "silver", label: translate("keys.silver") });
+    heldList.push({
+      id: "silver",
+      label: translate("keys.silver"),
+      asset: "keySilver",
+    });
   if (state.hasGold)
-    heldList.push({ id: "gold", label: translate("keys.gold") });
+    heldList.push({
+      id: "gold",
+      label: translate("keys.gold"),
+      asset: "keyGold",
+    });
 
-  let buttonsHtml = "";
+  let cardsHtml = "";
   for (const item of heldList) {
-    buttonsHtml += `
-      <button class="CRABS_btn CRABS_drop_key_btn" data-key="${item.id}" style="padding: 6px 12px; cursor: pointer;">
-        ${translate("keys.drop_specific", { color: item.label })}
-      </button>`;
-  }
+    const icon = Assets.printimage({
+      key: item.asset as any,
+      css_class_override: "CRABS_key_drop_icon",
+    });
 
-  if (heldList.length > 1) {
-    buttonsHtml += `
-      <button class="CRABS_btn CRABS_drop_key_btn" data-key="all" style="padding: 6px 12px; cursor: pointer;">
-        ${translate("keys.drop_all")}
-      </button>`;
+    cardsHtml += templateFn(
+      keyCardTemplate,
+      {
+        KeyIcon: icon,
+        KeyLabel: item.label,
+        KeyType: item.id,
+        DropButtonLabel: translate("keys.drop_specific", { color: item.label }),
+      },
+      false,
+    );
   }
-
-  const innerTemplate = `
-    <div class="CRABS_key_drop_dialog" style="padding: 12px; text-align: center;">
-      <p style="margin-bottom: 14px;">{{Prompt}}</p>
-      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        {{KeyButtons}}
-      </div>
-    </div>`;
 
   return templateFn(
-    innerTemplate,
+    keysPageTemplate,
     {
       Prompt: translate("keys.dialog_prompt"),
-      KeyButtons: buttonsHtml,
+      Cards: cardsHtml,
+      DropAllDisplay: heldList.length > 1 ? "block" : "none",
     },
-    true,
-    {
-      TitleBar: translate("keys.dialog_title"),
-      Close: Assets.printimage({
-        key: "close",
-        tooltip_override: translate("controls.close_dialog"),
-        data: ["elementid", "CRABS_KeyDropDialog"],
-      }),
-    },
+    false,
   );
 }

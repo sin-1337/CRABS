@@ -8,10 +8,11 @@
  * @module roster
  */
 
-import { CRABS_Base } from "../base";
-import { Assets } from "../assets";
+import { CRABS_Base } from "base";
+import { Drawer } from "drawer";
+import { Assets } from "assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "../settings";
+import { Settings } from "settings";
 import DOMPurify from "dompurify";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -79,7 +80,7 @@ export class Roster extends CRABS_Base {
   /**
    * Automatically advances roster drawer pagination to display the card for a specified player.
    *
-   * @param {number} targetId - Member number of the target player.
+   * @param targetId - Member number of the target player.
    * @returns {void}
    */
   public autoPaginateToPlayer(targetId: number): void {
@@ -91,6 +92,11 @@ export class Roster extends CRABS_Base {
    * rather than the live room occupant view.
    */
   public isShowingHistory: boolean = false;
+
+  /**
+   * Indicates whether the roster drawer is currently rendering the dungeon map keys panel.
+   */
+  public isShowingKeys: boolean = false;
 
   /**
    * Current CSS layout style applied to roster player cards.
@@ -136,6 +142,9 @@ export class Roster extends CRABS_Base {
   private currentHistorySortMode: string =
     localStorage.getItem("CRABS_HistorySortMode") || "natural";
 
+  /** Tracks last observed private key states to react instantly to map pickups. */
+  private lastKnownKeyState: string = "";
+
   /**
    * Active sorting strategy ID based on whether history or live view is visible.
    */
@@ -149,7 +158,7 @@ export class Roster extends CRABS_Base {
    * Initializes the Roster module instance, sets up history stores, preloads
    * friends, establishes canvas mouse watchers, and attaches runtime hooks.
    *
-   * @param {ModSDKModAPI} CRABS - Instantiated ModSDK API bridge.
+   * @param CRABS - Instantiated ModSDK API bridge.
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "roster", locales);
@@ -256,6 +265,17 @@ export class Roster extends CRABS_Base {
       Compass.drawCompass(this.getColorBrightness.bind(this));
 
       const globalWindow = window as any;
+
+      // Detect immediate map key pickups or drops
+      const pState = globalWindow.Player?.MapData?.PrivateState;
+      const keySig = pState
+        ? `${!!pState.HasKeyBronze}-${!!pState.HasKeySilver}-${!!pState.HasKeyGold}`
+        : "";
+      if (this.lastKnownKeyState !== keySig) {
+        this.lastKnownKeyState = keySig;
+        this.isDirty = true;
+      }
+
       const isMap =
         globalWindow.ChatRoomMapViewIsActive &&
         globalWindow.ChatRoomMapViewIsActive();
@@ -321,38 +341,29 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Displays the map key discard popup modal dialog.
+   * Generates rendered HTML for the keys management view via the Keys delegate.
    *
-   * Queries the Keys delegate to construct HTML for any keys currently held
-   * by the player, renders the dialog into the chat log area via {@link buildui},
-   * and attaches discard click listeners to drop keys and refresh the header.
-   *
-   * @returns {void}
+   * @returns Sanitized HTML representation of the keys view.
    */
-  public openKeyDropDialog(): void {
-    const dialogHtml = Keys.buildKeyDropDialogHtml(
-      this.template.bind(this),
-      this.t.bind(this),
-    );
+  public buildKeys(): string {
+    return Keys.buildKeysRoster(this.template.bind(this), this.t.bind(this));
+  }
 
-    if (!dialogHtml) return;
+  /**
+   * Switches the drawer view to the keys management panel.
+   */
+  public showKeysView(): void {
+    Drawer.setShowingKeys(true);
+    Drawer.refresh();
+  }
 
-    this.buildui(dialogHtml, "CRABS_KeyDropDialog");
-
-    this.attachEvent(
-      "CRABS_drop_key_btn",
-      (targetKey: Keys.DropTarget) => {
-        if (Keys.dropMapKey(targetKey, this.t.bind(this))) {
-          this.closeElement("CRABS_KeyDropDialog");
-          const drawerRoot = document.getElementById("CRABS_Drawer_Roster");
-          if (drawerRoot) this.updateRosterUI(drawerRoot);
-        }
-      },
-      "key",
-      undefined,
-      "click",
-      "class",
-    );
+  /**
+   * Restores the drawer view to the live occupant roster.
+   */
+  public showRosterView(): void {
+    Drawer.setShowingKeys(false);
+    Drawer.setShowingHistory(false);
+    Drawer.refresh();
   }
 
   /**
@@ -389,7 +400,7 @@ export class Roster extends CRABS_Base {
 
     const pState = playerWindow?.MapData?.PrivateState;
     const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
-    const keyHtml = Keys.renderHeaderKeys(isMap, this.t.bind(this));
+    const keyHtml = Keys.renderHeaderKeys(isMap);
 
     return {
       currentRoomName,
@@ -412,7 +423,7 @@ export class Roster extends CRABS_Base {
    * Synchronizes text counters (admins, players, friends, online count), card status
    * indicators, and map key iconography using fine-grained DOM checks to minimize reflows.
    *
-   * @param {HTMLElement} root - Parent root element containing the roster DOM subtree.
+   * @param root - Parent root element containing the roster DOM subtree.
    * @returns {void}
    */
   public updateRosterUI(root: HTMLElement): void {
@@ -641,7 +652,7 @@ export class Roster extends CRABS_Base {
   /**
    * Generates rendered HTML for the room's historical visitors list via the History delegate.
    *
-   * @returns {string} Sanitized HTML representation of the history roster.
+   * @returns Sanitized HTML representation of the history roster.
    */
   public buildHistory(): string {
     return History.buildHistoryRoster(
@@ -656,7 +667,7 @@ export class Roster extends CRABS_Base {
   /**
    * Detects horizontal text clipping in name badges and applies marquee scroll animations.
    *
-   * @param {string} [containerSelector=".CRABS_overflow-wrapper"] - CSS selector targeting wrappers to inspect.
+   * @param containerSelector - CSS selector targeting wrappers to inspect.
    * @returns {void}
    */
   public initScrollingOverflow(
@@ -692,11 +703,11 @@ export class Roster extends CRABS_Base {
    * Computes label contrast shadows, attaches relationship and status badges,
    * and conditionally renders spatial compass targeting buttons.
    *
-   * @param {any} character - Bondage Club Character object to render.
-   * @param {string} badge - Rendered badge markup string.
-   * @param {string} playerIcons - Relationship icon markup string.
-   * @param {boolean} [isDrawer=false] - Whether the card is intended for the sliding drawer.
-   * @returns {string} Fully templated card HTML string.
+   * @param character - Bondage Club Character object to render.
+   * @param badge - Rendered badge markup string.
+   * @param playerIcons - Relationship icon markup string.
+   * @param isDrawer - Whether the card is intended for the sliding drawer.
+   * @returns Fully templated card HTML string.
    * @private
    */
   private buildCard(
@@ -817,7 +828,7 @@ export class Roster extends CRABS_Base {
   /**
    * Retrieves the currently cached online friends count.
    *
-   * @returns {number | string} Cached friend count or pending indicator string.
+   * @returns Cached friend count or pending indicator string.
    */
   public getOnlineFriendsCount(): number | string {
     return this.onlineFriendsCache;
@@ -826,10 +837,10 @@ export class Roster extends CRABS_Base {
   /**
    * Compiles the full HTML for the roster view, applying role sorting and active filters.
    *
-   * @param {string} commandArguments - Space-delimited command filters (`"admins"`, `"vips"`, `"count"`).
-   * @param {boolean} [wrapper=true] - Whether to wrap the output in the outer dialog shell.
-   * @param {boolean} [forceFullRows=false] - Whether to return raw card HTML without wrapper scaffolding.
-   * @returns {string} Rendered HTML string.
+   * @param commandArguments - Space-delimited command filters (`"admins"`, `"vips"`, `"count"`).
+   * @param wrapper - Whether to wrap the output in the outer dialog shell.
+   * @param forceFullRows - Whether to return raw card HTML without wrapper scaffolding.
+   * @returns Rendered HTML string.
    */
   public buildroster(
     commandArguments: string,
@@ -978,8 +989,8 @@ export class Roster extends CRABS_Base {
    * Computes an accessible CSS `text-shadow` rule if a player's label color
    * is too dark against standard UI backgrounds.
    *
-   * @param {string} labelColor - Hex or CSS color string to analyze.
-   * @returns {string} Inline CSS `text-shadow` rule or `"text-shadow: none !important;"`.
+   * @param labelColor - Hex or CSS color string to analyze.
+   * @returns Inline CSS `text-shadow` rule or `"text-shadow: none !important;"`.
    */
   public getLabelShadow(labelColor: string): string {
     const brightness = this.getColorBrightness(labelColor);
@@ -997,9 +1008,9 @@ export class Roster extends CRABS_Base {
    * tracking targets, and key-management triggers.
    *
    * @override
-   * @param {string} [output] - Raw HTML to inject before event attachment.
-   * @param {string} [elementId] - Optional container element ID.
-   * @param {HTMLElement} [root] - Container root boundary for scoped event attachment.
+   * @param output - Raw HTML to inject before event attachment.
+   * @param elementId - Optional container element ID.
+   * @param root - Container root boundary for scoped event attachment.
    * @returns {void}
    */
   public override buildui(
@@ -1093,10 +1104,44 @@ export class Roster extends CRABS_Base {
       root,
     );
 
+    // ─────────────────────────────────────────────────────────────
+    // Map Keys Navigation & Discard Routing
+    // ─────────────────────────────────────────────────────────────
+
     this.attachEvent(
-      "CRABS_keys_trigger",
-      () => this.openKeyDropDialog(),
+      "CRABS_key_content",
+      () => this.showKeysView(),
       undefined,
+      undefined,
+      "click",
+      "id",
+      root,
+    );
+
+    // Back to Roster button
+    this.attachEvent(
+      "CRABS_keys_back_btn",
+      () => this.showRosterView(),
+      undefined,
+      undefined,
+      "click",
+      "class",
+      root,
+    );
+
+    // Drop Key button
+    this.attachEvent(
+      "CRABS_drop_key_btn",
+      (dataVal: any) => {
+        const targetKey = String(dataVal || "")
+          .toLowerCase()
+          .trim() as Keys.DropTarget;
+        if (targetKey && Keys.dropMapKey(targetKey, this.t.bind(this))) {
+          this.isDirty = true;
+          this.showKeysView();
+        }
+      },
+      "key",
       undefined,
       "click",
       "class",
@@ -1134,9 +1179,14 @@ export class Roster extends CRABS_Base {
           "CRABS_Drawer_Roster",
         );
         if (drawerRosterContainer) {
-          const updatedHtml = this.isShowingHistory
-            ? this.buildHistory()
-            : this.buildroster("all", false);
+          let updatedHtml = "";
+          if (this.isShowingKeys) {
+            updatedHtml = this.buildKeys();
+          } else if (this.isShowingHistory) {
+            updatedHtml = this.buildHistory();
+          } else {
+            updatedHtml = this.buildroster("all", false);
+          }
 
           drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, {
             USE_PROFILES: { html: true },

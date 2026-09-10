@@ -46,6 +46,13 @@
   flex: 1;
 }
 
+.CRABS_key_drop_icon,
+.CRABS_key_card img {
+  max-width: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain;
+}
+
 .CRABS_map-keys-container[data-map-active="true"] {
   display: flex !important;
 }

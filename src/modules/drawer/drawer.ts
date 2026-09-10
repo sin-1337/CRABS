@@ -23,7 +23,7 @@ import { Settings } from "../settings";
 
 import locales from "./i18n.json";
 
-export type DrawerPage = "roster" | "help" | "history";
+export type DrawerPage = "roster" | "help" | "history" | "keys";
 
 /**
  * Class representing the side drawer UI.
@@ -50,6 +50,8 @@ export class Drawer extends CRABS_Base {
   private showingHelp: boolean = false;
   /** Tracks if the drawer is currently displaying the History view. */
   private showingHistory: boolean = false;
+  /** Tracks if the drawer is currently displaying the keys view */
+  private showingKeys: boolean = false;
   /** Counter used to throttle frame updates based on performance tier. */
   private updateTick: number = 0;
   /** Cached reference to the tab element to prevent DOM queries in the render loop */
@@ -139,6 +141,28 @@ export class Drawer extends CRABS_Base {
     if (Drawer._instance) {
       Drawer._instance.showingHelp = value;
       if (value) {
+        Drawer._instance.showingHistory = false;
+        Drawer._instance.rosterModule.isShowingHistory = false;
+      }
+    }
+  }
+
+  /** Checks if the keys page is currently being displayed.
+   * @returns {boolean} True if the keys screen is active.
+   */
+  public static isShowingKeys(): boolean {
+    return Drawer._instance?.showingKeys ?? false;
+  }
+
+  /** Overrides the current view state of the drawer.
+   * @param {boolean} value - True to show Keys, false to show Roster.
+   */
+  public static setShowingKeys(value: boolean): void {
+    if (Drawer._instance) {
+      Drawer._instance.showingKeys = value;
+      Drawer._instance.rosterModule.isShowingKeys = value;
+      if (value) {
+        Drawer._instance.showingHelp = false;
         Drawer._instance.showingHistory = false;
         Drawer._instance.rosterModule.isShowingHistory = false;
       }
@@ -351,8 +375,7 @@ export class Drawer extends CRABS_Base {
 
           if (this.isOpen && !this.showingHelp) {
             if (this.rosterModule.isDirty) {
-              if (this.showingHistory) {
-                // Live refresh the history tab when someone leaves or joins
+              if (this.showingHistory || this.showingKeys) {
                 this.refresh();
               } else {
                 const rosterRoot = this.instance?.querySelector(
@@ -560,6 +583,7 @@ export class Drawer extends CRABS_Base {
     const historyIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_History_Icon",
     ) as HTMLElement;
+    const keysTitle = this.t("header.title_keys") || "Map Keys";
     const sortIconContainer = this.instance?.querySelector(
       "#CRABS_Drawer_Sort_Icon_Container",
     ) as HTMLElement;
@@ -680,6 +704,20 @@ export class Drawer extends CRABS_Base {
 
         content.innerHTML = this.rosterModule.buildHistory();
         this.rosterModule.initScrollingOverflow();
+
+        if (this.instance) {
+          this.rosterModule.buildui(undefined, undefined, this.instance);
+        }
+      } else if (this.showingKeys) {
+        if (title && title.textContent !== keysTitle)
+          title.textContent = keysTitle;
+
+        if (sortContainer)
+          sortContainer.style.setProperty("display", "none", "important");
+
+        setLayoutVisible(false);
+
+        content.innerHTML = this.rosterModule.buildKeys();
 
         if (this.instance) {
           this.rosterModule.buildui(undefined, undefined, this.instance);
