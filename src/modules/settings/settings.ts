@@ -686,8 +686,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "enableDrawer",
-      "drawer.enable_label",
-      "drawer.enable_hint",
+      "settings.drawer.enable_label",
+      "settings.drawer.enable_hint",
       0,
       undefined,
       (enabled) => {
@@ -700,8 +700,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "rosterOpensDrawer",
-      "drawer.roster_cmd_label",
-      "drawer.roster_cmd_hint",
+      "settings.drawer.roster_cmd_label",
+      "settings.drawer.roster_cmd_hint",
       1,
       isDrawerDisabled,
       (enabled) => {
@@ -711,8 +711,8 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "showDrawerTab",
-      "drawer.tab_label",
-      "drawer.tab_hint",
+      "settings.drawer.tab_label",
+      "settings.drawer.tab_hint",
       2,
       () => isDrawerDisabled() || !this.data.rosterOpensDrawer,
       (enabled) => {
@@ -722,48 +722,48 @@ export class Settings extends CRABS_Base {
     createCheck(
       "Drawer",
       "animatedCrabsLogo",
-      "drawer.animated_logo_label",
-      "drawer.animated_logo_hint",
+      "settings.drawer.animated_logo_label",
+      "settings.drawer.animated_logo_hint",
       3,
       () => isDrawerDisabled() || !this.data.showDrawerTab,
     );
     createCheck(
       "Drawer",
       "compactDrawer",
-      "drawer.compact_label",
-      "drawer.compact_hint",
+      "settings.drawer.compact_label",
+      "settings.drawer.compact_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "closeDrawerOnWhisper",
-      "drawer.close_whisper_label",
-      "drawer.close_whisper_hint",
+      "settings.drawer.close_whisper_label",
+      "settings.drawer.close_whisper_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "closeDrawerOnChat",
-      "drawer.close_chat_label",
-      "drawer.close_chat_hint",
+      "settings.drawer.close_chat_label",
+      "settings.drawer.close_chat_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "pageFocusHover",
-      "drawer.focus_hover_label",
-      "drawer.focus_hover_hint",
+      "settings.drawer.focus_hover_label",
+      "settings.drawer.focus_hover_hint",
       1,
       isDrawerDisabled,
     );
     createCheck(
       "Drawer",
       "autoScrollRoster",
-      "drawer.auto_scroll_label",
-      "drawer.auto_scroll_hint",
+      "settings.drawer.auto_scroll_label",
+      "settings.drawer.auto_scroll_hint",
       1,
       isDrawerDisabled,
     );
