@@ -215,7 +215,7 @@ export class CLI extends CRABS_Base {
           const opensDrawer = Settings.instance.data.rosterOpensDrawer;
 
           if (opensDrawer && !trimmed) {
-            Drawer.toggle("roster");
+            Drawer.toggle();
             return;
           }
 
