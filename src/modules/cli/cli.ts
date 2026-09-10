@@ -1,35 +1,72 @@
+/**
+ * CRABS Command-Line Interface (CLI) Module
+ *
+ * Implements in-game chat command handling for the CRABS mod.
+ * Key responsibilities:
+ * - Registers and parses commands: `/crabs`, `/roster`, `/whisper+`, `/w+`, `/crab`, and `/dropkeys`
+ * - Routes user arguments to UI views (Roster, Help, History) or subsystem tools
+ * - Supports seamless dispatch between sliding Drawer UI and native chat-log fallbacks
+ * - Exposes diagnostics, cache purges, tutorial triggers, and interactive easter eggs
+ */
+
 import bcModSDK from "bondage-club-mod-sdk";
-import { WhisperPlus } from "../whisperplus";
-import { Roster } from "../roster";
-import { Help } from "../help";
-import { Drawer } from "../drawer";
-import { Settings } from "../settings";
-import { Assets } from "../assets";
-import { Setup } from "../setup";
-import { Notification } from "../notifications";
-import { Performance } from "../performance";
-import { Tutorial } from "../tutorial";
-import { CRABS_Base } from "../base";
+import { WhisperPlus } from "whisperplus";
+import { Roster } from "roster";
+import { Help } from "help";
+import { Drawer } from "drawer";
+import { Settings } from "settings";
+import { Assets } from "assets";
+import { Setup } from "setup";
+import { Notification } from "notifications";
+import { Performance } from "performance";
+import { Tutorial } from "tutorial";
+import { CRABS_Base } from "base";
 import locales from "./i18n.json";
 
+/**
+ * Dependency injection mapping for the CLI service.
+ */
 export interface CliDependencies {
+  /** The ModSDK mod instance handle. */
   crabs: ReturnType<typeof bcModSDK.registerMod>;
+  /** Messaging enhancement subsystem. */
   whisperPlus: WhisperPlus;
+  /** Player roster and tracking subsystem. */
   roster: Roster;
+  /** Help view builder and documentation subsystem. */
   help: Help;
+  /** Setup and welcome banner subsystem. */
   setup: Setup;
+  /** Performance monitor, cache manager, and profiler subsystem. */
   performance: Performance;
+  /** Interactive onboarding tutorial workflow. */
   tutorial: Tutorial;
 }
 
+/**
+ * CLI Command Controller.
+ * Binds and routes all chat commands into the appropriate mod modules.
+ * @extends CRABS_Base
+ */
 export class CLI extends CRABS_Base {
+  /** Messaging enhancement subsystem. */
   private whisperPlus: WhisperPlus;
+  /** Player roster and tracking subsystem. */
   private roster: Roster;
+  /** Help view builder and documentation subsystem. */
   private help: Help;
+  /** Setup and welcome banner subsystem. */
   private setup: Setup;
+  /** Performance monitor, cache manager, and profiler subsystem. */
   private performance: Performance;
+  /** Interactive onboarding tutorial workflow. */
   private tutorial: Tutorial;
 
+  /**
+   * Initializes the CLI module, injects service dependencies, and registers game command hooks.
+   *
+   * @param {CliDependencies} deps - Bundled service dependencies required by the CLI.
+   */
   constructor(deps: CliDependencies) {
     super(deps.crabs, "cli", locales);
 
@@ -43,42 +80,60 @@ export class CLI extends CRABS_Base {
     this.registerCommands();
   }
 
+  /**
+   * Validates and routes arguments passed to `/crabs`.
+   * Evaluates system switches, drawer routing, and diagnostics commands.
+   *
+   * @private
+   * @param {string} commandArguments - Raw text following the command tag.
+   * @returns {boolean} True if argument is a roster print filter that should render to chat; false if handled internally or invalid.
+   */
   private argcheck(commandArguments: string): boolean {
     const splitArgs = commandArguments.toLowerCase().trim().split(/\s+/);
     const arg = splitArgs[0];
     const opensDrawer = Settings.instance.data.rosterOpensDrawer;
 
-    // --- Add Tutorial Here ---
+    // Drawer pages routing when drawer mode is enabled
+    const drawerPages: Record<string, DrawerPage> = {
+      roster: "roster",
+      help: "help",
+      history: "history",
+    };
+
+    if (opensDrawer && drawerPages[arg]) {
+      Drawer.toggle(drawerPages[arg]);
+      return false;
+    }
+
+    // Command actions
     if (arg === "tutorial") {
       const forceRestart =
         splitArgs[1] === "reset" || splitArgs[1] === "restart";
       this.tutorial.startTutorial(forceRestart);
-      return false; // Returns false so the roster doesn't print
+      return false;
     }
 
+    // Legacy fallback: renders Help directly into chat when drawer mode is off
     if (arg === "help") {
-      if (opensDrawer) {
-        Drawer.toggle("help");
-        return false;
-      }
       this.help.buildui(this.help.showHelp(), "CRABS_Help");
       const helpButton = document.getElementById("CRABS_Help_Icon");
       if (helpButton) helpButton.style.display = "none";
       return false;
-    } else if (arg === "history") {
-      if (opensDrawer) {
-        Drawer.toggle("history");
-        return false;
-      }
-    } else if (arg === "version") {
+    }
+
+    if (arg === "version") {
       ChatRoomSendLocal(
         `${__NAME__} (${__NICKNAME__}) <br>Version: ${__VERSION__}`,
       );
       return false;
-    } else if (arg === "banner") {
+    }
+
+    if (arg === "banner") {
       this.setup.drawbanner();
       return false;
-    } else if (arg === "perf" || arg === "status") {
+    }
+
+    if (arg === "perf" || arg === "status") {
       const levelName = ["NORMAL", "LOW", "CRITICAL"][
         CRABS_Base.currentPerformanceLevel
       ];
@@ -89,18 +144,23 @@ export class CLI extends CRABS_Base {
         this.t("perf_status", { level: levelName, fps: actualFps }),
       );
       return false;
-    } else if (arg === "mem" || arg === "inspect") {
+    }
+
+    if (arg === "mem" || arg === "inspect") {
       this.performance.inspectBaseGameMemory();
       ChatRoomSendLocal(this.t("perf_mem_inspect"));
       return false;
-    } else if (arg === "flush" || arg === "purge") {
+    }
+
+    if (arg === "flush" || arg === "purge") {
       this.performance.pruneBaseGameCaches();
       ChatRoomSendLocal(this.t("perf_flushed"));
       return false;
     }
 
-    const validPrintArgs = ["print", "count", "admins", "vips", "all"];
-    if (arg === "" || validPrintArgs.includes(arg)) {
+    // Valid roster printing flags fall through to return true
+    const validPrintArgs = ["", "print", "count", "admins", "vips", "all"];
+    if (validPrintArgs.includes(arg)) {
       return true;
     }
 
@@ -108,6 +168,14 @@ export class CLI extends CRABS_Base {
     return false;
   }
 
+  /**
+   * Forwards command execution to an existing registered chat command handler.
+   *
+   * @private
+   * @param {string} command - The target command tag to route into.
+   * @param {string} commandArguments - Arguments to forward to the target action.
+   * @returns {void}
+   */
   private commandRedirect(command: string, commandArguments: string): void {
     for (const [_unused, cmd] of Commands.entries()) {
       if (cmd.Tag === command) {
@@ -117,6 +185,12 @@ export class CLI extends CRABS_Base {
     }
   }
 
+  /**
+   * Registers all CRABS chat commands into the base game's command engine via `CommandCombine`.
+   *
+   * @private
+   * @returns {void}
+   */
   private registerCommands(): void {
     CommandCombine([
       {
@@ -173,6 +247,12 @@ export class CLI extends CRABS_Base {
         Action: (commandArguments: string) => {
           const trimmedArgs = commandArguments.trim().toLowerCase();
 
+          /**
+           * Resolves localized dialogue strings for crab easter-egg responses.
+           *
+           * @param {Record<string, string[]>} [entry] - Locale-keyed list of phrases.
+           * @returns {string[]} Localized phrases array, falling back through cn/en.
+           */
           const getMessages = (entry?: Record<string, string[]>): string[] => {
             if (!entry) return [];
             const active = CRABS_Base.getActiveLocale();
