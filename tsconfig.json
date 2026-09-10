@@ -7,12 +7,19 @@
 		"outDir": "../Live/CRABS/Alpha", // Output directory
 		"esModuleInterop": true, // Allows importing non-ES6 modules (like CommonJS)
 		"skipLibCheck": true, // Skip type checking of declaration files
-		"strict": true // Enables strict mode (good practice)
+		"strict": true, // Enables strict mode (good practice)
+		"baseUrl": ".",
+		"paths": {
+			"modules": [
+				"src/modules/index.ts"
+			],
+			"*": [
+				"node_modules/*",
+				"src/modules/*"
+			]
+		}
 	},
 	"include": [
-		"main.ts",
-		"types/**/*.d.ts",
-		"modules/**/*.ts",
-		"modules/**/*.d.ts"
-	] // Include your source TypeScript files
+		"src/**/*"
+	] //Include your source TypeScript files
 }

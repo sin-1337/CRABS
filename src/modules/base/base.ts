@@ -94,7 +94,7 @@ export abstract class CRABS_Base {
     // 1. Room-level opt-out tag
     if (
       Array.isArray(roomData?.BlockCategory) &&
-      roomData.BlockCategory.includes("BlockLocationSharing")
+      roomData.BlockCategory.includes("Location")
     ) {
       return true;
     }

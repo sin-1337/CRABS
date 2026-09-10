@@ -18,8 +18,8 @@ import {
   Updater,
   WhisperPlus,
   Tutorial,
-} from "./modules";
-import { CRABS_Base } from "./modules/base";
+} from "modules";
+import { CRABS_Base } from "base";
 
 // Register the mod
 const CRABS = bcModSDK.registerMod({
