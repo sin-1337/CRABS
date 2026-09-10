@@ -416,15 +416,25 @@ export function sendFriendBeep(memberNumber: number): void {
     return;
   }
 
-  const msg = prompt(`Send beep to Friend #${memberNumber}:`);
-  if (msg !== null && msg.trim() !== "") {
-    globalWindow.ServerSend("AccountBeep", {
-      MemberNumber: memberNumber,
-      BeepType: "",
-      Message: msg.trim(),
-    });
-    if (typeof globalWindow.$?.notify === "function") {
-      globalWindow.$.notify(`Beep sent to #${memberNumber}`, "success");
+  // Close the drawer so the user can see and edit the chat prompt immediately
+  const drawer = document.getElementById("crabs-drawer");
+  if (drawer) {
+    drawer.classList.remove("drawer-open");
+    drawer.classList.add("drawer-closed");
+  }
+
+  // Native BC helper: sets input text, dispatches input events, and focuses #InputChat
+  if (typeof globalWindow.CommandSet === "function") {
+    globalWindow.CommandSet(`beep ${memberNumber} `);
+  } else {
+    // Fallback in case CommandSet isn't available in current scope
+    const chatInput = document.getElementById(
+      "InputChat",
+    ) as HTMLTextAreaElement | null;
+    if (chatInput) {
+      chatInput.value = `/beep ${memberNumber} `;
+      chatInput.dispatchEvent(new Event("input", { bubbles: true }));
+      chatInput.focus();
     }
   }
 }

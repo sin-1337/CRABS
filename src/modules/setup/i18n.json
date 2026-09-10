@@ -1,0 +1,13 @@
+{
+    "profile": {
+        "toggle_tooltip": {
+            "en": "Toggle CRABS Text Normalization",
+            "cn": "切换 CRABS 文本规范化",
+            "de": "CRABS-Textnormalisierung umschalten",
+            "fr": "Basculer la normalisation du texte CRABS",
+            "ru": "Переключить нормализацию текста CRABS",
+            "tw": "切換 CRABS 文字標準化",
+            "uk": "Увімкнути/вимкнути нормалізацію тексту CRABS"
+        }
+    }
+}

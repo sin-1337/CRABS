@@ -1,0 +1,37 @@
+<div id="CRABS_Tutorial_Overlay" class="CRABS_tut_overlay">
+  <!-- Dimmed Backdrop -->
+  <div class="CRABS_tut_backdrop"></div>
+  <!-- Dynamic Props / UI Showcase Layer -->
+  <div id="CRABS_tut_props_container" class="CRABS_tut_props_layer">
+    {{propsContainer}}
+  </div>
+  <!-- Left Sidebar: Chapter Select -->
+  <aside class="CRABS_tut_sidebar">
+    <div class="CRABS_tut_sidebar_header">
+      <span>{{sidebarTitle}}</span>
+    </div>
+    <nav class="CRABS_tut_chapter_list">
+      {{chapterItems}}
+    </nav>
+  </aside>
+  <!-- Top-Right Close Button -->
+  <button id="CRABS_tut_btn_close" class="CRABS_tut_close_btn" title="{{closeTooltip}}">
+    {{closeIcon}}
+  </button>
+  <!-- Dynamic Character Sprite -->
+  <div id="CRABS_tut_character" class="CRABS_tut_character" style="top: {{charTop}}%; left: {{charLeft}}%;">
+    {{characterImage}}
+  </div>
+  <!-- Clean Floating Speech Bubble (Text Only) -->
+  <div id="CRABS_tut_bubble" class="CRABS_tut_bubble {{bubbleTailClass}}" style="top: {{bubbleTop}}%; left: {{bubbleLeft}}%; --bubble-max-w: {{bubbleMaxWidth}};">
+    <div class="CRABS_tut_bubble_text">{{dialogueText}}</div>
+  </div>
+  <!-- Bottom Navigation HUD -->
+  <footer class="CRABS_tut_bottom_bar">
+    <div class="CRABS_tut_nav_controls">
+      <button id="CRABS_tut_btn_prev" class="CRABS_tut_btn">{{prevLabel}}</button>
+      <button id="CRABS_tut_btn_next" class="CRABS_tut_btn CRABS_tut_btn_primary">{{nextLabel}}</button>
+      <span class="CRABS_tut_counter">{{stepCounter}}</span>
+    </div>
+  </footer>
+</div>

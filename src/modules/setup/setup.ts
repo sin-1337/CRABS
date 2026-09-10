@@ -1,9 +1,12 @@
-import { CRABS_Base } from "../base";
+import { CRABS_Base } from "base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Drawer } from "../drawer";
-import { Settings } from "../settings";
-import { Roster } from "../roster";
-import { Banner } from "../banner";
+import { Drawer } from "drawer";
+import { Settings } from "settings";
+import { Roster } from "roster";
+import { Banner } from "banner";
+import { Assets } from "assets";
+
+import locals from "./i18n.json";
 
 export class Setup extends CRABS_Base {
   public static instance: Setup | null = null;
@@ -13,7 +16,7 @@ export class Setup extends CRABS_Base {
   private bannerTimer: any = null;
 
   constructor(CRABS: ModSDKModAPI, roster: Roster, banner: Banner) {
-    super(CRABS);
+    super(CRABS, "profile", locals);
     Setup.instance = this;
     this.rosterModule = roster;
     this.bannerModule = banner;
@@ -27,6 +30,9 @@ export class Setup extends CRABS_Base {
   }
 
   private initHooks(): void {
+    let profileOriginalRawText: string | null = null;
+    let profileIsNormalized = false;
+
     // Runs at Priority -10000 to guarantee it fires AFTER FUSAM/BCX but BEFORE the Base Game.
     this.safeHook(
       "ChatRoomRun",
@@ -101,7 +107,6 @@ export class Setup extends CRABS_Base {
         (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
 
       if (inChatRoom) {
-        // Fallback room transition check if ChatRoomSync didn't trigger it
         if (ChatRoomData.ID !== this.crabsLastRoomID) {
           this.crabsLastRoomID = ChatRoomData.ID;
           Drawer.updateVisibility();
@@ -112,7 +117,6 @@ export class Setup extends CRABS_Base {
           }
         }
 
-        // Returned from Wardrobe/Profile
         const isFocused = (window as any).CurrentCharacter !== null;
         const drawerElement = document.getElementById("crabs-drawer");
 
@@ -125,7 +129,7 @@ export class Setup extends CRABS_Base {
           Drawer.updateVisibility();
         }
       } else {
-        this.crabsLastRoomID = null; // Left the room
+        this.crabsLastRoomID = null;
       }
 
       return result;
@@ -151,6 +155,115 @@ export class Setup extends CRABS_Base {
       Drawer.updateVisibility();
       return result;
     });
+
+    // Render & Position Normalize Button on OnlineProfile
+    this.safeHook("OnlineProfileRun", 10, (args, next) => {
+      next(args);
+
+      const globalWin = window as any;
+      if (!globalWin.InformationSheetSelection) return;
+
+      const input = document.getElementById(
+        "DescriptionInput",
+      ) as HTMLTextAreaElement | null;
+      if (!input) return;
+
+      let btn = document.getElementById(
+        "crabs-profile-normalize-btn",
+      ) as HTMLButtonElement | null;
+      if (!btn) {
+        btn = document.createElement("button");
+        btn.id = "crabs-profile-normalize-btn";
+        btn.type = "button";
+        btn.title = this.t("toggle_tooltip");
+
+        const logoSrc = `${(Assets as any).IMAGES.basePath}${(Assets as any).IMAGES.image.logo.file}`;
+
+        btn.innerHTML = `
+          <img src="${logoSrc}" class="${(Assets as any).IMAGES.image.logo.class}" alt="CRABS" style="width: 28px; height: 28px; object-fit: contain; pointer-events: none;" />
+          <span style="font-weight: bold; font-size: 18px; margin-left: 6px; letter-spacing: 0.5px; pointer-events: none;">Aa</span>
+        `;
+
+        Object.assign(btn.style, {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#1e1e24",
+          color: "#e0e0e0",
+          border: "2px solid #444",
+          borderRadius: "10px",
+          cursor: "pointer",
+          zIndex: "98",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+          transition:
+            "border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease",
+          userSelect: "none",
+          boxSizing: "border-box",
+        });
+
+        btn.addEventListener("mouseenter", () => {
+          btn!.style.borderColor = "#ff4444";
+        });
+
+        btn.addEventListener("mouseleave", () => {
+          btn!.style.borderColor = profileIsNormalized ? "#ff4444" : "#444";
+        });
+
+        btn.addEventListener("click", () => {
+          const targetInput = document.getElementById(
+            "DescriptionInput",
+          ) as HTMLTextAreaElement | null;
+          if (!targetInput) return;
+
+          if (!profileIsNormalized) {
+            profileOriginalRawText = targetInput.value;
+            const cleaned = this.cleanZalgoAndNormalize(targetInput.value);
+            targetInput.value = cleaned;
+            profileIsNormalized = true;
+
+            btn!.style.borderColor = "#ff4444";
+            btn!.style.backgroundColor = "#2e1a1a";
+          } else {
+            if (profileOriginalRawText !== null) {
+              targetInput.value = profileOriginalRawText;
+            }
+            profileIsNormalized = false;
+
+            btn!.style.borderColor = "#444";
+            btn!.style.backgroundColor = "#1e1e24";
+          }
+
+          if (globalWin.OnlineProfileMode === "Description") {
+            globalWin.OnlineProfileTextDesc = targetInput.value;
+          } else {
+            globalWin.OnlineProfileTextOwnersNotes = targetInput.value;
+          }
+        });
+
+        document.body.appendChild(btn);
+      }
+
+      if (typeof globalWin.ElementPositionFix === "function") {
+        globalWin.ElementPositionFix(
+          "crabs-profile-normalize-btn",
+          18,
+          200,
+          60,
+          100,
+          90,
+        );
+      }
+    });
+
+    // Clean up DOM element when exiting profile screen
+    this.safeHook("OnlineProfileUnload", 10, (args, next) => {
+      const btn = document.getElementById("crabs-profile-normalize-btn");
+      if (btn) btn.remove();
+
+      profileOriginalRawText = null;
+      profileIsNormalized = false;
+      return next(args);
+    });
   }
 
   private hookNativeExit(): void {
@@ -165,16 +278,13 @@ export class Setup extends CRABS_Base {
 
   /**
    * Queues the banner to draw, polling for the chat log DOM to be fully initialized.
-   * This prevents the banner from being wiped by BC's internal log clearing.
    */
   private queueBanner(roomId: number, attempts: number = 0): void {
     if (this.bannerTimer) clearTimeout(this.bannerTimer);
 
-    // Timeout after 15 attempts (~3 seconds) to prevent infinite loops
     if (attempts > 15) return;
 
     this.bannerTimer = setTimeout(() => {
-      // Abort if we left or changed rooms during the timeout
       if (
         typeof ChatRoomData === "undefined" ||
         !ChatRoomData ||
@@ -185,8 +295,6 @@ export class Setup extends CRABS_Base {
 
       const chat = document.getElementById("TextAreaChatLog");
 
-      // Wait for the DOM element to exist AND contain children.
-      // BC inserts welcome messages on join; if it's empty, the game hasn't finished clearing it.
       if (chat && chat.children.length > 0) {
         this.drawbanner();
       } else {
@@ -206,12 +314,10 @@ export class Setup extends CRABS_Base {
 
     const existing = document.getElementById("CRABS_Banner");
 
-    // If we only wanted to refresh an existing banner and none exists, abort
     if (onlyIfPresent && !existing) {
       return false;
     }
 
-    // Clean up previous instance before redrawing
     if (existing) {
       existing.remove();
     }

@@ -17,8 +17,9 @@ import {
   Setup,
   Updater,
   WhisperPlus,
-} from "./modules";
-import { CRABS_Base } from "./modules/base";
+  Tutorial,
+} from "modules";
+import { CRABS_Base } from "base";
 
 // Register the mod
 const CRABS = bcModSDK.registerMod({
@@ -46,7 +47,7 @@ CRABS_Base.setNotifyHandler((message, title) =>
 
 CRABS_Base.setHelpHandler(() => {
   if (Settings.instance?.data?.rosterOpensDrawer) {
-    Drawer.openHelp();
+    Drawer.open("help");
   } else {
     for (const [_, command] of Commands.entries()) {
       if (command.Tag === "crabs") {
@@ -63,6 +64,7 @@ const BANNER = new Banner(CRABS);
 const WHISPERPLUS = new WhisperPlus(CRABS);
 const ROSTER = new Roster(CRABS);
 const HELP = new Help(CRABS);
+const TUTORIAL = new Tutorial(CRABS);
 new PrivacyMode(CRABS);
 new ChatManager(CRABS, ROSTER);
 new Drawer(CRABS, ROSTER, HELP, WHISPERPLUS);
@@ -80,6 +82,7 @@ new CLI({
   help: HELP,
   setup: SETUP,
   performance: PERFORMANCE,
+  tutorial: TUTORIAL,
 });
 
 WHISPERPLUS.setupHooks();
