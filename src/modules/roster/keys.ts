@@ -216,7 +216,7 @@ export function buildKeysRoster(
     {
       Prompt: translate("keys.dialog_prompt"),
       Cards: cardsHtml,
-      DropAllDisplay: heldList.length > 1 ? "block" : "none",
+      DropAllDisplay: heldList.length > 1 ? "flex" : "none",
     },
     false,
   );
