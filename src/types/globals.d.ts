@@ -1,83 +1,84 @@
-declare const __NAME__: string;
-declare const __NICKNAME__: string;
-declare const __VERSION__: string;
-declare const __BRANCH__: string;
+// types/global.d.ts
+/// <reference path="./bondageclub.d.ts" />
 
-declare var ChatRoomCharacter: Character[];
-declare var ChatRoomData: ChatRoom | null;
-declare var Commands: Array<any>;
-declare var CurrentOnlinePlayers: number;
-declare var CurrentScreen: string;
+// Any imports needed for types must be dynamic or placed outside,
+// but the symbols themselves MUST be exposed in declare global:
+declare global {
+  const __NAME__: string;
+  const __NICKNAME__: string;
+  const __VERSION__: string;
+  const __BRANCH__: string;
 
-declare var data: {
-  Content: string;
-  Type: string;
-  Dictionary: {};
-  Target: number;
-  Sender: number;
-};
+  var ChatRoomCharacter: Character[];
+  var ChatRoomData: ChatRoom | null;
+  var Commands: Array<any>;
+  var CurrentOnlinePlayers: number;
+  var CurrentScreen: string;
+  var Player: PlayerCharacter;
 
-interface Window {
-  PlayerFocus: typeof import("../modules/roster").showPlayerFocus;
-  sendWhisper: typeof import("../modules/whisperplus").sentWhisper;
-  fakePlayerCommand: typeof import("../modules/roster").fakePlayerCommand;
-  crabsCloseItem: typeof import("../modules/roster").close;
-  ChatRoomMessageWhisperPlus: typeof import("../modules/whisperplus").ChatRoomMessageWhisperPlusClick;
-  crabsHelp: typeof import("../modules/help").showHelp;
-  CommandSet(payload: string): void;
-  ChatRoomExit(): void;
+  var data: {
+    Content: string;
+    Type: string;
+    Dictionary: {};
+    Target: number;
+    Sender: number;
+  };
+
+  // Window extensions
+  interface Window {
+    CommandSet(payload: string): void;
+    ChatRoomExit(): void;
+  }
+
+  type crabs = {
+    readonly name: string;
+    readonly fullname: string;
+    readonly version: string;
+    readonly branch: string;
+  };
+
+  type QueueDataPayload = {
+    AllowedInteractions: typeof Player.AllowedInteractions;
+  };
+
+  const ServerAccountUpdate: {
+    QueueData(data: QueueDataPayload): void;
+  };
+
+  function addChatMessage(msg: string): void;
+  function CommandCombine(command: Array<any>): void;
+  function CharacterGetEffects(C: Character): Array<string>;
+  function CharacterNickname(C: Character): string;
+  function ChatRoomExit(): void;
+  function ChatRoomFocusCharacter(C: Character): void;
+  function ChatRoomGenerateChatRoomChatMessage(
+    type: string,
+    msg: string,
+  ): {
+    Content: string;
+    Type: string;
+    Dictionary: {};
+    Target?: number;
+    Sender?: number;
+  };
+  function ChatRoomMessage(data: any): void;
+  function ChatRoomRegisterMessageHandler(message: {
+    Description: string;
+    Priority: number;
+    Callback: any;
+  }): any;
+  function ChatRoomSendLocal(Content: string, Timeout?: number): void;
+  function ChatRoomSendLocalChatRoomSendLocal(
+    Content: string,
+    Timeout?: number,
+  ): void;
+  function ChatRoomStatusUpdate(payload: string): any;
+  function ChatRoomMapViewCharacterOnWhisperRange(target: Character): boolean;
+  function ChatRoomMapViewIsActive(): boolean;
+  function ElementScrollToEnd(element: string): void;
+  function ServerSend(message: string, ...args: any): Promise<any>;
+  function TextGet(text: string): void;
+  function TextGetInScope(path_to_csv: string, permission: string): void;
 }
 
-type crabs = {
-  readonly name: string;
-  readonly fullname: string;
-  readonly version: string;
-  readonly branch: string;
-};
-
-type QueueDataPayload = {
-  AllowedInteractions: typeof Player.AllowedInteractions;
-};
-
-declare const ServerAccountUpdate: {
-  QueueData(data: QueueDataPayload): void;
-};
-
-declare var Player: PlayerCharacter;
-
-declare function addChatMessage(msg: string): void;
-declare function CommandCombine(command: Array<any>): void;
-declare function CharacterGetEffects(C: Character): Array<string>;
-declare function CharacterNickname(C: Character): string;
-declare function ChatRoomExit(): void;
-declare function ChatRoomFocusCharacter(C: Character): void;
-declare function ChatRoomGenerateChatRoomChatMessage(
-  type: string,
-  msg: string,
-): {
-  Content: string;
-  Type: string;
-  Dictionary: {};
-  Target?: number;
-  Sender?: number;
-};
-declare function ChatRoomMessage(data: any): void;
-declare function ChatRoomRegisterMessageHandler(message: {
-  Description: string;
-  Priority: number;
-  Callback: any;
-}): any;
-declare function ChatRoomSendLocal(Content: string, Timeout?: number): void;
-declare function ChatRoomSendLocalChatRoomSendLocal(
-  Content: string,
-  Timeout?: number,
-): void;
-declare function ChatRoomStatusUpdate(payload: string): any;
-declare function ChatRoomMapViewCharacterOnWhisperRange(
-  target: Character,
-): boolean;
-declare function ChatRoomMapViewIsActive(): boolean;
-declare function ElementScrollToEnd(element: string): void;
-declare function ServerSend(message: string, ...args: any): Promise<any>;
-declare function TextGet(text: string): void;
-declare function TextGetInScope(path_to_csv: string, permission: string): void;
+export {};

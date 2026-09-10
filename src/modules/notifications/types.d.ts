@@ -1,14 +1,4 @@
-type NotificationParams = {
-  message: string;
-  title?: string;
-  image?: string;
-  duration?: number;
-};
-
-type ErrorNotificationParams = {
-  message: string;
-  duration?: number;
-};
+// modules/notifications/types.d.ts
 
 declare namespace Toasts {
   type Type = "info" | "success" | "warning" | "error" | (string & {});
@@ -66,4 +56,20 @@ declare class ToastManagerClass {
   dismissByCategory(category: string): void;
 }
 
-declare var ToastManager: ToastManagerClass;
+declare global {
+  var ToastManager: ToastManagerClass;
+
+  type NotificationParams = {
+    message: string;
+    title?: string;
+    image?: string;
+    duration?: number;
+  };
+
+  type ErrorNotificationParams = {
+    message: string;
+    duration?: number;
+  };
+}
+
+export {};
