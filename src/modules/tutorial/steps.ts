@@ -18,6 +18,37 @@ export interface TutorialStep {
   isTerminal?: boolean; // Ends tutorial immediately (e.g. rage quit)
 }
 
+export interface TutorialProp {
+  assetKey?: string; // Key registered in Assets.printimage
+  imageSrc?: string; // Direct URL or data URI fallback
+  top: number; // Percentage from top (0-100)
+  left: number; // Percentage from left (0-100)
+  maxWidth?: number; // Optional max width in px
+  cssClass?: string; // Optional custom animation/outline class
+  highlightGlow?: boolean; // Adds a glowing focus ring around the prop
+}
+
+export interface TutorialStep {
+  id: string;
+  poseKey: string;
+  i18nKey: string;
+  characterPos: { top: number; left: number };
+  bubblePos: { top: number; left: number };
+  bubbleTail: "tail-bottom" | "tail-top" | "tail-left" | "tail-right";
+  bubbleMaxWidth?: number;
+
+  chapterId?: string;
+  chapterTitleKey?: string;
+
+  // Optional visual props/UI cutouts for this scene
+  props?: TutorialProp[];
+
+  nextStepOverride?: string;
+  onStepEnter?: (tutorial: any) => void;
+  onStepExit?: (tutorial: any) => void;
+  isTerminal?: boolean;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Main Linear Track
 // ─────────────────────────────────────────────────────────────

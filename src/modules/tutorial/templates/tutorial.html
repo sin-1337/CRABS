@@ -1,6 +1,10 @@
 <div id="CRABS_Tutorial_Overlay" class="CRABS_tut_overlay">
   <!-- Dimmed Backdrop -->
   <div class="CRABS_tut_backdrop"></div>
+  <!-- Dynamic Props / UI Showcase Layer -->
+  <div id="CRABS_tut_props_container" class="CRABS_tut_props_layer">
+    {{propsContainer}}
+  </div>
   <!-- Left Sidebar: Chapter Select -->
   <aside class="CRABS_tut_sidebar">
     <div class="CRABS_tut_sidebar_header">
@@ -19,7 +23,7 @@
     {{characterImage}}
   </div>
   <!-- Clean Floating Speech Bubble (Text Only) -->
-  <div id="CRABS_tut_bubble" class="CRABS_tut_bubble {{bubbleTailClass}}" style="top: {{bubbleTop}}%; left: {{bubbleLeft}}%;">
+  <div id="CRABS_tut_bubble" class="CRABS_tut_bubble {{bubbleTailClass}}" style="top: {{bubbleTop}}%; left: {{bubbleLeft}}%; --bubble-max-w: {{bubbleMaxWidth}};">
     <div class="CRABS_tut_bubble_text">{{dialogueText}}</div>
   </div>
   <!-- Bottom Navigation HUD -->

@@ -16,6 +16,8 @@ interface StoredTutorialState {
 }
 
 export class Tutorial extends CRABS_Base {
+  private boundKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+
   private static readonly STORAGE_KEY = "CRABS_TutorialState";
 
   private state: StoredTutorialState = {
@@ -108,6 +110,41 @@ export class Tutorial extends CRABS_Base {
 
     return html;
   }
+
+  private buildPropsHtml(step: TutorialStep): string {
+    if (!Array.isArray(step.props) || step.props.length === 0) {
+      return "";
+    }
+
+    return step.props
+      .map((prop) => {
+        let imageHtml = "";
+
+        if (prop.assetKey) {
+          imageHtml = Assets.printimage({
+            key: prop.assetKey as any,
+            css_class_override: "CRABS_tut_prop_img",
+          });
+        } else if (prop.imageSrc) {
+          imageHtml = `<img src="${prop.imageSrc}" class="CRABS_tut_prop_img" alt="Tutorial reference" />`;
+        }
+
+        const glowClass = prop.highlightGlow ? "glow" : "";
+        const customClass = prop.cssClass || "";
+        const maxPropW = prop.maxWidth
+          ? `--prop-max-w: ${prop.maxWidth}px;`
+          : "";
+
+        return `
+          <div class="CRABS_tut_prop_item ${glowClass} ${customClass}" 
+               style="top: ${prop.top}%; left: ${prop.left}%; ${maxPropW}">
+            ${imageHtml}
+          </div>
+        `;
+      })
+      .join("");
+  }
+
   public render(): void {
     let step = TUTORIAL_STEPS[this.state.stepIndex];
 
@@ -123,6 +160,8 @@ export class Tutorial extends CRABS_Base {
 
     const isFirst = this.state.stepIndex === 0;
     const isLast = this.state.stepIndex === TUTORIAL_STEPS.length - 1;
+    const maxW = step.bubbleMaxWidth ? `${step.bubbleMaxWidth}px` : "360px";
+
     const templateVars: Record<string, string> = {
       sidebarTitle: this.t("headers.chapters"),
       chapterItems: this.buildChapterSidebar(step),
@@ -141,6 +180,8 @@ export class Tutorial extends CRABS_Base {
       bubbleTop: `${step.bubblePos.top}`,
       bubbleLeft: `${step.bubblePos.left}`,
       bubbleTailClass: step.bubbleTail,
+      bubbleMaxWidth: maxW,
+      propsContainer: this.buildPropsHtml(step),
     };
 
     const compiledHtml = this.template(tutorialTemplate, templateVars, false);
@@ -218,6 +259,22 @@ export class Tutorial extends CRABS_Base {
       "class",
       root,
     );
+
+    // Remove any previous listener to avoid stacking on re-renders
+    if (this.boundKeyHandler) {
+      window.removeEventListener("keydown", this.boundKeyHandler, true);
+    }
+
+    // Capture Escape key to close the tutorial
+    this.boundKeyHandler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.code === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onDismiss();
+      }
+    };
+
+    window.addEventListener("keydown", this.boundKeyHandler, true);
   }
 
   private onNext(): void {
@@ -249,6 +306,11 @@ export class Tutorial extends CRABS_Base {
   }
 
   public destroy(): void {
+    if (this.boundKeyHandler) {
+      window.removeEventListener("keydown", this.boundKeyHandler, true);
+      this.boundKeyHandler = null;
+    }
+
     const container = document.getElementById("CRABS_Tutorial_Container");
     if (container) container.remove();
   }

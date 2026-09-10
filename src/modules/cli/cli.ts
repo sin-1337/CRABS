@@ -48,10 +48,11 @@ export class CLI extends CRABS_Base {
    */
   private openDrawerTab(tabName?: string): void {
     Drawer.updateVisibility();
-    if (tabName && typeof (Drawer as any).openTab === "function") {
-      (Drawer as any).openTab(tabName);
-    } else if (tabName && typeof (Drawer as any).switchTab === "function") {
-      (Drawer as any).switchTab(tabName);
+
+    if (tabName === "help") {
+      Drawer.openHelp();
+    } else if (tabName === "roster") {
+      Drawer.setShowingHelp(false);
       Drawer.open();
     } else {
       Drawer.toggle();
