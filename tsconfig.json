@@ -10,6 +10,9 @@
 		"strict": true // Enables strict mode (good practice)
 	},
 	"include": [
-		"src/**/*.ts"
+		"main.ts",
+		"types/**/*.d.ts",
+		"modules/**/*.ts",
+		"modules/**/*.d.ts"
 	] // Include your source TypeScript files
 }
