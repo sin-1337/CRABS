@@ -75,11 +75,23 @@ export abstract class CRABS_Base {
    * @returns Localized string.
    */
   public t(key: string, params?: Record<string, string | number>): string {
+    const knownNamespaces = [
+      "base",
+      "drawer",
+      "assets",
+      "settings",
+      "banner",
+      "help",
+      "roster",
+    ];
     const firstToken = key.split(".")[0];
+
     const fullKey =
-      firstToken === this.moduleNamespace
+      firstToken === this.moduleNamespace ||
+      knownNamespaces.includes(firstToken)
         ? key
         : `${this.moduleNamespace}.${key}`;
+
     return translate(fullKey, params);
   }
 
