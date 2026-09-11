@@ -63,6 +63,13 @@ const DEFAULT_SETTINGS: any = {
   normalizeFontOnHover: true,
 };
 
+const IMMERSION_SETTINGS: readonly string[] = [
+  "lockImmersive",
+  "immersiveBlind",
+  "immersiveGag",
+  "respectBcxRules",
+];
+
 /**
  * Settings and configuration controller for CRABS.
  *
@@ -1264,7 +1271,24 @@ export class Settings extends CRABS_Base {
 
     if (this.showResetConfirm) {
       if (globalWindow.MouseIn(750, 500, 200, 60)) {
-        this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        const isLocked =
+          this.isRestricted() && Boolean(this.data.lockImmersive);
+
+        if (isLocked) {
+          // Preserve current immersion configuration
+          const preservedImmersion: Record<string, any> = {};
+          for (const key of IMMERSION_SETTINGS) {
+            preservedImmersion[key] = this.data[key];
+          }
+
+          this.data = {
+            ...JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+            ...preservedImmersion,
+          };
+        } else {
+          this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        }
+
         setLanguageOverride(this.data.languageOverride);
         this.save();
         this.syncGameState();

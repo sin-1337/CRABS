@@ -23,7 +23,7 @@ import locals from "./i18n.json";
  * @constant
  */
 const PROFILE_NORMALIZE_BTN = {
-  x: 1410,
+  x: 210,
   y: 60,
   width: 95,
   height: 90,
