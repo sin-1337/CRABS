@@ -1169,10 +1169,6 @@ export class Roster extends CRABS_Base {
     // Map Keys Navigation & Discard Routing
     // ─────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────
-    // Map Keys Navigation & Discard Routing
-    // ─────────────────────────────────────────────────────────────
-
     this.attachEvent(
       "CRABS_key_content",
       () => Drawer.open("keys"),
