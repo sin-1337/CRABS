@@ -1,4 +1,33 @@
 {
+    "title": {
+        "default": {
+            "en": "Roster",
+            "cn": "名单",
+            "de": "Roster",
+            "fr": "Roster",
+            "ru": "Список",
+            "tw": "名單",
+            "uk": "Список"
+        },
+        "history": {
+            "en": "History",
+            "cn": "历史记录",
+            "de": "Verlauf",
+            "fr": "Historique",
+            "ru": "История",
+            "tw": "歷史記錄",
+            "uk": "Історія"
+        },
+        "keys": {
+            "en": "Keys",
+            "cn": "钥匙",
+            "de": "Schlüssel",
+            "fr": "Clés",
+            "ru": "Ключи",
+            "tw": "鑰匙",
+            "uk": "Ключі"
+        }
+    },
     "header": {
         "title_default": {
             "en": "Roster",
@@ -46,6 +75,80 @@
             "uk": "Облікові записи онлайн"
         }
     },
+    "keys": {
+        "back_to_roster": {
+            "en": "← Back to Roster",
+            "cn": "← 返回名册",
+            "de": "← Zurück zur Liste",
+            "fr": "← Retour au registre",
+            "ru": "← Назад к списку",
+            "tw": "← 返回名冊",
+            "uk": "← Назад до списку"
+        },
+        "dialog_prompt": {
+            "en": "Manage Keys",
+            "cn": "管理钥匙",
+            "de": "Schlüssel verwalten",
+            "fr": "Gérer les clés",
+            "ru": "Управление ключами",
+            "tw": "管理鑰匙",
+            "uk": "Керування ключами"
+        },
+        "no_keys_held": {
+            "en": "You don't have any keys.",
+            "cn": "你没有任何钥匙。",
+            "de": "Du hast keine Schlüssel.",
+            "fr": "Vous n'avez aucune clé.",
+            "ru": "У вас нет ключей.",
+            "tw": "你沒有任何鑰匙。",
+            "uk": "У вас немає ключів."
+        },
+        "drop_specific": {
+            "en": "Drop {color} Key",
+            "cn": "丢弃{color}钥匙",
+            "de": "{color}en Schlüssel ablegen",
+            "fr": "Déposer la clé en {color}",
+            "ru": "Выбросить {color} ключ",
+            "tw": "丟棄{color}鑰匙",
+            "uk": "Викинути {color} ключ"
+        },
+        "drop_all": {
+            "en": "Drop All Keys",
+            "cn": "丢弃所有钥匙",
+            "de": "Alle Schlüssel ablegen",
+            "fr": "Déposer toutes les clés",
+            "ru": "Выбросить все ключи",
+            "tw": "丟棄所有鑰匙",
+            "uk": "Викинути всі ключі"
+        },
+        "bronze": {
+            "en": "Bronze",
+            "cn": "青铜",
+            "de": "Bronze",
+            "fr": "bronze",
+            "ru": "бронзовый",
+            "tw": "青銅",
+            "uk": "бронзовий"
+        },
+        "silver": {
+            "en": "Silver",
+            "cn": "白银",
+            "de": "Silber",
+            "fr": "argent",
+            "ru": "серебряный",
+            "tw": "白銀",
+            "uk": "срібний"
+        },
+        "gold": {
+            "en": "Gold",
+            "cn": "黄金",
+            "de": "Gold",
+            "fr": "or",
+            "ru": "золотой",
+            "tw": "黃金",
+            "uk": "золотий"
+        }
+    },
     "controls": {
         "sort_by": {
             "en": "Sort By",
@@ -84,13 +187,13 @@
             "uk": "Компактний вигляд"
         },
         "close_dialog": {
-            "en": "Close Roster",
-            "cn": "关闭名册",
-            "de": "Namensliste schließen",
-            "fr": "Fermer le registre",
-            "ru": "Закрыть список",
-            "tw": "關閉名冊",
-            "uk": "Закрити список"
+            "en": "Close",
+            "cn": "关闭",
+            "de": "Schließen",
+            "fr": "Fermer",
+            "ru": "Закрыть",
+            "tw": "關閉",
+            "uk": "Закрити"
         }
     },
     "sort_options": {
@@ -371,6 +474,15 @@
             "ru": "Посмотреть профиль",
             "tw": "檢視檔案",
             "uk": "Переглянути профіль"
+        },
+        "manage_keys": {
+            "en": "Manage Keys",
+            "cn": "管理钥匙",
+            "de": "Schlüssel verwalten",
+            "fr": "Gérer les clés",
+            "ru": "Управление ключами",
+            "tw": "管理鑰匙",
+            "uk": "Керування ключами"
         }
     }
 }

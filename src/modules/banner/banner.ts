@@ -11,13 +11,11 @@
  * The banner module enhances the visual presentation of the CRABS mod in chat rooms.
  */
 
-import { CRABS_Base } from "../base";
-import { Assets } from "../assets";
+import { CRABS_Base, Drawer, Assets } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
-import { Settings } from "../settings";
-import { Drawer } from "../drawer";
+import { Settings } from "../settings/settings";
 
 import * as Permissions from "./permissions";
 import locales from "./i18n.json";
@@ -82,6 +80,14 @@ export class Banner extends CRABS_Base {
     };
 
     const wrappervars = {
+      Help: Assets.printimage({
+        key: "help",
+        css_class_override: "CRABS_Help_Icon",
+      }),
+      Settings: Assets.printimage({
+        key: "settings",
+        css_class_override: "CRABS_Settings_Icon",
+      }),
       TitleBar:
         typeof __NAME__ !== "undefined" && typeof __VERSION__ !== "undefined"
           ? `${__NAME__}:  ${__VERSION__}`

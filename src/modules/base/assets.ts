@@ -10,8 +10,9 @@
  * the mod, for managing and updating graphical elements.
  */
 
-import { CRABS_Base } from "../base";
+import { registerTranslations, translate } from "./localization";
 import locales from "./i18n.json";
+import type { ImageStore, AudioStore, PrintImage } from "./types";
 
 /**
  * Static class for managing and retrieving mod assets.
@@ -26,7 +27,7 @@ export abstract class Assets {
   private static init(): void {
     if (Assets.isInitialized) return;
 
-    CRABS_Base.registerTranslations("assets", locales);
+    registerTranslations("assets", locales);
     Assets.isInitialized = true;
   }
 
@@ -423,20 +424,20 @@ export abstract class Assets {
     const imgData = key in images ? images[key] : images["error"];
 
     const defaultAlt = imgData.altKey
-      ? CRABS_Base.translate(`assets.${imgData.altKey}`)
+      ? translate(`assets.${imgData.altKey}`)
       : key;
     const defaultTooltip = imgData.toolTipKey
-      ? CRABS_Base.translate(`assets.${imgData.toolTipKey}`)
+      ? translate(`assets.${imgData.toolTipKey}`)
       : "";
 
     const css_class = css_class_override || imgData.class || "";
 
     // If explicitly null or false, suppress the tooltip entirely.
-    // If undefined, fall back to defaultTooltip.
+    // If a string, use it. If true or undefined, fall back to defaultTooltip.
     let tooltip = "";
-    if (tooltip_override === false) {
+    if (tooltip_override === false || tooltip_override === null) {
       tooltip = "";
-    } else if (tooltip_override !== undefined) {
+    } else if (typeof tooltip_override === "string") {
       tooltip = tooltip_override;
     } else {
       tooltip = defaultTooltip;

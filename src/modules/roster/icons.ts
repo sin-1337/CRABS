@@ -1,6 +1,6 @@
-import { Assets } from "../assets";
-import { CRABS_Base } from "../base";
-import { CrossMod } from "../crossmod";
+import { Assets } from "../base";
+import { translate } from "../base";
+import { CrossMod } from "../crossmod/crossmod";
 
 /**
  * Determines the status icons for a player based on their current effects (Deaf, Blind, Gagged).
@@ -52,7 +52,7 @@ export function setStatusIcons(character: any): string {
 
     if (effect in effectList) {
       const effectValue = effectList[effect];
-      const localizedTooltip = CRABS_Base.translate(
+      const localizedTooltip = translate(
         `roster.status.${prefix.toLowerCase()}`,
         { level: effectValue },
       );
@@ -114,7 +114,7 @@ export function setbadge(character: any): string {
   const chatRoomData = (window as any).ChatRoomData;
   let badge = Assets.printimage({
     key: "player",
-    tooltip_override: CRABS_Base.translate("roster.badges.player"),
+    tooltip_override: translate("roster.badges.player"),
   });
 
   if (!chatRoomData) {
@@ -130,12 +130,12 @@ export function setbadge(character: any): string {
   if (isAdmin) {
     badge = Assets.printimage({
       key: "admin",
-      tooltip_override: CRABS_Base.translate("roster.badges.admin"),
+      tooltip_override: translate("roster.badges.admin"),
     });
   } else if (isVip) {
     badge = Assets.printimage({
       key: "vip",
-      tooltip_override: CRABS_Base.translate("roster.badges.vip"),
+      tooltip_override: translate("roster.badges.vip"),
     });
   }
 
@@ -153,7 +153,7 @@ export function setIcons(character: any): string {
     return (
       Assets.printimage({
         key: "you",
-        tooltip_override: CRABS_Base.translate("roster.relations.you"),
+        tooltip_override: translate("roster.relations.you"),
       }) + " "
     );
   }
@@ -174,27 +174,27 @@ export function setIcons(character: any): string {
     playerIcons +=
       Assets.printimage({
         key: "owner",
-        tooltip_override: CRABS_Base.translate("roster.relations.owner"),
+        tooltip_override: translate("roster.relations.owner"),
       }) + " ";
   } else if (character.IsOwnedByPlayer()) {
     if (isTrial) {
       playerIcons +=
         Assets.printimage({
           key: "trial",
-          tooltip_override: CRABS_Base.translate("roster.relations.trial"),
+          tooltip_override: translate("roster.relations.trial"),
         }) + " ";
     } else {
       playerIcons +=
         Assets.printimage({
           key: "sub",
-          tooltip_override: CRABS_Base.translate("roster.relations.sub"),
+          tooltip_override: translate("roster.relations.sub"),
         }) + " ";
     }
   } else if (playerWindow?.IsInFamilyOfMemberNumber(memberNum)) {
     playerIcons +=
       Assets.printimage({
         key: "family",
-        tooltip_override: CRABS_Base.translate("roster.relations.family"),
+        tooltip_override: translate("roster.relations.family"),
       }) + " ";
   }
 
@@ -203,7 +203,7 @@ export function setIcons(character: any): string {
     playerIcons +=
       Assets.printimage({
         key: "lover",
-        tooltip_override: CRABS_Base.translate("roster.relations.lover"),
+        tooltip_override: translate("roster.relations.lover"),
       }) + " ";
   } else if (CrossMod.isAFCLover(memberNum)) {
     const afcRoom = CrossMod.getAFCLoverRoom(memberNum);
@@ -224,13 +224,13 @@ export function setIcons(character: any): string {
       playerIcons +=
         Assets.printimage({
           key: "bestfriend",
-          tooltip_override: CRABS_Base.translate("roster.relations.bestfriend"),
+          tooltip_override: translate("roster.relations.bestfriend"),
         }) + " ";
     } else if (playerWindow?.FriendList?.includes(memberNum)) {
       playerIcons +=
         Assets.printimage({
           key: "friend",
-          tooltip_override: CRABS_Base.translate("roster.relations.friend"),
+          tooltip_override: translate("roster.relations.friend"),
         }) + " ";
     }
   }
@@ -240,13 +240,13 @@ export function setIcons(character: any): string {
     playerIcons +=
       Assets.printimage({
         key: "whitelist",
-        tooltip_override: CRABS_Base.translate("roster.relations.whitelist"),
+        tooltip_override: translate("roster.relations.whitelist"),
       }) + " ";
   } else if (playerWindow?.BlackList?.includes(memberNum)) {
     playerIcons +=
       Assets.printimage({
         key: "blacklist",
-        tooltip_override: CRABS_Base.translate("roster.relations.blacklist"),
+        tooltip_override: translate("roster.relations.blacklist"),
       }) + " ";
   }
 
@@ -254,7 +254,7 @@ export function setIcons(character: any): string {
     playerIcons +=
       Assets.printimage({
         key: "ghost",
-        tooltip_override: CRABS_Base.translate("roster.relations.ghost"),
+        tooltip_override: translate("roster.relations.ghost"),
       }) + " ";
   }
 

@@ -1,7 +1,18 @@
-import { CRABS_Base } from "../base";
-import { Assets } from "../assets";
+/**
+ * CRABS Roster Module
+ *
+ * Enhanced player roster drawer and overlay management for the Bondage Club ecosystem.
+ * Handles live character rendering hooks, map/spatial tracking indicators, history
+ * logging, relationship/effect icons, and map key-management interactions.
+ *
+ * @module roster
+ */
+
+import { CRABS_Base, Drawer } from "../base";
+import { Assets } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "../settings";
+import { Settings } from "../settings/settings";
+import { Notification } from "../notifications/notifications";
 import DOMPurify from "dompurify";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -13,13 +24,21 @@ import * as Compass from "./compass";
 import * as Sorting from "./sorting";
 import * as History from "./history";
 import * as Immersion from "./immersion";
+import * as Keys from "./keys";
 import locales from "./i18n.json";
 
 /**
- * Class representing the enhanced player roster and related map features.
+ * Enhanced player roster controller.
+ *
+ * Extends {@link CRABS_Base} to render dynamic roster cards, manage drawer state,
+ * hook into the base game's character drawing pipeline for map tracking/glow effects,
+ * and provide interactive controls such as map key discard dialogs and sorting modes.
  */
 export class Roster extends CRABS_Base {
-  /** Proxies for external modules that reference these properties */
+  /**
+   * Member number of the player currently hovered within the chat log, or `null`.
+   * Proxied directly to the Compass spatial module.
+   */
   public get chatLogHoveredPlayer(): number | null {
     return Compass.chatLogHoveredPlayer;
   }
@@ -27,6 +46,10 @@ export class Roster extends CRABS_Base {
     Compass.setChatLogHoveredPlayer(val);
   }
 
+  /**
+   * Member number of the player currently hovered on the canvas map grid, or `null`.
+   * Proxied directly to the Compass spatial module.
+   */
   public get hoveredMapPlayer(): number | null {
     return Compass.hoveredMapPlayer;
   }
@@ -34,6 +57,10 @@ export class Roster extends CRABS_Base {
     Compass.setHoveredMapPlayer(val);
   }
 
+  /**
+   * Member number of the player explicitly locked for direction tracking, or `null`.
+   * Proxied directly to the Compass spatial module.
+   */
   public get trackedMapPlayer(): number | null {
     return Compass.trackedMapPlayer;
   }
@@ -41,43 +68,86 @@ export class Roster extends CRABS_Base {
     Compass.setTrackedMapPlayer(val);
   }
 
+  /**
+   * Clears any active player tracking target from the spatial compass module.
+   *
+   * @returns {void}
+   */
   public clearTracking(): void {
     Compass.clearTracking();
   }
 
+  /**
+   * Automatically advances roster drawer pagination to display the card for a specified player.
+   *
+   * @param targetId - Member number of the target player.
+   * @returns {void}
+   */
   public autoPaginateToPlayer(targetId: number): void {
     Compass.autoPaginateToPlayer(targetId);
   }
 
-  // are we on the history page
+  /**
+   * Indicates whether the roster drawer is currently rendering the historical visitor log
+   * rather than the live room occupant view.
+   */
   public isShowingHistory: boolean = false;
 
-  /** Tracks the user's selected roster layout. Defaults to 2-column grid. */
+  /**
+   * Indicates whether the roster drawer is currently rendering the dungeon map keys panel.
+   */
+  public isShowingKeys: boolean = false;
+
+  /**
+   * Current CSS layout style applied to roster player cards.
+   * Defaults to `"layout-grid"` or the value persisted in local storage.
+   */
   public currentLayoutMode: string =
     localStorage.getItem("CRABS_RosterLayout") || "layout-grid";
 
+  /**
+   * Gets the active roster card layout class.
+   */
   public get layoutMode(): string {
     return this.currentLayoutMode;
   }
 
+  /**
+   * Sets the active roster card layout class, saves it to `localStorage`,
+   * and flags the module cache as dirty.
+   */
   public set layoutMode(val: string) {
     this.currentLayoutMode = val;
     localStorage.setItem("CRABS_RosterLayout", val);
     this.isDirty = true;
   }
 
+  /** Cached count of online friends retrieved from the server, or `"...""` when pending. */
   private onlineFriendsCache: number | string = "...";
+
+  /** Timestamp (epoch ms) marking when an online friend count query was last dispatched. */
   private lastSentTime: number = 0;
+
+  /** Guards against overlapping server query requests for online friends. */
   private isFetching: boolean = false;
+
+  /** Indicates whether roster state has changed and demands an interface refresh. */
   public isDirty: boolean = true;
 
+  /** Persisted sorting strategy identifier applied to the live occupant list. */
   private currentRosterSortMode: string =
     localStorage.getItem("CRABS_SortMode") || "natural";
 
+  /** Persisted sorting strategy identifier applied to the historical visitor list. */
   private currentHistorySortMode: string =
     localStorage.getItem("CRABS_HistorySortMode") || "natural";
 
-  /** Helper to get the active sort mode based on current view */
+  /** Tracks last observed private key states to react instantly to map pickups. */
+  private lastKnownKeyState: string = "";
+
+  /**
+   * Active sorting strategy ID based on whether history or live view is visible.
+   */
   public get activeSortMode(): string {
     return this.isShowingHistory
       ? this.currentHistorySortMode
@@ -85,15 +155,86 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Creates an instance of the Roster module and initializes map and state hooks.
+   * Initializes the Roster module instance, sets up history stores, preloads
+   * friends, establishes canvas mouse watchers, attaches runtime hooks, and
+   * registers views and state delegates with the Drawer.
    *
-   * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
+   * @param CRABS - Instantiated ModSDK API bridge.
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "roster", locales);
     History.loadHistory();
     this.loadFriendList();
     this.setupEventHooks();
+
+    // ─────────────────────────────────────────────────────────────
+    // Drawer Inversion of Control Registration
+    // ─────────────────────────────────────────────────────────────
+
+    Drawer.registerStateDelegate({
+      isDirty: () => this.isDirty,
+      clearDirty: () => {
+        this.isDirty = false;
+      },
+      updateUI: (root: HTMLElement) => this.updateRosterUI(root),
+      layoutMode: () => this.currentLayoutMode,
+      cycleLayout: () => {
+        const layouts = [
+          "layout-grid",
+          "layout-mobile-stack",
+          "layout-compact",
+        ];
+        const currentIndex = layouts.indexOf(this.currentLayoutMode);
+        const nextLayout =
+          layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
+        this.layoutMode = nextLayout;
+      },
+      getKeyStateString: () => Keys.getKeyState().keyStateString,
+      onClearTracking: () => this.clearTracking(),
+    });
+
+    Drawer.registerView({
+      id: "roster",
+      title: () => ChatRoomData?.Name || this.t("title.default"),
+      render: () => {
+        this.initScrollingOverflow();
+        return this.buildroster("all", false);
+      },
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: true,
+      showLayout: true,
+    });
+
+    Drawer.registerView({
+      id: "history",
+      title: () => this.t("title.history") || "History",
+      render: () => {
+        this.initScrollingOverflow();
+        return this.buildHistory();
+      },
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: true,
+      showLayout: false,
+    });
+
+    Drawer.registerView({
+      id: "keys",
+      title: () => this.t("title.keys") || "Map Keys",
+      render: () => this.buildKeys(),
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: false,
+      showLayout: false,
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // Window Event Watchers & Hooks
+    // ─────────────────────────────────────────────────────────────
 
     window.addEventListener("mousemove", (e) => {
       const target = e.target as HTMLElement;
@@ -103,6 +244,7 @@ export class Roster extends CRABS_Base {
       Compass.setIsMouseOverCanvas(false);
     });
 
+    // Hook: Character rendering pass to inject tracking glows and deferred name indicators
     this.safeHook("DrawCharacter", -100, (args: any, next: Function) => {
       const globalWindow = window as any;
       let isTarget = false;
@@ -166,6 +308,7 @@ export class Roster extends CRABS_Base {
       return result;
     });
 
+    // Hook: Per-frame room render cycle to calculate map coordinate hovers and canvas compass
     this.safeHook("ChatRoomRun", 10, (args: any, next: Function) => {
       Compass.setCurrentFrameHoveredPlayer(null);
       Compass.setDeferredIndicator(null);
@@ -192,6 +335,17 @@ export class Roster extends CRABS_Base {
       Compass.drawCompass(this.getColorBrightness.bind(this));
 
       const globalWindow = window as any;
+
+      // Detect immediate map key pickups or drops
+      const pState = globalWindow.Player?.MapData?.PrivateState;
+      const keySig = pState
+        ? `${!!pState.HasKeyBronze}-${!!pState.HasKeySilver}-${!!pState.HasKeyGold}`
+        : "";
+      if (this.lastKnownKeyState !== keySig) {
+        this.lastKnownKeyState = keySig;
+        this.isDirty = true;
+      }
+
       const isMap =
         globalWindow.ChatRoomMapViewIsActive &&
         globalWindow.ChatRoomMapViewIsActive();
@@ -257,7 +411,22 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Generates the consolidated header stats to avoid duplicating logic.
+   * Generates rendered HTML for the keys management view via the Keys delegate.
+   *
+   * @returns Sanitized HTML representation of the keys view.
+   */
+  public buildKeys(): string {
+    return Keys.buildKeysRoster(this.template.bind(this), this.t.bind(this));
+  }
+
+  /**
+   * Compiles consolidated metrics and counts for the roster header.
+   *
+   * Gathers room metadata, occupant counts, administrative privileges, online
+   * friend states, and delegates key state formatting to the {@link Keys} module.
+   *
+   * @private
+   * @returns Consolidated counts, states, and key HTML.
    */
   private getHeaderStats() {
     const currentRoomName =
@@ -284,18 +453,7 @@ export class Roster extends CRABS_Base {
 
     const pState = playerWindow?.MapData?.PrivateState;
     const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
-
-    let keyHtml = "";
-    if (isMap) {
-      const KEYS = {
-        keyBronze: pState?.HasKeyBronze,
-        keySilver: pState?.HasKeySilver,
-        keyGold: pState?.HasKeyGold,
-      };
-      for (const [key, value] of Object.entries(KEYS)) {
-        keyHtml += Assets.printimage({ key: value ? (key as any) : "keyNull" });
-      }
-    }
+    const keyHtml = Keys.renderHeaderKeys(isMap);
 
     return {
       currentRoomName,
@@ -313,9 +471,12 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Updates the DOM elements within the roster without a full redraw.
+   * Updates dynamic DOM metrics inside an open roster drawer without full re-rendering.
    *
-   * @param {HTMLElement} root - The parent container element for the roster.
+   * Synchronizes text counters (admins, players, friends, online count), card status
+   * indicators, and map key iconography using fine-grained DOM checks to minimize reflows.
+   *
+   * @param root - Parent root element containing the roster DOM subtree.
    * @returns {void}
    */
   public updateRosterUI(root: HTMLElement): void {
@@ -336,7 +497,6 @@ export class Roster extends CRABS_Base {
       if (el && el.textContent !== text) el.textContent = text;
     };
 
-    // Use Helper
     const stats = this.getHeaderStats();
 
     updateText("#drawer-title", `${stats.currentRoomName}`);
@@ -428,7 +588,6 @@ export class Roster extends CRABS_Base {
           ".CRABS_player-icons",
         ) as HTMLElement;
         if (iconContainer) {
-          // Use Helper
           const newIconHTML = Icons.setIcons(character);
 
           if (iconContainer.dataset.lastIcons !== newIconHTML) {
@@ -441,7 +600,8 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Hooks into base-game functions that represent state changes.
+   * Registers mod hooks on core game network and state events to invalidate
+   * caches and trigger UI refreshes on room joins, departures, and syncs.
    *
    * @private
    * @returns {void}
@@ -457,12 +617,10 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const data = args[0];
 
-      // Reconciles room name: restores cache if same room, purges if new room
       if (data?.Name) {
         History.syncRoomContext(data.Name);
       }
 
-      // If active occupants were in history (e.g. from a rejoinder), remove them
       if (Array.isArray(data?.Character)) {
         data.Character.forEach((c: any) => {
           if (c?.MemberNumber) History.removeRejoinedCharacter(c.MemberNumber);
@@ -477,7 +635,6 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const data = args[0];
 
-      // Remove from departed history if they step back into the room
       if (data?.Character?.MemberNumber) {
         History.removeRejoinedCharacter(data.Character.MemberNumber);
       }
@@ -506,7 +663,6 @@ export class Roster extends CRABS_Base {
           if (leavingChar) {
             History.recordHistoryCharacter(leavingChar);
           } else {
-            // If already removed from array, salvage from ChatRoomData.Character
             const fallback = globalWindow.ChatRoomData?.Character?.find(
               (c: any) => c.MemberNumber === targetId,
             );
@@ -539,7 +695,6 @@ export class Roster extends CRABS_Base {
       const result = next(args);
       const messageType = args[0];
 
-      // Some mods push shared settings via AccountUpdate or ChatRoomChat
       if (messageType === "AccountUpdate" || messageType === "ChatRoomChat") {
         this.isDirty = true;
       }
@@ -548,7 +703,9 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Generates history HTML using the delegated history module.
+   * Generates rendered HTML for the room's historical visitors list via the History delegate.
+   *
+   * @returns Sanitized HTML representation of the history roster.
    */
   public buildHistory(): string {
     return History.buildHistoryRoster(
@@ -561,9 +718,9 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Detects overflow in card wrappers and applies scrolling animation if necessary.
+   * Detects horizontal text clipping in name badges and applies marquee scroll animations.
    *
-   * @param {string} [containerSelector=".CRABS_overflow-wrapper"] - CSS selector for the containers to check.
+   * @param containerSelector - CSS selector targeting wrappers to inspect.
    * @returns {void}
    */
   public initScrollingOverflow(
@@ -594,13 +751,16 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Builds the HTML card for a single player in the roster.
+   * Compiles HTML markup for a single character's roster card.
    *
-   * @param {any} character - Character object to render.
-   * @param {string} badge - Rendered badge HTML string.
-   * @param {string} playerIcons - Rendered relationship icons HTML string.
-   * @param {boolean} [isDrawer=false] - Whether the card is inside the drawer view.
-   * @returns {string} The processed HTML string for the player card.
+   * Computes label contrast shadows, attaches relationship and status badges,
+   * and conditionally renders spatial compass targeting buttons.
+   *
+   * @param character - Bondage Club Character object to render.
+   * @param badge - Rendered badge markup string.
+   * @param playerIcons - Relationship icon markup string.
+   * @param isDrawer - Whether the card is intended for the sliding drawer.
+   * @returns Fully templated card HTML string.
    * @private
    */
   private buildCard(
@@ -677,7 +837,7 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Hooks into the friend list loading to capture the online friend count.
+   * Hooks into friend list response routines to cache online friend counts.
    *
    * @private
    * @returns {void}
@@ -701,7 +861,7 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Requests the online friend count from the server if cooldown passed.
+   * Queries the game server for online friends if the 60-second cooldown has expired.
    *
    * @returns {void}
    */
@@ -719,21 +879,21 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Returns the currently cached online friends count for dirty-checking.
+   * Retrieves the currently cached online friends count.
    *
-   * @returns {number | string} Cached online friends number or placeholder string.
+   * @returns Cached friend count or pending indicator string.
    */
   public getOnlineFriendsCount(): number | string {
     return this.onlineFriendsCache;
   }
 
   /**
-   * Generates the HTML for the player roster based on provided arguments.
+   * Compiles the full HTML for the roster view, applying role sorting and active filters.
    *
-   * @param {string} commandArguments - Space-delimited command filters (e.g., "admins", "vips", "count").
-   * @param {boolean} [wrapper=true] - Whether to surround the output with the main mod window wrapper.
-   * @param {boolean} [forceFullRows=false] - When true, returns raw card HTML without template variables.
-   * @returns {string} The compiled HTML string.
+   * @param commandArguments - Space-delimited command filters (`"admins"`, `"vips"`, `"count"`).
+   * @param wrapper - Whether to wrap the output in the outer dialog shell.
+   * @param forceFullRows - Whether to return raw card HTML without wrapper scaffolding.
+   * @returns Rendered HTML string.
    */
   public buildroster(
     commandArguments: string,
@@ -781,7 +941,6 @@ export class Roster extends CRABS_Base {
       isStandard: boolean;
     }[] = [];
 
-    // Live roster uses currentRosterSortMode
     const effectiveSortMode = wrapper ? "role" : this.currentRosterSortMode;
 
     for (let characterIndex in ChatRoomData.Character) {
@@ -811,10 +970,7 @@ export class Roster extends CRABS_Base {
       const isStandard = !isMe && !isAdmin && !isVIP;
 
       const badge = Icons.setbadge(character);
-
-      // Use Helper
       const playerIcons = Icons.setIcons(character);
-
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
 
       const score = Sorting.calculateSortScore(
@@ -849,7 +1005,6 @@ export class Roster extends CRABS_Base {
 
     if (forceFullRows) return output_rows;
 
-    // Use Helper
     const stats = this.getHeaderStats();
 
     let templatevars: Record<string, string> = {
@@ -884,12 +1039,15 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Evaluates text color using base methods and generates a CSS text-shadow if needed.
+   * Computes an accessible CSS `text-shadow` rule if a player's label color
+   * is too dark against standard UI backgrounds.
+   *
+   * @param labelColor - Hex or CSS color string to analyze.
+   * @returns Inline CSS `text-shadow` rule or `"text-shadow: none !important;"`.
    */
   public getLabelShadow(labelColor: string): string {
     const brightness = this.getColorBrightness(labelColor);
 
-    // If the color is too dark, apply the bright outline
     if (brightness < 70) {
       const outlineColor = this.getBrightOutlineColor(labelColor);
       return `text-shadow: -1px -1px 0 ${outlineColor}, 1px -1px 0 ${outlineColor}, -1px 1px 0 ${outlineColor}, 1px 1px 0 ${outlineColor} !important; -webkit-text-stroke: 0px;`;
@@ -899,11 +1057,13 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Builds the user interface for the roster and attaches necessary events.
+   * Attaches interactive DOM listeners to roster cards, sort selectors,
+   * tracking targets, and key-management triggers.
    *
-   * @param {string} [output] - Optional HTML string to render.
-   * @param {string} [elementId] - Optional ID for the root wrapper element.
-   * @param {HTMLElement} [root] - Optional container element for attaching events.
+   * @override
+   * @param output - Raw HTML to inject before event attachment.
+   * @param elementId - Optional container element ID.
+   * @param root - Container root boundary for scoped event attachment.
    * @returns {void}
    */
   public override buildui(
@@ -937,7 +1097,7 @@ export class Roster extends CRABS_Base {
     );
 
     // ─────────────────────────────────────────────────────────────
-    // Live Roster Event Routing (Normal behavior)
+    // Live Roster Event Routing
     // ─────────────────────────────────────────────────────────────
 
     this.attachEvent(
@@ -949,9 +1109,17 @@ export class Roster extends CRABS_Base {
       "class",
       root,
     );
+
     this.attachEvent(
       "CRABS_player-id",
-      this.copyToClipboard,
+      async (num) => {
+        if (!num) return;
+        await this.copyToClipboard(String(num));
+        Notification.send({
+          message: `Copied #${num} to clipboard.`,
+          title: "CRABS",
+        });
+      },
       "playerNumber",
       undefined,
       "click",
@@ -997,6 +1165,53 @@ export class Roster extends CRABS_Base {
       root,
     );
 
+    // ─────────────────────────────────────────────────────────────
+    // Map Keys Navigation & Discard Routing
+    // ─────────────────────────────────────────────────────────────
+
+    // ─────────────────────────────────────────────────────────────
+    // Map Keys Navigation & Discard Routing
+    // ─────────────────────────────────────────────────────────────
+
+    this.attachEvent(
+      "CRABS_key_content",
+      () => Drawer.open("keys"),
+      undefined,
+      undefined,
+      "click",
+      "id",
+      root,
+    );
+
+    // Back to Roster button
+    this.attachEvent(
+      "CRABS_keys_back_btn",
+      () => Drawer.open("roster"),
+      undefined,
+      undefined,
+      "click",
+      "class",
+      root,
+    );
+
+    // Drop Key button
+    this.attachEvent(
+      "CRABS_drop_key_btn",
+      (dataVal: any) => {
+        const targetKey = String(dataVal || "")
+          .toLowerCase()
+          .trim() as DropTarget;
+        if (targetKey && Keys.dropMapKey(targetKey, this.t.bind(this))) {
+          this.isDirty = true;
+          Drawer.open("roster");
+        }
+      },
+      "key",
+      undefined,
+      "click",
+      "class",
+      root,
+    );
     const dropdown = (root || document).querySelector(
       "#CRABS_sort_dropdown",
     ) as HTMLSelectElement;
@@ -1011,7 +1226,6 @@ export class Roster extends CRABS_Base {
         }
       });
 
-      // Sync dropdown value to whichever view is currently active
       dropdown.value = this.activeSortMode;
 
       dropdown.onchange = (e) => {
@@ -1029,9 +1243,14 @@ export class Roster extends CRABS_Base {
           "CRABS_Drawer_Roster",
         );
         if (drawerRosterContainer) {
-          const updatedHtml = this.isShowingHistory
-            ? this.buildHistory()
-            : this.buildroster("all", false);
+          let updatedHtml = "";
+          if (this.isShowingKeys) {
+            updatedHtml = this.buildKeys();
+          } else if (this.isShowingHistory) {
+            updatedHtml = this.buildHistory();
+          } else {
+            updatedHtml = this.buildroster("all", false);
+          }
 
           drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, {
             USE_PROFILES: { html: true },

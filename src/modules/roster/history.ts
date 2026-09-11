@@ -14,9 +14,9 @@
  * - Provides targeted messaging utilities (direct beep shortcut for mutual friends).
  */
 
-import { Assets } from "../assets";
+import { Assets } from "../base";
 import * as Icons from "./icons";
-import { CrossMod } from "../crossmod";
+import { CrossMod } from "../crossmod/crossmod";
 import { calculateSortScore } from "./sorting";
 import historycardstemplate from "./templates/history_cards.html";
 

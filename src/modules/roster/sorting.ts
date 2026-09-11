@@ -1,5 +1,5 @@
-import { CRABS_Base } from "../base";
-import { CrossMod } from "../crossmod";
+import { translate } from "../base";
+import { CrossMod } from "../crossmod/crossmod";
 
 /**
  * Returns localized label for a sort mode key.
@@ -8,7 +8,7 @@ import { CrossMod } from "../crossmod";
  * @returns {string} The localized label.
  */
 export function getSortOptionLabel(mode: string): string {
-  return CRABS_Base.translate(`roster.sort_options.${mode}`);
+  return translate(`roster.sort_options.${mode}`);
 }
 
 /**

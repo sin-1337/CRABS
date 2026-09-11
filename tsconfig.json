@@ -1,25 +1,30 @@
 {
 	"compilerOptions": {
 		"target": "ES6", // Target ECMAScript version (you can change it based on your needs)
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ES2022"
+		],
 		"module": "ESNext", // Rollup works best with ES Modules
 		"resolveJsonModule": true, // json importing
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
+		"rootDir": "./src",
 		"outDir": "../Live/CRABS/Beta", // Output directory
 		"esModuleInterop": true, // Allows importing non-ES6 modules (like CommonJS)
 		"skipLibCheck": true, // Skip type checking of declaration files
 		"strict": true, // Enables strict mode (good practice)
-		"baseUrl": ".",
 		"paths": {
 			"modules": [
-				"src/modules/index.ts"
+				"./src/modules/index.ts"
 			],
 			"*": [
-				"node_modules/*",
-				"src/modules/*"
+				"./node_modules/*",
+				"./src/modules/*"
 			]
 		}
 	},
 	"include": [
 		"src/**/*"
-	] //Include your source TypeScript files
+	] //Include your source TypeScript files/Include your source TypeScript files
 }

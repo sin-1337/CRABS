@@ -1,6 +1,6 @@
 import { CRABS_Base, PerformanceLevel } from "../base";
-import { Settings } from "../settings";
-import { Notification } from "../notifications";
+import { Settings } from "../settings/settings";
+import { Notification } from "../notifications/notifications";
 
 // --- State Variables ---
 

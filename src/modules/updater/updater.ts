@@ -1,34 +1,50 @@
+/**
+ * CRABS Updater Module
+ *
+ * Automated GitHub release polling, semantic version comparison,
+ * channel resolution (Alpha/Beta/Stable), and non-intrusive update notification delivery.
+ *
+ * @module updater
+ */
+
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Notification } from "../notifications";
-import { Settings } from "../settings";
+import { Notification } from "../notifications/notifications";
+import { Settings } from "../settings/settings";
 import locales from "./i18n.json";
 
 /**
- * Class handling automatic background updates.
- * Polls the GitHub repository for new versions based on the active branch.
- * Tracks notified versions in localStorage to prevent spamming the user across sessions.
- * @extends CRABS_Base
+ * Background updater controller.
+ *
+ * Periodically polls the remote GitHub repository for newer versions along the
+ * client's active distribution branch, deduplicating alerts via localStorage
+ * to avoid prompting the player multiple times for the same release.
  */
 export class Updater extends CRABS_Base {
+  /** Local version string currently running in the client (e.g., "1.0.0-Beta"). */
   private currentVersion: string;
+
+  /** Distribution channel branch resolved from the version tag. */
   private branch: string;
+
+  /** Target raw GitHub URL for checking the branch's manifest version. */
   private versionUrl: string;
 
-  /** The ID of the background polling interval, used to cancel it once an update is found. */
+  /** Interval ID for recurring background update checks, or `null` if inactive. */
   private updateIntervalId: number | null = null;
 
-  /** The key used to remember which update the user has already been warned about. */
+  /** Key used to store the latest notified version in localStorage. */
   private readonly STORAGE_KEY = "CRABS_NotifiedVersion";
 
-  /** The frequency of the background checks in milliseconds (1 Hour). */
+  /** Delay interval between remote version checks in milliseconds (1 hour). */
   private checkIntervalMs: number = 60 * 60 * 1000;
 
   /**
-   * Initializes the Updater, determines the active branch, and manages polling timers.
+   * Initializes the updater, determines the active repository branch,
+   * schedules the initial post-login check, and starts periodic polling.
    *
-   * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-   * @param {string} currentVersion - The current version string of the mod (e.g., "1.0.0-Beta").
+   * @param CRABS - Instantiated ModSDK API bridge.
+   * @param currentVersion - Current version string of the installed mod.
    */
   constructor(CRABS: ModSDKModAPI, currentVersion: string) {
     super(CRABS, "updater", locales);
@@ -47,11 +63,11 @@ export class Updater extends CRABS_Base {
   }
 
   /**
-   * Parses the current version string to determine the GitHub branch.
+   * Parses the version string to match the appropriate GitHub branch.
    *
-   * @param {string} version - The version string.
-   * @returns {string} "Alpha", "Beta", or "Stable".
    * @private
+   * @param version - Version string to evaluate.
+   * @returns Resolved branch name ("Alpha", "Beta", or "Stable").
    */
   private determineBranch(version: string): string {
     const lowerVersion = version.toLowerCase();
@@ -61,10 +77,9 @@ export class Updater extends CRABS_Base {
   }
 
   /**
-   * Fetches the remote package.json and prompts the user if a newer version exists.
+   * Queries the remote manifest and displays an alert if an unacknowledged newer release is found.
    *
    * @private
-   * @returns {Promise<void>}
    */
   private async checkForUpdates(): Promise<void> {
     // Obey user preferences
@@ -100,10 +115,9 @@ export class Updater extends CRABS_Base {
   }
 
   /**
-   * Helper method to cleanly destroy the background polling interval.
+   * Cancels and clears the active background polling interval timer.
    *
    * @private
-   * @returns {void}
    */
   private stopPolling(): void {
     if (this.updateIntervalId !== null) {
@@ -113,12 +127,12 @@ export class Updater extends CRABS_Base {
   }
 
   /**
-   * Compares two semantic version strings.
+   * Compares two semantic version strings by numerical components.
    *
-   * @param {string} local - The currently installed version.
-   * @param {string} remote - The version fetched from GitHub.
-   * @returns {boolean} True if the remote version is numerically higher.
    * @private
+   * @param local - Installed client version string.
+   * @param remote - Remote manifest version string.
+   * @returns True if the remote version is strictly newer than the local version.
    */
   private isNewerVersion(local: string, remote: string): boolean {
     const localParts = local
@@ -144,11 +158,10 @@ export class Updater extends CRABS_Base {
   }
 
   /**
-   * Notifies the user visually that an update is available.
+   * Dispatches visual update notifications and prints a local message into the chat log.
    *
-   * @param {string} newVersion - The newly available version string.
    * @private
-   * @returns {void}
+   * @param newVersion - Remote release version string discovered.
    */
   private promptUserToUpdate(newVersion: string): void {
     Notification.send({

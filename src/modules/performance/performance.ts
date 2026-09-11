@@ -1,41 +1,92 @@
-// src/modules/performance.ts
+/**
+ * CRABS Performance Module
+ *
+ * Real-time framerate and system load monitoring, exponential moving average (EWMA)
+ * workload analysis, automatic animation throttling, and base-game canvas/memory pruning.
+ *
+ * @module performance
+ */
 
 import { CRABS_Base, PerformanceLevel } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "../settings";
+import { Settings } from "../settings/settings";
 
+/**
+ * Performance monitor and optimization manager.
+ *
+ * Tracks framerate anomalies using a `requestAnimationFrame` loop, updates 1m/5m/15m
+ * exponential moving averages (EWMA) of engine frame delta times, dynamically steps down
+ * character animation refresh frequencies under load, and purges WebGL/2D canvas caches
+ * during scene transitions.
+ */
 export class Performance extends CRABS_Base {
+  /** Map of character keys to their original unthrottled animation refresh interval (ms). */
   private originalRefreshRates: Record<string, number> = {};
+
+  /** Handle returned by `requestAnimationFrame` for loop cancellation. */
   private rafId: number = 0;
+
+  /** Timestamp (epoch ms) marking the beginning of the current sample window. */
   private lastEvalTime: number = performance.now();
+
+  /** Total frames drawn within the current evaluation window. */
   private frameCount: number = 0;
 
-  // Evaluation timing
+  /** Sample evaluation window duration (ms). */
   private readonly SAMPLE_INTERVAL_MS = 2000;
-  private readonly BASE_RECOVERY_COOLDOWN_MS = 5 * 60 * 1000; // 5 min base
-  private readonly MAX_RECOVERY_COOLDOWN_MS = 15 * 60 * 1000; // 15 min max
 
-  // 1.0 = target FPS. 1.25 = ~48 FPS at 60Hz. 1.60 = ~37 FPS at 60Hz.
+  /** Base cooldown (ms) required before recovering to a higher performance tier (5 min). */
+  private readonly BASE_RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
+
+  /** Upper ceiling for recovery cooldown (ms) when anti-flap penalties escalate (15 min). */
+  private readonly MAX_RECOVERY_COOLDOWN_MS = 15 * 60 * 1000;
+
+  /** Normalized load threshold triggering the LOW performance tier (~48 FPS at 60Hz target). */
   private readonly LOAD_LOW = 1.25;
-  private readonly LOAD_CRITICAL = 1.6;
-  private readonly LOAD_RECOVERY = 1.08; // Load Averages (EWMA: 1m, 5m, 15m)
 
+  /** Normalized load threshold triggering the CRITICAL tier (~37 FPS at 60Hz target). */
+  private readonly LOAD_CRITICAL = 1.6;
+
+  /** Maximum load threshold allowed across all windows to permit tier recovery. */
+  private readonly LOAD_RECOVERY = 1.08;
+
+  /** 1-minute Exponential Weighted Moving Average (EWMA) of system load. */
   private load1: number = 1.0;
+
+  /** 5-minute Exponential Weighted Moving Average (EWMA) of system load. */
   private load5: number = 1.0;
+
+  /** 15-minute Exponential Weighted Moving Average (EWMA) of system load. */
   private load15: number = 1.0;
 
-  // Anti-flap tracking
+  /** Timestamp (epoch ms) when the active performance tier was last changed. */
   private lastStateChangeTime: number = performance.now();
+
+  /** Counter tracking rapid tier oscillations to calculate backoff penalties. */
   private flapCount: number = 0;
+
+  /** Current active cooldown period required before tier recovery is evaluated. */
   private recoveryCooldownMs: number = this.BASE_RECOVERY_COOLDOWN_MS;
 
+  /**
+   * Initializes the performance monitor, registers mod VFX suppression hooks,
+   * launches the precision rAF loop, and hooks room navigation for cache pruning.
+   *
+   * @param CRABS - Instantiated ModSDK API bridge.
+   */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "performance");
     this.initVFXRegistry();
     this.startPrecisionMonitor();
     this.setupBaseGameMemoryPruning();
   }
 
+  /**
+   * Registers a skip callback with the base game's visual effects pipeline
+   * (`DrawSkipVFX`) to suppress decorative particles when performance is degraded.
+   *
+   * @private
+   */
   private initVFXRegistry(): void {
     const g = window as any;
     if (g.DrawSkipVFX) {
@@ -45,11 +96,23 @@ export class Performance extends CRABS_Base {
     }
   }
 
+  /**
+   * Reads the target framerate configured in the native game graphics settings.
+   *
+   * @private
+   * @returns Configured target FPS, defaulting to 60.
+   */
   private getTargetFps(): number {
     const nativeMax = (window as any).Player?.GraphicsSettings?.MaxFPS;
     return nativeMax && nativeMax > 0 ? nativeMax : 60;
   }
 
+  /**
+   * Starts the `requestAnimationFrame` sampling loop to aggregate frame counts
+   * and schedule periodic load evaluations.
+   *
+   * @private
+   */
   private startPrecisionMonitor(): void {
     const loop = () => {
       this.rafId = requestAnimationFrame(loop);
@@ -74,6 +137,14 @@ export class Performance extends CRABS_Base {
     this.rafId = requestAnimationFrame(loop);
   }
 
+  /**
+   * Evaluates frame times across the elapsed sample window, calculates EWMA loads,
+   * and triggers tier transitions if degradation or recovery criteria are met.
+   *
+   * @private
+   * @param elapsedMs - Actual duration (ms) elapsed during the sample interval.
+   * @param framesRendered - Number of animation frames rendered in the interval.
+   */
   private evaluatePerformance(elapsedMs: number, framesRendered: number): void {
     const targetFps = this.getTargetFps();
     const expectedFrameTime = 1000 / targetFps;
@@ -132,6 +203,16 @@ export class Performance extends CRABS_Base {
     }
   }
 
+  /**
+   * Computes an Exponentially Weighted Moving Average (EWMA).
+   *
+   * @private
+   * @param prev - Previous moving average value.
+   * @param current - Current instantaneous measurement.
+   * @param dt - Delta time elapsed since the previous sample (seconds).
+   * @param windowSec - Time constant / smoothing half-life window (seconds).
+   * @returns Computed moving average.
+   */
   private calcEwma(
     prev: number,
     current: number,
@@ -142,6 +223,15 @@ export class Performance extends CRABS_Base {
     return prev + alpha * (current - prev);
   }
 
+  /**
+   * Transitions the active performance level, adjusts anti-flap penalties,
+   * and applies or relaxes game animation throttling.
+   *
+   * @private
+   * @param newLevel - Target tier level.
+   * @param now - Current timestamp (epoch ms).
+   * @param isRecovery - True if transitioning upward toward NORMAL performance.
+   */
   private transitionPerformance(
     newLevel: PerformanceLevel,
     now: number,
@@ -172,6 +262,12 @@ export class Performance extends CRABS_Base {
     }
   }
 
+  /**
+   * Synchronization handler triggered when user performance preferences change.
+   *
+   * Restores unthrottled animation rates if performance mode was disabled,
+   * or applies optimizations matching the active performance level.
+   */
   public onSettingsChanged(): void {
     if (!Settings.instance.data.enablePerformanceMode) {
       this.restoreOriginalRefreshRates();
@@ -180,6 +276,12 @@ export class Performance extends CRABS_Base {
     }
   }
 
+  /**
+   * Restores all throttled character animation refresh intervals stored in
+   * `AnimationPersistentStorage` back to their initial game defaults.
+   *
+   * @private
+   */
   private restoreOriginalRefreshRates(): void {
     const g = window as any;
     const animStorage = g.AnimationPersistentStorage;
@@ -197,6 +299,15 @@ export class Performance extends CRABS_Base {
     this.originalRefreshRates = {};
   }
 
+  /**
+   * Applies character animation frame rate caps to native persistent storage.
+   *
+   * Clamps intervals to 50ms (20 FPS) for {@link PerformanceLevel.LOW} and
+   * 100ms (10 FPS) for {@link PerformanceLevel.CRITICAL}.
+   *
+   * @private
+   * @param level - Active performance tier governing the throttle cap.
+   */
   private applyBaseGameOptimizations(level: PerformanceLevel): void {
     const g = window as any;
     const animStorage = g.AnimationPersistentStorage;
@@ -224,6 +335,10 @@ export class Performance extends CRABS_Base {
     }
   }
 
+  /**
+   * Hooks core game room exits and screen transitions to trigger memory garbage
+   * collection and prevent long-session canvas/RAM bloat.
+   */
   public setupBaseGameMemoryPruning(): void {
     // Purge assets on room transitions to fix cumulative asset/RAM bloat
     this.safeHook("ChatRoomLeave", 0, (args, next) => {
@@ -240,6 +355,10 @@ export class Performance extends CRABS_Base {
     });
   }
 
+  /**
+   * Clears native 2D canvas caches, WebGL image builder caches, and shrinks
+   * lingering backing canvas dimensions to force VRAM reclamation.
+   */
   public pruneBaseGameCaches(): void {
     const g = window as any;
     try {
@@ -270,7 +389,9 @@ export class Performance extends CRABS_Base {
   }
 
   /**
-   * Returns current performance, frame times, and load averages.
+   * Retrieves current performance tier states, target FPS, and EWMA load metrics.
+   *
+   * @returns Snapshot of active performance and anti-flap metrics.
    */
   public getPerformanceStats(): {
     level: string;
@@ -294,7 +415,10 @@ export class Performance extends CRABS_Base {
   }
 
   /**
-   * Returns formatted memory stats for chat and logs details to console table.
+   * Inspects and returns diagnostic memory metrics across native image caches,
+   * DOM canvas counts, and the Chromium V8 heap (when supported), printing a summary table to the console.
+   *
+   * @returns Key-value dictionary of memory indicators and heap statistics.
    */
   public inspectBaseGameMemory(): Record<string, number | string> {
     const g = window as any;
@@ -341,6 +465,9 @@ export class Performance extends CRABS_Base {
     return stats;
   }
 
+  /**
+   * Stops the `requestAnimationFrame` evaluation loop.
+   */
   public stop(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
   }

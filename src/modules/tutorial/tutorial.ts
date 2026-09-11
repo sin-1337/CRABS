@@ -1,6 +1,6 @@
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Assets } from "../assets";
+import { Assets } from "../base";
 import DOMPurify from "dompurify";
 import locales from "./i18n.json";
 import { TUTORIAL_STEPS, TutorialStep } from "./steps";

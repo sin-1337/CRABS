@@ -13,6 +13,20 @@ interface BaseUIElement {
   grayedOut?: boolean | (() => boolean);
 }
 
+type ComponentCategory =
+  | "General"
+  | "Drawer"
+  | "Immersion"
+  | "Maps"
+  | "Chat"
+  | "Config";
+
+interface ConfiguredWidget {
+  category: ComponentCategory;
+  indent: number;
+  widget: UIWidget;
+}
+
 interface CheckboxElement extends BaseUIElement {
   type: "Checkbox";
   setting: string;

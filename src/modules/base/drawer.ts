@@ -7,27 +7,33 @@
  * - Automatic visibility management based on game state
  * - Integration with the game's chat log dimensions
  * - Event handling for navigation and interaction
- * - Event-driven rendering based on the Roster module's state
+ * - Event-driven rendering via a decentralized registration model
  */
 
-import { CRABS_Base, PerformanceLevel } from "../base";
-import { Assets } from "../assets";
+import { CRABS_Base, PerformanceLevel } from "./core";
+import { translate } from "./localization";
+import { registerKeybind } from "./keybinds";
+import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Roster } from "../roster";
 import "./templates/drawer.css";
 import drawertemplate from "./templates/drawer.html";
+import type {
+  DrawerPage,
+  DrawerViewDefinition,
+  DrawerStateDelegate,
+  DrawerUIInjector,
+} from "./types";
 
-import { Help } from "../help";
-import { WhisperPlus } from "../whisperplus";
-import { Settings } from "../settings";
-
-import locales from "./i18n.json";
-
-export type DrawerPage = "roster" | "help" | "history";
+export type {
+  DrawerPage,
+  DrawerViewDefinition,
+  DrawerStateDelegate,
+  DrawerUIInjector,
+};
 
 /**
  * Class representing the side drawer UI.
- * Manages the sliding panel that contains the Roster, Help, and Settings access.
+ * Manages the sliding panel container and dispatches views via registered providers.
  * Implements a Singleton pattern for global access via static methods.
  * @extends CRABS_Base
  */
@@ -38,51 +44,45 @@ export class Drawer extends CRABS_Base {
   private isOpen: boolean = false;
   /** The primary DOM element containing the drawer. */
   private instance: HTMLElement | null = null;
-  /** Reference to the Roster module for rendering player lists. */
-  private rosterModule: Roster;
-  /** Reference to the Help module for rendering documentation. */
-  private helpModule: Help;
-  /** Reference to the WhisperPlus module for UI injection. */
-  private whisperPlusModule: WhisperPlus;
+
+  /** Registered views mapped by page ID. */
+  private static registeredViews = new Map<DrawerPage, DrawerViewDefinition>();
+  /** Registered auxiliary UI injectors (e.g. WhisperPlus). */
+  private static registeredInjectors = new Set<DrawerUIInjector>();
+  /** Registered state delegate (e.g. Roster). */
+  private static stateDelegate: DrawerStateDelegate | null = null;
+
   /** Observer to keep the drawer aligned with the chat log resizing. */
   private resizeObserver: ResizeObserver | null = null;
-  /** Tracks if the drawer is currently displaying the Help view. */
-  private showingHelp: boolean = false;
-  /** Tracks if the drawer is currently displaying the History view. */
-  private showingHistory: boolean = false;
+  /** Tracks active page view inside the drawer. Defaults to "roster". */
+  private activePage: DrawerPage = "roster";
+
   /** Counter used to throttle frame updates based on performance tier. */
   private updateTick: number = 0;
-  /** Cached reference to the tab element to prevent DOM queries in the render loop */
+  /** Tracks the previous key inventory bitstring to detect pickups/drops immediately. */
+  private lastKnownKeys: string = "";
+  /** Tracks whether the map was active on the previous update cycle. */
+  private wasMapActive: boolean = false;
+  /** Cached reference to the tab element to prevent DOM queries in the render loop. */
   private tabElement: HTMLElement | null = null;
-  /** Cached reference to the chat log element */
+  /** Cached reference to the chat log element. */
   private chatLogElement: HTMLElement | null = null;
-  /** Tracks the last known performance state to trigger visual swaps */
+  /** Tracks the last known performance state to trigger visual swaps. */
   private lastPerfLevel: PerformanceLevel = PerformanceLevel.NORMAL;
 
   /**
    * Initializes the Drawer module and sets up the Singleton instance.
    *
    * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-   * @param {Roster} roster - The Roster module instance.
-   * @param {Help} help - The Help module instance.
-   * @param {WhisperPlus} whisperPlus - The WhisperPlus module instance.
    */
-  constructor(
-    CRABS: ModSDKModAPI,
-    roster: Roster,
-    help: Help,
-    whisperPlus: WhisperPlus,
-  ) {
-    super(CRABS, "drawer", locales);
+  constructor(CRABS: ModSDKModAPI) {
+    super(CRABS, "drawer");
     Drawer._instance = this;
-    this.rosterModule = roster;
-    this.helpModule = help;
-    this.whisperPlusModule = whisperPlus;
 
-    CRABS_Base.registerKeybind(
+    registerKeybind(
       "crabs_drawer_toggle",
-      this.t("keybinds.toggle_name"),
-      this.t("keybinds.toggle_desc"),
+      this.t("drawer.keybinds.toggle_name"),
+      this.t("drawer.keybinds.toggle_desc"),
       "KeyD",
       () => {
         this.toggle();
@@ -92,6 +92,41 @@ export class Drawer extends CRABS_Base {
 
     this.init();
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // Registration API (One-way Consumer Pattern)
+  // ─────────────────────────────────────────────────────────────
+
+  /**
+   * Registers a view page definition with the Drawer.
+   *
+   * @param {DrawerViewDefinition} viewDef - View definition and render delegate.
+   */
+  public static registerView(viewDef: DrawerViewDefinition): void {
+    Drawer.registeredViews.set(viewDef.id, viewDef);
+  }
+
+  /**
+   * Registers an auxiliary UI injection callback executed after the drawer mounts content.
+   *
+   * @param {DrawerUIInjector} injector - Injection callback.
+   */
+  public static registerUIInjector(injector: DrawerUIInjector): void {
+    Drawer.registeredInjectors.add(injector);
+  }
+
+  /**
+   * Registers the primary state delegate driving layout modes, key checks, and dirty cycles.
+   *
+   * @param {DrawerStateDelegate} delegate - State provider.
+   */
+  public static registerStateDelegate(delegate: DrawerStateDelegate): void {
+    Drawer.stateDelegate = delegate;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Static Control Facades
+  // ─────────────────────────────────────────────────────────────
 
   /**
    * Toggles the drawer open/closed globally, optionally targeting a specific page.
@@ -129,7 +164,7 @@ export class Drawer extends CRABS_Base {
    * @returns {boolean} True if the help screen is active.
    */
   public static isShowingHelp(): boolean {
-    return Drawer._instance?.showingHelp ?? false;
+    return Drawer._instance?.activePage === "help";
   }
 
   /** Overrides the current view state of the drawer.
@@ -137,11 +172,23 @@ export class Drawer extends CRABS_Base {
    */
   public static setShowingHelp(value: boolean): void {
     if (Drawer._instance) {
-      Drawer._instance.showingHelp = value;
-      if (value) {
-        Drawer._instance.showingHistory = false;
-        Drawer._instance.rosterModule.isShowingHistory = false;
-      }
+      Drawer._instance.activePage = value ? "help" : "roster";
+    }
+  }
+
+  /** Checks if the keys page is currently being displayed.
+   * @returns {boolean} True if the keys screen is active.
+   */
+  public static isShowingKeys(): boolean {
+    return Drawer._instance?.activePage === "keys";
+  }
+
+  /** Overrides the current view state of the drawer.
+   * @param {boolean} value - True to show Keys, false to show Roster.
+   */
+  public static setShowingKeys(value: boolean): void {
+    if (Drawer._instance) {
+      Drawer._instance.activePage = value ? "keys" : "roster";
     }
   }
 
@@ -149,7 +196,7 @@ export class Drawer extends CRABS_Base {
    * @returns {boolean} True if the history screen is active.
    */
   public static isShowingHistory(): boolean {
-    return Drawer._instance?.showingHistory ?? false;
+    return Drawer._instance?.activePage === "history";
   }
 
   /** Overrides the current history view state of the drawer.
@@ -157,11 +204,7 @@ export class Drawer extends CRABS_Base {
    */
   public static setShowingHistory(value: boolean): void {
     if (Drawer._instance) {
-      Drawer._instance.showingHistory = value;
-      Drawer._instance.rosterModule.isShowingHistory = value;
-      if (value) {
-        Drawer._instance.showingHelp = false;
-      }
+      Drawer._instance.activePage = value ? "history" : "roster";
     }
   }
 
@@ -170,7 +213,7 @@ export class Drawer extends CRABS_Base {
     Drawer._instance?.RaveTab();
   }
 
-  /** Caches the last known coordinates of the chat log to prevent layout thrashing */
+  /** Caches the last known coordinates of the chat log to prevent layout thrashing. */
   private lastRect = {
     top: -1,
     width: -1,
@@ -186,7 +229,10 @@ export class Drawer extends CRABS_Base {
    * @returns {string}
    */
   private getLayoutIconKey(): string {
-    switch (this.rosterModule.layoutMode) {
+    const layout = Drawer.stateDelegate?.layoutMode
+      ? Drawer.stateDelegate.layoutMode()
+      : "layout-grid";
+    switch (layout) {
       case "layout-mobile-stack":
         return "menu_rows";
       case "layout-compact":
@@ -254,6 +300,22 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
+   * Safe helper to read settings without a hard import dependency.
+   *
+   * @private
+   */
+  private getSetting<T>(key: string, defaultValue: T): T {
+    const globalWindow = window as any;
+    const settingsInstanceData = (globalWindow.CRABS?.Settings as any)?.instance
+      ?.data;
+    const val =
+      globalWindow.CRABS_Settings?.[key] ??
+      settingsInstanceData?.[key] ??
+      globalWindow.CRABS?.Settings?.[key];
+    return val !== undefined ? val : defaultValue;
+  }
+
+  /**
    * Evaluates user settings and system performance to dictate visual intensity.
    * Restricts animations and intensive CSS effects when the engine is struggling.
    *
@@ -267,10 +329,8 @@ export class Drawer extends CRABS_Base {
     const currentMode = this.tabElement.getAttribute("data-mode");
     if (currentMode === "rave") return;
 
-    const targetMode =
-      !lowPerformance && Settings.instance.data.animatedCrabsLogo
-        ? "animated"
-        : "static";
+    const animatedLogo = this.getSetting<boolean>("animatedCrabsLogo", true);
+    const targetMode = !lowPerformance && animatedLogo ? "animated" : "static";
 
     if (currentMode !== targetMode) {
       const iconKey = targetMode === "animated" ? "animated_logo" : "logo";
@@ -293,7 +353,7 @@ export class Drawer extends CRABS_Base {
 
   /**
    * Hooks into the game's render loop to process updates.
-   * Monitors performance state and executes surgical DOM updates to the roster.
+   * Monitors performance state and executes surgical DOM updates via the registered state delegate.
    *
    * @private
    * @returns {void}
@@ -321,10 +381,12 @@ export class Drawer extends CRABS_Base {
         const currentPerf = CRABS_Base.currentPerformanceLevel;
         const isLowPerformance = currentPerf !== PerformanceLevel.NORMAL;
 
+        const animatedLogo = this.getSetting<boolean>(
+          "animatedCrabsLogo",
+          true,
+        );
         const expectedMode =
-          !isLowPerformance && Settings.instance.data.animatedCrabsLogo
-            ? "animated"
-            : "static";
+          !isLowPerformance && animatedLogo ? "animated" : "static";
         const actualMode = this.tabElement?.getAttribute("data-mode");
 
         if (
@@ -349,28 +411,60 @@ export class Drawer extends CRABS_Base {
           this.updateVisibility();
           this.syncToChat();
 
-          if (this.isOpen && !this.showingHelp) {
-            if (this.rosterModule.isDirty) {
-              if (this.showingHistory) {
-                // Live refresh the history tab when someone leaves or joins
+          // Auto-revert keys view back to roster if leaving a map
+          const isMap = this.isMap();
+          if (this.wasMapActive && !isMap) {
+            if (this.activePage === "keys") {
+              this.activePage = "roster";
+              this.refresh();
+            }
+          }
+          this.wasMapActive = isMap;
+
+          // Detect instant key pickups/drops via delegate
+          if (
+            this.isOpen &&
+            isMap &&
+            this.activePage !== "help" &&
+            this.activePage !== "history"
+          ) {
+            const currentKeys = Drawer.stateDelegate?.getKeyStateString
+              ? Drawer.stateDelegate.getKeyStateString()
+              : "";
+            if (currentKeys && this.lastKnownKeys !== currentKeys) {
+              this.lastKnownKeys = currentKeys;
+
+              if (this.activePage === "keys") {
+                this.refresh();
+              } else if (this.instance && Drawer.stateDelegate?.updateUI) {
+                Drawer.stateDelegate.updateUI(this.instance);
+              }
+            }
+          }
+
+          if (this.isOpen && this.activePage !== "help") {
+            if (
+              Drawer.stateDelegate?.isDirty &&
+              Drawer.stateDelegate.isDirty()
+            ) {
+              if (this.activePage === "history" || this.activePage === "keys") {
                 this.refresh();
               } else {
                 const rosterRoot = this.instance?.querySelector(
                   ".CRABS_roster_center_table",
                 ) as HTMLElement;
 
-                if (rosterRoot) {
-                  this.rosterModule.updateRosterUI(this.instance!);
+                if (rosterRoot && Drawer.stateDelegate?.updateUI) {
+                  Drawer.stateDelegate.updateUI(this.instance!);
                 } else {
                   this.refresh();
                 }
               }
 
-              this.rosterModule.isDirty = false;
+              Drawer.stateDelegate?.clearDirty?.();
             }
           }
         }
-
         return result;
       },
     );
@@ -389,12 +483,12 @@ export class Drawer extends CRABS_Base {
     const globalWindow = window as any;
     const chatRoomData = globalWindow.ChatRoomData;
 
-    const roomName = chatRoomData?.Name || this.t("header.title_default");
+    const roomName =
+      chatRoomData?.Name || this.t("drawer.header.title_default");
     const title = `${roomName}`;
 
-    const logoKey = Settings.instance.data.animatedCrabsLogo
-      ? "animated_logo"
-      : "static_logo";
+    const animatedLogo = this.getSetting<boolean>("animatedCrabsLogo", true);
+    const logoKey = animatedLogo ? "animated_logo" : "static_logo";
 
     const templateVars = {
       Help: Assets.printimage({
@@ -418,7 +512,7 @@ export class Drawer extends CRABS_Base {
       }),
       SortIcon: Assets.printimage({
         key: "sort",
-        tooltip_override: this.t("tooltips.layout"),
+        tooltip_override: this.t("drawer.tooltips.layout"),
         css_class_override: "CRABS_Drawer_Sort_Icon",
       }),
       TitleBar: title,
@@ -461,7 +555,7 @@ export class Drawer extends CRABS_Base {
     if (rect.width === 0 || rect.height === 0) return;
 
     const rightOffset = document.documentElement.clientWidth - rect.right;
-    const compact = Settings.instance.data.compactDrawer;
+    const compact = this.getSetting<boolean>("compactDrawer", false);
 
     if (
       this.lastRect.top !== rect.top ||
@@ -495,7 +589,8 @@ export class Drawer extends CRABS_Base {
   public updateVisibility(): void {
     if (!this.instance) return;
 
-    if (!Settings.instance.data.enableDrawer) {
+    const enableDrawer = this.getSetting<boolean>("enableDrawer", true);
+    if (!enableDrawer) {
       this.instance.style.display = "none";
       this.close();
       return;
@@ -520,8 +615,8 @@ export class Drawer extends CRABS_Base {
 
       const tab = this.tabElement;
       if (tab) {
-        tab.style.display =
-          Settings.instance.data.showDrawerTab && !isFocused ? "flex" : "none";
+        const showTab = this.getSetting<boolean>("showDrawerTab", true);
+        tab.style.display = showTab && !isFocused ? "flex" : "none";
       }
 
       if (!this.resizeObserver) {
@@ -589,7 +684,7 @@ export class Drawer extends CRABS_Base {
         key: "sort",
         css_class_override: "CRABS_Drawer_Sort_Icon",
       });
-    if (historyIconContainer && !this.showingHistory) {
+    if (historyIconContainer && this.activePage !== "history") {
       historyIconContainer.innerHTML = Assets.printimage({
         key: "history" as any,
         css_class_override: "CRABS_Drawer_History_Icon",
@@ -600,13 +695,13 @@ export class Drawer extends CRABS_Base {
     if (sortDropdown) {
       const currentSort = sortDropdown.value || "natural";
       sortDropdown.innerHTML = `
-        <option value="natural">${this.t("roster.sort_options.natural")}</option>
-        <option value="role">${this.t("roster.sort_options.role")}</option>
-        <option value="ds">${this.t("roster.sort_options.ds")}</option>
-        <option value="lovers">${this.t("roster.sort_options.lovers")}</option>
-        <option value="friends">${this.t("roster.sort_options.friends")}</option>
-        <option value="whitelist">${this.t("roster.sort_options.whitelist")}</option>
-        <option value="blacklist">${this.t("roster.sort_options.blacklist")}</option>
+        <option value="natural">${translate("roster.sort_options.natural")}</option>
+        <option value="role">${translate("roster.sort_options.role")}</option>
+        <option value="ds">${translate("roster.sort_options.ds")}</option>
+        <option value="lovers">${translate("roster.sort_options.lovers")}</option>
+        <option value="friends">${translate("roster.sort_options.friends")}</option>
+        <option value="whitelist">${translate("roster.sort_options.whitelist")}</option>
+        <option value="blacklist">${translate("roster.sort_options.blacklist")}</option>
       `;
       sortDropdown.value = currentSort;
     }
@@ -615,16 +710,8 @@ export class Drawer extends CRABS_Base {
       typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
 
     if (content && isRoomReady) {
-      const roomName = ChatRoomData.Name || this.t("header.title_default");
-      const rosterTitle = `${roomName}`;
-      const helpTitle = `${this.t("header.title_help")}`;
-      const historyTitle = this.t("header.title_history") || "History";
-
-      header?.classList.toggle("help-active", this.showingHelp);
-      header?.classList.toggle(
-        "history-active",
-        !this.showingHelp && this.showingHistory,
-      );
+      header?.classList.toggle("help-active", this.activePage === "help");
+      header?.classList.toggle("history-active", this.activePage === "history");
 
       const setLayoutVisible = (visible: boolean) => {
         layoutIcons?.forEach((el) => {
@@ -641,83 +728,67 @@ export class Drawer extends CRABS_Base {
         });
       };
 
-      if (this.showingHelp) {
-        if (title && title.textContent !== helpTitle)
-          title.textContent = helpTitle;
+      // Query registered view provider
+      const view = Drawer.registeredViews.get(this.activePage);
 
+      if (view) {
+        const computedTitle = view.title();
+        if (title && title.textContent !== computedTitle) {
+          title.textContent = computedTitle;
+        }
+
+        // Handle icon state updates
         if (helpIconContainer) {
+          const iconKey = this.activePage === "help" ? "roster" : "help";
           helpIconContainer.innerHTML = Assets.printimage({
-            key: "roster",
+            key: iconKey,
             css_class_override: "CRABS_Drawer_Help_Icon",
           });
-          helpIconContainer.setAttribute("data-icon", "roster");
+          helpIconContainer.setAttribute("data-icon", iconKey);
         }
 
-        if (sortContainer)
-          sortContainer.style.setProperty("display", "none", "important");
-        if (historyIconContainer)
-          historyIconContainer.setAttribute("data-active", "false");
-        setLayoutVisible(false);
+        if (historyIconContainer) {
+          historyIconContainer.setAttribute(
+            "data-active",
+            this.activePage === "history" ? "true" : "false",
+          );
+        }
 
-        content.innerHTML = this.helpModule.showHelp(false);
-      } else if (this.showingHistory) {
-        if (title && title.textContent !== historyTitle)
-          title.textContent = historyTitle;
+        if (sortContainer) {
+          sortContainer.style.setProperty(
+            "display",
+            view.showSort ? "flex" : "none",
+            "important",
+          );
+        }
 
-        if (helpIconContainer) {
-          helpIconContainer.innerHTML = Assets.printimage({
-            key: "help",
-            css_class_override: "CRABS_Drawer_Help_Icon",
+        setLayoutVisible(!!view.showLayout);
+        if (view.showLayout) {
+          layoutIcons?.forEach((el) => {
+            (el as HTMLElement).innerHTML = Assets.printimage({
+              key: this.getLayoutIconKey() as any,
+              tooltip_override: this.t("drawer.tooltips.layout"),
+              css_class_override: "CRABS_Drawer_Layout_Icon",
+            });
           });
-          helpIconContainer.setAttribute("data-icon", "help");
         }
 
-        if (historyIconContainer)
-          historyIconContainer.setAttribute("data-active", "true");
-        if (sortContainer)
-          sortContainer.style.setProperty("display", "flex", "important");
-        setLayoutVisible(false);
+        // Render content
+        content.innerHTML = view.render();
 
-        content.innerHTML = this.rosterModule.buildHistory();
-        this.rosterModule.initScrollingOverflow();
-
-        if (this.instance) {
-          this.rosterModule.buildui(undefined, undefined, this.instance);
-        }
-      } else {
-        if (title && title.textContent !== rosterTitle)
-          title.textContent = rosterTitle;
-
-        if (helpIconContainer) {
-          helpIconContainer.innerHTML = Assets.printimage({
-            key: "help",
-            css_class_override: "CRABS_Drawer_Help_Icon",
-          });
-          helpIconContainer.setAttribute("data-icon", "help");
-        }
-
-        if (historyIconContainer)
-          historyIconContainer.setAttribute("data-active", "false");
-        if (sortContainer)
-          sortContainer.style.setProperty("display", "flex", "important");
-
-        setLayoutVisible(true);
-        layoutIcons?.forEach((el) => {
-          (el as HTMLElement).innerHTML = Assets.printimage({
-            key: this.getLayoutIconKey() as any,
-            tooltip_override: this.t("tooltips.layout"),
-            css_class_override: "CRABS_Drawer_Layout_Icon",
-          });
-        });
-
-        content.innerHTML = this.rosterModule.buildroster("all", false);
-        this.rosterModule.initScrollingOverflow();
-
-        if (this.instance) {
-          this.rosterModule.buildui(undefined, undefined, this.instance);
-          this.whisperPlusModule.buildui(undefined, undefined, this.instance);
+        // Trigger onMount callback
+        if (this.instance && view.onMount) {
+          view.onMount(this.instance);
         }
       }
+
+      // Execute any registered auxiliary injectors (e.g. WhisperPlus)
+      if (this.instance) {
+        for (const injector of Drawer.registeredInjectors) {
+          injector(this.instance);
+        }
+      }
+
       this.syncToChat();
     }
   }
@@ -754,50 +825,22 @@ export class Drawer extends CRABS_Base {
       const target = event.target as HTMLElement;
 
       if (target.closest(".CRABS_Drawer_Help_Icon")) {
-        if (this.showingHistory) {
-          this.showingHistory = false;
-          this.rosterModule.isShowingHistory = false;
-        }
-        this.showingHelp = !this.showingHelp;
+        this.activePage = this.activePage === "help" ? "roster" : "help";
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
         this.openSettings();
       } else if (target.closest(".CRABS_Drawer_History_Icon")) {
-        if (this.showingHelp) {
-          this.showingHelp = false;
-        }
-        this.showingHistory = !this.showingHistory;
-        this.rosterModule.isShowingHistory = this.showingHistory;
+        this.activePage = this.activePage === "history" ? "roster" : "history";
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
-        // Prevent layout cycling if Help or History view is active
-        if (this.showingHelp || this.showingHistory) return;
+        if (this.activePage === "help" || this.activePage === "history") return;
 
-        const layouts = [
-          "layout-grid",
-          "layout-mobile-stack",
-          "layout-compact",
-        ];
-        const currentIndex = layouts.indexOf(this.rosterModule.layoutMode);
-        const nextLayout =
-          layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
-
-        this.rosterModule.layoutMode = nextLayout;
+        Drawer.stateDelegate?.cycleLayout?.();
         this.refresh();
-
-        const table = this.instance?.querySelector(
-          ".CRABS_roster_center_table",
-        );
-        if (table) {
-          table.classList.remove(...layouts);
-          table.classList.add(nextLayout);
-        }
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
-        if (this.showingHelp || this.showingHistory) {
-          this.showingHelp = false;
-          this.showingHistory = false;
-          this.rosterModule.isShowingHistory = false;
+        if (this.activePage !== "roster") {
+          this.activePage = "roster";
           this.refresh();
         } else {
           this.close();
@@ -822,10 +865,7 @@ export class Drawer extends CRABS_Base {
       return;
     }
 
-    const isCurrentPage =
-      (page === "help" && this.showingHelp) ||
-      (page === "history" && this.showingHistory) ||
-      (page === "roster" && !this.showingHelp && !this.showingHistory);
+    const isCurrentPage = this.activePage === page;
 
     if (this.isOpen && isCurrentPage) {
       this.close();
@@ -844,11 +884,7 @@ export class Drawer extends CRABS_Base {
   public open(page?: DrawerPage): void {
     if (!this.instance) return;
 
-    if (page) {
-      this.showingHelp = page === "help";
-      this.showingHistory = page === "history";
-      this.rosterModule.isShowingHistory = page === "history";
-    }
+    this.activePage = page || "roster";
 
     this.refresh();
     this.isOpen = true;
@@ -867,8 +903,11 @@ export class Drawer extends CRABS_Base {
     this.instance.classList.remove("drawer-open");
     this.instance.classList.add("drawer-closed");
 
-    if (this.rosterModule) {
-      this.rosterModule.clearTracking();
-    }
+    // Deactivate active page
+    const currentView = Drawer.registeredViews.get(this.activePage);
+    currentView?.onDeactivate?.();
+
+    this.activePage = "roster";
+    Drawer.stateDelegate?.onClearTracking?.();
   }
 }

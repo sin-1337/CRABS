@@ -9,8 +9,8 @@
  * - Automatic localization bundle ingestion wired into the CRABS i18n engine
  */
 
-import { Assets } from "../assets";
-import { CRABS_Base } from "../base";
+import { Assets } from "../base";
+import { registerTranslations, translate } from "../base";
 import "./templates/notifications.css";
 import locales from "./i18n.json";
 
@@ -117,7 +117,7 @@ export abstract class Notification {
     if (Notification.isInitialized) return;
 
     for (const [_, dict] of Object.entries(locales)) {
-      CRABS_Base.registerTranslations("notifications", dict);
+      registerTranslations("notifications", dict);
     }
 
     Notification.isInitialized = true;
@@ -157,9 +157,8 @@ export abstract class Notification {
   }: NotificationParams): void {
     Notification.init();
 
-    const localizedMessage = CRABS_Base.translate(message);
-    const localizedTitle =
-      title !== "CRABS" ? CRABS_Base.translate(title) : "CRABS";
+    const localizedMessage = translate(message);
+    const localizedTitle = title !== "CRABS" ? translate(title) : "CRABS";
 
     if (
       typeof ToastManager !== "undefined" &&
@@ -282,8 +281,8 @@ export abstract class Notification {
     }
 
     try {
-      const localizedTitle = CRABS_Base.translate(title);
-      const localizedBody = CRABS_Base.translate(body);
+      const localizedTitle = translate(title);
+      const localizedBody = translate(body);
 
       new BrowserNotify(localizedTitle, {
         body: localizedBody,

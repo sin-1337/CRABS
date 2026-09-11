@@ -10,17 +10,16 @@
  */
 
 import bcModSDK from "bondage-club-mod-sdk";
-import { WhisperPlus } from "whisperplus";
-import { Roster } from "roster";
-import { Help } from "help";
-import { Drawer } from "drawer";
-import { Settings } from "settings";
-import { Assets } from "assets";
-import { Setup } from "setup";
-import { Notification } from "notifications";
-import { Performance } from "performance";
-import { Tutorial } from "tutorial";
-import { CRABS_Base } from "base";
+import { WhisperPlus } from "../whisperplus/whisperplus";
+import { Roster } from "../roster/roster";
+import { Help } from "../help/help";
+import { Settings } from "../settings/settings";
+import { Assets } from "../base";
+import { Orchestrator } from "../orchestrator";
+import { Notification } from "../notifications/notifications";
+import { Performance } from "../performance/performance";
+import { Tutorial } from "../tutorial/tutorial";
+import { CRABS_Base, Drawer, type DrawerPage, getActiveLocale } from "../base";
 import locales from "./i18n.json";
 
 /**
@@ -36,7 +35,7 @@ export interface CliDependencies {
   /** Help view builder and documentation subsystem. */
   help: Help;
   /** Setup and welcome banner subsystem. */
-  setup: Setup;
+  orchestrator: Orchestrator;
   /** Performance monitor, cache manager, and profiler subsystem. */
   performance: Performance;
   /** Interactive onboarding tutorial workflow. */
@@ -56,7 +55,7 @@ export class CLI extends CRABS_Base {
   /** Help view builder and documentation subsystem. */
   private help: Help;
   /** Setup and welcome banner subsystem. */
-  private setup: Setup;
+  private orchestrator: Orchestrator;
   /** Performance monitor, cache manager, and profiler subsystem. */
   private performance: Performance;
   /** Interactive onboarding tutorial workflow. */
@@ -73,7 +72,7 @@ export class CLI extends CRABS_Base {
     this.whisperPlus = deps.whisperPlus;
     this.roster = deps.roster;
     this.help = deps.help;
-    this.setup = deps.setup;
+    this.orchestrator = deps.orchestrator;
     this.performance = deps.performance;
     this.tutorial = deps.tutorial;
 
@@ -98,9 +97,16 @@ export class CLI extends CRABS_Base {
       roster: "roster",
       help: "help",
       history: "history",
+      keys: "keys",
     };
 
     if (opensDrawer && drawerPages[arg]) {
+      if (arg === "keys" && !this.isMap()) {
+        const globalWindow = window as any;
+        globalWindow.ChatRoomSendLocal?.(this.t("dropkeys_not_map"));
+        return false;
+      }
+
       Drawer.toggle(drawerPages[arg]);
       return false;
     }
@@ -129,7 +135,7 @@ export class CLI extends CRABS_Base {
     }
 
     if (arg === "banner") {
-      this.setup.drawbanner();
+      this.orchestrator.drawbanner();
       return false;
     }
 
@@ -255,7 +261,7 @@ export class CLI extends CRABS_Base {
            */
           const getMessages = (entry?: Record<string, string[]>): string[] => {
             if (!entry) return [];
-            const active = CRABS_Base.getActiveLocale();
+            const active = getActiveLocale();
             let list = entry[active];
             if ((!list || list.length === 0) && active === "tw")
               list = entry["cn"];
@@ -306,55 +312,27 @@ export class CLI extends CRABS_Base {
         Tag: "dropkeys",
         Description: this.t("dropkeys_desc"),
         Action: (commandArguments: string) => {
-          const splitArgs = commandArguments.toLowerCase().split(" ");
-          if (splitArgs.length < 1 || !commandArguments.trim()) {
-            ChatRoomSendLocal(this.t("dropkeys_missing_arg"));
-            return;
-          }
-          if (!ChatRoomMapViewIsActive()) {
-            ChatRoomSendLocal(this.t("dropkeys_not_map"));
+          const splitArgs = commandArguments
+            .toLowerCase()
+            .split(/\s+/)
+            .filter(Boolean);
+          if (splitArgs.length === 0) {
+            (window as any).ChatRoomSendLocal?.(this.t("dropkeys_missing_arg"));
             return;
           }
 
-          for (let index = 0; index < splitArgs.length; index++) {
-            const arg = splitArgs[index];
-            if (arg === "bronze" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeyBronze) {
-                Player.MapData.PrivateState.HasKeyBronze = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.bronze"),
-                  }),
-                );
-              }
-            }
-            if (arg === "silver" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeySilver) {
-                Player.MapData.PrivateState.HasKeySilver = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.silver"),
-                  }),
-                );
-              }
-            }
-            if (arg === "gold" || arg === "all") {
-              if (Player.MapData.PrivateState.HasKeyGold) {
-                Player.MapData.PrivateState.HasKeyGold = false;
-                ChatRoomSendLocal(
-                  this.t("dropkeys_dropped", {
-                    color: this.t("keys.gold"),
-                  }),
-                );
-              }
-            }
+          for (const arg of splitArgs) {
             if (
-              arg !== "bronze" &&
-              arg !== "silver" &&
-              arg !== "gold" &&
-              arg !== "all"
+              arg === "bronze" ||
+              arg === "silver" ||
+              arg === "gold" ||
+              arg === "all"
             ) {
-              ChatRoomSendLocal(this.t("dropkeys_invalid_arg", { arg }));
+              this.dropMapKey(arg);
+            } else {
+              (window as any).ChatRoomSendLocal?.(
+                this.t("dropkeys_invalid_arg", { arg }),
+              );
             }
           }
         },
