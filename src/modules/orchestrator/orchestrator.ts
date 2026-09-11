@@ -97,13 +97,23 @@ export class Orchestrator extends CRABS_Base {
   }
 
   /**
-   * Registers all core game engine hooks via ModSDK's safeHook API, including:
-   * - Room layout compatibility patches (ChatRoomRun)
-   * - Command-line auto-stow behavior (ChatRoomSendChat)
-   * - Localization update reactions (TranslationLoad)
-   * - Authoritative room transition listeners (ChatRoomSync, ChatRoomUpdateDisplay)
-   * - Screen change and dialog focus stowing (CommonSetScreen, ChatRoomFocusCharacter, DialogLeave)
-   * - OnlineProfile canvas normalization controls (OnlineProfileRun, OnlineProfileClick, OnlineProfileUnload)
+   * Normalizes Unicode text by converting Math Alphanumerics, Fullwidth symbols,
+   * and stripping stacked Zalgo diacritical marks.
+   *
+   * @private
+   * @param {string} text - Raw input string.
+   * @returns {string} Cleaned plain text.
+   */
+  private normalizeProfileText(text: string): string {
+    if (!text) return "";
+    let cleaned = text.normalize("NFKD");
+    cleaned = cleaned.replace(/\p{M}/gu, "");
+    cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, "");
+    return cleaned;
+  }
+
+  /**
+   * Registers all core game engine hooks via ModSDK's safeHook API.
    *
    * @private
    * @returns {void}
@@ -319,18 +329,27 @@ export class Orchestrator extends CRABS_Base {
         const input = document.getElementById(
           "DescriptionInput",
         ) as HTMLTextAreaElement | null;
+        const wceRichDiv = document.getElementById("bceRichOnlineProfile");
+        const targetChar = globalWin.InformationSheetSelection;
 
-        // Determine current text source from input or global variables if input is detached
-        let currentText = input
-          ? input.value
-          : (globalWin.OnlineProfileMode === "Description"
-              ? globalWin.OnlineProfileTextDesc
-              : globalWin.OnlineProfileTextOwnersNotes) || "";
+        // Resolve current text source from input, WCE, or global variables
+        let currentText = "";
 
+        if (input && input.style.display !== "none") {
+          currentText = input.value;
+        } else if (globalWin.OnlineProfileMode === "Description") {
+          currentText =
+            globalWin.OnlineProfileTextDesc || (targetChar?.Description ?? "");
+        } else {
+          currentText =
+            globalWin.OnlineProfileTextOwnersNotes ||
+            (targetChar?.Ownership?.Notes ?? targetChar?.OwnerRules ?? "");
+        }
+
+        // Toggle state
         if (!profileIsNormalized) {
           profileOriginalRawText = currentText;
-          const cleaned = this.cleanZalgoAndNormalize(currentText);
-          currentText = cleaned;
+          currentText = this.normalizeProfileText(currentText);
           profileIsNormalized = true;
         } else {
           if (profileOriginalRawText !== null) {
@@ -339,24 +358,43 @@ export class Orchestrator extends CRABS_Base {
           profileIsNormalized = false;
         }
 
-        // Update both the HTML element and dispatch events so Bondage Club catches it
+        // Apply to native textarea
         if (input) {
+          const isReadOnly = input.hasAttribute("readonly");
+          if (isReadOnly) input.removeAttribute("readonly");
+
           input.value = currentText;
           input.dispatchEvent(new Event("input", { bubbles: true }));
           input.dispatchEvent(new Event("change", { bubbles: true }));
+
+          if (isReadOnly) input.setAttribute("readonly", "readonly");
         }
 
-        // Update Bondage Club's authoritative profile text storage variables
+        // Apply to WCE's rich text preview div if active
+        if (wceRichDiv) {
+          wceRichDiv.textContent = currentText;
+        }
+
+        // Sync global buffers & target character sheet directly
         if (globalWin.OnlineProfileMode === "Description") {
           globalWin.OnlineProfileTextDesc = currentText;
+          if (targetChar) targetChar.Description = currentText;
         } else {
           globalWin.OnlineProfileTextOwnersNotes = currentText;
+          if (targetChar) {
+            if (targetChar.Ownership) {
+              targetChar.Ownership.Notes = currentText;
+            }
+            targetChar.OwnerRules = currentText;
+          }
         }
+
         return;
       }
 
       return next(args);
     });
+
     // 3. Reset state on profile unload
     this.safeHook("OnlineProfileUnload", 10, (args, next) => {
       profileOriginalRawText = null;
