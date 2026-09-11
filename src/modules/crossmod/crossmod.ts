@@ -123,7 +123,7 @@ export abstract class CrossMod {
    * Initializes and returns the AFC API instance or global settings container.
    */
   protected static getAfcApi(): any | null {
-    if (!CrossMod.detectMod("AFC")) return null;
+    if (!CrossMod.detectMod("AbundantiaFlorumChromatica")) return null;
     const win = window as any;
     return win.Liko?.AFC || win.AFC || null;
   }
@@ -134,17 +134,17 @@ export abstract class CrossMod {
   static getAFCLovers(): any[] {
     const api = CrossMod.getAfcApi();
 
-    // 1. Live API method (if exposed on Liko.AFC or window.AFC)
+    // Live API method (if exposed on Liko.AFC or window.AFC)
     if (api && typeof api.getLovers === "function") {
       return api.getLovers() || [];
     }
 
-    // 2. Direct reference to AFC's runtime shared settings cache
+    // Direct reference to AFC's runtime shared settings cache
     if (api && api.sharedSettings?.lovers) {
       return api.sharedSettings.lovers;
     }
 
-    // 3. Fallback to BC storage objects
+    // Fallback to BC storage objects
     const win = window as any;
     const afcSettings =
       win.Player?.OnlineSharedSettings?.AFC ||

@@ -396,13 +396,13 @@
             "uk": "Увімкнути висувну панель на краю екрана."
         },
         "roster_cmd_label": {
-            "en": "/roster toggles drawer",
-            "cn": "/roster 切换抽屉",
-            "de": "/roster schaltet Schublade um",
-            "fr": "/roster bascule le tiroir",
-            "ru": "/roster переключает панель",
-            "tw": "/roster 切換抽屜",
-            "uk": "/roster перемикає панель"
+            "en": "/crabs toggles drawer",
+            "cn": "/crabs 切换抽屉",
+            "de": "/crabs schaltet Schublade um",
+            "fr": "/crabs bascule le tiroir",
+            "ru": "/crabs переключает панель",
+            "tw": "/crabs 切換抽屜",
+            "uk": "/crabs перемикає панель"
         },
         "roster_cmd_hint": {
             "en": "Toggle drawer via /roster or /crabs commands.",
@@ -551,13 +551,13 @@
             "uk": "Хардкорне блокування"
         },
         "lock_hint": {
-            "en": "Locks settings ON while bound.",
-            "cn": "绑定时将设置锁定为开启。",
-            "de": "Sperrt Einstellungen EIN, während gebunden.",
-            "fr": "Verrouille les paramètres sur ON pendant qu'ils sont liés.",
-            "ru": "Блокирует настройки во включенном состоянии при привязке.",
-            "tw": "綁定時將設置鎖定為開啟。",
-            "uk": "Блокує налаштування у ввімкненому стані при прив'язці."
+            "en": "Locks settings ON while bound, blocks reset for immersion tab.",
+            "cn": "束缚状态下将设置锁定为开启，并阻止重置沉浸标签页。",
+            "de": "Sperrt Einstellungen EIN bei Fesselung, verhindert Zurücksetzen des Immersions-Reiters.",
+            "fr": "Verrouille les paramètres sur ON lorsque vous êtes entravé(e), empêche la réinitialisation de l'onglet immersion.",
+            "ru": "Блокирует настройки во включенном состоянии при связывании, запрещает сброс вкладки погружения.",
+            "tw": "束縛狀態下將設定鎖定為開啟，並阻止重設沉浸分頁。",
+            "uk": "Блокує налаштування у ввімкненому стані при зв'язуванні, забороняє скидання вкладки занурення."
         },
         "blind_label": {
             "en": "Respect Blindness",

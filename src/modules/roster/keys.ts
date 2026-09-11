@@ -144,12 +144,11 @@ export function buildKeysRoster(
 ): string {
   const state = getKeyState();
 
-  // If no keys held, reuse roster_keys.html with an empty placeholder inside {{Cards}}
   if (!state.hasAny) {
     return templateFn(
       keysPageTemplate,
       {
-        Prompt: "",
+        Prompt: translate("keys.dialog_prompt"),
         Cards: `<div style="text-align: center; padding: 40px 20px; color: #888;">${translate("keys.no_keys_held")}</div>`,
         DropAllDisplay: "none",
       },
@@ -157,25 +156,32 @@ export function buildKeysRoster(
     );
   }
 
-  const heldList: Array<{ id: KeysType; label: string; asset: string }> = [];
-  if (state.hasBronze)
-    heldList.push({
-      id: "bronze",
+  const KEY_CONFIG: Record<
+    KeysType,
+    { label: string; asset: string; color: string }
+  > = {
+    bronze: {
       label: translate("keys.bronze"),
       asset: "keyBronze",
-    });
-  if (state.hasSilver)
-    heldList.push({
-      id: "silver",
+      color: "#cd7f32",
+    },
+    silver: {
       label: translate("keys.silver"),
       asset: "keySilver",
-    });
-  if (state.hasGold)
-    heldList.push({
-      id: "gold",
-      label: translate("keys.gold"),
-      asset: "keyGold",
-    });
+      color: "#b0b7bd",
+    },
+    gold: { label: translate("keys.gold"), asset: "keyGold", color: "#e5b73b" },
+  };
+
+  const heldList: Array<{
+    id: KeysType;
+    label: string;
+    asset: string;
+    color: string;
+  }> = [];
+  if (state.hasBronze) heldList.push({ id: "bronze", ...KEY_CONFIG.bronze });
+  if (state.hasSilver) heldList.push({ id: "silver", ...KEY_CONFIG.silver });
+  if (state.hasGold) heldList.push({ id: "gold", ...KEY_CONFIG.gold });
 
   let cardsHtml = "";
   for (const item of heldList) {
@@ -190,6 +196,7 @@ export function buildKeysRoster(
         KeyIcon: icon,
         KeyLabel: item.label,
         KeyType: item.id,
+        KeyColor: item.color,
         DropButtonLabel: translate("keys.drop_specific", { color: item.label }),
       },
       false,

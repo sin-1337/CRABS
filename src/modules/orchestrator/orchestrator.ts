@@ -23,7 +23,7 @@ import locals from "./i18n.json";
  * @constant
  */
 const PROFILE_NORMALIZE_BTN = {
-  x: 1410,
+  x: 210,
   y: 60,
   width: 95,
   height: 90,
@@ -45,9 +45,9 @@ export class Orchestrator extends CRABS_Base {
   /**
    * Tracks the last synchronized chat room ID to prevent redundant transitions or premature banner triggers.
    * @private
-   * @type {number | null}
+   * @type {any}
    */
-  private crabsLastRoomID: number | null = null;
+  private crabsLastRoomID: any = null;
 
   /**
    * Active reference to the Roster module for counter aggregates.
@@ -62,13 +62,6 @@ export class Orchestrator extends CRABS_Base {
    * @type {Banner}
    */
   private bannerModule: Banner;
-
-  /**
-   * Active timeout handler for room banner queuing and chat log DOM readiness polling.
-   * @private
-   * @type {any}
-   */
-  private bannerTimer: any = null;
 
   /**
    * Constructs the Orchestrator module instance, initializes base i18n dictionaries under the "profile" namespace,
@@ -169,25 +162,7 @@ export class Orchestrator extends CRABS_Base {
       },
     );
 
-    // Authoritative room entry hook
-    this.safeHook("ChatRoomSync", 10, (args, next) => {
-      const result = next(args);
-
-      if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
-        if (ChatRoomData.ID !== this.crabsLastRoomID) {
-          this.crabsLastRoomID = ChatRoomData.ID;
-          Drawer.updateVisibility();
-          Settings.instance?.syncGameState();
-
-          if (Settings.instance?.data?.showBanner) {
-            this.queueBanner(ChatRoomData.ID);
-          }
-        }
-      }
-      return result;
-    });
-
-    // Handle UI Recovery when returning to ChatRoom screen
+    // Handle Room Joins and UI Recovery
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
       const result = next(args);
 
@@ -197,16 +172,20 @@ export class Orchestrator extends CRABS_Base {
         (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
 
       if (inChatRoom) {
-        if (ChatRoomData.ID !== this.crabsLastRoomID) {
-          this.crabsLastRoomID = ChatRoomData.ID;
+        const currentID = ChatRoomData.ID ?? ChatRoomData.Name;
+
+        // Just joined a new room (only fires on true room transitions)
+        if (currentID && currentID != this.crabsLastRoomID) {
+          this.crabsLastRoomID = currentID;
           Drawer.updateVisibility();
           Settings.instance?.syncGameState();
 
           if (Settings.instance?.data?.showBanner) {
-            this.queueBanner(ChatRoomData.ID);
+            this.drawbanner();
           }
         }
 
+        // Returned from Wardrobe/Profile
         const isFocused = (window as any).CurrentCharacter !== null;
         const drawerElement = document.getElementById("crabs-drawer");
 
@@ -218,8 +197,6 @@ export class Orchestrator extends CRABS_Base {
         ) {
           Drawer.updateVisibility();
         }
-      } else {
-        this.crabsLastRoomID = null;
       }
 
       return result;
@@ -405,52 +382,21 @@ export class Orchestrator extends CRABS_Base {
 
   /**
    * Patches the global ChatRoomExit routine to ensure drawer states update properly
-   * whenever a player explicitly exits or disconnects from a room.
+   * and room identifiers reset whenever a player explicitly exits a room.
    *
    * @private
    * @returns {void}
    */
   private hookNativeExit(): void {
+    const self = this;
     const nativeChatRoomExit = (window as any).ChatRoomExit;
     (window as any).ChatRoomExit = function () {
+      self.crabsLastRoomID = null;
       if (typeof nativeChatRoomExit === "function") {
-        nativeChatRoomExit();
+        nativeChatRoomExit.apply(this, arguments);
       }
       Drawer.updateVisibility();
     };
-  }
-
-  /**
-   * Queues the room banner to render, polling until the chat log DOM exists and contains
-   * game-generated elements. Prevents premature injection during internal log clearing cycles.
-   *
-   * @private
-   * @param {number} roomId - Target room ID to validate against upon timeout execution.
-   * @param {number} [attempts=0] - Recursion limiter tracking retry attempts.
-   * @returns {void}
-   */
-  private queueBanner(roomId: number, attempts: number = 0): void {
-    if (this.bannerTimer) clearTimeout(this.bannerTimer);
-
-    if (attempts > 15) return;
-
-    this.bannerTimer = setTimeout(() => {
-      if (
-        typeof ChatRoomData === "undefined" ||
-        !ChatRoomData ||
-        ChatRoomData.ID !== roomId
-      ) {
-        return;
-      }
-
-      const chat = document.getElementById("TextAreaChatLog");
-
-      if (chat && chat.children.length > 0) {
-        this.drawbanner();
-      } else {
-        this.queueBanner(roomId, attempts + 1);
-      }
-    }, 200);
   }
 
   /**
@@ -461,11 +407,7 @@ export class Orchestrator extends CRABS_Base {
    * @returns {boolean} True if the banner was processed and dispatched, false otherwise.
    */
   public drawbanner(onlyIfPresent: boolean = false): boolean {
-    if (
-      typeof ChatRoomData === "undefined" ||
-      !ChatRoomData ||
-      Object.keys(ChatRoomData).length === 0
-    ) {
+    if (typeof Player === "undefined" || Player.LastChatRoom === null) {
       return false;
     }
 

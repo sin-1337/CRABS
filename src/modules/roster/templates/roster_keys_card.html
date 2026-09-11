@@ -1,11 +1,14 @@
-<div class="CRABS_key_card" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; margin-bottom: 12px; background: rgba(0, 0, 0, 0.28); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box;">
-  <div style="display: flex; align-items: center; gap: 18px;">
-    <div style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-      {{KeyIcon}}
-    </div>
-    <span style="font-weight: bold; font-size: 17px; letter-spacing: 0.5px;">{{KeyLabel}}</span>
+<div class="CRABS_card CRABS_key_card" style="--player-color: {{KeyColor}}; --key-color: {{KeyColor}};">
+  <span class="CRABS_bracket_marker" aria-hidden="true">[</span>
+  <div class="CRABS_card_badge">
+    {{KeyIcon}}
   </div>
-  <button type="button" class="CRABS_btn CRABS_drop_key_btn" data-key="{{KeyType}}" style="width: 170px; height: 38px; font-size: 14px; text-align: center; justify-content: center; flex-shrink: 0; cursor: pointer; box-sizing: border-box;">
+  <div class="CRABS_player-header" style="flex: 1; margin-left: 6px;">
+    <span class="CRABS_player-name" style="cursor: default;">
+      {{KeyLabel}}
+    </span>
+  </div>
+  <button type="button" class="CRABS_btn CRABS_drop_key_btn" data-key="{{KeyType}}">
     {{DropButtonLabel}}
   </button>
 </div>
