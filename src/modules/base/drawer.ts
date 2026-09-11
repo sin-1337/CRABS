@@ -11,7 +11,7 @@
  */
 
 import { CRABS_Base, PerformanceLevel } from "./core";
-import { registerTranslations, translate } from "./localization";
+import { translate } from "./localization";
 import { registerKeybind } from "./keybinds";
 import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";

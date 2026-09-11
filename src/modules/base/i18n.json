@@ -1,4 +1,15 @@
 {
+    "keybinds": {
+        "category": {
+            "en": "CRABS",
+            "cn": "CRABS",
+            "de": "CRABS",
+            "fr": "CRABS",
+            "ru": "CRABS",
+            "tw": "CRABS",
+            "uk": "CRABS"
+        }
+    },
     "drawer": {
         "keybinds": {
             "toggle_name": {
