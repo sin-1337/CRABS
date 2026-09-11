@@ -8,11 +8,10 @@
  * @module roster
  */
 
-import { CRABS_Base } from "base";
-import { Drawer } from "drawer";
-import { Assets } from "assets";
+import { CRABS_Base, Drawer } from "../base";
+import { Assets } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "settings";
+import { Settings } from "../settings/settings";
 import DOMPurify from "dompurify";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -156,7 +155,8 @@ export class Roster extends CRABS_Base {
 
   /**
    * Initializes the Roster module instance, sets up history stores, preloads
-   * friends, establishes canvas mouse watchers, and attaches runtime hooks.
+   * friends, establishes canvas mouse watchers, attaches runtime hooks, and
+   * registers views and state delegates with the Drawer.
    *
    * @param CRABS - Instantiated ModSDK API bridge.
    */
@@ -165,6 +165,75 @@ export class Roster extends CRABS_Base {
     History.loadHistory();
     this.loadFriendList();
     this.setupEventHooks();
+
+    // ─────────────────────────────────────────────────────────────
+    // Drawer Inversion of Control Registration
+    // ─────────────────────────────────────────────────────────────
+
+    Drawer.registerStateDelegate({
+      isDirty: () => this.isDirty,
+      clearDirty: () => {
+        this.isDirty = false;
+      },
+      updateUI: (root: HTMLElement) => this.updateRosterUI(root),
+      layoutMode: () => this.currentLayoutMode,
+      cycleLayout: () => {
+        const layouts = [
+          "layout-grid",
+          "layout-mobile-stack",
+          "layout-compact",
+        ];
+        const currentIndex = layouts.indexOf(this.currentLayoutMode);
+        const nextLayout =
+          layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
+        this.layoutMode = nextLayout;
+      },
+      getKeyStateString: () => Keys.getKeyState().keyStateString,
+      onClearTracking: () => this.clearTracking(),
+    });
+
+    Drawer.registerView({
+      id: "roster",
+      title: () => ChatRoomData?.Name || this.t("title.default"),
+      render: () => {
+        this.initScrollingOverflow();
+        return this.buildroster("all", false);
+      },
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: true,
+      showLayout: true,
+    });
+
+    Drawer.registerView({
+      id: "history",
+      title: () => this.t("title.history") || "History",
+      render: () => {
+        this.initScrollingOverflow();
+        return this.buildHistory();
+      },
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: true,
+      showLayout: false,
+    });
+
+    Drawer.registerView({
+      id: "keys",
+      title: () => this.t("title.keys") || "Map Keys",
+      render: () => this.buildKeys(),
+      onMount: (root: HTMLElement) => {
+        this.buildui(undefined, undefined, root);
+      },
+      showSort: false,
+      showLayout: false,
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // Window Event Watchers & Hooks
+    // ─────────────────────────────────────────────────────────────
 
     window.addEventListener("mousemove", (e) => {
       const target = e.target as HTMLElement;
@@ -347,23 +416,6 @@ export class Roster extends CRABS_Base {
    */
   public buildKeys(): string {
     return Keys.buildKeysRoster(this.template.bind(this), this.t.bind(this));
-  }
-
-  /**
-   * Switches the drawer view to the keys management panel.
-   */
-  public showKeysView(): void {
-    Drawer.setShowingKeys(true);
-    Drawer.refresh();
-  }
-
-  /**
-   * Restores the drawer view to the live occupant roster.
-   */
-  public showRosterView(): void {
-    Drawer.setShowingKeys(false);
-    Drawer.setShowingHistory(false);
-    Drawer.refresh();
   }
 
   /**
@@ -1108,9 +1160,13 @@ export class Roster extends CRABS_Base {
     // Map Keys Navigation & Discard Routing
     // ─────────────────────────────────────────────────────────────
 
+    // ─────────────────────────────────────────────────────────────
+    // Map Keys Navigation & Discard Routing
+    // ─────────────────────────────────────────────────────────────
+
     this.attachEvent(
       "CRABS_key_content",
-      () => this.showKeysView(),
+      () => Drawer.open("keys"),
       undefined,
       undefined,
       "click",
@@ -1121,7 +1177,7 @@ export class Roster extends CRABS_Base {
     // Back to Roster button
     this.attachEvent(
       "CRABS_keys_back_btn",
-      () => this.showRosterView(),
+      () => Drawer.open("roster"),
       undefined,
       undefined,
       "click",
@@ -1138,7 +1194,7 @@ export class Roster extends CRABS_Base {
           .trim() as DropTarget;
         if (targetKey && Keys.dropMapKey(targetKey, this.t.bind(this))) {
           this.isDirty = true;
-          this.showKeysView();
+          Drawer.open("roster");
         }
       },
       "key",
@@ -1147,7 +1203,6 @@ export class Roster extends CRABS_Base {
       "class",
       root,
     );
-
     const dropdown = (root || document).querySelector(
       "#CRABS_sort_dropdown",
     ) as HTMLSelectElement;

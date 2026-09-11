@@ -8,10 +8,9 @@
  * @module settings
  */
 
-import { CRABS_Base } from "../base";
-import { Notification } from "../notifications";
+import { CRABS_Base, setLanguageOverride, Drawer } from "../base";
+import { Notification } from "../notifications/notifications";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Setup } from "../setup";
 import {
   CheckboxWidget,
   InputWidget,
@@ -73,8 +72,8 @@ const DEFAULT_SETTINGS: any = {
  * into the game's native Preference screen.
  */
 export class Settings extends CRABS_Base {
-  /** Singleton instance of the Settings controller. */
   public static instance: Settings;
+  public static onLanguageChanged?: (newLang: string) => void;
 
   /** Active configuration state dictionary. */
   public data: any;
@@ -109,14 +108,16 @@ export class Settings extends CRABS_Base {
     Settings.instance = this;
 
     this.data = this.loadLocal();
-    CRABS_Base.setLanguageOverride(this.data.languageOverride);
+    (window as any).CRABS_Settings = this.data;
+    setLanguageOverride(this.data.languageOverride);
 
     this.syncFromServer();
 
     this.CRABS.hookFunction("LoginResponse", 0, (args, next) => {
       const result = next(args);
       this.data = this.loadLocal();
-      CRABS_Base.setLanguageOverride(this.data.languageOverride);
+      (window as any).CRABS_Settings = this.data; // <--- ADD THIS
+      setLanguageOverride(this.data.languageOverride);
       this.syncFromServer();
       return result;
     });
@@ -219,7 +220,8 @@ export class Settings extends CRABS_Base {
           mergedData.localOnlyMode = this.data.localOnlyMode;
 
           this.data = this.sanitizeData(mergedData);
-          CRABS_Base.setLanguageOverride(this.data.languageOverride);
+          (window as any).CRABS_Settings = this.data;
+          setLanguageOverride(this.data.languageOverride);
 
           localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
@@ -267,6 +269,7 @@ export class Settings extends CRABS_Base {
    */
   public save(): void {
     this.data.lastSaved = Date.now();
+    (window as any).CRABS_Settings = this.data;
     localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
 
     if (this.data.localOnlyMode) return;
@@ -483,7 +486,7 @@ export class Settings extends CRABS_Base {
       if (typeof imported === "object" && "showBanner" in imported) {
         imported.lastSaved = Date.now();
         this.data = this.sanitizeData(imported);
-        CRABS_Base.setLanguageOverride(this.data.languageOverride);
+        setLanguageOverride(this.data.languageOverride);
         this.save();
         this.layout.updateDOM(this.isMenuOpen);
 
@@ -740,11 +743,11 @@ export class Settings extends CRABS_Base {
       0,
       undefined,
       (val) => {
-        CRABS_Base.setLanguageOverride(val);
+        setLanguageOverride(val);
         this.layout.updateDOM(this.isMenuOpen);
 
-        // Redraw the banner in chat if it's currently showing
-        Setup.redrawBanner();
+        // Redraw banner via subscriber if attached
+        Settings.onLanguageChanged?.(val);
       },
     );
     createCheck(
@@ -857,6 +860,9 @@ export class Settings extends CRABS_Base {
       "settings.drawer.compact_hint",
       1,
       isDrawerDisabled,
+      () => {
+        Drawer.updateVisibility();
+      },
     );
     createCheck(
       "Drawer",
@@ -1259,7 +1265,7 @@ export class Settings extends CRABS_Base {
     if (this.showResetConfirm) {
       if (globalWindow.MouseIn(750, 500, 200, 60)) {
         this.data = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-        CRABS_Base.setLanguageOverride(this.data.languageOverride);
+        setLanguageOverride(this.data.languageOverride);
         this.save();
         this.syncGameState();
 

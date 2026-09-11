@@ -12,9 +12,9 @@
  * the CRABS mod's features and commands.
  */
 
-import { CRABS_Base } from "../base";
-import { Assets } from "../assets";
-import { CrossMod } from "../crossmod";
+import { CRABS_Base, Drawer } from "../base";
+import { Assets } from "../base";
+import { CrossMod } from "../crossmod/crossmod";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/help.css";
 import helptemplate from "./templates/help.html";
@@ -33,6 +33,13 @@ export class Help extends CRABS_Base {
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "help", locales);
+    Drawer.registerView({
+      id: "help",
+      title: () => this.t("title.help"),
+      render: () => this.showHelp(false),
+      showSort: false,
+      showLayout: false,
+    });
   }
 
   /**
@@ -117,7 +124,7 @@ export class Help extends CRABS_Base {
     };
 
     const wrapperVariables = {
-      TitleBar: `CRABS: ${this.t("header.title_default")}`,
+      TitleBar: `CRABS: ${this.t("title.default")}`,
       Close: Assets.printimage({
         key: "close",
         tooltip_override: this.t("controls.close_dialog"),

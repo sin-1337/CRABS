@@ -7,7 +7,7 @@
  * @module keys
  */
 
-import { Assets } from "../assets";
+import { Assets } from "../base";
 import keysPageTemplate from "./templates/roster_keys.html";
 import keyCardTemplate from "./templates/roster_keys_card.html";
 

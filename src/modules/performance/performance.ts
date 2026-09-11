@@ -9,7 +9,7 @@
 
 import { CRABS_Base, PerformanceLevel } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "../settings";
+import { Settings } from "../settings/settings";
 
 /**
  * Performance monitor and optimization manager.

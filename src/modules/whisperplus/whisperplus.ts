@@ -14,12 +14,11 @@
  */
 
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { CRABS_Base } from "../base";
-import { Assets } from "../assets";
-import { CrossMod } from "../crossmod";
-import { Notification } from "../notifications";
-import { Settings } from "../settings";
-import { Drawer } from "../drawer";
+import { CRABS_Base, Drawer } from "../base";
+import { Assets } from "../base";
+import { CrossMod } from "../crossmod/crossmod";
+import { Notification } from "../notifications/notifications";
+import { Settings } from "../settings/settings";
 
 import locales from "./i18n.json";
 
@@ -35,6 +34,9 @@ export class WhisperPlus extends CRABS_Base {
    */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "whisperplus", locales);
+    Drawer.registerUIInjector((root: HTMLElement) => {
+      this.buildui(undefined, undefined, root);
+    });
   }
 
   /**

@@ -7,8 +7,8 @@
 
 import { CRABS_Base } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Settings } from "../settings";
-import type { Roster } from "../roster";
+import { Settings } from "../settings/settings";
+import type { Roster } from "../roster/roster";
 import "./templates/chat.css";
 
 import locales from "./i18n.json";

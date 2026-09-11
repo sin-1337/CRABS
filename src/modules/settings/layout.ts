@@ -8,7 +8,7 @@
  * @module settings/layout
  */
 
-import { CRABS_Base } from "../base";
+import { translate } from "../base";
 
 /**
  * Renders and handles input for the settings canvas preference interface.
@@ -123,7 +123,7 @@ export class LayoutEngine {
     context.textAlign = "center";
     context.textBaseline = "middle";
     globalWindow.DrawText(
-      CRABS_Base.translate("settings.nav.title"),
+      translate("settings.nav.title"),
       1140,
       80,
       "Black",
@@ -139,7 +139,7 @@ export class LayoutEngine {
       "",
       btnColor,
       "Icons/Exit.png",
-      CRABS_Base.translate("settings.nav.back"),
+      translate("settings.nav.back"),
     );
 
     const isInChat =
@@ -153,8 +153,8 @@ export class LayoutEngine {
       isModalOpen || !isInChat ? "#888888" : "White",
       "Icons/Chat.png",
       isInChat
-        ? CRABS_Base.translate("settings.nav.chat")
-        : CRABS_Base.translate("settings.nav.no_chat"),
+        ? translate("settings.nav.chat")
+        : translate("settings.nav.no_chat"),
     );
 
     globalWindow.DrawButton(
@@ -165,16 +165,14 @@ export class LayoutEngine {
       "",
       btnColor,
       "Icons/Reset.png",
-      CRABS_Base.translate("settings.nav.restore_defaults"),
+      translate("settings.nav.restore_defaults"),
     );
 
     let tabX = 500;
     for (const tab of this.TABS) {
       const isActive = this.activeTab === tab;
       const tabColor = isModalOpen || isActive ? "#888888" : "White";
-      const tabLabel = CRABS_Base.translate(
-        `settings.tabs.${tab.toLowerCase()}`,
-      );
+      const tabLabel = translate(`settings.tabs.${tab.toLowerCase()}`);
       globalWindow.DrawButton(tabX, 130, 160, 45, tabLabel, tabColor, "", "");
       tabX += 175;
     }

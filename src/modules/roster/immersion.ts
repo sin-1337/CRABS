@@ -1,5 +1,5 @@
-import { CrossMod } from "../crossmod";
-import { Settings } from "../settings";
+import { CrossMod } from "../crossmod/crossmod";
+import { Settings } from "../settings/settings";
 
 /**
  * Checks if the player's eyes are currently closed.

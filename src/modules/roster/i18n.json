@@ -1,4 +1,33 @@
 {
+    "title": {
+        "default": {
+            "en": "Roster",
+            "cn": "名单",
+            "de": "Roster",
+            "fr": "Roster",
+            "ru": "Список",
+            "tw": "名單",
+            "uk": "Список"
+        },
+        "history": {
+            "en": "History",
+            "cn": "历史记录",
+            "de": "Verlauf",
+            "fr": "Historique",
+            "ru": "История",
+            "tw": "歷史記錄",
+            "uk": "Історія"
+        },
+        "keys": {
+            "en": "Keys",
+            "cn": "钥匙",
+            "de": "Schlüssel",
+            "fr": "Clés",
+            "ru": "Ключи",
+            "tw": "鑰匙",
+            "uk": "Ключі"
+        }
+    },
     "header": {
         "title_default": {
             "en": "Roster",

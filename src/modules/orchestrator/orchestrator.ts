@@ -1,20 +1,19 @@
 /**
- * @fileoverview CRABS Setup & Lifecycle Module
+ * @fileoverview CRABS Orchestrator & Lifecycle Module
  *
  * Coordinates mod bootstrap routines, cross-module UI hooks, room state synchronization,
  * banner injection timers, native screen lifecycle integrations, and the OnlineProfile
  * canvas font normalization controls within the Bondage Club ecosystem.
  *
- * @module Setup
+ * @module Orchestrator
  */
 
-import { CRABS_Base } from "base";
+import { CRABS_Base, Drawer } from "../base";
+import { Settings } from "../settings";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Drawer } from "drawer";
-import { Settings } from "settings";
-import { Roster } from "roster";
-import { Banner } from "banner";
-import { Assets } from "assets";
+import { Roster } from "../roster/roster";
+import { Banner } from "../banner/banner";
+import { Assets } from "../base";
 
 import locals from "./i18n.json";
 
@@ -31,17 +30,17 @@ const PROFILE_NORMALIZE_BTN = {
 } as const;
 
 /**
- * Core setup controller managing initialization hooks, global navigation event listeners,
+ * Core orchestrator controller managing initialization hooks, global navigation event listeners,
  * UI drawer visibility states, banner rendering dispatch, and profile screen augmentations.
  *
  * @extends {CRABS_Base}
  */
-export class Setup extends CRABS_Base {
+export class Orchestrator extends CRABS_Base {
   /**
    * Singleton reference for global delegate calls and banner redraws.
-   * @type {Setup | null}
+   * @type {Orchestrator | null}
    */
-  public static instance: Setup | null = null;
+  public static instance: Orchestrator | null = null;
 
   /**
    * Tracks the last synchronized chat room ID to prevent redundant transitions or premature banner triggers.
@@ -72,7 +71,7 @@ export class Setup extends CRABS_Base {
   private bannerTimer: any = null;
 
   /**
-   * Constructs the Setup module instance, initializes base i18n dictionaries under the "profile" namespace,
+   * Constructs the Orchestrator module instance, initializes base i18n dictionaries under the "profile" namespace,
    * binds submodules, registers engine hooks, and intercepts native game exit points.
    *
    * @param {ModSDKModAPI} CRABS - The mod SDK API instance.
@@ -81,7 +80,7 @@ export class Setup extends CRABS_Base {
    */
   constructor(CRABS: ModSDKModAPI, roster: Roster, banner: Banner) {
     super(CRABS, "profile", locals);
-    Setup.instance = this;
+    Orchestrator.instance = this;
     this.rosterModule = roster;
     this.bannerModule = banner;
     this.initHooks();
@@ -94,7 +93,7 @@ export class Setup extends CRABS_Base {
    * @returns {void}
    */
   public static redrawBanner(): void {
-    Setup.instance?.drawbanner(true);
+    Orchestrator.instance?.drawbanner(true);
   }
 
   /**
