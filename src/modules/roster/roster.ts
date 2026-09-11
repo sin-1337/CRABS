@@ -1135,7 +1135,7 @@ export class Roster extends CRABS_Base {
       (dataVal: any) => {
         const targetKey = String(dataVal || "")
           .toLowerCase()
-          .trim() as Keys.DropTarget;
+          .trim() as DropTarget;
         if (targetKey && Keys.dropMapKey(targetKey, this.t.bind(this))) {
           this.isDirty = true;
           this.showKeysView();

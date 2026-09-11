@@ -98,9 +98,16 @@ export class CLI extends CRABS_Base {
       roster: "roster",
       help: "help",
       history: "history",
+      keys: "keys",
     };
 
     if (opensDrawer && drawerPages[arg]) {
+      if (arg === "keys" && !this.isMap()) {
+        const globalWindow = window as any;
+        globalWindow.ChatRoomSendLocal?.(this.t("dropkeys_not_map"));
+        return false;
+      }
+
       Drawer.toggle(drawerPages[arg]);
       return false;
     }

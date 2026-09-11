@@ -11,22 +11,6 @@ import { Assets } from "../assets";
 import keysPageTemplate from "./templates/roster_keys.html";
 import keyCardTemplate from "./templates/roster_keys_card.html";
 
-/** Identifies specific dungeon key tiers. */
-export type KeyType = "bronze" | "silver" | "gold";
-
-/** Target specifier for key drop actions. */
-export type DropTarget = KeyType | "all";
-
-/**
- * Snapshot of room keys currently in the local player's possession.
- */
-export interface KeyState {
-  hasBronze: boolean;
-  hasSilver: boolean;
-  hasGold: boolean;
-  hasAny: boolean;
-}
-
 /**
  * Evaluates and returns the current map key possession state for the local player.
  *
@@ -43,6 +27,7 @@ export function getKeyState(): KeyState {
     hasSilver,
     hasGold,
     hasAny: hasBronze || hasSilver || hasGold,
+    keyStateString: `${hasBronze ? 1 : 0}${hasSilver ? 1 : 0}${hasGold ? 1 : 0}`,
   };
 }
 
@@ -172,7 +157,7 @@ export function buildKeysRoster(
     );
   }
 
-  const heldList: Array<{ id: KeyType; label: string; asset: string }> = [];
+  const heldList: Array<{ id: KeysType; label: string; asset: string }> = [];
   if (state.hasBronze)
     heldList.push({
       id: "bronze",

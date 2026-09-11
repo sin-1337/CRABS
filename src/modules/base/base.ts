@@ -672,6 +672,20 @@ export abstract class CRABS_Base {
   }
 
   /**
+   * Check if player is on a map view
+   *
+   * @returns {boolean} True if player is on a map
+   */
+  public isMap(): boolean {
+    const globalWindow = window as any;
+    const isMap =
+      typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
+      globalWindow.ChatRoomMapViewIsActive();
+    if (isMap) return true;
+    return false;
+  }
+
+  /**
    * Drops one or all keys currently held by the player in map mode.
    *
    * @param {"bronze" | "silver" | "gold" | "all"} target - The key to drop or "all".
@@ -681,10 +695,7 @@ export abstract class CRABS_Base {
     const globalWindow = window as any;
     const player = globalWindow.Player;
 
-    if (
-      typeof globalWindow.ChatRoomMapViewIsActive !== "function" ||
-      !globalWindow.ChatRoomMapViewIsActive()
-    ) {
+    if (!this.isMap()) {
       if (typeof globalWindow.ChatRoomSendLocal === "function") {
         globalWindow.ChatRoomSendLocal(this.t("dropkeys_not_map"));
       }

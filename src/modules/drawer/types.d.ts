@@ -1,1 +1,1 @@
-type DrawerPage = "roster" | "help" | "history";
+type DrawerPage = "roster" | "help" | "history" | "keys";

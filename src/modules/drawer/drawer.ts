@@ -10,20 +10,18 @@
  * - Event-driven rendering based on the Roster module's state
  */
 
-import { CRABS_Base, PerformanceLevel } from "../base";
-import { Assets } from "../assets";
+import { CRABS_Base, PerformanceLevel } from "base";
+import { Assets } from "assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Roster } from "../roster";
+import { Roster, getKeyState } from "roster";
 import "./templates/drawer.css";
 import drawertemplate from "./templates/drawer.html";
 
-import { Help } from "../help";
-import { WhisperPlus } from "../whisperplus";
-import { Settings } from "../settings";
+import { Help } from "help";
+import { WhisperPlus } from "whisperplus";
+import { Settings } from "settings";
 
 import locales from "./i18n.json";
-
-export type DrawerPage = "roster" | "help" | "history" | "keys";
 
 /**
  * Class representing the side drawer UI.
@@ -53,7 +51,11 @@ export class Drawer extends CRABS_Base {
   /** Tracks if the drawer is currently displaying the keys view */
   private showingKeys: boolean = false;
   /** Counter used to throttle frame updates based on performance tier. */
+  /** Tracks the previous key inventory bitstring to detect pickups/drops immediately. */
+  private lastKnownKeys: string = "";
   private updateTick: number = 0;
+  /** Tracks whether the map was active on the previous update cycle. */
+  private wasMapActive: boolean = false;
   /** Cached reference to the tab element to prevent DOM queries in the render loop */
   private tabElement: HTMLElement | null = null;
   /** Cached reference to the chat log element */
@@ -373,6 +375,36 @@ export class Drawer extends CRABS_Base {
           this.updateVisibility();
           this.syncToChat();
 
+          // Auto-revert keys view back to roster if leaving a map
+          const isMap = this.isMap();
+          if (this.wasMapActive && !isMap) {
+            if (this.showingKeys) {
+              this.showingKeys = false;
+              this.rosterModule.isShowingKeys = false;
+              this.refresh();
+            }
+          }
+          this.wasMapActive = isMap;
+
+          // Detect instant key pickups/drops without waiting on roster dirty flag
+          if (
+            this.isOpen &&
+            isMap &&
+            !this.showingHelp &&
+            !this.showingHistory
+          ) {
+            const currentKeys = getKeyState().keyStateString;
+            if (this.lastKnownKeys !== currentKeys) {
+              this.lastKnownKeys = currentKeys;
+
+              if (this.showingKeys) {
+                this.refresh();
+              } else if (this.instance) {
+                this.rosterModule.updateRosterUI(this.instance);
+              }
+            }
+          }
+
           if (this.isOpen && !this.showingHelp) {
             if (this.rosterModule.isDirty) {
               if (this.showingHistory || this.showingKeys) {
@@ -393,7 +425,6 @@ export class Drawer extends CRABS_Base {
             }
           }
         }
-
         return result;
       },
     );
@@ -796,6 +827,11 @@ export class Drawer extends CRABS_Base {
           this.showingHistory = false;
           this.rosterModule.isShowingHistory = false;
         }
+
+        // Exit keys view when opening or closing help
+        this.showingKeys = false;
+        this.rosterModule.isShowingKeys = false;
+
         this.showingHelp = !this.showingHelp;
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Settings_Icon")) {
@@ -804,6 +840,10 @@ export class Drawer extends CRABS_Base {
         if (this.showingHelp) {
           this.showingHelp = false;
         }
+        // Exit keys view when opening or closing history
+        this.showingKeys = false;
+        this.rosterModule.isShowingKeys = false;
+
         this.showingHistory = !this.showingHistory;
         this.rosterModule.isShowingHistory = this.showingHistory;
         this.refresh();
@@ -832,10 +872,12 @@ export class Drawer extends CRABS_Base {
         }
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
-        if (this.showingHelp || this.showingHistory) {
+        if (this.showingHelp || this.showingHistory || this.showingKeys) {
           this.showingHelp = false;
           this.showingHistory = false;
+          this.showingKeys = false;
           this.rosterModule.isShowingHistory = false;
+          this.rosterModule.isShowingKeys = false;
           this.refresh();
         } else {
           this.close();
@@ -863,7 +905,11 @@ export class Drawer extends CRABS_Base {
     const isCurrentPage =
       (page === "help" && this.showingHelp) ||
       (page === "history" && this.showingHistory) ||
-      (page === "roster" && !this.showingHelp && !this.showingHistory);
+      (page === "keys" && this.showingKeys) ||
+      (page === "roster" &&
+        !this.showingHelp &&
+        !this.showingHistory &&
+        !this.showingKeys);
 
     if (this.isOpen && isCurrentPage) {
       this.close();
@@ -885,7 +931,13 @@ export class Drawer extends CRABS_Base {
     if (page) {
       this.showingHelp = page === "help";
       this.showingHistory = page === "history";
+      this.showingKeys = page === "keys";
       this.rosterModule.isShowingHistory = page === "history";
+      this.rosterModule.isShowingKeys = page === "keys";
+    } else {
+      // Ignore keys and default to roster view
+      this.showingKeys = false;
+      this.rosterModule.isShowingKeys = false;
     }
 
     this.refresh();
@@ -905,7 +957,13 @@ export class Drawer extends CRABS_Base {
     this.instance.classList.remove("drawer-open");
     this.instance.classList.add("drawer-closed");
 
+    // Reset all subpage views so reopening defaults to roster
+    this.showingHelp = false;
+    this.showingHistory = false;
+    this.showingKeys = false;
     if (this.rosterModule) {
+      this.rosterModule.isShowingHistory = false;
+      this.rosterModule.isShowingKeys = false;
       this.rosterModule.clearTracking();
     }
   }

@@ -53,6 +53,12 @@
   object-fit: contain;
 }
 
+#CRABS_key_content img,
+.CRABS_keys_trigger,
+.CRABS_keys_trigger img {
+  cursor: pointer !important;
+}
+
 .CRABS_map-keys-container[data-map-active="true"] {
   display: flex !important;
 }
