@@ -75,7 +75,7 @@ export class Performance extends CRABS_Base {
    * @param CRABS - Instantiated ModSDK API bridge.
    */
   constructor(CRABS: ModSDKModAPI) {
-    super(CRABS);
+    super(CRABS, "performance");
     this.initVFXRegistry();
     this.startPrecisionMonitor();
     this.setupBaseGameMemoryPruning();

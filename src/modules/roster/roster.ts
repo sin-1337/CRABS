@@ -12,6 +12,7 @@ import { CRABS_Base, Drawer } from "../base";
 import { Assets } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Settings } from "../settings/settings";
+import { Notification } from "../notifications/notifications";
 import DOMPurify from "dompurify";
 import "./templates/roster.css";
 import rostertemplate from "./templates/roster.html";
@@ -1108,9 +1109,17 @@ export class Roster extends CRABS_Base {
       "class",
       root,
     );
+
     this.attachEvent(
       "CRABS_player-id",
-      this.copyToClipboard,
+      async (num) => {
+        if (!num) return;
+        await this.copyToClipboard(String(num));
+        Notification.send({
+          message: `Copied #${num} to clipboard.`,
+          title: "CRABS",
+        });
+      },
       "playerNumber",
       undefined,
       "click",

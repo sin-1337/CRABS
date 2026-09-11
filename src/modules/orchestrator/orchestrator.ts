@@ -319,31 +319,44 @@ export class Orchestrator extends CRABS_Base {
         const input = document.getElementById(
           "DescriptionInput",
         ) as HTMLTextAreaElement | null;
-        if (!input) return;
+
+        // Determine current text source from input or global variables if input is detached
+        let currentText = input
+          ? input.value
+          : (globalWin.OnlineProfileMode === "Description"
+              ? globalWin.OnlineProfileTextDesc
+              : globalWin.OnlineProfileTextOwnersNotes) || "";
 
         if (!profileIsNormalized) {
-          profileOriginalRawText = input.value;
-          const cleaned = this.cleanZalgoAndNormalize(input.value);
-          input.value = cleaned;
+          profileOriginalRawText = currentText;
+          const cleaned = this.cleanZalgoAndNormalize(currentText);
+          currentText = cleaned;
           profileIsNormalized = true;
         } else {
           if (profileOriginalRawText !== null) {
-            input.value = profileOriginalRawText;
+            currentText = profileOriginalRawText;
           }
           profileIsNormalized = false;
         }
 
+        // Update both the HTML element and dispatch events so Bondage Club catches it
+        if (input) {
+          input.value = currentText;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        // Update Bondage Club's authoritative profile text storage variables
         if (globalWin.OnlineProfileMode === "Description") {
-          globalWin.OnlineProfileTextDesc = input.value;
+          globalWin.OnlineProfileTextDesc = currentText;
         } else {
-          globalWin.OnlineProfileTextOwnersNotes = input.value;
+          globalWin.OnlineProfileTextOwnersNotes = currentText;
         }
         return;
       }
 
       return next(args);
     });
-
     // 3. Reset state on profile unload
     this.safeHook("OnlineProfileUnload", 10, (args, next) => {
       profileOriginalRawText = null;
