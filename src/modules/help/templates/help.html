@@ -3,9 +3,10 @@
     {{Logo}}
     <div class="CRABS_help_title">{{Help_Title}}</div>
     <div style="margin-top: 0.5rem;">
-      <a href="https://github.com/sin-1337/CRABS/blob/{{Branch}}/changelog.md" target="_blank" style="color: #ffaa00; text-decoration: underline; font-size: 1.1rem;">{{t:header.view_changelog}}</a>
+      <a href="https://github.com/sin-1337/CRABS/blob/{{Branch}}/changelog.md" target="_blank" class="CRABS_changelog_link">{{t:header.view_changelog}}</a>
     </div>
   </div>
+  <!-- Key Features Grid -->
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">{{t:sections.key_features}}</div>
     <div class="CRABS_feature_grid">
@@ -14,12 +15,32 @@
         <div class="CRABS_help_description">{{t:features.drawer_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">{{t:features.normalizer_title}}</div>
+        <div class="CRABS_help_description">{{t:features.normalizer_desc}}</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">{{t:features.history_title}}</div>
+        <div class="CRABS_help_description">{{t:features.history_desc}}</div>
+      </div>
+      <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">{{t:features.compass_title}}</div>
         <div class="CRABS_help_description">{{t:features.compass_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">{{t:features.keys_title}}</div>
+        <div class="CRABS_help_description">{{t:features.keys_desc}}</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">{{t:features.whisper_title}}</div>
+        <div class="CRABS_help_description">{{t:features.whisper_desc}}</div>
+      </div>
+      <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">{{t:features.chat_title}}</div>
         <div class="CRABS_help_description">{{t:features.chat_desc}}</div>
+      </div>
+      <div class="CRABS_feature_card">
+        <div class="CRABS_feature_title">{{t:features.notifications_title}}</div>
+        <div class="CRABS_help_description">{{t:features.notifications_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">{{t:features.privacy_title}}</div>
@@ -30,59 +51,16 @@
         <div class="CRABS_help_description">{{t:features.performance_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">{{t:features.blindness_title}}</div>
-        <div class="CRABS_help_description">{{t:features.blindness_desc}}</div>
+        <div class="CRABS_feature_title">{{t:features.crossmod_title}}</div>
+        <div class="CRABS_help_description">{{t:features.crossmod_desc}}</div>
       </div>
       <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">{{t:features.colors_title}}</div>
-        <div class="CRABS_help_description">{{t:features.colors_desc}}</div>
-      </div>
-      <div class="CRABS_feature_card">
-        <div class="CRABS_feature_title">{{t:features.whisper_title}}</div>
-        <div class="CRABS_help_description">{{t:features.whisper_desc}}</div>
+        <div class="CRABS_feature_title">{{t:features.i18n_title}}</div>
+        <div class="CRABS_help_description">{{t:features.i18n_desc}}</div>
       </div>
     </div>
   </div>
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.core_commands}}</div>
-    <div class="CRABS_help_feature">
-      <span class="CRABS_help_command">/roster [argument]</span>
-      <div class="CRABS_help_description">
-        {{t:commands.roster_desc}}
-      </div>
-      <div class="CRABS_help_arguments">
-        <b>{{t:commands.args_label}}</b><br>
-        • <span class="CRABS_help_command">count</span> - {{t:commands.arg_count}}<br>
-        • <span class="CRABS_help_command">admins</span> - {{t:commands.arg_admins}}<br>
-        • <span class="CRABS_help_command">vips</span> - {{t:commands.arg_vips}}<br>
-        • <span class="CRABS_help_command">banner</span> - {{t:commands.arg_banner}}<br>
-        • <span class="CRABS_help_command">help</span> - {{t:commands.arg_help}}
-      </div>
-    </div>
-    <div class="CRABS_help_feature">
-      <span class="CRABS_help_command">/whisper+ [number] [msg]</span> or <span class="CRABS_help_command">/w+</span>
-      <div class="CRABS_help_description">
-        {{t:commands.whisper_desc}}
-      </div>
-    </div>
-    <div class="CRABS_help_feature">
-      <span class="CRABS_help_command">/dropkeys [color/all]</span>
-      <div class="CRABS_help_description">
-        {{t:commands.dropkeys_desc}}
-      </div>
-    </div>
-  </div>
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.interactions}}</div>
-    <ul class="CRABS_help_list">
-      <li>{{t:interactions.click_badge}}</li>
-      <li>{{t:interactions.click_name}}</li>
-      <li>{{t:interactions.click_id}}</li>
-      <li>{{t:interactions.live_sorting}}</li>
-      <li>{{t:interactions.reverse_hover}}</li>
-      <li>{{t:interactions.shortcuts}}</li>
-    </ul>
-  </div>
+  <!-- Relational Icons -->
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">{{t:sections.relational_icons}}</div>
     <div class="CRABS_help_grid">
@@ -91,6 +69,7 @@
       <div class="CRABS_help_item">{{Icon_Sub}} {{t:relations.sub}}</div>
       <div class="CRABS_help_item">{{Icon_Trial}} {{t:relations.trial}}</div>
       <div class="CRABS_help_item">{{Icon_Lover}} {{t:relations.lover}}</div>
+      <div class="CRABS_help_item">{{Icon_LoverExtended}} {{t:relations.lover_extended}}</div>
       <div class="CRABS_help_item">{{Icon_Family}} {{t:relations.family}}</div>
       <div class="CRABS_help_item">{{Icon_BestFriend}} {{t:relations.bestfriend}}</div>
       <div class="CRABS_help_item">{{Icon_Friend}} {{t:relations.friend}}</div>
@@ -99,6 +78,7 @@
       <div class="CRABS_help_item">{{Icon_Ghost}} {{t:relations.ghost}}</div>
     </div>
   </div>
+  <!-- Status & Badges -->
   <div class="CRABS_help_section">
     <div class="CRABS_help_header">{{t:sections.status_badges}}</div>
     <div class="CRABS_help_grid">
@@ -110,50 +90,106 @@
       {{t:status.indicators_desc}}
     </div>
   </div>
+  <!-- Core Commands -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">{{t:sections.core_commands}}</div>
+    <div class="CRABS_help_feature">
+      <span class="CRABS_help_command">/crabs [subcommand]</span>
+      <div class="CRABS_help_description">
+        {{t:commands.crabs_desc}}
+      </div>
+      <div class="CRABS_help_arguments">
+        <b>{{t:commands.args_label}}</b><br>
+        • <span class="CRABS_help_command">roster</span> - {{t:commands.arg_roster}}<br>
+        • <span class="CRABS_help_command">history</span> - {{t:commands.arg_history}}<br>
+        • <span class="CRABS_help_command">keys</span> - {{t:commands.arg_keys}}<br>
+        • <span class="CRABS_help_command">banner</span> - {{t:commands.arg_banner}}<br>
+        • <span class="CRABS_help_command">help</span> - {{t:commands.arg_help}}
+      </div>
+    </div>
+    <div class="CRABS_help_feature">
+      <span class="CRABS_help_command">/whisper+ [number] [msg]</span> or <span class="CRABS_help_command">/w+</span>
+      <div class="CRABS_help_description">
+        {{t:commands.whisper_desc}}
+      </div>
+    </div>
+    <div class="CRABS_help_feature">
+      <span class="CRABS_help_command">/dropkeys [color|all]</span>
+      <div class="CRABS_help_description">
+        {{t:commands.dropkeys_desc}}
+      </div>
+    </div>
+  </div>
+  <!-- Interactions & Gestures (Moved below Core Commands) -->
+  <div class="CRABS_help_section">
+    <div class="CRABS_help_header">{{t:sections.interactions}}</div>
+    <ul class="CRABS_help_list">
+      <li>{{t:interactions.click_badge}}</li>
+      <li>{{t:interactions.click_name}}</li>
+      <li>{{t:interactions.click_id}}</li>
+      <li>{{t:interactions.history_panel}}</li>
+      <li>{{t:interactions.font_hover}}</li>
+      <li>{{t:interactions.key_panel}}</li>
+      <li>{{t:interactions.live_sorting}}</li>
+      <li>{{t:interactions.drawer_layouts}}</li>
+      <li>{{t:interactions.reverse_hover}}</li>
+      <li>{{t:interactions.shortcuts}}</li>
+    </ul>
+  </div>
+  <!-- Settings Detailed Overview -->
   <div class="CRABS_help_section" style="border-bottom: none;">
     <div class="CRABS_help_header">{{t:sections.settings_overview}}</div>
     <div class="CRABS_help_description" style="margin-bottom: 1rem;">
       {{Settings_Intro}}
     </div>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.general}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.general}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.general_update}}</li>
+      <li>{{t:settings_guide.general_perf_mode}}</li>
       <li>{{t:settings_guide.general_banner}}</li>
-      <li>{{t:settings_guide.general_privacy}}</li>
       <li>{{t:settings_guide.general_halo}}</li>
       <li>{{t:settings_guide.general_keybinds}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.drawer}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.drawer}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.drawer_enable}}</li>
       <li>{{t:settings_guide.drawer_toggle_cmd}}</li>
       <li>{{t:settings_guide.drawer_tab}}</li>
       <li>{{t:settings_guide.drawer_logo_anim}}</li>
       <li>{{t:settings_guide.drawer_compact}}</li>
-      <li>{{t:settings_guide.drawer_autostow}}</li>
+      <li>{{t:settings_guide.drawer_close_whisper}}</li>
+      <li>{{t:settings_guide.drawer_close_chat}}</li>
       <li>{{t:settings_guide.drawer_focus}}</li>
       <li>{{t:settings_guide.drawer_autoscroll}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.immersion}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.immersion}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.immersion_lock}}</li>
-      <li>{{t:settings_guide.immersion_blind_gag}}</li>
+      <li>{{t:settings_guide.immersion_blind}}</li>
+      <li>{{t:settings_guide.immersion_gag}}</li>
       <li>{{t:settings_guide.immersion_bcx}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.maps}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.maps}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.maps_compass}}</li>
       <li>{{t:settings_guide.maps_superzoom}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.chat}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.chat}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.chat_mentions}}</li>
+      <li>{{t:settings_guide.chat_notifications}}</li>
       <li>{{t:settings_guide.chat_caps_match}}</li>
+      <li>{{t:settings_guide.chat_color_match}}</li>
       <li>{{t:settings_guide.chat_custom_words}}</li>
+      <li>{{t:settings_guide.chat_ignore_phrases}}</li>
+      <li>{{t:settings_guide.chat_highlight_color}}</li>
+      <li>{{t:settings_guide.chat_auto_beep}}</li>
+      <li>{{t:settings_guide.chat_whisper_always}}</li>
+      <li>{{t:settings_guide.chat_whisper_regular_elevate}}</li>
       <li>{{t:settings_guide.chat_links}}</li>
-      <li>{{t:settings_guide.chat_whisper_elevate}}</li>
+      <li>{{t:settings_guide.chat_normalize_font}}</li>
     </ul>
-    <div class="CRABS_help_header" style="font-size: 1.2rem; color: #fff; margin-top: 1.5rem;">{{t:sections.config}}</div>
+    <div class="CRABS_help_subheader">{{t:sections.config}}</div>
     <ul class="CRABS_help_list">
       <li>{{t:settings_guide.config_cloud_sync}}</li>
       <li>{{t:settings_guide.config_delete_server}}</li>

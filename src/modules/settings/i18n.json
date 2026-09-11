@@ -396,13 +396,13 @@
             "uk": "Увімкнути висувну панель на краю екрана."
         },
         "roster_cmd_label": {
-            "en": "/roster toggles drawer",
-            "cn": "/roster 切换抽屉",
-            "de": "/roster schaltet Schublade um",
-            "fr": "/roster bascule le tiroir",
-            "ru": "/roster переключает панель",
-            "tw": "/roster 切換抽屜",
-            "uk": "/roster перемикає панель"
+            "en": "/crabs toggles drawer",
+            "cn": "/crabs 切换抽屉",
+            "de": "/crabs schaltet Schublade um",
+            "fr": "/crabs bascule le tiroir",
+            "ru": "/crabs переключает панель",
+            "tw": "/crabs 切換抽屜",
+            "uk": "/crabs перемикає панель"
         },
         "roster_cmd_hint": {
             "en": "Toggle drawer via /roster or /crabs commands.",

@@ -80,6 +80,12 @@ export class Help extends CRABS_Base {
         key: "lover",
         css_class_override: "CRABS_help_icon_small",
       }),
+      Icon_LoverExtended: CrossMod.detectMod("AbundantiaFlorumChromatica")
+        ? Assets.printimage({
+            key: "lover_extended",
+            css_class_override: "CRABS_help_icon_small",
+          })
+        : `<i>(${this.t("general.not_applicable")})</i>`,
       Icon_Family: Assets.printimage({
         key: "family",
         css_class_override: "CRABS_help_icon_small",

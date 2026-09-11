@@ -171,13 +171,49 @@
             "uk": "🗄️ Інтерактивна панель"
         },
         "drawer_desc": {
-            "en": "A sleek, stowable roster interface. Fully event-driven for real-time status updates without the lag.",
-            "cn": "一个简洁、可收纳的名单界面。完全事件驱动，实现实时状态更新，无延迟。",
-            "de": "Eine schlanke, verstaubare Roster-Schnittstelle. Vollständig ereignisgesteuert für Echtzeit-Status-Updates ohne Verzögerung.",
-            "fr": "Une interface de liste élégante et escamotable. Entièrement pilotée par événements pour des mises à jour de statut en temps réel sans latence.",
-            "ru": "Элегантный, компактный интерфейс списка. Полностью событийно-ориентированный для обновления статуса в реальном времени без задержек.",
-            "tw": "一個簡潔、可收納的名單介面。完全事件驅動，實現即時狀態更新，零延遲。",
-            "uk": "Елегантний, компактний інтерфейс списку. Повністю подієво-орієнтований для оновлення статусу в реальному часі без затримок."
+            "en": "A sleek, stowable roster interface featuring multiple layouts and natural room sorting. Fully event-driven for lag-free updates.",
+            "cn": "一个简洁、可收纳的名单界面，支持多种布局与房间自然排序。完全事件驱动，实现无延迟实时更新。",
+            "de": "Eine schlanke, verstaubare Roster-Oberfläche mit mehreren Layouts und natürlicher Raum-Sortierung. Vollständig ereignisgesteuert für verzögerungsfreie Aktualisierungen.",
+            "fr": "Une interface de liste élégante et escamotable proposant plusieurs dispositions et un tri naturel de la salle. Entièrement pilotée par événements pour des mises à jour sans latence.",
+            "ru": "Элегантная убирающаяся панель списка участников с несколькими макетами и естественной сортировкой комнаты. Полностью событийно-ориентированная для работы без задержек.",
+            "tw": "一個簡潔、可收納的名單介面，支援多種佈局與房間自然排序。完全事件驅動，實現零延遲即時更新。",
+            "uk": "Елегантна висувна панель списку учасників із декількома макетами та природним сортуванням кімнати. Повністю подієво-орієнтована для роботи без затримок."
+        },
+        "normalizer_title": {
+            "en": "🔤 Font Normalizer",
+            "cn": "🔤 字体标准化",
+            "de": "🔤 Schrift-Normalisierer",
+            "fr": "🔤 Normaliseur de police",
+            "ru": "🔤 Нормализатор шрифтов",
+            "tw": "🔤 字體標準化",
+            "uk": "🔤 Нормалізатор шрифтів"
+        },
+        "normalizer_desc": {
+            "en": "Hover over stylized, pseudo-font, or unreadable chat text and names to instantly see clean, standard text. Includes WCE rich profile support.",
+            "cn": "悬停在花体字或难以辨认的聊天文本和名字上，立即显示清晰的标准文本。同时支持 WCE 富文本资料。",
+            "de": "Fahren Sie über stilisierte, Pseudo-Schriftarten oder unleserliche Chat-Texte und Namen, um sofort sauberen Standardtext zu sehen. Beinhaltet Unterstützung für WCE-Profile.",
+            "fr": "Survolez les polices stylisées ou illisibles du chat et les noms pour afficher instantanément un texte propre et standard. Inclut la prise en charge des profils enrichis WCE.",
+            "ru": "Наведите курсор на стилизованный, псевдошрифтовой или неразборчивый текст и имена в чате, чтобы мгновенно увидеть стандартный шрифт. Включает поддержку профилей WCE.",
+            "tw": "懸停在花體字或難以辨認的聊天文字和名字上，立即顯示清晰的標準文字。同時支援 WCE 富文本資料。",
+            "uk": "Наведіть курсор на стилізований або нерозбірливий текст та імена в чаті, щоб миттєво побачити стандартний шрифт. Включає підтримку розширених профілів WCE."
+        },
+        "history_title": {
+            "en": "📜 Room History",
+            "cn": "📜 房间离队历史",
+            "de": "📜 Raum-Verlauf",
+            "fr": "📜 Historique de la salle",
+            "ru": "📜 История комнаты",
+            "tw": "📜 房間離隊歷史",
+            "uk": "📜 Історія кімнати"
+        },
+        "history_desc": {
+            "en": "Tracks the last 50 departed players. Open their WCE profile with one click, beep them if they are friends, or click their member ID to copy.",
+            "cn": "记录最近离开房间的 50 名玩家。一键打开 WCE 资料、向好友发送呼叫提示音，或点击会员编号复制到剪贴板。",
+            "de": "Verfolgt die letzten 50 ausgeschiedenen Spieler. WCE-Profil mit einem Klick öffnen, Freunde anpiepen oder die Mitgliedsnummer zum Kopieren anklicken.",
+            "fr": "Conserve les 50 derniers joueurs partis. Ouvrez leur profil WCE en un clic, bipez-les s'ils sont amis ou cliquez sur leur identifiant pour le copier.",
+            "ru": "Отслеживает 50 последних вышедших игроков. Открывайте их профиль WCE в один клик, отправляйте сигналы друзьям или копируйте номер участника.",
+            "tw": "記錄最近離開房間的 50 名玩家。一鍵打開 WCE 資料、向好友發送呼叫提示音，或點擊會員編號複製到剪貼簿。",
+            "uk": "Відстежує 50 останніх гравців, що вийшли. Відкривайте їхній профіль WCE в один клік, надсилайте сигнали друзям або копіюйте номер учасника."
         },
         "compass_title": {
             "en": "🧭 Universal Compass & Focus",
@@ -189,103 +225,31 @@
             "uk": "🧭 Універсальний компас та фокус"
         },
         "compass_desc": {
-            "en": "Track players in maps or normal rooms! Hovering cards, chat names, or characters reveals a spinning 3D indicator and halo glow.",
-            "cn": "在地图或普通房间中追踪玩家！悬停在卡片、聊天名称或角色上会显示旋转的 3D 指示器和光晕效果。",
-            "de": "Verfolgen Sie Spieler auf Karten oder in normalen Räumen! Das Bewegen über Karten, Chatnamen oder Charaktere enthüllt einen rotierenden 3D-Indikator und einen leuchtenden Heiligenschein.",
-            "fr": "Suivez les joueurs sur les cartes ou dans les salles normales ! Survoler les cartes, les noms de chat ou les personnages révèle un indicateur 3D rotatif et une lueur de halo.",
-            "ru": "Отслеживайте игроков на картах или в обычных комнатах! Наведение на карточки, имена в чате или персонажей открывает вращающийся 3D-индикатор и светящийся ореол.",
-            "tw": "在地圖或一般房間中追蹤玩家！懸停在卡片、聊天名稱或角色上會顯示旋轉的 3D 指示器和光暈效果。",
-            "uk": "Відстежуйте гравців на картах або у звичайних кімнатах! Наведення на картки, імена в чаті або персонажів відкриває індикатор 3D, що обертається, та сяючий ореол."
+            "en": "Track players in maps or normal rooms. Hovering cards, names, or avatars displays a 3D compass and halo glow. Automatically honors admin maze restrictions.",
+            "cn": "在地图或普通房间中追踪玩家。悬停卡片、名称或角色显示 3D 指针与光晕效果。自动遵循管理员在迷宫中的限制。",
+            "de": "Verfolgen Sie Spieler auf Karten oder in normalen Räumen. Das Bewegen über Karten, Namen oder Avatare zeigt einen 3D-Kompass und einen Heiligenschein. Berücksichtigt automatisch Labyrinth-Beschränkungen von Administratoren.",
+            "fr": "Suivez les joueurs sur les cartes ou dans les salles normales. Survoler les cartes, noms ou avatars affiche une boussole 3D et un halo lumineux. Respecte automatiquement les restrictions de labyrinthe des administrateurs.",
+            "ru": "Отслеживайте игроков на картах или в обычных комнатах. При наведении на карточки, имена или аватары отображаются 3D-компас и ореол свечения. Автоматически учитывает ограничения администратора в лабиринтах.",
+            "tw": "在地圖或一般房間中追蹤玩家。懸停卡片、名稱或角色顯示 3D 指針與光暈效果。自動遵循管理員在迷宮中的限制。",
+            "uk": "Відстежуйте гравців на картах або у звичайних кімнатах. Наведення на картки, імена або аватари відображає 3D-компас і сяючий ореол. Автоматично враховує обмеження адміністратора в лабіринтах."
         },
-        "chat_title": {
-            "en": "🔔 Chat Highlighting",
-            "cn": "🔔 聊天高亮",
-            "de": "🔔 Chat-Hervorhebung",
-            "fr": "🔔 Mise en surbrillance du chat",
-            "ru": "🔔 Подсветка чата",
-            "tw": "🔔 聊天高亮",
-            "uk": "🔔 Підсвічування чату"
+        "keys_title": {
+            "en": "🔑 Keys Interface",
+            "cn": "🔑 抽屉钥匙界面",
+            "de": "🔑 Schlüssel-Menü",
+            "fr": "🔑 Interface des clés",
+            "ru": "🔑 Меню ключей",
+            "tw": "🔑 抽屜鑰匙介面",
+            "uk": "🔑 Меню ключів"
         },
-        "chat_desc": {
-            "en": "Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases to prevent false positives.",
-            "cn": "高亮显示包含您的姓名或自定义词语的消息。包括颜色匹配、自动首字母大写和排除短语以防止误报。",
-            "de": "Hebt Nachrichten hervor, die Ihren Namen oder benutzerdefinierte Wörter enthalten. Enthält Farbabstimmung, automatische Großschreibung und Ausschlussphrasen, um Fehlalarme zu vermeiden.",
-            "fr": "Met en surbrillance les messages contenant votre nom ou des mots personnalisés. Inclut la correspondance des couleurs, la capitalisation automatique et des phrases d'exclusion pour éviter les faux positifs.",
-            "ru": "Подсвечивает сообщения, содержащие ваше имя или пользовательские слова. Включает подбор цвета, авто-капитализацию и фразы исключения для предотвращения ложных срабатываний.",
-            "tw": "高亮顯示包含您的姓名或自訂詞彙的訊息。包含顏色匹配、自動首字母大寫和排除短語以防止誤報。",
-            "uk": "Підсвічує повідомлення, що містять ваше ім'я або власні слова. Включає підбір кольору, авто-капіталізацію та фрази виключення для запобігання помилковим спрацюванням."
-        },
-        "privacy_title": {
-            "en": "🛡️ Privacy Mode",
-            "cn": "🛡️ 隐私模式",
-            "de": "🛡️ Privatsphäre-Modus",
-            "fr": "🛡️ Mode vie privée",
-            "ru": "🛡️ Режим приватности",
-            "tw": "🛡️ 隱私模式",
-            "uk": "🛡️ Режим приватності"
-        },
-        "privacy_desc": {
-            "en": "A customizable \"boss key\" that instantly blanks the character screen or game window. Toggle via keybind (Default: CTRL + ALT + B).",
-            "cn": "可自定义的“老板键”，可瞬间清空角色屏幕或游戏窗口。通过快捷键切换（默认：CTRL + ALT + B）。",
-            "de": "Ein anpassbarer \"Chef-Knopf\", der sofort den Charakterbildschirm oder das Spielfenster ausblendet. Umschalten per Tastenkombination (Standard: STRG + ALT + B).",
-            "fr": "Un \"bouton panique\" personnalisable qui efface instantanément l'écran du personnage ou la fenêtre de jeu. Basculez via un raccourci clavier (Par défaut : CTRL + ALT + B).",
-            "ru": "Настраиваемая \"кнопка босса\", которая мгновенно скрывает экран персонажа или окно игры. Переключение по горячей клавише (по умолчанию: CTRL + ALT + B).",
-            "tw": "可自訂的「老闆鍵」，可瞬間清空角色螢幕或遊戲視窗。透過快捷鍵切換（預設：CTRL + ALT + B）。",
-            "uk": "Налаштовувана \"кнопка боса\", яка миттєво приховує екран персонажа або вікно гри. Перемикання за гарячою клавішею (за замовчуванням: CTRL + ALT + B)."
-        },
-        "performance_title": {
-            "en": "⚡ Smart Performance",
-            "cn": "⚡ 智能性能",
-            "de": "⚡ Intelligente Leistung",
-            "fr": "⚡ Performance intelligente",
-            "ru": "⚡ Умная производительность",
-            "tw": "⚡ 智慧效能",
-            "uk": "⚡ Розумна продуктивність"
-        },
-        "performance_desc": {
-            "en": "Monitors true frame delta. Dynamically lowers visual quality and update rates to save your FPS during lag spikes.",
-            "cn": "监控真实的帧差。在延迟激增时动态降低视觉质量和更新率，以节省 FPS。",
-            "de": "Überwacht das tatsächliche Frame-Delta. Senkt dynamisch die visuelle Qualität und die Aktualisierungsraten, um Ihre FPS bei Verzögerungsspitzen zu schonen.",
-            "fr": "Surveille le delta d'image réel. Abaisse dynamiquement la qualité visuelle et les taux de mise à jour pour économiser vos FPS lors des pics de latence.",
-            "ru": "Мониторит реальную дельту кадров. Динамически снижает визуальное качество и частоту обновления для экономии FPS при лагах.",
-            "tw": "監控真實的幀差。在延遲激增時動態降低視覺品質和更新率，以節省 FPS。",
-            "uk": "Моніторит реальну дельту кадрів. Динамічно знижує візуальну якість та частоту оновлення для економії FPS під час лагів."
-        },
-        "blindness_title": {
-            "en": "👁️ Immersive Blindness",
-            "cn": "👁️ 沉浸式盲目",
-            "de": "👁️ Immersive Blindheit",
-            "fr": "👁️ Cécité immersive",
-            "ru": "👁️ Иммерсивная слепота",
-            "tw": "👁️ 沉浸式盲目",
-            "uk": "👁️ Іммерсивна сліпота"
-        },
-        "blindness_desc": {
-            "en": "Optional roster blurring based on your blindness level. Fully respects BCX \"Full Blind\" rules.",
-            "cn": "基于您的盲目等级的可选名单模糊处理。完全尊重 BCX “完全盲目”规则。",
-            "de": "Optionale Roster-Unschärfe basierend auf Ihrem Blindheitsgrad. Respektiert vollständig die BCX \"Voll Blind\"-Regeln.",
-            "fr": "Flou optionnel du Roster basé sur votre niveau de cécité. Respecte entièrement les règles BCX \"Full Blind\".",
-            "ru": "Опциональное размытие списка в зависимости от вашего уровня слепоты. Полностью соблюдает правила BCX \"Full Blind\".",
-            "tw": "基於您的盲目等級的選擇性名單模糊處理。完全尊重 BCX 「完全盲目」規則。",
-            "uk": "Опціональне розмиття списку залежно від вашого рівня сліпоти. Повністю дотримується правил BCX \"Full Blind\"."
-        },
-        "colors_title": {
-            "en": "✨ Smart Colors",
-            "cn": "✨ 智能颜色",
-            "de": "✨ Intelligente Farben",
-            "fr": "✨ Couleurs intelligentes",
-            "ru": "✨ Умные цвета",
-            "tw": "✨ 智慧顏色",
-            "uk": "✨ Розумні кольори"
-        },
-        "colors_desc": {
-            "en": "Automatically detects dark or muddy player name colors and applies a high-contrast outline for readability.",
-            "cn": "自动检测深色或模糊的玩家名称颜色，并应用高对比度轮廓以提高可读性。",
-            "de": "Erkennt automatisch dunkle oder schlammige Spielernamenfarben und wendet zur besseren Lesbarkeit eine kontrastreiche Kontur an.",
-            "fr": "Détecte automatiquement les couleurs sombres ou boueuses des noms de joueurs et applique un contour à contraste élevé pour la lisibilité.",
-            "ru": "Автоматически определяет темные или неразборчивые цвета имен игроков и применяет высококонтрастный контур для читаемости.",
-            "tw": "自動偵測深色或模糊的玩家名稱顏色，並應用高對比度輪廓以提高可讀性。",
-            "uk": "Автоматично визначає темні або нерозбірливі кольори імен гравців і застосовує висококонтрастний контур для читабельності."
+        "keys_desc": {
+            "en": "Quick access to drop keys directly in the drawer by clicking the 3 keys on map rosters.",
+            "cn": "在地图名单中点击 3 把钥匙图标，即可在抽屉中快速呼出界面丢弃钥匙。",
+            "de": "Schneller Zugriff zum Ablegen von Schlüsseln direkt in der Schublade durch Klicken auf die 3 Schlüssel im Karten-Roster.",
+            "fr": "Accès rapide pour jeter des clés directement dans le tiroir en cliquant sur les 3 clés sur la liste de la carte.",
+            "ru": "Быстрый доступ к сбросу ключей прямо в панели по нажатию на 3 ключа в списке участников карты.",
+            "tw": "在地圖名單中點擊 3 把鑰匙圖示，即可在抽屜中快速呼出介面丟棄鑰匙。",
+            "uk": "Швидкий доступ до скидання ключів безпосередньо в панелі після натискання на 3 ключі у списку карти."
         },
         "whisper_title": {
             "en": "💬 Whisper+",
@@ -297,69 +261,177 @@
             "uk": "💬 Шепіт+"
         },
         "whisper_desc": {
-            "en": "Send whispers in map rooms at any distance. Auto-elevates to a beep if a friend leaves the room before you send.",
-            "cn": "在地图房间中任意距离发送私聊。如果朋友在您发送前离开房间，自动升级为提示音。",
-            "de": "Senden Sie Flüsternachrichten in Kartenräumen über jede Entfernung. Erhöht automatisch auf ein Piepen, wenn ein Freund den Raum verlässt, bevor Sie senden.",
-            "fr": "Envoyez des chuchotements dans les salles de carte à n'importe quelle distance. Passe automatiquement à un bip si un ami quitte la salle avant que vous n'envoyiez.",
-            "ru": "Отправляйте шепот в комнатах с картами на любом расстоянии. Автоматически повышается до звукового сигнала, если друг покидает комнату до того, как вы отправите сообщение.",
-            "tw": "在地圖房間中任意距離發送私聊。如果朋友在您發送前離開房間，自動升級為提示音。",
-            "uk": "Надсилайте шепіт у кімнатах із картами на будь-якій відстані. Автоматично підвищується до звукового сигнала, якщо друг залишає кімнату до того, як ви надішлете повідомлення."
+            "en": "Send whispers in map rooms at any distance with optional always-on mode. Auto-elevates regular whispers or Whisper+ to beeps if a friend leaves before sending.",
+            "cn": "在地图房间中任意距离发送私聊并支持常驻模式。如果好友在发送前离开房间，自动将常规私聊或 Whisper+ 升级为提示音。",
+            "de": "Senden Sie Flüsternachrichten in Kartenräumen über jede Entfernung mit optionalem Dauerhaft-Ein-Modus. Wandelt reguläres Flüstern oder Flüstern+ automatisch in ein Piepen um, wenn ein Freund den Raum vor dem Senden verlässt.",
+            "fr": "Envoyez des chuchotements dans les salles de carte à n'importe quelle distance avec un mode permanent en option. Transforme automatiquement les chuchotements réguliers ou Chuchotement+ en bips si un ami part avant l'envoi.",
+            "ru": "Отправляйте шепот в комнатах с картами на любом расстоянии с опциональным постоянным режимом. Автоматически повышает обычный шепот или Шепот+ до звукового сигнала, если друг выходит до отправки.",
+            "tw": "在地圖房間中任意距離發送私聊並支援常駐模式。如果好友在發送前離開房間，自動將一般私聊或 Whisper+ 升級為提示音。",
+            "uk": "Надсилайте шепіт у кімнатах із картами на будь-якій відстані з опціональним постійним режимом. Автоматично підвищує звичайний шепіт або Шепіт+ до звукового сигналу, якщо друг виходить до відправлення."
+        },
+        "chat_title": {
+            "en": "🔔 Chat Highlighting",
+            "cn": "🔔 聊天高亮",
+            "de": "🔔 Chat-Hervorhebung",
+            "fr": "🔔 Mise en surbrillance du chat",
+            "ru": "🔔 Подсветка чата",
+            "tw": "🔔 聊天高亮",
+            "uk": "🔔 Підсвічування чату"
+        },
+        "chat_desc": {
+            "en": "Highlights messages containing your name or custom words. Includes color matching, auto-capitalization, and exclusion phrases.",
+            "cn": "高亮显示包含您的姓名或自定义词语的消息。包括颜色匹配、自动首字母大写和排除短语以防止误报。",
+            "de": "Hebt Nachrichten hervor, die Ihren Namen oder benutzerdefinierte Wörter enthalten. Umfasst Farbanpassung, automatische Großschreibung und Ausschlussphrasen.",
+            "fr": "Met en surbrillance les messages contenant votre nom ou des mots personnalisés. Inclut la correspondance des couleurs, la majuscule automatique et les phrases d'exclusion.",
+            "ru": "Подсвечивает сообщения, содержащие ваше имя или пользовательские слова. Включает подбор цвета, авто-капитализацию и фразы-исключения.",
+            "tw": "高亮顯示包含您的姓名或自訂詞彙的訊息。包含顏色匹配、自動首字母大寫和排除短語以防止誤報。",
+            "uk": "Підсвічує повідомлення, що містять ваше ім'я або власні слова. Включає підбір кольору, авто-капіталізацію та фрази-виключення."
+        },
+        "notifications_title": {
+            "en": "🔔 Desktop Notifications",
+            "cn": "🔔 桌面通知",
+            "de": "🔔 Desktop-Benachrichtigungen",
+            "fr": "🔔 Notifications de bureau",
+            "ru": "🔔 Уведомления на рабочем столе",
+            "tw": "🔔 桌面通知",
+            "uk": "🔔 Сповіщення на робочому столі"
+        },
+        "notifications_desc": {
+            "en": "Optional opt-in desktop notifications when mentioned while the browser tab is unfocused or in the background.",
+            "cn": "可选的桌面通知，当浏览器标签页处于后台或失去焦点时收到提及会发送系统级提醒。",
+            "de": "Optionale Desktop-Benachrichtigungen bei Erwähnungen, wenn der Browser-Tab nicht fokussiert ist oder sich im Hintergrund befindet.",
+            "fr": "Notifications de bureau facultatives lors des mentions lorsque l'onglet du navigateur n'est pas actif ou est en arrière-plan.",
+            "ru": "Опциональные уведомления на рабочем столе при упоминании, когда вкладка браузера не активна или находится в фоновом режиме.",
+            "tw": "可選的桌面通知，當瀏覽器分頁處於背景或失去焦點時收到提及會發送系統級提醒。",
+            "uk": "Опціональні сповіщення на робочому столі під час згадок, коли вкладка браузера неактивна або перебуває у фоновому режимі."
+        },
+        "privacy_title": {
+            "en": "🛡️ Privacy Mode",
+            "cn": "🛡️ 隐私模式",
+            "de": "🛡️ Privatsphäre-Modus",
+            "fr": "🛡️ Mode vie privée",
+            "ru": "🛡️ Режим приватности",
+            "tw": "🛡️ 隱私模式",
+            "uk": "🛡️ Режим приватності"
+        },
+        "privacy_desc": {
+            "en": "Customizable \"boss key\" that instantly blanks the screen and automatically obfuscates the browser tab title (Default: CTRL + ALT + B).",
+            "cn": "可自定义的“老板键”，可瞬间清空屏幕并自动混淆浏览器标签页标题（默认：CTRL + ALT + B）。",
+            "de": "Anpassbare „Chef-Taste“, die den Bildschirm sofort ausblendet und den Titel des Browser-Tabs verschleiert (Standard: STRG + ALT + B).",
+            "fr": "Bouton d'urgence personnalisable qui masque instantanément l'écran et brouille automatiquement le titre de l'onglet du navigateur (Par défaut : CTRL + ALT + B).",
+            "ru": "Настраиваемая «кнопка босса», которая мгновенно очищает экран и маскирует заголовок вкладки браузера (По умолчанию: CTRL + ALT + B).",
+            "tw": "可自訂的「老闆鍵」，可瞬間清空螢幕並自動混淆瀏覽器分頁標題（預設：CTRL + ALT + B）。",
+            "uk": "Налаштовувана «кнопка боса», яка миттєво очищає екран і маскує заголовок вкладки браузера (За замовчуванням: CTRL + ALT + B)."
+        },
+        "performance_title": {
+            "en": "⚡ Smart Performance",
+            "cn": "⚡ 智能性能",
+            "de": "⚡ Intelligente Leistung",
+            "fr": "⚡ Performance intelligente",
+            "ru": "⚡ Умная производительность",
+            "tw": "⚡ 智慧效能",
+            "uk": "⚡ Розумна продуктивність"
+        },
+        "performance_desc": {
+            "en": "Monitors frame delta. Opt-in advanced mode applies dynamic frame limiting and lag-reduction optimizations when drops are detected.",
+            "cn": "监控真实的帧差。可选的高级性能模式在检测到掉帧时自动进行帧率限制和减滞优化。",
+            "de": "Überwacht das Frame-Delta. Der erweiterte Modus wendet dynamische Frame-Begrenzung und Optimierungen zur Verzögerungsreduzierung an, wenn Einbrüche erkannt werden.",
+            "fr": "Surveille le delta d'images. Le mode avancé optionnel applique une limitation dynamique des images et des optimisations de latence en cas de baisse de fluidité.",
+            "ru": "Отслеживает дельту кадров. Расширенный режим применяет динамическое ограничение кадров и снижение задержек при падении производительности.",
+            "tw": "監控真實的幀差。可選的高級效能模式在檢測到掉幀時自動進行幀率限制和減滯優化。",
+            "uk": "Відстежує дельту кадрів. Розширений режим застосовує динамічне обмеження кадрів і зниження затримок у разі виявлення падіння продуктивності."
+        },
+        "crossmod_title": {
+            "en": "🧩 Cross-Mod Integration",
+            "cn": "🧩 跨 Mod 整合",
+            "de": "🧩 Mod-Integration",
+            "fr": "🧩 Intégration inter-mods",
+            "ru": "🧩 Кросс-мод интеграция",
+            "tw": "🧩 跨 Mod 整合",
+            "uk": "🧩 Крос-мод інтеграція"
+        },
+        "crossmod_desc": {
+            "en": "Auto-detection and UI integration for compatible mods, including Liku's additional lovers mod and BCTweaks.",
+            "cn": "自动检测并深度整合兼容的社区 Mod，包括 Liku 的扩展恋人 Mod 与 BCTweaks。",
+            "de": "Automatische Erkennung und UI-Integration für kompatible Mods, einschließlich Likus zusätzlichem Lover-Mod und BCTweaks.",
+            "fr": "Détection automatique et intégration UI pour les mods compatibles, notamment le mod d'amants supplémentaires de Liku et BCTweaks.",
+            "ru": "Автоматическое обнаружение и интеграция интерфейса для совместимых модов, включая мод на дополнительных возлюбленных от Liku и BCTweaks.",
+            "tw": "自動檢測並深度整合相容的社群 Mod，包括 Liku 的擴展戀人 Mod 與 BCTweaks。",
+            "uk": "Автоматичне виявлення та інтеграція інтерфейсу для сумісних модів, включно з модом додаткових коханих від Liku та BCTweaks."
+        },
+        "i18n_title": {
+            "en": "🌐 Multi-Language Support",
+            "cn": "🌐 多语言支持",
+            "de": "🌐 Mehrsprachige Unterstützung",
+            "fr": "🌐 Support multilingue",
+            "ru": "🌐 Многоязычная поддержка",
+            "tw": "🌐 多語言支援",
+            "uk": "🌐 Багатомовна підтримка"
+        },
+        "i18n_desc": {
+            "en": "Full localization support for all base game languages with an English fallback.",
+            "cn": "原生支持游戏自带的所有语言，并提供无缝的英文回退支持。",
+            "de": "Vollständige Lokalisierungsunterstützung für alle Basissprachen des Spiels mit englischem Fallback.",
+            "fr": "Prise en charge complète de la localisation pour toutes les langues du jeu de base avec un repli en anglais.",
+            "ru": "Полная поддержка локализации для всех базовых языков игры с возвратом к английскому при отсутствии перевода.",
+            "tw": "原生支援遊戲自帶的所有語言，並提供無縫的英文回退支援。",
+            "uk": "Повна підтримка локалізації для всіх базових мов гри з переходом на англійську за відсутності перекладу."
         }
     },
     "commands": {
-        "roster_desc": {
-            "en": "Opens the enhanced roster in the chat log. Shows detailed information about everyone in the room.",
-            "cn": "在聊天记录中打开增强版名单。显示房间内每个人的详细信息。",
-            "de": "Öffnet das verbesserte Roster im Chat-Protokoll. Zeigt detaillierte Informationen über alle Personen im Raum.",
-            "fr": "Ouvre le Roster amélioré dans le journal de chat. Affiche des informations détaillées sur tous les membres de la salle.",
-            "ru": "Открывает улучшенный список в журнале чата. Показывает подробную информацию обо всех в комнате.",
-            "tw": "在聊天記錄中打開增強版名單。顯示房間內每個人的詳細資訊。",
-            "uk": "Відкриває покращений список у журналі чату. Показує детальну інформацію про всіх у кімнаті."
+        "crabs_desc": {
+            "en": "Command line interface for CRABS drawer and room information.",
+            "cn": "CRABS 抽屉与房间信息的命令行界面。",
+            "de": "Befehlszeilenschnittstelle für die CRABS-Schublade und Rauminformationen.",
+            "fr": "Interface de ligne de commande pour le tiroir CRABS et les informations de salle.",
+            "ru": "Интерфейс командной строки для панели CRABS и информации о комнате.",
+            "tw": "CRABS 抽屜與房間資訊的命令列介面。",
+            "uk": "Інтерфейс командного рядка для панелі CRABS та інформації про кімнату."
         },
         "args_label": {
-            "en": "Arguments:",
-            "cn": "参数：",
-            "de": "Argumente:",
-            "fr": "Arguments :",
-            "ru": "Аргументы:",
-            "tw": "參數：",
-            "uk": "Аргументи:"
+            "en": "Subcommands:",
+            "cn": "子命令：",
+            "de": "Unterbefehle:",
+            "fr": "Sous-commandes :",
+            "ru": "Подкоманды:",
+            "tw": "子指令：",
+            "uk": "Підкоманди:"
         },
-        "arg_count": {
-            "en": "Only shows current room population counters.",
-            "cn": "仅显示当前房间人数计数器。",
-            "de": "Zeigt nur die aktuellen Spielerzähler des Raums an.",
-            "fr": "Affiche uniquement les compteurs de joueurs actuels de la salle.",
-            "ru": "Показывает только текущие счетчики количества игроков в комнате.",
-            "tw": "僅顯示目前房間人數計數器。",
-            "uk": "Показує лише поточні лічильники кількості гравців у кімнаті."
+        "arg_roster": {
+            "en": "Opens the drawer or prints the current roster in chat.",
+            "cn": "打开抽屉或在聊天中打印当前名单。",
+            "de": "Öffnet die Schublade oder druckt das aktuelle Roster im Chat.",
+            "fr": "Ouvre le tiroir ou affiche la liste actuelle dans le chat.",
+            "ru": "Открывает панель или выводит текущий список участников в чат.",
+            "tw": "打開抽屜或在聊天中印出目前名單。",
+            "uk": "Відкриває панель або виводить поточний список учасників у чат."
         },
-        "arg_admins": {
-            "en": "Only lists room administrators.",
-            "cn": "仅列出房间管理员。",
-            "de": "Listet nur Raumadministratoren auf.",
-            "fr": "Liste uniquement les administrateurs de la salle.",
-            "ru": "Показывает только администраторов комнаты.",
-            "tw": "僅列出房間管理員。",
-            "uk": "Показує лише адміністраторів кімнати."
+        "arg_history": {
+            "en": "Lists up to 50 players who departed the room.",
+            "cn": "列出最多 50 名离开房间的玩家历史。",
+            "de": "Listet bis zu 50 Spieler auf, die den Raum verlassen haben.",
+            "fr": "Liste jusqu'à 50 joueurs ayant quitté la salle.",
+            "ru": "Отображает до 50 вышедших из комнаты игроков.",
+            "tw": "列出最多 50 名離開房間的玩家歷史。",
+            "uk": "Відображає до 50 гравців, що вийшли з кімнати."
         },
-        "arg_vips": {
-            "en": "Only lists room whitelisted users.",
-            "cn": "仅列出房间白名单用户。",
-            "de": "Listet nur Benutzer auf der Whitelist des Raums auf.",
-            "fr": "Liste uniquement les utilisateurs sur la liste blanche de la salle.",
-            "ru": "Показывает только пользователей из белого списка комнаты.",
-            "tw": "僅列出房間白名單使用者。",
-            "uk": "Показує лише користувачів із білого списку кімнати."
+        "arg_keys": {
+            "en": "Opens the key management and drop keys interface in the drawer.",
+            "cn": "在抽屉中打开钥匙管理与丢弃钥匙界面。",
+            "de": "Öffnet die Schlüsselverwaltung und die Oberfläche zum Ablegen von Schlüsseln in der Schublade.",
+            "fr": "Ouvre la gestion des clés et l'interface pour jeter les clés dans le tiroir.",
+            "ru": "Открывает меню управления и сброса ключей в панели.",
+            "tw": "在抽屜中打開鑰匙管理與丟棄鑰匙介面。",
+            "uk": "Відкриває меню керування та скидання ключів у панелі."
         },
         "arg_banner": {
             "en": "Force redraws the room information banner.",
             "cn": "强制重新绘制房间信息横幅。",
-            "de": "Erzwingt ein Neuzeichnen des Rauminformationsbanners.",
+            "de": "Erzwingt das Neuzeichnen des Rauminformationsbanners.",
             "fr": "Force le redessin de la bannière d'information de la salle.",
             "ru": "Принудительно перерисовывает баннер с информацией о комнате.",
             "tw": "強制重新繪製房間資訊橫幅。",
-            "uk": "Примусово перемальовує банер із інформацією про кімнату."
+            "uk": "Примусово перемальовує банер з інформацією про кімнату."
         },
         "arg_help": {
             "en": "Shows this documentation.",
@@ -373,17 +445,17 @@
         "whisper_desc": {
             "en": "Global whisper system for map rooms. Bypass range restrictions to message anyone on the map.",
             "cn": "地图房间的全局私聊系统。绕过范围限制，向地图上的任何人发送消息。",
-            "de": "Globales Flüstern-System für Kartenräume. Umgehen Sie Reichweitenbeschränkungen, um jeden auf der Karte anzuschreiben.",
-            "fr": "Système de chuchotement global pour les salles de carte. Contournez les restrictions de portée pour envoyer un message à n'importe qui sur la carte.",
-            "ru": "Глобальная система шепота для комнат с картами. Обходит ограничения по дальности для сообщения любому на карте.",
+            "de": "Globales Flüstern-System für Kartenräume. Umgeht Reichweitenbeschränkungen, um jedem auf der Karte eine Nachricht zu senden.",
+            "fr": "Système de chuchotement global pour les salles de carte. Contourne les restrictions de portée pour envoyer un message à n'importe qui sur la carte.",
+            "ru": "Глобальная система шепота для комнат с картами. Обходит ограничения по расстоянию для отправки сообщений любому на карте.",
             "tw": "地圖房間的全域私聊系統。繞過範圍限制，向地圖上的任何人發送訊息。",
-            "uk": "Глобальна система шепоту для кімнат із картами. Оминає обмеження за дальністю для повідомлення будь-кому на карті."
+            "uk": "Глобальна система шепоту для кімнат із картами. Оминає обмеження за відстанню для надсилання повідомлень будь-кому на карті."
         },
         "dropkeys_desc": {
             "en": "Instantly drop specific keys (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">silver</span>, <span style=\"color:#ffd700\">gold</span>) or all keys at once.",
             "cn": "立即丢弃特定钥匙（<span style=\"color:#cd7f32\">青铜</span>、<span style=\"color:#c0c0c0\">白银</span>、<span style=\"color:#ffd700\">黄金</span>）或一次性丢弃所有钥匙。",
             "de": "Lassen Sie sofort bestimmte Schlüssel fallen (<span style=\"color:#cd7f32\">Bronze</span>, <span style=\"color:#c0c0c0\">Silber</span>, <span style=\"color:#ffd700\">Gold</span>) oder alle Schlüssel auf einmal.",
-            "fr": "Lâchez instantanément des clés spécifiques (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">argent</span>, <span style=\"color:#ffd700\">or</span>) ou toutes les clés en une fois.",
+            "fr": "Lâchez instantanément des clés spécifiques (<span style=\"color:#cd7f32\">bronze</span>, <span style=\"color:#c0c0c0\">argent</span>, <span style=\"color:#ffd700\">or</span>) ou toutes les clés à la fois.",
             "ru": "Мгновенно сбрасывает определенные ключи (<span style=\"color:#cd7f32\">бронзовый</span>, <span style=\"color:#c0c0c0\">серебряный</span>, <span style=\"color:#ffd700\">золотой</span>) или все ключи сразу.",
             "tw": "立即丟棄特定鑰匙（<span style=\"color:#cd7f32\">青銅</span>、<span style=\"color:#c0c0c0\">白銀</span>、<span style=\"color:#ffd700\">黃金</span>）或一次性丟棄所有鑰匙。",
             "uk": "Миттєво скидає певні ключі (<span style=\"color:#cd7f32\">бронзовий</span>, <span style=\"color:#c0c0c0\">срібний</span>, <span style=\"color:#ffd700\">золотий</span>) або всі ключі одразу."
@@ -393,44 +465,80 @@
         "click_badge": {
             "en": "<b>Click Badge:</b> Opens the character's focus screen.",
             "cn": "<b>点击徽章：</b> 打开角色的焦点屏幕。",
-            "de": "<b>Klicken Sie auf das Abzeichen:</b> Öffnet den Fokusbildschirm des Charakters.",
-            "fr": "<b>Cliquez sur le badge :</b> Ouvre l'écran de focus du personnage.",
-            "ru": "<b>Нажмите на значок:</b> Открывает экран фокуса персонажа.",
+            "de": "<b>Abzeichen anklicken:</b> Öffnet den Fokusbildschirm des Charakters.",
+            "fr": "<b>Cliquer sur le badge :</b> Ouvre l'écran de focus du personnage.",
+            "ru": "<b>Нажатие на значок:</b> Открывает экран фокуса персонажа.",
             "tw": "<b>點擊徽章：</b> 打開角色的焦點螢幕。",
-            "uk": "<b>Натисніть на значок:</b> Відкриває екран фокуса персонажа."
+            "uk": "<b>Натискання на значок:</b> Відкриває екран фокуса персонажа."
         },
         "click_name": {
             "en": "<b>Click Player's Name:</b> Start a Whisper+ message.",
             "cn": "<b>点击玩家名称：</b> 发起私聊+消息。",
-            "de": "<b>Klicken Sie auf den Spielernamen:</b> Starten Sie eine Flüstern+-Nachricht.",
-            "fr": "<b>Cliquez sur le nom du joueur :</b> Démarre un message Chuchotement+.",
-            "ru": "<b>Нажмите на имя игрока:</b> Начать сообщение Шепот+.",
+            "de": "<b>Spielernamen anklicken:</b> Startet eine Flüstern+-Nachricht.",
+            "fr": "<b>Cliquer sur le nom du joueur :</b> Démarre un message Chuchotement+.",
+            "ru": "<b>Нажатие на имя игрока:</b> Начать сообщение Шепот+.",
             "tw": "<b>點擊玩家名稱：</b> 發起私聊+訊息。",
-            "uk": "<b>Натисніть на ім'я гравця:</b> Почати повідомлення Шепіт+."
+            "uk": "<b>Натискання на ім'я гравця:</b> Розпочати повідомлення Шепіт+."
         },
         "click_id": {
             "en": "<b>Click Number (ID):</b> Copies the player's member number to your clipboard.",
             "cn": "<b>点击数字 (ID)：</b> 将玩家的会员编号复制到剪贴板。",
-            "de": "<b>Klicken Sie auf die Nummer (ID):</b> Kopiert die Mitgliedsnummer des Spielers in Ihre Zwischenablage.",
-            "fr": "<b>Cliquez sur le numéro (ID) :</b> Copie le numéro de membre du joueur dans votre presse-papiers.",
-            "ru": "<b>Нажмите на номер (ID):</b> Копирует членский номер игрока в буфер обмена.",
+            "de": "<b>Nummer (ID) anklicken:</b> Kopiert die Mitgliedsnummer des Spielers in Ihre Zwischenablage.",
+            "fr": "<b>Cliquer sur le numéro (ID) :</b> Copie le numéro de membre du joueur dans votre presse-papiers.",
+            "ru": "<b>Нажатие на номер (ID):</b> Копирует номер участника в буфер обмена.",
             "tw": "<b>點擊數字 (ID)：</b> 將玩家的會員編號複製到剪貼簿。",
-            "uk": "<b>Натисніть на номер (ID):</b> Копіює членський номер гравця в буфер обміну."
+            "uk": "<b>Натискання на номер (ID):</b> Копіює номер учасника в буфер обміну."
+        },
+        "history_panel": {
+            "en": "<b>Departure History:</b> View the last 50 players. Click the profile icon to open WCE profiles, click a friend's name to beep, or click their member ID to copy.",
+            "cn": "<b>离队历史：</b> 查看最近 50 位离队玩家。点击图标打开 WCE 资料，点击好友名字呼叫，点击 ID 复制。",
+            "de": "<b>Verlauf:</b> Zeigt die letzten 50 Spieler an. Profil-Icon für WCE-Profile anklicken, Namen von Freunden zum Anpiepen anklicken oder Mitgliedsnummer zum Kopieren anklicken.",
+            "fr": "<b>Historique des départs :</b> Affiche les 50 derniers joueurs. Cliquez sur l'icône de profil pour ouvrir les profils WCE, sur le nom d'un ami pour le biper, ou sur son identifiant pour le copier.",
+            "ru": "<b>История вышедших:</b> Просмотр последних 50 игроков. Нажмите на иконку профиля для открытия WCE, на имя друга для сигнала или на номер участника для копирования.",
+            "tw": "<b>離隊歷史：</b> 查看最近 50 位離隊玩家。點擊圖示打開 WCE 資料，點擊好友名字呼叫，點擊 ID 複製。",
+            "uk": "<b>Історія виходу:</b> Перегляд 50 останніх гравців. Натисніть на піктограму профілю для WCE, на ім'я друга для сигналу або на номер для копіювання."
+        },
+        "font_hover": {
+            "en": "<b>Font Normalization:</b> Hover over stylized player names or chat messages to decode stylized unicode fonts instantly.",
+            "cn": "<b>字体标准化：</b> 悬停在花体字玩家名称或聊天信息上，立即解码样式化字体。",
+            "de": "<b>Schrift-Normalisierung:</b> Fahren Sie über stilisierte Spielernamen oder Chat-Nachrichten, um stilisierte Unicode-Schriften sofort zu dekodieren.",
+            "fr": "<b>Normalisation des polices :</b> Survolez les noms de joueurs ou les messages du chat stylisés pour décoder instantanément les polices Unicode décoratives.",
+            "ru": "<b>Нормализация шрифта:</b> Наведите курсор на стилизованные имена игроков или сообщения чата, чтобы мгновенно декодировать декоративные шрифты Unicode.",
+            "tw": "<b>字體標準化：</b> 懸停在花體字玩家名稱或聊天訊息上，立即解碼樣式化字體。",
+            "uk": "<b>Нормалізація шрифту:</b> Наведіть курсор на стилізовані імена гравців або повідомлення чату, щоб миттєво декодувати декоративні шрифти Unicode."
+        },
+        "key_panel": {
+            "en": "<b>Drop Keys Interface:</b> Click the 3 keys in the roster when on a map to open the key drop controls.",
+            "cn": "<b>丢弃钥匙界面：</b> 在地图上点击名单中的 3 把钥匙，即可呼出钥匙丢弃控制菜单。",
+            "de": "<b>Schlüssel-Interface:</b> Klicken Sie auf die 3 Schlüssel im Roster, wenn Sie auf einer Karte sind, um das Menü zum Ablegen von Schlüsseln zu öffnen.",
+            "fr": "<b>Interface des clés :</b> Cliquez sur les 3 clés dans la liste sur une carte pour ouvrir les commandes de dépôt de clés.",
+            "ru": "<b>Меню сброса ключей:</b> Нажмите на 3 ключа в списке участников на карте, чтобы открыть управление сбросом ключей.",
+            "tw": "<b>丟棄鑰匙介面：</b> 在地圖上點擊名單中的 3 把鑰匙，即可呼出鑰匙丟棄控制選單。",
+            "uk": "<b>Меню скидання ключів:</b> Натисніть на 3 ключі у списку на карті, щоб відкрити керування скиданням ключів."
         },
         "live_sorting": {
-            "en": "<b>Live Sorting:</b> Use the top-right dropdown in the drawer to sort players by Roles, D/s Family, Lovers, or Friends.",
-            "cn": "<b>实时排序：</b> 使用抽屉右上角的下拉菜单，按角色、D/s 家族、恋人或朋友对玩家进行排序。",
-            "de": "<b>Live-Sortierung:</b> Verwenden Sie das Dropdown-Menü oben rechts in der Schublade, um Spieler nach Rollen, D/s-Familie, Liebhabern oder Freunden zu sortieren.",
-            "fr": "<b>Tri en direct :</b> Utilisez le menu déroulant en haut à droite du tiroir pour trier les joueurs par Rôles, Famille D/s, Amants ou Amis.",
-            "ru": "<b>Живая сортировка:</b> Используйте выпадающий список в правом верхнем углу панели для сортировки игроков по ролям, семье D/s, возлюбленным или друзьям.",
-            "tw": "<b>即時排序：</b> 使用抽屜右上角的下拉選單，按角色、D/s 家族、戀人或朋友對玩家進行排序。",
-            "uk": "<b>Живе сортування:</b> Використовуйте випадаючий список у правому верхньому куті панелі для сортування гравців за ролями, сім'єю D/s, коханими або друзями."
+            "en": "<b>Live Sorting:</b> Sort players by Roles, D/s Family, Lovers, Friends, or Natural Room Order using the drawer dropdown.",
+            "cn": "<b>实时排序：</b> 使用抽屉下拉菜单按角色、D/s 家族、恋人、朋友或房间自然顺序对玩家进行排序。",
+            "de": "<b>Echtzeit-Sortierung:</b> Sortieren Sie Spieler nach Rollen, D/s-Familie, Liebhabern, Freunden oder natürlicher Raum-Reihenfolge über das Schubladen-Dropdown.",
+            "fr": "<b>Tri en direct :</b> Triez les joueurs par rôles, famille D/s, amants, amis ou ordre naturel de la salle via le menu déroulant du tiroir.",
+            "ru": "<b>Сортировка:</b> Сортируйте игроков по ролям, семье D/s, возлюбленным, друзьям или естественному порядку комнаты через выпадающий список панели.",
+            "tw": "<b>即時排序：</b> 使用抽屜下拉選單按角色、D/s 家族、戀人、朋友或房間自然順序對玩家進行排序。",
+            "uk": "<b>Сортування:</b> Сортуйте гравців за ролями, сім'єю D/s, коханими, друзями або природним порядком кімнати через випадний список панелі."
+        },
+        "drawer_layouts": {
+            "en": "<b>Layout Switching:</b> Manually switch between multiple drawer layouts to fit your display preferences.",
+            "cn": "<b>布局切换：</b> 手动在多种抽屉布局之间切换，以适应不同的显示偏好。",
+            "de": "<b>Layout-Wechsel:</b> Schalten Sie manuell zwischen verschiedenen Schubladen-Layouts um, passend zu Ihren Anzeigevorlieben.",
+            "fr": "<b>Changement de disposition :</b> Basculez manuellement entre plusieurs dispositions de tiroir selon vos préférences d'affichage.",
+            "ru": "<b>Смена макета:</b> Вручную переключайтесь между несколькими вариантами макета панели в соответствии с вашими предпочтениями.",
+            "tw": "<b>佈局切換：</b> 手動在多種抽屜佈局之間切換，以適應不同的顯示偏好。",
+            "uk": "<b>Зміна макета:</b> Вручну перемикайтеся між кількома варіантами макета панелі відповідно до ваших уподобань."
         },
         "reverse_hover": {
             "en": "<b>Reverse Hover:</b> Hovering a character in the game world highlights their card in the roster.",
             "cn": "<b>反向悬停：</b> 在游戏世界中悬停在角色上会高亮显示其在名单中的卡片。",
             "de": "<b>Umgekehrtes Hovern:</b> Das Bewegen über einen Charakter in der Spielwelt hebt seine Karte im Roster hervor.",
-            "fr": "<b>Survol inversé :</b> Survoler un personnage dans le monde du jeu met en surbrillance sa carte dans le Roster.",
+            "fr": "<b>Survol inversé :</b> Survoler un personnage dans le monde du jeu met en surbrillance sa carte dans la liste.",
             "ru": "<b>Обратное наведение:</b> Наведение на персонажа в игровом мире подсвечивает его карточку в списке.",
             "tw": "<b>反向懸停：</b> 在遊戲世界中懸停在角色上會高亮顯示其在名單中的卡片。",
             "uk": "<b>Зворотне наведення:</b> Наведення на персонажа в ігровому світі підсвічує його картку у списку."
@@ -438,7 +546,7 @@
         "shortcuts": {
             "en": "<b>Keyboard Shortcuts:</b> <code>CTRL + ALT + D</code> toggles the drawer. <code>CTRL + ALT + B</code> toggles Privacy Mode.",
             "cn": "<b>键盘快捷键：</b> <code>CTRL + ALT + D</code> 切换抽屉。 <code>CTRL + ALT + B</code> 切换隐私模式。",
-            "de": "<b>Tastaturkürzel:</b> <code>STRG + ALT + D</code> schaltet die Schublade um. <code>STRG + ALT + B</code> schaltet den Privatsphäre-Modus um.",
+            "de": "<b>Tastenkombinationen:</b> <code>STRG + ALT + D</code> öffnet/schließt die Schublade. <code>STRG + ALT + B</code> schaltet den Privatsphäre-Modus um.",
             "fr": "<b>Raccourcis clavier :</b> <code>CTRL + ALT + D</code> bascule le tiroir. <code>CTRL + ALT + B</code> bascule le mode vie privée.",
             "ru": "<b>Горячие клавиши:</b> <code>CTRL + ALT + D</code> переключает панель. <code>CTRL + ALT + B</code> переключает режим приватности.",
             "tw": "<b>鍵盤快捷鍵：</b> <code>CTRL + ALT + D</code> 切換抽屜。 <code>CTRL + ALT + B</code> 切換隱私模式。",
@@ -490,6 +598,15 @@
             "ru": "Возлюбленный",
             "tw": "戀人",
             "uk": "Коханий"
+        },
+        "lover_extended": {
+            "en": "Extended Lover",
+            "cn": "扩展恋人",
+            "de": "Erweiterter Liebhaber",
+            "fr": "Amant supplémentaire",
+            "ru": "Дополнительный любовник",
+            "tw": "擴展戀人",
+            "uk": "Додатковий коханий"
         },
         "family": {
             "en": "Family",
@@ -580,10 +697,10 @@
             "en": "<b>Status Indicators:</b> Every card features three icons indicating if a player is <b>Gagged</b>, <b>Blind</b>, or <b>Deaf</b>. These light up and display severity levels when hovered.",
             "cn": "<b>状态指示器：</b> 每张卡片都有三个图标，指示玩家是否被<b>禁言</b>、<b>失明</b>或<b>失聪</b>。悬停时，这些图标会亮起并显示严重程度。",
             "de": "<b>Statusanzeigen:</b> Jede Karte verfügt über drei Symbole, die anzeigen, ob ein Spieler <b>geknebelt</b>, <b>blind</b> oder <b>taub</b> ist. Diese leuchten auf und zeigen bei Berührung die Schweregrade an.",
-            "fr": "<b>Indicateurs de statut :</b> Chaque carte comporte trois icônes indiquant si un joueur est <b>Gagged</b>, <b>Blind</b> ou <b>Deaf</b>. Ils s'allument et affichent les niveaux de gravité lorsqu'ils sont survolés.",
-            "ru": "<b>Статусные индикаторы:</b> Каждая карточка имеет три иконки, указывающие, является ли игрок <b>заглушенным</b>, <b>слепым</b> или <b>глухим</b>. Они загораются и отображают уровни серьезности при наведении.",
+            "fr": "<b>Indicateurs de statut :</b> Chaque carte comporte trois icônes indiquant si un joueur est <b>bâillonné</b>, <b>aveugle</b> ou <b>sourd</b>. Elles s'allument et affichent les niveaux de gravité au survol.",
+            "ru": "<b>Статусные индикаторы:</b> На каждой карточке есть три значка, показывающие, есть ли у игрока <b>кляп</b>, <b>слепота</b> или <b>глухота</b>. Они подсвечиваются и показывают уровень при наведении.",
             "tw": "<b>狀態指示器：</b> 每張卡片都有三個圖示，指示玩家是否被<b>禁言</b>、<b>失明</b>或<b>失聰</b>。懸停時，這些圖示會亮起並顯示嚴重程度。",
-            "uk": "<b>Статусні індикатори:</b> Кожна картка має три іконки, що вказують, чи є гравець <b>заглушеним</b>, <b>сліпим</b> чи <b>глухим</b>. Вони загоряються і відображають рівні серйозності при наведенні."
+            "uk": "<b>Статусні індикатори:</b> На кожній картці є три значки, які показують, чи є гравець <b>з кляпом</b>, <b>сліпим</b> або <b>глухим</b>. Вони підсвічуються та відображають рівень обмеження під час наведення."
         }
     },
     "settings_guide": {
@@ -592,251 +709,332 @@
             "cn": "通过抽屉中的 {icon} 图标访问设置，现在具有完整的<b>标签页界面</b>。<br><b>快速聊天返回：</b> 点击右上角的<b>聊天气泡图标</b>即可立即返回游戏。",
             "de": "Greifen Sie über das {icon}-Symbol in der Schublade auf die Einstellungen zu, jetzt mit einer vollständigen <b>Tab-Schnittstelle</b>. <br><b>Schnelle Chat-Rückkehr:</b> Klicken Sie oben rechts auf das <b>Chat-Blasen-Symbol</b>, um sofort zum Spiel zurückzukehren.",
             "fr": "Accédez aux paramètres via l'icône {icon} dans le tiroir, désormais doté d'une <b>interface à onglets</b> complète. <br><b>Retour rapide au chat :</b> Cliquez sur l'<b>icône de bulle de chat</b> en haut à droite pour retourner instantanément au jeu.",
-            "ru": "Получите доступ к настройкам через иконку {icon} на панели, которая теперь имеет полноценный <b>интерфейс с вкладками</b>. <br><b>Быстрый возврат в чат:</b> Нажмите на <b>иконку пузыря чата</b> в правом верхнем углу, чтобы мгновенно вернуться в игру.",
+            "ru": "Получите доступ к настройкам через иконку {icon} на панели, которая теперь имеет полноценный <b>интерфейс с вкладками</b>. <br><b>Быстрый возврат в чат:</b> Нажмите на <b>иконку облачка чата</b> в правом верхнем углу, чтобы мгновенно вернуться в игру.",
             "tw": "透過抽屜中的 {icon} 圖示存取設定，現在具有完整的<b>頁籤介面</b>。<br><b>快速聊天返回：</b> 點擊右上角的<b>聊天氣泡圖示</b>即可立即返回遊戲。",
-            "uk": "Отримайте доступ до налаштувань через іконку {icon} на панелі, яка тепер має повноцінний <b>інтерфейс із вкладками</b>. <br><b>Швидке повернення до чату:</b> Натисніть на <b>іконку бульбашки чату</b> у правому верхньому куті, щоб миттєво повернутися до гри."
+            "uk": "Отримайте доступ до налаштувань через піктограму {icon} на панелі, яка тепер має повноцінний <b>інтерфейс із вкладками</b>. <br><b>Швидке повернення до чату:</b> Натисніть на <b>піктограму хмарки чату</b> у правому верхньому куті, щоб миттєво повернутися до гри."
         },
         "general_update": {
             "en": "<b>Update Notifications:</b> Alerts you when to refresh for a new version.",
             "cn": "<b>更新通知：</b> 当有新版本需要刷新时提醒您。",
             "de": "<b>Update-Benachrichtigungen:</b> Benachrichtigt Sie, wann Sie für eine neue Version aktualisieren müssen.",
-            "fr": "<b>Notifications de mise à jour :</b> Vous alerte lorsque vous devez rafraîchir pour une nouvelle version.",
-            "ru": "<b>Уведомления об обновлениях:</b> Предупреждает вас, когда нужно обновиться до новой версии.",
+            "fr": "<b>Notifications de mise à jour :</b> Vous alerte lorsqu'il faut actualiser pour une nouvelle version.",
+            "ru": "<b>Уведомления об обновлениях:</b> Предупреждает о необходимости обновить страницу при выходе новой версии.",
             "tw": "<b>更新通知：</b> 當有新版本需要重新整理時提醒您。",
-            "uk": "<b>Сповіщення про оновлення:</b> Попереджає вас, коли потрібно оновитися до нової версії."
+            "uk": "<b>Сповіщення про оновлення:</b> Попереджає про необхідність оновити сторінку при виході нової версії."
+        },
+        "general_perf_mode": {
+            "en": "<b>Performance Mode:</b> Enables frame-rate safeguards and reduces animations during lag.",
+            "cn": "<b>性能模式：</b> 启用帧率保护并在延迟较高时减少动画。",
+            "de": "<b>Leistungsmodus:</b> Aktiviert Bildraten-Schutzmechanismen und reduziert Animationen bei Verzögerungen.",
+            "fr": "<b>Mode performance :</b> Active la protection du taux de rafraîchissement et réduit les animations lors des ralentissements.",
+            "ru": "<b>Режим производительности:</b> Включает защиту частоты кадров и отключает анимации при задержках.",
+            "tw": "<b>效能模式：</b> 啟用幅率保護並在延遲較高時減少動畫。",
+            "uk": "<b>Режим продуктивності:</b> Вмикає захист частоти кадрів і зменшує анімації під час затримок."
         },
         "general_banner": {
             "en": "<b>Show Banner on Entry:</b> Displays an info banner when joining a room.",
             "cn": "<b>进入时显示横幅：</b> 进入房间时显示信息横幅。",
             "de": "<b>Banner beim Betreten anzeigen:</b> Zeigt beim Betreten eines Raums ein Infobanner an.",
-            "fr": "<b>Afficher la bannière à l'entrée :</b> Affiche une bannière d'information lors de la jonction d'une salle.",
+            "fr": "<b>Afficher la bannière à l'entrée :</b> Affiche une bannière d'information lorsque vous rejoignez une salle.",
             "ru": "<b>Показывать баннер при входе:</b> Отображает информационный баннер при входе в комнату.",
             "tw": "<b>進入時顯示橫幅：</b> 進入房間時顯示資訊橫幅。",
             "uk": "<b>Показувати банер при вході:</b> Відображає інформаційний банер при вході в кімнату."
         },
-        "general_privacy": {
-            "en": "<b>Full-Screen Privacy Mode:</b> Blanks the entire screen instead of just the chat side when the hotkey is used.",
-            "cn": "<b>全屏隐私模式：</b> 使用热键时清空整个屏幕，而不仅仅是聊天侧。",
-            "de": "<b>Vollbild-Privatsphäre-Modus:</b> Blendet den gesamten Bildschirm aus, anstatt nur die Chat-Seite, wenn der Hotkey verwendet wird.",
-            "fr": "<b>Mode vie privée plein écran :</b> Efface tout l'écran au lieu de seulement le côté chat lorsque le raccourci est utilisé.",
-            "ru": "<b>Полноэкранный режим приватности:</b> Затеняет весь экран вместо стороны чата при использовании горячей клавиши.",
-            "tw": "<b>全螢幕隱私模式：</b> 使用熱鍵時清空整個螢幕，而不僅僅是聊天側。",
-            "uk": "<b>Повноекранний режим приватності:</b> Затінює весь екран замість сторони чату при використанні гарячої клавіші."
-        },
         "general_halo": {
             "en": "<b>Enable Focus Halo:</b> Shows a pulsing halo effect on hovered avatars.",
             "cn": "<b>启用焦点光晕：</b> 在悬停的头像上显示脉冲光晕效果。",
-            "de": "<b>Fokus-Heiligenschein aktivieren:</b> Zeigt bei gehoverten Avataren einen pulsierenden Heiligenschein-Effekt.",
-            "fr": "<b>Activer le halo de focus :</b> Montre un effet de halo pulsé sur les avatars survolés.",
-            "ru": "<b>Включить ореол фокуса:</b> Показывает пульсирующий эффект ореола на аватарах при наведении.",
+            "de": "<b>Fokus-Heiligenschein aktivieren:</b> Zeigt einen pulsierenden Lichteffekt auf fokussierten Avataren an.",
+            "fr": "<b>Activer le halo de focus :</b> Affiche un effet de halo pulsé sur les avatars survolés.",
+            "ru": "<b>Включить ореол фокуса:</b> Отображает пульсирующий ореол вокруг аватаров при наведении.",
             "tw": "<b>啟用焦點光暈：</b> 在懸停的頭像上顯示脈衝光暈效果。",
-            "uk": "<b>Увімкнути ореол фокуса:</b> Показує пульсуючий ефект ореолу на аватарах при наведенні."
+            "uk": "<b>Увімкнути ореол фокуса:</b> Відображає пульсуючий ореол навколо аватарів при наведенні."
         },
         "general_keybinds": {
             "en": "<b>Edit Keybinds:</b> Direct shortcut to the game's keybinding menu to change your Privacy and Drawer toggle hotkeys.",
             "cn": "<b>编辑快捷键：</b> 直接跳转到游戏快捷键菜单，以更改您的隐私和抽屉切换热键。",
-            "de": "<b>Tastenkombinationen bearbeiten:</b> Direkte Verknüpfung zum Tastenkombinationsmenü des Spiels, um Ihre Hotkeys für Privatsphäre und Schublade zu ändern.",
-            "fr": "<b>Modifier les raccourcis :</b> Lien direct vers le menu des raccourcis du jeu pour changer vos raccourcis de mode vie privée et de tiroir.",
-            "ru": "<b>Редактировать горячие клавиши:</b> Прямая ссылка на меню горячих клавиш игры для изменения ваших клавиш приватности и переключения панели.",
-            "tw": "<b>編輯快捷鍵：</b> 直接跳轉到遊戲快捷鍵選單，以更改您的隱私和抽屜切換熱鍵。",
-            "uk": "<b>Редагувати гарячі клавіші:</b> Пряме посилання на меню гарячих клавіш гри для зміни ваших клавіш приватності та перемикання панелі."
+            "de": "<b>Tastenkombinationen bearbeiten:</b> Direkte Verknüpfung zum Menü des Spiels, um Hotkeys für Privatsphäre und Schublade zu ändern.",
+            "fr": "<b>Modifier les raccourcis :</b> Lien direct vers le menu des touches du jeu pour modifier les raccourcis du mode vie privée et du tiroir.",
+            "ru": "<b>Изменить горячие клавиши:</b> Переход в меню горячих клавиш игры для настройки клавиш приватности и панели.",
+            "tw": "<b>編輯快捷鍵：</b> 直接跳轉到遊戲快捷鍵選單，以更改您的隱私和抽屜切換快速鍵。",
+            "uk": "<b>Редагувати гарячі клавіші:</b> Пряме посилання на меню гарячих клавіш гри для зміни клавіш приватності та панелі."
         },
         "drawer_enable": {
             "en": "<b>Enable Drawer UI:</b> Turns the sliding drawer interface on or off.",
             "cn": "<b>启用抽屉 UI：</b> 打开或关闭滑动抽屉界面。",
-            "de": "<b>Schubladen-Benutzeroberfläche aktivieren:</b> Schaltet die verschiebbare Schubladenschnittstelle ein oder aus.",
-            "fr": "<b>Activer l'interface du tiroir :</b> Active ou désactive l'interface du tiroir coulissant.",
+            "de": "<b>Schubladen-UI aktivieren:</b> Schaltet die verschiebbare Benutzeroberfläche ein oder aus.",
+            "fr": "<b>Activer le tiroir :</b> Active ou désactive l'interface du tiroir coulissant.",
             "ru": "<b>Включить интерфейс панели:</b> Включает или выключает выдвижную панель.",
-            "tw": "<b>啟用抽屜 UI：</b> 打開或關閉滑動抽屜介面。",
+            "tw": "<b>啟用抽屜 UI：</b> 開啟或關閉滑動抽屜介面。",
             "uk": "<b>Увімкнути інтерфейс панелі:</b> Вмикає або вимикає висувну панель."
         },
         "drawer_toggle_cmd": {
-            "en": "<b>/roster toggles drawer:</b> Typing <span class=\"CRABS_help_command\">/roster</span> or <span class=\"CRABS_help_command\">/crabs</span> opens the drawer instead of printing in chat.",
-            "cn": "<b>/roster 切换抽屉：</b> 输入 <span class=\"CRABS_help_command\">/roster</span> 或 <span class=\"CRABS_help_command\">/crabs</span> 打开抽屉，而不是在聊天中打印。",
-            "de": "<b>/roster schaltet die Schublade um:</b> Die Eingabe von <span class=\"CRABS_help_command\">/roster</span> oder <span class=\"CRABS_help_command\">/crabs</span> öffnet die Schublade, anstatt es im Chat auszugeben.",
-            "fr": "<b>/roster bascule le tiroir :</b> Taper <span class=\"CRABS_help_command\">/roster</span> ou <span class=\"CRABS_help_command\">/crabs</span> ouvre le tiroir au lieu de l'afficher dans le chat.",
-            "ru": "<b>/roster переключает панель:</b> Ввод <span class=\"CRABS_help_command\">/roster</span> или <span class=\"CRABS_help_command\">/crabs</span> открывает панель вместо вывода текста в чат.",
-            "tw": "<b>/roster 切換抽屜：</b> 輸入 <span class=\"CRABS_help_command\">/roster</span> 或 <span class=\"CRABS_help_command\">/crabs</span> 打開抽屜，而不是在聊天中印出。",
-            "uk": "<b>/roster перемикає панель:</b> Введення <span class=\"CRABS_help_command\">/roster</span> або <span class=\"CRABS_help_command\">/crabs</span> відкриває панель замість виведення тексту в чат."
+            "en": "<b>/crabs toggles drawer:</b> Typing <span class=\"CRABS_help_command\">/crabs</span> opens the drawer instead of printing in chat.",
+            "cn": "<b>/crabs 切换抽屉：</b> 输入 <span class=\"CRABS_help_command\">/crabs</span> 打开抽屉，而不是在聊天中打印。",
+            "de": "<b>/crabs schaltet Schublade um:</b> Die Eingabe von <span class=\"CRABS_help_command\">/crabs</span> öffnet die Schublade, anstatt Text im Chat auszugeben.",
+            "fr": "<b>/crabs bascule le tiroir :</b> Taper <span class=\"CRABS_help_command\">/crabs</span> ouvre le tiroir au lieu d'afficher du texte dans le chat.",
+            "ru": "<b>/crabs переключает панель:</b> Ввод команды <span class=\"CRABS_help_command\">/crabs</span> открывает панель вместо вывода сообщения в чат.",
+            "tw": "<b>/crabs 切換抽屜：</b> 輸入 <span class=\"CRABS_help_command\">/crabs</span> 打開抽屜，而不是在聊天中印出。",
+            "uk": "<b>/crabs перемикає панель:</b> Введення команди <span class=\"CRABS_help_command\">/crabs</span> відкриває панель замість виведення тексту в чат."
         },
         "drawer_tab": {
             "en": "<b>Show Drawer Tab:</b> Toggles the persistent visual tab on the screen edge.",
             "cn": "<b>显示抽屉标签：</b> 切换屏幕边缘的持久视觉标签。",
-            "de": "<b>Schubladen-Tab anzeigen:</b> Schaltet den persistenten visuellen Tab am Bildschirmrand um.",
-            "fr": "<b>Afficher l'onglet du tiroir :</b> Bascule l'onglet visuel persistant sur le bord de l'écran.",
-            "ru": "<b>Показывать вкладку панели:</b> Переключает постоянную визуальную вкладку на краю экрана.",
+            "de": "<b>Schubladen-Tab anzeigen:</b> Blendet den dauerhaften visuellen Tab am Bildschirmrand ein oder aus.",
+            "fr": "<b>Afficher l'onglet du tiroir :</b> Active ou désactive l'onglet visuel persistant sur le bord de l'écran.",
+            "ru": "<b>Показывать ярлык панели:</b> Переключает отображение постоянного ярлыка на краю экрана.",
             "tw": "<b>顯示抽屜標籤：</b> 切換螢幕邊緣的持久視覺標籤。",
-            "uk": "<b>Показувати вкладку панелі:</b> Перемикає постійну візуальну вкладку на краю екрана."
+            "uk": "<b>Показувати ярлик панелі:</b> Вмикає або вимикає постійний візуальний ярлик на краю екрана."
         },
         "drawer_logo_anim": {
             "en": "<b>Animated Tab Logo:</b> Toggle the drawer logo animation to save performance.",
             "cn": "<b>动画标签 Logo：</b> 切换抽屉 Logo 动画以节省性能。",
-            "de": "<b>Animiertes Tab-Logo:</b> Schaltet die Schubladen-Logo-Animation um, um Leistung zu sparen.",
-            "fr": "<b>Logo d'onglet animé :</b> Active l'animation du logo du tiroir pour économiser des performances.",
-            "ru": "<b>Анимированный логотип вкладки:</b> Включите анимацию логотипа панели для экономии производительности.",
+            "de": "<b>Animiertes Tab-Logo:</b> Schaltet die Animation des Logos um, um Ressourcen zu schonen.",
+            "fr": "<b>Logo d'onglet animé :</b> Active ou désactive l'animation du logo du tiroir pour économiser des ressources.",
+            "ru": "<b>Анимированный логотип:</b> Переключает анимацию логотипа на ярлыке для экономии ресурсов.",
             "tw": "<b>動畫標籤 Logo：</b> 切換抽屜 Logo 動畫以節省效能。",
-            "uk": "<b>Анімований логотип вкладки:</b> Увімкніть анімацію логотипу панелі для економії продуктивності."
+            "uk": "<b>Анімований логотип:</b> Вмикає або вимикає анімацію логотипу на ярлику для економії продуктивності."
         },
         "drawer_compact": {
             "en": "<b>Compact Height:</b> Limits the drawer to 77% height, keeping the chat input visible.",
             "cn": "<b>紧凑高度：</b> 将抽屉高度限制在 77%，保持聊天输入可见。",
-            "de": "<b>Kompakte Höhe:</b> Begrenzt die Schublade auf 77% Höhe, wodurch die Chateingabe sichtbar bleibt.",
-            "fr": "<b>Hauteur compacte :</b> Limite le tiroir à 77% de hauteur, gardant l'entrée du chat visible.",
-            "ru": "<b>Компактная высота:</b> Ограничивает панель 77% высоты, оставляя ввод чата видимым.",
-            "tw": "<b>緊湊高度：</b> 將抽屜高度限制在 77%，保持聊天輸入可見。",
-            "uk": "<b>Компактна висота:</b> Обмежує панель 77% висоти, залишаючи введення чату видимим."
+            "de": "<b>Kompakte Höhe:</b> Begrenzt die Schublade auf 77 % Höhe, sodass die Chateingabe sichtbar bleibt.",
+            "fr": "<b>Hauteur compacte :</b> Limite la hauteur du tiroir à 77 % pour laisser le champ de saisie du chat visible.",
+            "ru": "<b>Компактная высота:</b> Ограничивает высоту панели до 77%, оставляя строку ввода чата видимой.",
+            "tw": "<b>緊湊高度：</b> 將抽屜高度限制在 77%，保持聊天輸入框可見。",
+            "uk": "<b>Компактна висота:</b> Обмежує висоту панелі до 77%, залишаючи поле введення чату видимим."
         },
-        "drawer_autostow": {
-            "en": "<b>Auto-stow Options:</b> Close the drawer automatically after sending a standard chat or Whisper+.",
-            "cn": "<b>自动收纳选项：</b> 发送普通聊天或私聊+后自动关闭抽屉。",
-            "de": "<b>Auto-Verstau-Optionen:</b> Schließt die Schublade automatisch nach dem Senden eines Standard-Chats oder Flüstern+.",
-            "fr": "<b>Options d'escamotage automatique :</b> Ferme le tiroir automatiquement après l'envoi d'un chat standard ou Chuchotement+.",
-            "ru": "<b>Опции авто-скрытия:</b> Автоматически закрывает панель после отправки обычного чата или Шепота+.",
-            "tw": "<b>自動收納選項：</b> 發送普通聊天或私聊+後自動關閉抽屜。",
-            "uk": "<b>Опції авто-приховування:</b> Автоматично закриває панель після надсилання звичайного чату або Шепоту+."
+        "drawer_close_whisper": {
+            "en": "<b>Auto-stow on Whisper:</b> Automatically closes the drawer after sending a Whisper+.",
+            "cn": "<b>私聊时自动收起：</b> 发送私聊+后自动关闭抽屉。",
+            "de": "<b>Auto-Schließen bei Flüstern:</b> Schließt die Schublade automatisch nach dem Senden eines Flüstern+.",
+            "fr": "<b>Fermeture auto sur chuchotement :</b> Ferme automatiquement le tiroir après l'envoi d'un Chuchotement+.",
+            "ru": "<b>Закрывать при шепоте:</b> Автоматически закрывает панель после отправки сообщения через Шепот+.",
+            "tw": "<b>私聊時自動收起：</b> 發送私聊+後自動關閉抽屜。",
+            "uk": "<b>Закривати при шепоті:</b> Автоматично закриває панель після надсилання повідомлення через Шепіт+."
+        },
+        "drawer_close_chat": {
+            "en": "<b>Auto-stow on Chat:</b> Automatically closes the drawer after sending standard chat messages.",
+            "cn": "<b>发送聊天时自动收起：</b> 发送普通聊天后自动关闭抽屉。",
+            "de": "<b>Auto-Schließen bei Chat:</b> Schließt die Schublade automatisch nach dem Senden einer normalen Chat-Nachricht.",
+            "fr": "<b>Fermeture auto sur message :</b> Ferme automatiquement le tiroir après l'envoi d'un message standard dans le chat.",
+            "ru": "<b>Закрывать при сообщении:</b> Автоматически закрывает панель после отправки обычного сообщения в чат.",
+            "tw": "<b>發送聊天時自動收起：</b> 發送一般聊天訊息後自動關閉抽屜。",
+            "uk": "<b>Закривати при повідомленні:</b> Автоматично закриває панель після надсилання звичайного повідомлення в чат."
         },
         "drawer_focus": {
             "en": "<b>Focus Follows Mouse:</b> Automatically switch to a player's page when hovering their card.",
             "cn": "<b>焦点跟随鼠标：</b> 悬停在玩家卡片上时自动切换到其页面。",
-            "de": "<b>Fokus folgt der Maus:</b> Wechselt automatisch zur Seite eines Spielers, wenn Sie mit der Maus über seine Karte fahren.",
-            "fr": "<b>Le focus suit la souris :</b> Passe automatiquement à la page d'un joueur lorsque vous survolez sa carte.",
-            "ru": "<b>Фокус следует за мышью:</b> Автоматически переключается на страницу игрока при наведении на его карточку.",
-            "tw": "<b>焦點跟隨滑鼠：</b> 懸停在玩家卡片上時自動切換到其頁面。",
-            "uk": "<b>Фокус слідує за мишею:</b> Автоматично перемикається на сторінку гравця при наведенні на його картку."
+            "de": "<b>Fokus folgt Maus:</b> Wechselt automatisch zur Ansicht eines Spielers, wenn dessen Karte mit der Maus berührt wird.",
+            "fr": "<b>Le focus suit la souris :</b> Bascule automatiquement sur la fiche d'un joueur lors du survol de sa carte.",
+            "ru": "<b>Фокус за курсором:</b> Автоматически переключается на страницу игрока при наведении курсора на его карточку.",
+            "tw": "<b>焦點跟隨滑鼠：</b> 懸停在玩家卡片上時自動切換到該玩家頁面。",
+            "uk": "<b>Фокус за курсором:</b> Автоматично перемикається на сторінку гравця при наведенні курсора на його картку."
         },
         "drawer_autoscroll": {
             "en": "<b>Auto-Scroll Drawer:</b> The roster automatically scrolls to the character you are mousing over in the game world.",
             "cn": "<b>自动滚动抽屉：</b> 名单自动滚动到您在游戏世界中悬停的那个角色。",
-            "de": "<b>Schublade automatisch scrollen:</b> Das Roster scrollt automatisch zu dem Charakter, über den Sie in der Spielwelt mit der Maus fahren.",
-            "fr": "<b>Défilement automatique du tiroir :</b> Le Roster défile automatiquement jusqu'au personnage que vous survolez dans le monde du jeu.",
-            "ru": "<b>Авто-прокрутка панели:</b> Список автоматически прокручивается к персонажу, на которого вы наводите курсор в игровом мире.",
+            "de": "<b>Automatisches Scrollen:</b> Das Roster scrollt automatisch zu dem Charakter, über den Sie sich in der Spielwelt bewegen.",
+            "fr": "<b>Défilement auto du tiroir :</b> La liste défile automatiquement jusqu'au personnage que vous survolez dans la salle.",
+            "ru": "<b>Автопрокрутка панели:</b> Список участников автоматически прокручивается к персонажу, на которого наведен курсор в игровой комнате.",
             "tw": "<b>自動滾動抽屜：</b> 名單自動滾動到您在遊戲世界中懸停的那個角色。",
-            "uk": "<b>Авто-прокрутка панелі:</b> Список автоматично прокручується до персонажа, на якого ви наводите курсор в ігровому світі."
+            "uk": "<b>Автопрокручування панелі:</b> Список учасників автоматично прокручується до персонажа, на якого наведено курсор у кімнаті."
         },
         "immersion_lock": {
-            "en": "<b>Hardcore Lock:</b> Locks these immersion settings ON while your character is bound.",
-            "cn": "<b>硬核锁定：</b> 在您的角色被束缚时锁定这些沉浸式设置处于开启状态。",
-            "de": "<b>Hardcore-Sperre:</b> Sperrt diese Immersions-Einstellungen auf EIN, während Ihr Charakter gefesselt ist.",
-            "fr": "<b>Verrouillage hardcore :</b> Verrouille ces paramètres d'immersion sur ACTIVÉ pendant que votre personnage est lié.",
-            "ru": "<b>Хардкорная блокировка:</b> Блокирует настройки погружения во ВКЛЮЧЕННОМ состоянии, пока ваш персонаж связан.",
-            "tw": "<b>硬核鎖定：</b> 在您的角色被束縛時鎖定這些沉浸式設定處於開啟狀態。",
-            "uk": "<b>Хардкорне блокування:</b> Блокує налаштування занурення у ВКЛЮЧЕНОМУ стані, поки ваш персонаж зв'язаний."
+            "en": "<b>Hardcore Lock:</b> Locks immersion settings ON while your character is bound.",
+            "cn": "<b>硬核锁定：</b> 在您的角色被束缚时锁定沉浸式设置处于开启状态。",
+            "de": "<b>Hardcore-Sperre:</b> Sperrt die Immersions-Einstellungen auf EIN, während Ihr Charakter gefesselt ist.",
+            "fr": "<b>Verrouillage strict :</b> Maintient les paramètres d'immersion ACTIVÉS tant que votre personnage est attaché.",
+            "ru": "<b>Хардкорная блокировка:</b> Блокирует настройки погружения во ВКЛЮЧЕННОМ состоянии, пока персонаж связан.",
+            "tw": "<b>硬核鎖定：</b> 在您的角色被束縛時鎖定沉浸式設定處於開啟狀態。",
+            "uk": "<b>Хардкорне блокування:</b> Блокує налаштування занурення в УВІМКНЕНОМУ стані, поки персонаж зв'язаний."
         },
-        "immersion_blind_gag": {
-            "en": "<b>Respect Blindness & Gags:</b> Blurs the roster UI and disables Whisper+ based on character state.",
-            "cn": "<b>尊重失明与禁言：</b> 根据角色状态模糊名单 UI 并禁用私聊+。",
-            "de": "<b>Blindheit & Knebel respektieren:</b> Verwischt die Roster-UI und deaktiviert Flüstern+ basierend auf dem Charakterstatus.",
-            "fr": "<b>Respecter Cécité & Gag :</b> Floute l'interface du Roster et désactive Chuchotement+ en fonction de l'état du personnage.",
-            "ru": "<b>Соблюдать слепоту и кляпы:</b> Размывает интерфейс списка и отключает Шепот+ в зависимости от состояния персонажа.",
-            "tw": "<b>尊重失明與禁言：</b> 根據角色狀態模糊名單 UI 並停用私聊+。",
-            "uk": "<b>Дотримуватися сліпоти та кляпів:</b> Розмиває інтерфейс списку та вимикає Шепіт+ залежно від стану персонажа."
+        "immersion_blind": {
+            "en": "<b>Immersive Blindness:</b> Blurs the roster UI according to character blindness level.",
+            "cn": "<b>沉浸式失明：</b> 根据角色的失明程度模糊名单 UI。",
+            "de": "<b>Immersive Blindheit:</b> Verwischt die Roster-Oberfläche entsprechend der Blindheit des Charakters.",
+            "fr": "<b>Cécité immersive :</b> Floute l'interface de la liste en fonction du degré de cécité du personnage.",
+            "ru": "<b>Иммерсивная слепота:</b> Размывает интерфейс списка в соответствии с уровнем слепоты персонажа.",
+            "tw": "<b>沉浸式失明：</b> 根據角色的失明程度模糊名單 UI。",
+            "uk": "<b>Імерсивна сліпота:</b> Розмиває інтерфейс списку відповідно до рівня сліпоти персонажа."
+        },
+        "immersion_gag": {
+            "en": "<b>Immersive Gags:</b> Restricts sending Whisper+ messages while gagged.",
+            "cn": "<b>沉浸式禁言：</b> 在被禁言时限制发送私聊+消息。",
+            "de": "<b>Immersive Knebel:</b> Verhindert das Senden von Flüstern+-Nachrichten, wenn der Charakter geknebelt ist.",
+            "fr": "<b>Bâillons immersifs :</b> Empêche l'envoi de messages Chuchotement+ lorsqu'un bâillon est porté.",
+            "ru": "<b>Иммерсивные кляпы:</b> Ограничивает отправку сообщений через Шепот+, когда надет кляп.",
+            "tw": "<b>沉浸式禁言：</b> 在被禁言時限制發送私聊+訊息。",
+            "uk": "<b>Імерсивні кляпи:</b> Обмежує надсилання повідомлень через Шепіт+, коли персонаж із кляпом."
         },
         "immersion_bcx": {
-            "en": "<b>Respect BCX Rules:</b> Enforces BCX restrictions within the CRABS interface.",
-            "cn": "<b>尊重 BCX 规则：</b> 在 CRABS 界面内强制执行 BCX 限制。",
-            "de": "<b>BCX-Regeln respektieren:</b> Erzwingt BCX-Einschränkungen innerhalb der CRABS-Schnittstelle.",
-            "fr": "<b>Respecter les règles BCX :</b> Applique les restrictions BCX dans l'interface CRABS.",
-            "ru": "<b>Соблюдать правила BCX:</b> Применяет ограничения BCX внутри интерфейса CRABS.",
-            "tw": "<b>尊重 BCX 規則：</b> 在 CRABS 介面內強制執行 BCX 限制。",
-            "uk": "<b>Дотримуватися правил BCX:</b> Застосовує обмеження BCX всередині інтерфейсу CRABS."
+            "en": "<b>Respect BCX Rules:</b> Enforces BCX blindness and speech rules within the interface.",
+            "cn": "<b>尊重 BCX 规则：</b> 在界面内强制执行 BCX 的失明与言语规则。",
+            "de": "<b>BCX-Regeln beachten:</b> Erzwingt BCX-Blindheits- und Sprachregeln innerhalb der Benutzeroberfläche.",
+            "fr": "<b>Respecter les règles BCX :</b> Applique les restrictions de cécité et d'élocution de BCX dans l'interface.",
+            "ru": "<b>Учитывать правила BCX:</b> Применяет правила слепоты и речи BCX внутри интерфейса.",
+            "tw": "<b>尊重 BCX 規則：</b> 在介面內強制執行 BCX 的失明與言語規則。",
+            "uk": "<b>Враховувати правила BCX:</b> Застосовує правила сліпоти та мовлення BCX усередині інтерфейсу."
         },
         "maps_compass": {
             "en": "<b>Show Map Compass:</b> Displays a directional arrow on the map.",
             "cn": "<b>显示地图指南针：</b> 在地图上显示方向箭头。",
             "de": "<b>Karten-Kompass anzeigen:</b> Zeigt einen Richtungspfeil auf der Karte an.",
-            "fr": "<b>Afficher la boussole de carte :</b> Affiche une flèche directionnelle sur la carte.",
-            "ru": "<b>Показывать компас карты:</b> Отображает направляющую стрелку на карте.",
+            "fr": "<b>Afficher la boussole :</b> Affiche une flèche directionnelle sur la carte.",
+            "ru": "<b>Показывать компас на карте:</b> Отображает стрелку направления на карте.",
             "tw": "<b>顯示地圖指南針：</b> 在地圖上顯示方向箭頭。",
-            "uk": "<b>Показувати компас карти:</b> Відображає напрямну стрілку на карті."
+            "uk": "<b>Показувати компас на карті:</b> Відображає стрілку напрямку на карті."
         },
         "maps_superzoom": {
-            "en": "<b>SuperZoom:</b> Unlocks the game's default map zoom limitations (auto-disables if conflicts are detected).",
-            "cn": "<b>超级缩放：</b> 解锁游戏默认的地图缩放限制（若检测到冲突则自动禁用）。",
-            "de": "<b>SuperZoom:</b> Schaltet die standardmäßigen Kartenzoom-Einschränkungen des Spiels frei (wird bei erkannten Konflikten automatisch deaktiviert).",
-            "fr": "<b>SuperZoom :</b> Déverrouille les limitations de zoom par défaut du jeu (auto-désactive si des conflits sont détectés).",
-            "ru": "<b>СуперЗум:</b> Разблокирует стандартные ограничения зума карты в игре (авто-отключается при обнаружении конфликтов).",
-            "tw": "<b>超級縮放：</b> 解鎖遊戲預設的地圖縮放限制（若偵測到衝突則自動停用）。",
-            "uk": "<b>СуперЗум:</b> Розблоковує стандартні обмеження зуму карти в грі (авто-вимикається при виявленні конфліктів)."
+            "en": "<b>SuperZoom:</b> Unlocks the game's default map zoom limitations.",
+            "cn": "<b>超级缩放：</b> 解锁游戏默认的地图缩放限制。",
+            "de": "<b>SuperZoom:</b> Hebt die standardmäßigen Zoom-Begrenzungen der Karte auf.",
+            "fr": "<b>SuperZoom :</b> Débloque les limites de zoom par défaut de la carte.",
+            "ru": "<b>Супер-зум:</b> Снимает стандартные ограничения приближения карты в игре.",
+            "tw": "<b>超級縮放：</b> 解鎖遊戲預設的地圖縮放限制。",
+            "uk": "<b>Супер-зум:</b> Знімає стандартні обмеження наближення карти у грі."
         },
         "chat_mentions": {
-            "en": "<b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken. Customize the highlight color.",
-            "cn": "<b>高亮提及：</b> 当有人提及特定词语或您的名字时提醒您。自定义高亮颜色。",
-            "de": "<b>Erwähnungen hervorheben:</b> Benachrichtigt Sie, wenn bestimmte Wörter oder Ihr Name gesprochen werden. Passen Sie die Hervorhebungsfarbe an.",
-            "fr": "<b>Mettre en surbrillance les mentions :</b> Vous alerte lorsque des mots spécifiques ou votre nom sont prononcés. Personnalisez la couleur de surbrillance.",
-            "ru": "<b>Подсвечивать упоминания:</b> Предупреждает вас, когда произносятся определенные слова или ваше имя. Настройте цвет подсветки.",
-            "tw": "<b>高亮提及：</b> 當有人提及特定詞語或您的名字時提醒您。自訂高亮顏色。",
-            "uk": "<b>Підсвічувати згадки:</b> Попереджає вас, коли вимовляються певні слова або ваше ім'я. Налаштуйте колір підсвічування."
+            "en": "<b>Highlight Mentions:</b> Alerts you when specific words or your name are spoken.",
+            "cn": "<b>高亮提及：</b> 当有人提及特定词语或您的名字时提醒您。",
+            "de": "<b>Erwähnungen hervorheben:</b> Benachrichtigt Sie, wenn Ihr Name oder bestimmte Wörter im Chat fallen.",
+            "fr": "<b>Surligner les mentions :</b> Vous signale quand votre nom ou des mots spécifiques sont prononcés.",
+            "ru": "<b>Подсветка упоминаний:</b> Предупреждает вас, если в чате написано ваше имя или заданные слова.",
+            "tw": "<b>高亮提及：</b> 當有人提及特定詞語或您的名字時提醒您。",
+            "uk": "<b>Підсвічування згадок:</b> Попереджає вас, якщо в чаті написано ваше ім'я або задані слова."
+        },
+        "chat_notifications": {
+            "en": "<b>Desktop Notifications:</b> Sends OS desktop alerts for mentions while the tab is backgrounded.",
+            "cn": "<b>桌面通知：</b> 标签页处于后台时收到提及发送系统级提醒。",
+            "de": "<b>Desktop-Benachrichtigungen:</b> Sendet Desktop-Benachrichtigungen bei Erwähnungen, wenn der Tab im Hintergrund läuft.",
+            "fr": "<b>Notifications bureau :</b> Envoie des alertes système lors des mentions quand l'onglet est en arrière-plan.",
+            "ru": "<b>Уведомления на рабочем столе:</b> Отправляет системные оповещения об упоминаниях, когда вкладка в фоне.",
+            "tw": "<b>桌面通知：</b> 分頁處於背景時收到提及發送系統級提醒。",
+            "uk": "<b>Сповіщення на робочому столі:</b> Надсилає системні сповіщення про згадки, коли вкладка у фоні."
         },
         "chat_caps_match": {
-            "en": "<b>Auto-Capitalize & Color Match:</b> Capitalizes your name and matches it to your character's label color in highlights.",
-            "cn": "<b>自动大写与颜色匹配：</b> 将您的名字大写，并使其在高亮显示中与您角色的标签颜色相匹配。",
-            "de": "<b>Automatische Großschreibung & Farbanpassung:</b> Schreibt Ihren Namen groß und passt ihn in Hervorhebungen an die Etikettenfarbe Ihres Charakters an.",
-            "fr": "<b>Capitalisation auto & Correspondance couleur :</b> Met votre nom en majuscules et le fait correspondre à la couleur de l'étiquette de votre personnage dans les surbrillances.",
-            "ru": "<b>Авто-капитализация и подбор цвета:</b> Пишет ваше имя с большой буквы и подбирает его цвет под цвет метки вашего персонажа в подсветках.",
-            "tw": "<b>自動大寫與顏色匹配：</b> 將您的名字大寫，並使其在高亮顯示中與您角色的標籤顏色相匹配。",
-            "uk": "<b>Авто-капіталізація та підбір кольору:</b> Пише ваше ім'я з великої літери та підбирає його колір під колір мітки вашого персонажа в підсвічуваннях."
+            "en": "<b>Auto-Capitalize Names:</b> Automatically capitalizes matched names in chat logs.",
+            "cn": "<b>自动大写名称：</b> 自动将聊天记录中匹配的名字大写。",
+            "de": "<b>Namen großschreiben:</b> Schreibt übereinstimmende Spielernamen im Chat-Protokoll automatisch groß.",
+            "fr": "<b>Majuscule auto aux noms :</b> Met automatiquement en majuscule les noms correspondants dans le chat.",
+            "ru": "<b>Автокапитализация имен:</b> Автоматически делает заглавной первую букву найденных имен в чате.",
+            "tw": "<b>自動大寫名稱：</b> 自動將聊天記錄中符合的名字大寫。",
+            "uk": "<b>Автокапіталізація імен:</b> Автоматично робить великою першу літеру знайдених імен у чаті."
+        },
+        "chat_color_match": {
+            "en": "<b>Color Match Names:</b> Colors matched names to your avatar label color.",
+            "cn": "<b>颜色匹配名称：</b> 将匹配的名字调整为与您的角色标签颜色一致。",
+            "de": "<b>Farbanpassung für Namen:</b> Passt die Farbe erwähnter Namen an die Label-Farbe Ihres Avatars an.",
+            "fr": "<b>Harmoniser la couleur :</b> Applique la couleur de l'étiquette de votre avatar aux noms reconnus.",
+            "ru": "<b>Подбор цвета имен:</b> Окрашивает найденные имена в цвет метки вашего персонажа.",
+            "tw": "<b>顏色符合名稱：</b> 將符合的名字調整為與您的角色標籤顏色一致。",
+            "uk": "<b>Підбір кольору імен:</b> Забарвлює знайдені імена в колір позначки вашого персонажа."
         },
         "chat_custom_words": {
-            "en": "<b>Custom Words & Exclusion Phrases:</b> Add trigger words and use wildcards (e.g., 'pick* a rose') to prevent false alarms.",
-            "cn": "<b>自定义词语与排除短语：</b> 添加触发词并使用通配符（例如 '摘* 一朵玫瑰'）以防止误报。",
-            "de": "<b>Benutzerdefinierte Wörter & Ausschlussphrasen:</b> Fügen Sie Trigger-Wörter hinzu und verwenden Sie Platzhalter (z.B. 'pflück* eine Rose'), um Fehlalarme zu verhindern.",
-            "fr": "<b>Mots personnalisés & Phrases d'exclusion :</b> Ajoutez des mots déclencheurs et utilisez des caractères génériques (ex: 'cueill* une rose') pour éviter les fausses alertes.",
-            "ru": "<b>Пользовательские слова и фразы исключения:</b> Добавляйте триггерные слова и используйте подстановочные знаки (например, 'сорвать* розу'), чтобы предотвратить ложные тревоги.",
-            "tw": "<b>自訂詞彙與排除短語：</b> 新增觸發詞並使用萬用字元（例如 '摘* 一朵玫瑰'）以防止誤報。",
-            "uk": "<b>Користувацькі слова та фрази виключення:</b> Додавайте тригерні слова та використовуйте підстановочні знаки (наприклад, 'зірвати* троянду'), щоб запобігти помилковим тривогам."
+            "en": "<b>Custom Words:</b> Comma-separated list of additional highlight trigger words.",
+            "cn": "<b>自定义词语：</b> 用逗号分隔的附加高亮触发词列表。",
+            "de": "<b>Eigene Wörter:</b> Durch Kommas getrennte Liste zusätzlicher Wörter, die hervorgehoben werden sollen.",
+            "fr": "<b>Mots personnalisés :</b> Liste de mots supplémentaires à surligner, séparés par des virgules.",
+            "ru": "<b>Свои слова:</b> Разделенный запятыми список дополнительных слов для подсветки.",
+            "tw": "<b>自訂詞彙：</b> 用逗號分隔的附加高亮觸發詞列表。",
+            "uk": "<b>Власні слова:</b> Розділений комами список додаткових слів для підсвічування."
+        },
+        "chat_ignore_phrases": {
+            "en": "<b>Ignore Phrases:</b> Newline-separated phrases and wildcards that suppress mentions.",
+            "cn": "<b>忽略短语：</b> 换行分隔的短语和通配符，用于抑制误报提及。",
+            "de": "<b>Ignorierte Ausdrücke:</b> Durch Zeilenumbrüche getrennte Phrasen und Platzhalter, die Fehlalarme verhindern.",
+            "fr": "<b>Phrases ignorées :</b> Phrases et caractères génériques (un par ligne) pour éviter les fausses alertes.",
+            "ru": "<b>Игнорируемые фразы:</b> Список фраз и шаблонов (по одному на строку), подавляющих ложные срабатывания.",
+            "tw": "<b>忽略短語：</b> 換行分隔的短語和萬用字元，用於抑制誤報提及。",
+            "uk": "<b>Ігноровані фрази:</b> Список фраз і шаблонів (по одному на рядок), які пригнічують хибні спрацьовування."
+        },
+        "chat_highlight_color": {
+            "en": "<b>Highlight Color:</b> Custom highlight background tint for chat mentions.",
+            "cn": "<b>高亮颜色：</b> 聊天提及的自定义高亮背景色。",
+            "de": "<b>Hervorhebungsfarbe:</b> Eigene Hintergrundfarbe für erwähnte Nachrichten im Chat.",
+            "fr": "<b>Couleur de surbrillance :</b> Teinte d'arrière-plan personnalisée pour les mentions dans le chat.",
+            "ru": "<b>Цвет подсветки:</b> Пользовательский цвет фона для выделения упоминаний в чате.",
+            "tw": "<b>高亮顏色：</b> 聊天提及的自訂高亮背景色。",
+            "uk": "<b>Колір підсвічування:</b> Колір фону для виділення згадок у чаті."
+        },
+        "chat_auto_beep": {
+            "en": "<b>Auto-Beep on Leave:</b> Sends an automatic beep if a friend departs while whispering.",
+            "cn": "<b>离队自动呼叫：</b> 若好友在私聊过程中离开，自动发送提示音。",
+            "de": "<b>Auto-Piepen bei Verlassen:</b> Sendet automatisch ein Piepen, wenn ein Freund den Raum während des Flüsterns verlässt.",
+            "fr": "<b>Bip auto au départ :</b> Envoie automatiquement un bip si un ami quitte la salle pendant un chuchotement.",
+            "ru": "<b>Автосигнал при выходе:</b> Автоматически отправляет сигнал, если друг покидает комнату во время переписки шепотом.",
+            "tw": "<b>離隊自動呼叫：</b> 若好友在私聊過程中離開，自動發送提示音。",
+            "uk": "<b>Автосигнал при виході:</b> Автоматично надсилає звуковий сигнал, якщо друг залишає кімнату під час шепоту."
+        },
+        "chat_whisper_always": {
+            "en": "<b>Always-On Whisper+:</b> Keeps Whisper+ mode enabled continuously.",
+            "cn": "<b>常驻私聊+：</b> 持续保持 Whisper+ 模式处于启用状态。",
+            "de": "<b>Flüstern+ dauerhaft an:</b> Hält den Modus Flüstern+ dauerhaft aktiv.",
+            "fr": "<b>Chuchotement+ permanent :</b> Maintient le mode Chuchotement+ activé en continu.",
+            "ru": "<b>Постоянный Шепот+:</b> Держит режим Шепот+ постоянно включенным.",
+            "tw": "<b>常駐私聊+：</b> 持續保持 Whisper+ 模式處於啟用狀態。",
+            "uk": "<b>Постійний Шепіт+:</b> Тримає режим Шепіт+ постійно увімкненим."
+        },
+        "chat_whisper_regular_elevate": {
+            "en": "<b>Auto-Elevate Regular Whispers:</b> Elevates regular whispers to beeps if a friend departs before sending.",
+            "cn": "<b>常规私聊自动升级：</b> 如果好友在发送常规私聊前离队，自动升级为呼叫提示音。",
+            "de": "<b>Reguläres Flüstern umwandeln:</b> Wandelt normales Flüstern in ein Piepen um, wenn ein Freund vor dem Absenden geht.",
+            "fr": "<b>Conversion auto des chuchotements :</b> Transforme un chuchotement classique en bip si l'ami part avant l'envoi.",
+            "ru": "<b>Автоповышение шепота:</b> Переводит обычный шепот в звуковой сигнал, если друг вышел до отправки.",
+            "tw": "<b>一般私聊自動升級：</b> 如果好友在發送一般私聊前離隊，自動升級為呼叫提示音。",
+            "uk": "<b>Автопідвищення шепоту:</b> Переводить звичайний шепіт у звуковий сигнал, якщо друг вийшов до відправлення."
         },
         "chat_links": {
-            "en": "<b>Chat Log Hover Links:</b> Hovering names in the chat log triggers the focus halo and map compass.",
-            "cn": "<b>聊天记录悬停链接：</b> 悬停在聊天记录中的名称上可触发焦点光晕和地图指南针。",
-            "de": "<b>Chat-Protokoll-Hover-Links:</b> Das Hovern über Namen im Chat-Protokoll löst den Fokus-Heiligenschein und den Karten-Kompass aus.",
-            "fr": "<b>Liens de survol du journal de chat :</b> Survoler les noms dans le journal de chat déclenche le halo de focus et la boussole de carte.",
-            "ru": "<b>Ссылки при наведении в чате:</b> Наведение на имена в журнале чата активирует ореол фокуса и компас карты.",
-            "tw": "<b>聊天記錄懸停連結：</b> 懸停在聊天記錄中的名稱上可觸發焦點光暈和地圖指南針。",
-            "uk": "<b>Посилання при наведенні в чаті:</b> Наведення на імена в журнале чату активує ореол фокуса та компас карти."
+            "en": "<b>Chat Log Hover Links:</b> Hovering names in chat triggers the compass and halo indicators.",
+            "cn": "<b>聊天记录悬停链接：</b> 悬停在聊天中的名称上可触发指南针和光晕指示器。",
+            "de": "<b>Hover-Links im Chat:</b> Das Überfahren von Namen im Chat aktiviert den Kompass und den Heiligenschein.",
+            "fr": "<b>Liens interactifs du chat :</b> Survoler un nom dans le chat active la boussole et le halo lumineux.",
+            "ru": "<b>Интерактивные имена в чате:</b> Наведение на имя в чате активирует указатель компаса и ореол.",
+            "tw": "<b>聊天記錄懸停連結：</b> 懸停在聊天中的名稱上可觸發指南針和光暈指示器。",
+            "uk": "<b>Інтерактивні імена в чаті:</b> Наведення на ім'я в чаті активує вказівник компаса та сяючий ореол."
         },
-        "chat_whisper_elevate": {
-            "en": "<b>Whisper+ Auto-elevate:</b> Attempts to send a Whisper+ as a standard beep if a friend leaves the room.",
-            "cn": "<b>私聊+ 自动升级：</b> 如果朋友离开房间，尝试将私聊+作为普通提示音发送。",
-            "de": "<b>Flüstern+ automatische Erhöhung:</b> Versucht, ein Flüstern+ als Standard-Piepen zu senden, wenn ein Freund den Raum verlässt.",
-            "fr": "<b>Auto-élévation Chuchotement+ :</b> Tente d'envoyer un Chuchotement+ comme un bip standard si un ami quitte la salle.",
-            "ru": "<b>Авто-повышение Шепота+:</b> Пытается отправить Шепот+ как обычный звуковой сигнал, если друг покидает комнату.",
-            "tw": "<b>私聊+ 自動升級：</b> 如果朋友離開房間，嘗試將私聊+作為普通提示音發送。",
-            "uk": "<b>Авто-підвищення Шепоту+:</b> Намагається надіслати Шепіт+ як звичайний звуковий сигнал, якщо друг залишає кімнату."
+        "chat_normalize_font": {
+            "en": "<b>Normalize Font on Hover:</b> Hover over styled or unreadable chat fonts to see standard text.",
+            "cn": "<b>悬停标准化字体：</b> 悬停在样式化或难以辨认的字体上以查看标准文本。",
+            "de": "<b>Schrift bei Mouseover normalisieren:</b> Über unleserliche Schriften fahren, um sie als Standardtext zu lesen.",
+            "fr": "<b>Normaliser au survol :</b> Survolez des polices illisibles ou stylisées pour afficher le texte standard.",
+            "ru": "<b>Нормализация при наведении:</b> Наведение на стилизованные шрифты показывает обычный читаемый текст.",
+            "tw": "<b>懸停標準化字體：</b> 懸停在樣式化或難以辨認的字體上以查看標準文字。",
+            "uk": "<b>Нормалізація при наведенні:</b> Наведення на стилізовані шрифти показує звичайний розбірливий текст."
         },
         "config_cloud_sync": {
-            "en": "<b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing. Includes a capacity tracker.",
-            "cn": "<b>禁用云同步：</b> 保持设置严格本地化，防止跨设备同步。包括容量跟踪器。",
-            "de": "<b>Cloud-Synchronisation deaktivieren:</b> Hält die Einstellungen streng lokal und verhindert die Synchronisierung über mehrere Geräte. Enthält einen Kapazitätstracker.",
-            "fr": "<b>Désactiver la synchro cloud :</b> Garde les paramètres strictement locaux, empêchant la synchronisation entre appareils. Inclut un suivi de capacité.",
-            "ru": "<b>Отключить облачную синхронизацию:</b> Держит настройки строго локальными, предотвращая синхронизацию между устройствами. Включает трекер емкости.",
-            "tw": "<b>停用雲端同步：</b> 保持設定嚴格本機化，防止跨裝置同步。包含容量追蹤器。",
-            "uk": "<b>Вимкнути хмарну синхронізацію:</b> Тримає налаштування суворо локальними, запобігаючи синхронізації між пристроями. Включає трекер ємності."
+            "en": "<b>Disable Cloud Sync:</b> Keeps settings strictly local, preventing cross-device syncing.",
+            "cn": "<b>禁用云同步：</b> 保持设置严格本地化，防止跨设备同步。",
+            "de": "<b>Cloud-Sync deaktivieren:</b> Speichert Einstellungen rein lokal und verhindert die Synchronisation über Geräte hinweg.",
+            "fr": "<b>Désactiver la synchro cloud :</b> Conserve les réglages uniquement en local pour empêcher la synchronisation entre appareils.",
+            "ru": "<b>Отключить облачную синхронизацию:</b> Хранит настройки только локально, исключая перенос между устройствами.",
+            "tw": "<b>停用雲端同步：</b> 保持設定嚴格本機化，防止跨裝置同步。",
+            "uk": "<b>Вимкнути хмарну синхронізацію:</b> Зберігає налаштування лише локально, виключаючи синхронізацію між пристроями."
         },
         "config_delete_server": {
             "en": "<b>Delete Server Save:</b> Wipes your CRABS settings from the game server.",
-            "cn": "<b>删除服务器存档：</b> 从游戏服务器中擦除您的 CRABS 设置。",
-            "de": "<b>Server-Speicherung löschen:</b> Löscht Ihre CRABS-Einstellungen vom Spieleserver.",
+            "cn": "<b>删除服务器存档：</b> 从游戏服务器中清除您的 CRABS 设置。",
+            "de": "<b>Server-Speicherstand löschen:</b> Löscht alle gespeicherten CRABS-Einstellungen vom Server des Spiels.",
             "fr": "<b>Supprimer la sauvegarde serveur :</b> Efface vos paramètres CRABS du serveur de jeu.",
-            "ru": "<b>Удалить сохранение на сервере:</b> Стирает ваши настройки CRABS с сервера игры.",
+            "ru": "<b>Удалить сохранение на сервере:</b> Полностью стирает ваши настройки CRABS с сервера игры.",
             "tw": "<b>刪除伺服器存檔：</b> 從遊戲伺服器中清除您的 CRABS 設定。",
-            "uk": "<b>Видалити збереження на сервері:</b> Стирав ваші налаштування CRABS із сервера гри."
+            "uk": "<b>Видалити збереження на сервері:</b> Повністю видаляє ваші налаштування CRABS із сервера гри."
         },
         "config_export_import": {
-            "en": "<b>Export / Import:</b> Copy or paste your settings string to backup or share.",
-            "cn": "<b>导出 / 导入：</b> 复制或粘贴您的设置字符串以备份或共享。",
-            "de": "<b>Exportieren / Importieren:</b> Kopieren oder fügen Sie Ihren Einstellungs-String ein, um ihn zu sichern oder zu teilen.",
-            "fr": "<b>Exporter / Importer :</b> Copiez ou collez votre chaîne de paramètres pour sauvegarder ou partager.",
-            "ru": "<b>Экспорт / Импорт:</b> Скопируйте или вставьте строку настроек для резервного копирования или обмена.",
-            "tw": "<b>匯出 / 匯入：</b> 複製或貼上您的設定字串以備份或分享。",
-            "uk": "<b>Експорт / Імпорт:</b> Скопіюйте або вставте рядок налаштувань для резервного копіювання або обміну."
+            "en": "<b>Export / Import:</b> Copy or paste your Base64 settings string to backup or transfer.",
+            "cn": "<b>导出 / 导入：</b> 复制或粘贴 Base64 设置字符串以备份或迁移。",
+            "de": "<b>Exportieren / Importieren:</b> Kopieren oder fügen Sie den Base64-String ein, um Einstellungen zu sichern oder zu übertragen.",
+            "fr": "<b>Exporter / Importer :</b> Copiez ou collez votre chaîne Base64 pour sauvegarder ou transférer vos réglages.",
+            "ru": "<b>Экспорт / Импорт:</b> Копируйте или вставляйте строку Base64 для резервного копирования и переноса.",
+            "tw": "<b>匯出 / 匯入：</b> 複製或貼上 Base64 設定字串以備份或轉移。",
+            "uk": "<b>Експорт / Імпорт:</b> Копіюйте або вставляйте рядок Base64 для резервного копіювання чи перенесення."
         }
     },
     "general": {
         "not_applicable": {
             "en": "N/A",
             "cn": "不适用",
-            "de": "N/A",
-            "fr": "N/A",
+            "de": "N/V",
+            "fr": "N/D",
             "ru": "Н/Д",
             "tw": "不適用",
             "uk": "Н/Д"
