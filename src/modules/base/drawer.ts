@@ -11,6 +11,7 @@
  */
 
 import { CRABS_Base, PerformanceLevel } from "./core";
+import { registerTranslations, translate } from "./localization";
 import { registerKeybind } from "./keybinds";
 import { Assets } from "./assets";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
@@ -694,13 +695,13 @@ export class Drawer extends CRABS_Base {
     if (sortDropdown) {
       const currentSort = sortDropdown.value || "natural";
       sortDropdown.innerHTML = `
-        <option value="natural">${this.t("roster.sort_options.natural")}</option>
-        <option value="role">${this.t("roster.sort_options.role")}</option>
-        <option value="ds">${this.t("roster.sort_options.ds")}</option>
-        <option value="lovers">${this.t("roster.sort_options.lovers")}</option>
-        <option value="friends">${this.t("roster.sort_options.friends")}</option>
-        <option value="whitelist">${this.t("roster.sort_options.whitelist")}</option>
-        <option value="blacklist">${this.t("roster.sort_options.blacklist")}</option>
+        <option value="natural">${translate("roster.sort_options.natural")}</option>
+        <option value="role">${translate("roster.sort_options.role")}</option>
+        <option value="ds">${translate("roster.sort_options.ds")}</option>
+        <option value="lovers">${translate("roster.sort_options.lovers")}</option>
+        <option value="friends">${translate("roster.sort_options.friends")}</option>
+        <option value="whitelist">${translate("roster.sort_options.whitelist")}</option>
+        <option value="blacklist">${translate("roster.sort_options.blacklist")}</option>
       `;
       sortDropdown.value = currentSort;
     }
