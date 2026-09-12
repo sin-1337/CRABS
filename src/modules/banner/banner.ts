@@ -132,11 +132,14 @@ export class Banner extends CRABS_Base {
   public override buildui(output: string, elementId?: string): void {
     super.buildui(output, elementId);
 
-    // Defer the event binding slightly to ensure the HTML is fully injected into the DOM
+    // Defer DOM queries slightly to ensure the HTML is in the DOM
     setTimeout(() => {
-      // NOTE: Ensure "CRABS_permission_select" exactly matches the ID in your banner.html
-      const select = document.getElementById(
-        "CRABS_permission_select",
+      const bannerEl = document.getElementById(elementId || "CRABS_Banner");
+      if (!bannerEl) return;
+
+      // 1. Permission Select Handler
+      const select = bannerEl.querySelector(
+        "#CRABS_permission_select",
       ) as HTMLSelectElement;
       if (select) {
         select.addEventListener("change", (event: Event) => {
@@ -146,11 +149,19 @@ export class Banner extends CRABS_Base {
             Permissions.setPermissionLevel(newLevel);
           }
         });
-      } else {
-        console.warn(
-          "CRABS: Could not find #CRABS_permission_select in the DOM.",
-        );
       }
+
+      // Map Keys Click Handler (targets only the key images/tooltips)
+      const keyIcons = bannerEl.querySelectorAll(
+        ".CRABS_keys_trigger img, .CRABS_key-icons",
+      );
+      keyIcons.forEach((icon) => {
+        icon.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          Drawer.open("keys");
+        });
+      });
     }, 50);
 
     this.attachEvent("CRABS_banner_rosterlink", () => this.handleRosterLink());

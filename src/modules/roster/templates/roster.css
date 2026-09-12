@@ -573,85 +573,159 @@
 }
 
 /* =========================================================
-   7. HISTORY TOOLTIP POSITIONING FIX
+   7. UNIFIED HOVER ELEVATION & STACKING ISOLATION
    ========================================================= */
 
-.CRABS_history_badge {
+/* Only elevate actual player cards, NOT key modal cards */
+.CRABS_card:not(.CRABS_key_card):hover,
+.CRABS_card:not(.CRABS_key_card).CRABS_simulated-hover,
+.CRABS_history_card:hover {
+  z-index: 9999 !important;
+}
+
+/* Ensure only roster badges and status icons elevate */
+.CRABS_card:not(.CRABS_key_card) .CRABS_card_badge:hover,
+.CRABS_player-icons *:hover,
+.CRABS_status-icons *:hover,
+.CRABS_status-frame *:hover,
+.CRABS_track-compass:hover {
+  z-index: 10000 !important;
+}
+
+/* Allow tooltips to escape player cards without altering key dialog cards */
+.CRABS_card:not(.CRABS_key_card),
+.CRABS_history_card,
+.CRABS_card_main,
+.CRABS_single_row_icons,
+.CRABS_card_details {
+  overflow: visible !important;
+}
+
+/* Ensure Keys modal cards stay strictly contained */
+.CRABS_key_card {
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   position: relative !important;
 }
 
-.CRABS_history_badge:hover {
-  z-index: 99999 !important;
-}
-
-.CRABS_history_card:hover {
-  z-index: 1000 !important;
-}
-
-.CRABS_history_badge[data-tooltip-pos="down"]::after,
-.CRABS_history_badge[data-tooltip-pos="down"] .CRABS_tooltip,
-.CRABS_history_badge:hover::after {
-  top: 100% !important;
-  bottom: auto !important;
-  left: 0 !important;
-  right: auto !important;
-  transform: none !important;
-  margin-top: 4px !important;
-  z-index: 99999 !important;
-  white-space: nowrap !important;
-}
-
-.CRABS_history_badge[data-tooltip-pos="down"]::before,
-.CRABS_history_badge:hover::before {
-  top: 100% !important;
-  bottom: auto !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.85) !important;
-  border-top-color: transparent !important;
-  z-index: 100000 !important;
+/* Strip any unintended pseudo-elements off key card elements */
+.CRABS_key_card::before,
+.CRABS_drop_key_btn::before,
+.CRABS_drop_key_btn::after,
+.CRABS_drop_all_btn::before,
+.CRABS_drop_all_btn::after {
+  content: none !important;
 }
 
 /* =========================================================
-   8. COMPASS TOOLTIP FIX
+   8. COMPASS & RIGHT-ALIGNED ICONS (Tooltips Above / North)
    ========================================================= */
 
-/* Ensure the wrapper elevates above neighboring cards on hover */
-.CRABS_track-compass:hover {
-  z-index: 99999 !important;
+.CRABS_track-compass {
+  position: relative !important;
 }
 
-/* Tooltip container: Flip above the icon and align to the right edge */
 .CRABS_track-compass:hover::after,
 .CRABS_track-compass:hover .CRABS_tooltip,
 .CRABS_track-compass .CRABS_tooltip {
+  display: block !important;
+  position: absolute !important;
   top: auto !important;
-  bottom: calc(100% + 6px) !important;
+  bottom: calc(100% + 7px) !important;
   right: 0 !important;
   left: auto !important;
   transform: none !important;
   white-space: nowrap !important;
   pointer-events: none !important;
-  z-index: 99999 !important;
+  z-index: 100001 !important;
 }
 
-/* Tooltip caret / arrow: Flip to point downwards toward the compass */
 .CRABS_track-compass:hover::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
   top: auto !important;
-  bottom: calc(100% + 1px) !important;
-  right: 8px !important;
+  bottom: calc(100% + 2px) !important;
+  right: 6px !important;
   left: auto !important;
   transform: none !important;
-  border-top: 5px solid rgba(0, 0, 0, 0.85) !important;
-  border-bottom: 5px solid transparent !important;
+  width: 0 !important;
+  height: 0 !important;
   border-left: 5px solid transparent !important;
   border-right: 5px solid transparent !important;
+  border-top: 5px solid rgba(0, 0, 0, 0.85) !important;
+  border-bottom: 0 !important;
   pointer-events: none !important;
-  z-index: 100000 !important;
+  z-index: 100002 !important;
+}
+
+/* First card row safeguard: flip downward if adjacent to header */
+.CRABS_card-container
+  > .CRABS_card:first-child
+  .CRABS_track-compass:hover::after,
+.CRABS_card-container
+  > .CRABS_card:nth-child(2)
+  .CRABS_track-compass:hover::after {
+  top: calc(100% + 7px) !important;
+  bottom: auto !important;
+}
+
+.CRABS_card-container
+  > .CRABS_card:first-child
+  .CRABS_track-compass:hover::before,
+.CRABS_card-container
+  > .CRABS_card:nth-child(2)
+  .CRABS_track-compass:hover::before {
+  top: calc(100% + 2px) !important;
+  bottom: auto !important;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.85) !important;
+  border-top: 0 !important;
 }
 
 /* =========================================================
-   9. KEYS DIALOG & CARDS
+   9. STATUS & PLAYER ICONS 
+   ========================================================= */
+
+.CRABS_player-icons > *,
+.CRABS_status-icons > * {
+  position: relative !important;
+}
+
+.CRABS_player-icons *:hover::after,
+.CRABS_status-icons *:hover::after {
+  position: absolute !important;
+  bottom: calc(100% + 7px) !important;
+  top: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  z-index: 100001 !important;
+}
+
+.CRABS_player-icons *:hover::before,
+.CRABS_status-icons *:hover::before {
+  content: "" !important;
+  position: absolute !important;
+  bottom: calc(100% + 2px) !important;
+  top: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+  border-top: 5px solid rgba(0, 0, 0, 0.85) !important;
+  border-bottom: 0 !important;
+  pointer-events: none !important;
+  z-index: 100002 !important;
+}
+
+/* =========================================================
+   10. KEYS DIALOG & CARDS
    ========================================================= */
 
 .CRABS_key_card {
@@ -660,7 +734,6 @@
   box-sizing: border-box;
 }
 
-/* Bracket Marker on Left Edge */
 .CRABS_key_card .CRABS_bracket_marker {
   color: var(--key-color, #fff);
   font-size: 1.6rem;
@@ -680,7 +753,6 @@
   filter: drop-shadow(0 0 4px var(--key-color, #fff));
 }
 
-/* Shared Drop Button Sizing & Layout */
 .CRABS_drop_key_btn,
 .CRABS_drop_all_btn {
   width: 180px !important;
@@ -699,7 +771,6 @@
   transition: all 0.2s ease;
 }
 
-/* Individual Drop Key Button */
 .CRABS_drop_key_btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -714,7 +785,6 @@
   box-shadow: 0 0 6px var(--key-color, rgba(255, 255, 255, 0.3));
 }
 
-/* Drop All Button */
 .CRABS_drop_all_btn {
   background: rgba(220, 53, 69, 0.1);
   border: 1px solid rgba(220, 53, 69, 0.35);
@@ -726,4 +796,55 @@
   border-color: #ff5555;
   color: #fff;
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
+}
+
+/* Disable hover effects on key names */
+.CRABS_key_card .CRABS_player-name,
+.CRABS_key_card .CRABS_player-name:hover {
+  text-decoration: none !important;
+  cursor: default !important;
+  filter: none !important;
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   11. AVATAR & BADGE TOOLTIPS
+   ========================================================= */
+
+.CRABS_player-badge,
+.CRABS_history_badge {
+  position: relative !important;
+}
+
+.CRABS_player-badge:hover::after,
+.CRABS_history_badge:hover::after,
+.CRABS_history_badge[data-tooltip-pos="down"]::after {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  bottom: auto !important;
+  left: 4px !important;
+  right: auto !important;
+  transform: none !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  z-index: 100001 !important;
+}
+
+.CRABS_player-badge:hover::before,
+.CRABS_history_badge:hover::before,
+.CRABS_history_badge[data-tooltip-pos="down"]::before {
+  content: "" !important;
+  position: absolute !important;
+  top: calc(100% + 1px) !important;
+  bottom: auto !important;
+  left: 18px !important;
+  transform: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.85) !important;
+  border-top: 0 !important;
+  pointer-events: none !important;
+  z-index: 100002 !important;
 }
