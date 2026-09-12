@@ -124,6 +124,12 @@ export abstract class Notification {
   }
 
   /**
+   * Tracks active toasts by message signature mapped to their expiration timestamp.
+   * @private
+   */
+  private static activeToasts = new Map<string, number>();
+
+  /**
    * Dispatches a stylized custom toast notification to the game's active viewport.
    *
    * Automatically localizes the message body and title if translation keys are provided.
@@ -159,6 +165,25 @@ export abstract class Notification {
 
     const localizedMessage = translate(message);
     const localizedTitle = title !== "CRABS" ? translate(title) : "CRABS";
+    const now = Date.now();
+
+    // Generate unique signature for duplicate detection
+    const toastKey = `${type}:${localizedTitle}:${localizedMessage}`;
+    const expiresAt = Notification.activeToasts.get(toastKey);
+
+    // Suppress if an identical toast is still active
+    if (expiresAt && now < expiresAt) {
+      return;
+    }
+
+    // Register active window; automatically delete once expired
+    Notification.activeToasts.set(toastKey, now + duration);
+    setTimeout(() => {
+      const activeExpiry = Notification.activeToasts.get(toastKey);
+      if (activeExpiry !== undefined && activeExpiry <= Date.now()) {
+        Notification.activeToasts.delete(toastKey);
+      }
+    }, duration);
 
     if (
       typeof ToastManager !== "undefined" &&
@@ -189,6 +214,12 @@ export abstract class Notification {
    * ```
    */
   public static dismiss(type: string = "General"): void {
+    const prefix = `${type}:`;
+    for (const key of Notification.activeToasts.keys()) {
+      if (key.startsWith(prefix)) {
+        Notification.activeToasts.delete(key);
+      }
+    }
     if (
       typeof ToastManager !== "undefined" &&
       typeof ToastManager.dismissByCategory === "function"

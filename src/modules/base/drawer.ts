@@ -11,6 +11,8 @@
  */
 
 import { CRABS_Base, PerformanceLevel } from "./core";
+import { Notification } from "../notifications/notifications";
+import { isMap } from "./context";
 import { translate } from "./localization";
 import { registerKeybind } from "./keybinds";
 import { Assets } from "./assets";
@@ -883,6 +885,13 @@ export class Drawer extends CRABS_Base {
    */
   public open(page?: DrawerPage): void {
     if (!this.instance) return;
+
+    if (page === "keys" && !isMap()) {
+      Notification.send({
+        message: "Keys are not avaliable when not in map view",
+      });
+      return;
+    }
 
     this.activePage = page || "roster";
 

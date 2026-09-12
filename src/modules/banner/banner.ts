@@ -11,7 +11,7 @@
  * The banner module enhances the visual presentation of the CRABS mod in chat rooms.
  */
 
-import { CRABS_Base, Drawer, Assets } from "../base";
+import { CRABS_Base, Drawer, Assets, isMap } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";
@@ -152,6 +152,7 @@ export class Banner extends CRABS_Base {
       }
 
       // Map Keys Click Handler (targets only the key images/tooltips)
+      // Map Keys Click Handler (targets only the key images/tooltips when a map is active)
       const keyIcons = bannerEl.querySelectorAll(
         ".CRABS_keys_trigger img, .CRABS_key-icons",
       );
