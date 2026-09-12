@@ -11,7 +11,7 @@
  * The banner module enhances the visual presentation of the CRABS mod in chat rooms.
  */
 
-import { CRABS_Base, Drawer, Assets, isMap } from "../base";
+import { CRABS_Base, Drawer, Assets } from "../base";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import "./templates/banner.css";
 import bannertemplate from "./templates/banner.html";

@@ -31,6 +31,17 @@
                 "uk": "Відкриває або закриває бічну панель CRABS."
             }
         },
+        "errors": {
+            "not_on_map": {
+                "en": "Keys are not available when not in map view.",
+                "cn": "非地图视图下无法使用钥匙。",
+                "de": "Schlüssel sind außerhalb der Kartenansicht nicht verfügbar.",
+                "fr": "Les clés ne sont pas disponibles hors de la vue de la carte.",
+                "ru": "Ключи недоступны вне режима карты.",
+                "tw": "非地圖檢視下無法使用鑰匙。",
+                "uk": "Ключі недоступні поза режимом карти."
+            }
+        },
         "header": {
             "title_default": {
                 "en": "Roster",

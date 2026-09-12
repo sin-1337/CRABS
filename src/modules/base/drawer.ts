@@ -714,6 +714,7 @@ export class Drawer extends CRABS_Base {
     if (content && isRoomReady) {
       header?.classList.toggle("help-active", this.activePage === "help");
       header?.classList.toggle("history-active", this.activePage === "history");
+      header?.classList.toggle("keys-active", this.activePage === "keys");
 
       const setLayoutVisible = (visible: boolean) => {
         layoutIcons?.forEach((el) => {
@@ -835,7 +836,12 @@ export class Drawer extends CRABS_Base {
         this.activePage = this.activePage === "history" ? "roster" : "history";
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
-        if (this.activePage === "help" || this.activePage === "history") return;
+        if (
+          this.activePage === "help" ||
+          this.activePage === "history" ||
+          this.activePage === "keys"
+        )
+          return;
 
         Drawer.stateDelegate?.cycleLayout?.();
         this.refresh();
@@ -888,7 +894,7 @@ export class Drawer extends CRABS_Base {
 
     if (page === "keys" && !isMap()) {
       Notification.send({
-        message: "Keys are not avaliable when not in map view",
+        message: translate("drawer.errors.not_on_map"),
       });
       return;
     }
