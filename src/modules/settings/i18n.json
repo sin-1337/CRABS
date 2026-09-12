@@ -276,6 +276,24 @@
             "tw": "進入房間時顯示信息橫幅。",
             "uk": "Показувати інформаційний банер при вході в кімнату."
         },
+        "respawn_banner_label": {
+            "en": "Respawn on Map Transition",
+            "cn": "地图切换时重新生成",
+            "de": "Bei Kartenwechsel neu laden",
+            "fr": "Réapparaître lors du changement de carte",
+            "ru": "Пересоздавать при переходе на карту",
+            "tw": "地圖切換時重新生成",
+            "uk": "Перестворювати під час переходу на карту"
+        },
+        "respawn_banner_hint": {
+            "en": "Automatically redrafts an open room banner when switching between standard room view and the map.",
+            "cn": "在标准房间视图和地图之间切换时，自动重绘已打开的房间横幅。",
+            "de": "Zeichnet ein geöffnetes Raumbanner beim Wechsel zwischen Standard-Raumansicht und Karte automatisch neu.",
+            "fr": "Redessine automatiquement une bannière de pièce ouverte lors du basculement entre la vue standard et la carte.",
+            "ru": "Автоматически перерисовывает открытый баннер комнаты при переключении между стандартным видом и картой.",
+            "tw": "在標準房間視圖和地圖之間切換時，自動重繪已打開的房間橫幅。",
+            "uk": "Автоматично перемальовує відкритий банер кімнати під час перемикання між стандартним виглядом та картою."
+        },
         "privacy_full_label": {
             "en": "Full-Screen Privacy Mode",
             "cn": "全屏隐私模式",

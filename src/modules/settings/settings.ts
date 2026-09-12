@@ -29,6 +29,7 @@ import locales from "./i18n.json";
 const DEFAULT_SETTINGS: any = {
   languageOverride: "auto",
   showBanner: true,
+  respawnBannerOnMapView: true,
   checkForUpdates: true,
   rosterOpensDrawer: true,
   showDrawerTab: true,
@@ -554,7 +555,9 @@ export class Settings extends CRABS_Base {
         (cat === "Immersion" && hardcoreLock(setting)) ||
         (extraDisable ? extraDisable() : false);
 
-      const getVal = () => this.data[setting];
+      // Force visual & functional state to false if the control is currently disabled
+      const getVal = () => (isDisabled() ? false : this.data[setting]);
+
       const setVal = (val: boolean) => {
         this.data[setting] = val;
         if (onChange) onChange(val);
@@ -774,6 +777,25 @@ export class Settings extends CRABS_Base {
       "showBanner",
       "settings.general.banner_label",
       "settings.general.banner_hint",
+      0,
+      undefined,
+      () => {
+        this.layout.updateDOM(this.isMenuOpen);
+      },
+    );
+    createCheck(
+      "General",
+      "respawnBannerOnMapView",
+      "settings.general.respawn_banner_label",
+      "settings.general.respawn_banner_hint",
+      1,
+      () => !this.data.showBanner,
+    );
+    createCheck(
+      "General",
+      "enableFocusHalo",
+      "settings.general.halo_label",
+      "settings.general.halo_hint",
     );
     createCheck(
       "General",

@@ -378,6 +378,55 @@ export class Orchestrator extends CRABS_Base {
       profileIsNormalized = false;
       return next(args);
     });
+
+    // Hook translation event so that we can react to external language switching
+    this.safeHook(
+      "TranslationLoad",
+      10,
+      (args: any, next: (args: any[]) => any) => {
+        const result = next(args);
+        this.drawbanner(true);
+        return result;
+      },
+    );
+
+    // Hook translation event so that we can react to external language switching
+    this.safeHook(
+      "TranslationLoad",
+      10,
+      (args: any, next: (args: any[]) => any) => {
+        const result = next(args);
+        this.drawbanner(true);
+        return result;
+      },
+    );
+
+    // Respawn banner when switching between Character view and Map view (if currently open and enabled)
+    this.safeHook(
+      "ChatRoomActivateView",
+      10,
+      (args: any[], next: (args: any[]) => any) => {
+        const globalWin = window as any;
+        const currentActiveView = globalWin.ChatRoomActiveView;
+        const targetViewName = args[0] as string;
+
+        const result = next(args);
+
+        const targetView = globalWin.ChatRoomViews?.[targetViewName];
+        if (targetView && targetView !== currentActiveView) {
+          const settings = Settings.instance?.data;
+          const canRespawn =
+            Boolean(settings?.showBanner) &&
+            Boolean(settings?.respawnBannerOnMapView);
+
+          if (canRespawn) {
+            this.drawbanner(true);
+          }
+        }
+
+        return result;
+      },
+    );
   }
 
   /**

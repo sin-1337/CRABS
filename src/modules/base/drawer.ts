@@ -11,6 +11,8 @@
  */
 
 import { CRABS_Base, PerformanceLevel } from "./core";
+import { Notification } from "../notifications/notifications";
+import { isMap } from "./context";
 import { translate } from "./localization";
 import { registerKeybind } from "./keybinds";
 import { Assets } from "./assets";
@@ -712,6 +714,7 @@ export class Drawer extends CRABS_Base {
     if (content && isRoomReady) {
       header?.classList.toggle("help-active", this.activePage === "help");
       header?.classList.toggle("history-active", this.activePage === "history");
+      header?.classList.toggle("keys-active", this.activePage === "keys");
 
       const setLayoutVisible = (visible: boolean) => {
         layoutIcons?.forEach((el) => {
@@ -833,7 +836,12 @@ export class Drawer extends CRABS_Base {
         this.activePage = this.activePage === "history" ? "roster" : "history";
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Layout_Icon")) {
-        if (this.activePage === "help" || this.activePage === "history") return;
+        if (
+          this.activePage === "help" ||
+          this.activePage === "history" ||
+          this.activePage === "keys"
+        )
+          return;
 
         Drawer.stateDelegate?.cycleLayout?.();
         this.refresh();
@@ -883,6 +891,13 @@ export class Drawer extends CRABS_Base {
    */
   public open(page?: DrawerPage): void {
     if (!this.instance) return;
+
+    if (page === "keys" && !isMap()) {
+      Notification.send({
+        message: translate("drawer.errors.not_on_map"),
+      });
+      return;
+    }
 
     this.activePage = page || "roster";
 

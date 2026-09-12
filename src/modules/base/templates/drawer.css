@@ -171,7 +171,8 @@
   pointer-events: none;
 }
 
-.CRABS_wrapper_header.help-active #drawer-title {
+.CRABS_wrapper_header.help-active #drawer-title,
+.CRABS_wrapper_header.keys-active #drawer-title {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
