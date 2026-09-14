@@ -1,123 +1,244 @@
-export interface TutorialStep {
-  id: string;
-  poseKey: string;
-  i18nKey: string;
-  characterPos: { top: number; left: number };
-  bubblePos: { top: number; left: number };
-  bubbleTail: "tail-bottom" | "tail-top" | "tail-left" | "tail-right";
-  bubbleMaxWidth?: number;
-
-  // Chapter tracking (undefined for detour / hidden steps)
-  chapterId?: string;
-  chapterTitleKey?: string;
-
-  // Branching hooks
-  nextStepOverride?: string; // Jump to specific step instead of index + 1
-  onStepEnter?: (tutorial: any) => void;
-  onStepExit?: (tutorial: any) => void;
-  isTerminal?: boolean; // Ends tutorial immediately (e.g. rage quit)
-}
-
-export interface TutorialProp {
-  assetKey?: string; // Key registered in Assets.printimage
-  imageSrc?: string; // Direct URL or data URI fallback
-  top: number; // Percentage from top (0-100)
-  left: number; // Percentage from left (0-100)
-  maxWidth?: number; // Optional max width in px
-  cssClass?: string; // Optional custom animation/outline class
-  highlightGlow?: boolean; // Adds a glowing focus ring around the prop
-}
-
-export interface TutorialStep {
-  id: string;
-  poseKey: string;
-  i18nKey: string;
-  characterPos: { top: number; left: number };
-  bubblePos: { top: number; left: number };
-  bubbleTail: "tail-bottom" | "tail-top" | "tail-left" | "tail-right";
-  bubbleMaxWidth?: number;
-
-  chapterId?: string;
-  chapterTitleKey?: string;
-
-  // Optional visual props/UI cutouts for this scene
-  props?: TutorialProp[];
-
-  nextStepOverride?: string;
-  onStepEnter?: (tutorial: any) => void;
-  onStepExit?: (tutorial: any) => void;
-  isTerminal?: boolean;
-}
-
-// ─────────────────────────────────────────────────────────────
-// Main Linear Track
-// ─────────────────────────────────────────────────────────────
 export const TUTORIAL_STEPS: TutorialStep[] = [
+  // ─── CHAPTER 1: BASICS & CHAT ──────────────────────────────
   {
     id: "welcome",
     chapterId: "basics",
     chapterTitleKey: "chapters.basics",
     poseKey: "char_welcome",
     i18nKey: "steps.welcome",
-    characterPos: { top: 60, left: 65 },
+    characterPos: { top: 60, left: 68 },
     bubblePos: { top: 40, left: 45 },
     bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 380,
   },
   {
-    id: "roster",
-    chapterId: "roster",
-    chapterTitleKey: "chapters.roster",
+    id: "banners",
+    chapterId: "basics",
+    chapterTitleKey: "chapters.basics",
     poseKey: "char_explaining",
-    i18nKey: "steps.roster",
+    i18nKey: "steps.banners",
+    characterPos: { top: 40, left: 70 },
+    bubblePos: { top: 22, left: 42 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 400,
+  },
+  {
+    id: "font_norm",
+    chapterId: "basics",
+    chapterTitleKey: "chapters.basics",
+    poseKey: "char_explaining",
+    i18nKey: "steps.font_norm",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 390,
+  },
+  {
+    id: "chat_mentions",
+    chapterId: "basics",
+    chapterTitleKey: "chapters.basics",
+    poseKey: "char_explaining",
+    i18nKey: "steps.chat_mentions",
+    characterPos: { top: 50, left: 65 },
+    bubblePos: { top: 30, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 400,
+  },
+  {
+    id: "whisper_plus",
+    chapterId: "basics",
+    chapterTitleKey: "chapters.basics",
+    poseKey: "char_explaining",
+    i18nKey: "steps.whisper_plus",
+    characterPos: { top: 45, left: 68 },
+    bubblePos: { top: 25, left: 38 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 410,
+  },
+
+  // ─── CHAPTER 2: ROSTER DRAWER ───────────────────────────────
+  {
+    id: "drawer_open",
+    chapterId: "drawer",
+    chapterTitleKey: "chapters.drawer",
+    poseKey: "char_welcome",
+    i18nKey: "steps.drawer_open",
     characterPos: { top: 35, left: 75 },
-    bubblePos: { top: 30, left: 40 },
+    bubblePos: { top: 22, left: 42 },
+    bubbleTail: "tail-right",
+    bubbleMaxWidth: 400,
+  },
+  {
+    id: "drawer_counters",
+    chapterId: "drawer",
+    chapterTitleKey: "chapters.drawer",
+    poseKey: "char_explaining",
+    i18nKey: "steps.drawer_counters",
+    characterPos: { top: 20, left: 72 },
+    bubblePos: { top: 15, left: 35 },
     bubbleTail: "tail-right",
     bubbleMaxWidth: 420,
   },
+  {
+    id: "drawer_cards",
+    chapterId: "drawer",
+    chapterTitleKey: "chapters.drawer",
+    poseKey: "char_explaining",
+    i18nKey: "steps.drawer_cards",
+    characterPos: { top: 40, left: 72 },
+    bubblePos: { top: 30, left: 35 },
+    bubbleTail: "tail-right",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "drawer_controls",
+    chapterId: "drawer",
+    chapterTitleKey: "chapters.drawer",
+    poseKey: "char_explaining",
+    i18nKey: "steps.drawer_controls",
+    characterPos: { top: 25, left: 72 },
+    bubblePos: { top: 18, left: 36 },
+    bubbleTail: "tail-right",
+    bubbleMaxWidth: 400,
+  },
+
+  // ─── CHAPTER 3: HISTORY ─────────────────────────────────────
+  {
+    id: "history_panel",
+    chapterId: "history",
+    chapterTitleKey: "chapters.history",
+    poseKey: "char_explaining",
+    i18nKey: "steps.history_panel",
+    characterPos: { top: 30, left: 72 },
+    bubblePos: { top: 22, left: 38 },
+    bubbleTail: "tail-right",
+    bubbleMaxWidth: 410,
+  },
+
+  // ─── CHAPTER 4: MAPS & SPATIAL ──────────────────────────────
+  {
+    id: "map_compass",
+    chapterId: "maps",
+    chapterTitleKey: "chapters.maps",
+    poseKey: "char_explaining",
+    i18nKey: "steps.map_compass",
+    characterPos: { top: 40, left: 65 },
+    bubblePos: { top: 22, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "reverse_compass",
+    chapterId: "maps",
+    chapterTitleKey: "chapters.maps",
+    poseKey: "char_explaining",
+    i18nKey: "steps.reverse_compass",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "map_keys",
+    chapterId: "maps",
+    chapterTitleKey: "chapters.maps",
+    poseKey: "char_explaining",
+    i18nKey: "steps.map_keys",
+    characterPos: { top: 35, left: 70 },
+    bubblePos: { top: 22, left: 36 },
+    bubbleTail: "tail-right",
+    bubbleMaxWidth: 410,
+  },
+
+  // ─── CHAPTER 5: SETTINGS ────────────────────────────────────
+  {
+    id: "settings_overview",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_welcome",
+    i18nKey: "steps.settings_overview",
+    characterPos: { top: 50, left: 65 },
+    bubblePos: { top: 30, left: 38 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 390,
+  },
+  {
+    id: "settings_general",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_explaining",
+    i18nKey: "steps.settings_general",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "settings_drawer",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_explaining",
+    i18nKey: "steps.settings_drawer",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "settings_immersion",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_explaining",
+    i18nKey: "steps.settings_immersion",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "settings_maps_chat",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_explaining",
+    i18nKey: "steps.settings_maps_chat",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+  {
+    id: "settings_config",
+    chapterId: "settings",
+    chapterTitleKey: "chapters.settings",
+    poseKey: "char_explaining",
+    i18nKey: "steps.settings_config",
+    characterPos: { top: 45, left: 65 },
+    bubblePos: { top: 25, left: 35 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 420,
+  },
+
+  // ─── CHAPTER 6: COMMANDS & HELP ─────────────────────────────
+  {
+    id: "cli_commands",
+    chapterId: "reference",
+    chapterTitleKey: "chapters.reference",
+    poseKey: "char_explaining",
+    i18nKey: "steps.cli_commands",
+    characterPos: { top: 50, left: 65 },
+    bubblePos: { top: 28, left: 36 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 410,
+  },
+  {
+    id: "help_screen",
+    chapterId: "reference",
+    chapterTitleKey: "chapters.reference",
+    poseKey: "char_welcome",
+    i18nKey: "steps.help_screen",
+    characterPos: { top: 55, left: 65 },
+    bubblePos: { top: 35, left: 38 },
+    bubbleTail: "tail-bottom",
+    bubbleMaxWidth: 390,
+  },
 ];
-
-// ─────────────────────────────────────────────────────────────
-// Detour / Easter Egg Sequences
-// ─────────────────────────────────────────────────────────────
-export const SPECIAL_SEQUENCES: Record<string, TutorialStep[]> = {
-  // Triggered when user clicks character 3 times
-  character_annoyed: [
-    {
-      id: "poke_1",
-      poseKey: "char_annoyed",
-      i18nKey: "special.poke_1",
-      characterPos: { top: 50, left: 50 },
-      bubblePos: { top: 30, left: 50 },
-      bubbleTail: "tail-bottom",
-    },
-    {
-      id: "poke_rage_quit",
-      poseKey: "char_angry",
-      i18nKey: "special.poke_rage_quit",
-      characterPos: { top: 50, left: 50 },
-      bubblePos: { top: 30, left: 50 },
-      bubbleTail: "tail-bottom",
-      isTerminal: true, // Shuts down tutorial and sets dismissed
-    },
-  ],
-
-  // Multi-step intro played when resuming after being away
-  resume_long: [
-    {
-      id: "resume_confused",
-      poseKey: "char_thinking",
-      i18nKey: "special.resume_confused",
-      characterPos: { top: 60, left: 65 },
-      bubblePos: { top: 42, left: 45 },
-      bubbleTail: "tail-bottom",
-    },
-    {
-      id: "resume_reorient",
-      poseKey: "char_welcome",
-      i18nKey: "special.resume_reorient",
-      characterPos: { top: 60, left: 65 },
-      bubblePos: { top: 42, left: 45 },
-      bubbleTail: "tail-bottom",
-    },
-  ],
-};

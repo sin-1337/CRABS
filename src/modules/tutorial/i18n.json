@@ -1,130 +1,273 @@
 {
     "headers": {
         "chapters": {
-            "en": "Chapters",
-            "cn": "章节",
-            "de": "Kapitel",
-            "fr": "Chapitres",
-            "ru": "Главы",
-            "tw": "章節",
-            "uk": "Розділи"
+            "en": "Chapters"
         }
     },
     "chapters": {
         "basics": {
-            "en": "Basics",
-            "cn": "基础",
-            "de": "Grundlagen",
-            "fr": "Bases",
-            "ru": "Основы",
-            "tw": "基礎",
-            "uk": "Основи"
+            "en": "Basics & Chat"
         },
-        "roster": {
-            "en": "Roster Drawer",
-            "cn": "花名册抽屉",
-            "de": "Raumliste",
-            "fr": "Volet de la liste",
-            "ru": "Панель списка",
-            "tw": "名冊抽屜",
-            "uk": "Панель списку"
+        "drawer": {
+            "en": "Roster Drawer"
+        },
+        "history": {
+            "en": "Room History"
+        },
+        "maps": {
+            "en": "Maps & Tracking"
+        },
+        "settings": {
+            "en": "Settings Guide"
+        },
+        "reference": {
+            "en": "Commands & Help"
         }
     },
     "controls": {
         "prev": {
-            "en": "Back",
-            "cn": "返回",
-            "de": "Zurück",
-            "fr": "Retour",
-            "ru": "Назад",
-            "tw": "返回",
-            "uk": "Назад"
+            "en": "Back"
         },
         "next": {
-            "en": "Next",
-            "cn": "下一步",
-            "de": "Weiter",
-            "fr": "Suivant",
-            "ru": "Далее",
-            "tw": "下一步",
-            "uk": "Далі"
+            "en": "Next"
         },
         "finish": {
-            "en": "Finish",
-            "cn": "完成",
-            "de": "Abschließen",
-            "fr": "Terminer",
-            "ru": "Завершить",
-            "tw": "完成",
-            "uk": "Завершити"
+            "en": "Finish"
         },
         "close": {
-            "en": "Close Tutorial",
-            "cn": "关闭教程",
-            "de": "Tutorial schließen",
-            "fr": "Fermer le tutoriel",
-            "ru": "Закрыть обучение",
-            "tw": "關閉教學",
-            "uk": "Закрити навчальний посібник"
+            "en": "Close Tutorial"
         }
     },
     "steps": {
         "welcome": {
             "default": {
-                "en": "Welcome! Let's get you familiar with the mod's interface and features.",
-                "cn": "欢迎！让我们来熟悉该模组的界面和功能。",
-                "de": "Willkommen! Machen wir dich mit der Benutzeroberfläche und den Funktionen vertraut.",
-                "fr": "Bienvenue ! Découvrons ensemble l'interface et les fonctionnalités du mod.",
-                "ru": "Добро пожаловать! Давайте познакомимся с интерфейсом и возможностями мода.",
-                "tw": "歡迎！讓我們來熟悉該模組的介面和功能。",
-                "uk": "Ласкаво просимо! Ознайомимося з інтерфейсом та функціями мода."
+                "en": "Hello there! Welcome to CRABS! Let's take a quick walk through all the interface tools, chat tricks, and navigation features."
             },
             "back": {
-                "en": "Going back to the start: welcome! Let's review the basics.",
-                "cn": "回到开头：欢迎！让我们重温一下基础知识。",
-                "de": "Zurück zum Anfang: Willkommen! Gehen wir die Grundlagen noch einmal durch.",
-                "fr": "Retour au début : bienvenue ! Revoyons les bases ensemble.",
-                "ru": "Возвращаемся к началу: добро пожаловать! Давайте повторим основы.",
-                "tw": "回到開頭：歡迎！讓我們重溫一下基礎知識。",
-                "uk": "Повертаючись до початку: ласкаво просимо! Повторімо основи."
+                "en": "Right back to the start! Happy to run through the whole introduction again whenever you like."
             },
             "resume": {
-                "en": "Welcome back! Ready to jump back into the introduction?",
-                "cn": "欢迎回来！准备好重新开始介绍了吗？",
-                "de": "Willkommen zurück! Bereit, die Einführung fortzusetzen?",
-                "fr": "Bon retour ! Prêt à reprendre l'introduction ?",
-                "ru": "С возвращением! Готовы продолжить знакомство?",
-                "tw": "歡迎回來！準備好重新開始介紹了嗎？",
-                "uk": "З поверненням! Готові продовжити вступ?"
+                "en": "Welcome back! Ready to jump back in and tour through the rest of the mod?"
             }
         },
-        "roster": {
+        "banners": {
             "default": {
-                "en": "This is the Roster drawer. It lets you monitor everyone in the room and check key states.",
-                "cn": "这是花名册抽屉。它可以让你查看房间内的所有人并确认钥匙状态。",
-                "de": "Das ist die Raumliste. Hier behältst du alle Personen im Raum und den Schlüsselstatus im Blick.",
-                "fr": "Voici le volet de la liste. Il vous permet de voir toutes les personnes présentes et l'état des clés.",
-                "ru": "Это панель списка игроков. Она позволяет следить за всеми в комнате и статусом ключей.",
-                "tw": "這是名冊抽屜。它可以讓你查看房間內的所有人並確認鑰匙狀態。",
-                "uk": "Це панель списку гравців. Вона дозволяє бачити всіх у кімнаті та перевіряти стан ключів."
+                "en": "Whenever you join a room, a tidy info banner shows up with all the key details. It'll even redraft automatically when you hop over to a map!"
             },
             "back": {
-                "en": "Let me repeat that: the Roster drawer tracks occupants, roles, and status effects.",
-                "cn": "让我重复一遍：花名册抽屉跟踪房间成员、权限和状态效果。",
-                "de": "Lass es mich wiederholen: Die Raumliste erfasst Teilnehmer, Rollen und Statuseffekte.",
-                "fr": "Je répète : le volet liste suit les membres de la salle, leurs rôles et leurs effets de statut.",
-                "ru": "Повторю: панель списка отслеживает участников, их роли и эффекты состояния.",
-                "tw": "讓我重複一遍：名冊抽屜追蹤房間成員、權限和狀態效果。",
-                "uk": "Повторюю: панель списку відстежує присутніх, їхні ролі та ефекти стану."
+                "en": "Like I mentioned: the banner just keeps room details handy whenever you enter or swap views."
             },
             "resume": {
-                "en": "Now, where were we? Ah right, we were exploring the Roster drawer.",
-                "cn": "刚才讲到哪了？对了，我们正在了解花名册抽屉。",
-                "de": "Wo waren wir stehengeblieben? Ach ja, wir haben uns die Raumliste angesehen.",
-                "fr": "Où en étions-nous ? Ah oui, nous explorions le volet de la liste.",
-                "ru": "Так, на чем мы остановились? Ах да, мы осматривали панель списка игроков.",
-                "tw": "剛才講到哪了？對了，我們正在了解名冊抽屜。",
-                "uk": "Отже, на чому ми зупинилися? Ах так, ми оглядали панель списку гравців."
+                "en": "Welcome back! We were looking at room banners—they automatically show key room info whenever you join or swap views."
+            }
+        },
+        "font_norm": {
+            "default": {
+                "en": "Ever find stylized, decorative chat fonts impossible to read? Just hover your mouse over the text or name, and it'll decode into clean lettering on the spot!"
+            },
+            "back": {
+                "en": "No need to strain your eyes over fancy script—a quick mouse hover decodes it straight away."
+            },
+            "resume": {
+                "en": "Welcome back! As I was saying about fancy chat text: just hover over any illegible font to decode it into standard lettering."
+            }
+        },
+        "chat_mentions": {
+            "default": {
+                "en": "Whenever someone mentions you in chat, it highlights to match your character's label color! You can also enable desktop notifications for when you're tabbed out."
+            },
+            "back": {
+                "en": "Mention highlights simply tint messages to your label color and can ping your desktop if you're elsewhere."
+            },
+            "resume": {
+                "en": "Back with me? Excellent! We were just covering chat highlights and background desktop notifications."
+            }
+        },
+        "whisper_plus": {
+            "default": {
+                "en": "Whisper+ bypasses distance limits on maps! Plus, if a friend steps out before you hit send, it can elevate your message into an account beep automatically."
+            },
+            "back": {
+                "en": "Whisper+ reaches anywhere across a map, and turns into an account beep if a friend leaves mid-chat."
+            },
+            "resume": {
+                "en": "Welcome back! We were just discussing Whisper+—it works anywhere on maps and can auto-beep friends who step out."
+            }
+        },
+        "drawer_open": {
+            "default": {
+                "en": "To slide out the main Roster Drawer, just click the tab on the edge of the screen, press CTRL + ALT + D, or type /crabs into chat."
+            },
+            "back": {
+                "en": "You can bring the drawer out anytime with the edge tab, the hotkey, or the /crabs command."
+            },
+            "resume": {
+                "en": "Here we are! We were about to open the Roster Drawer using the edge tab, CTRL + ALT + D, or the /crabs command."
+            }
+        },
+        "drawer_counters": {
+            "default": {
+                "en": "Right along the top bar, you can see live counts for room admins, current occupants, online friends, and total players logged into the game."
+            },
+            "back": {
+                "en": "The drawer header gives you a live look at room admins, guest limits, friends, and total online counts."
+            },
+            "resume": {
+                "en": "Welcome back! Up in the drawer header, you've got live counts of room admins, players, friends, and total online users."
+            }
+        },
+        "drawer_cards": {
+            "default": {
+                "en": "Roster cards show relationship tags alongside gag, blindfold, and deaf icons. Click an ID to copy it, click a badge to focus them, or click their name to start a Whisper+!"
+            },
+            "back": {
+                "en": "Cards show all active status icons and bonds: click the ID to copy, the badge to focus, or the name to whisper."
+            },
+            "resume": {
+                "en": "Picking up on roster cards: click an ID to copy it, click the badge to focus their avatar, or click their name to whisper!"
+            }
+        },
+        "drawer_controls": {
+            "default": {
+                "en": "You can cycle the layout between Grid, Stack, or Compact views, and use the dropdown to sort everyone by roles, relationships, or natural room order!"
+            },
+            "back": {
+                "en": "Feel free to cycle card layouts and sort by roles, relationships, or room order whenever you like."
+            },
+            "resume": {
+                "en": "Welcome back! We were just customizing the drawer using the layout cycle button and the sorting dropdown."
+            }
+        },
+        "history_panel": {
+            "default": {
+                "en": "Click the green clock icon to view the last 50 people who left. You can open their WCE profiles, copy their IDs, or send a quick beep to friends!"
+            },
+            "back": {
+                "en": "The History screen keeps track of the last 50 departed players so you can easily copy IDs or beep friends."
+            },
+            "resume": {
+                "en": "Back again! The green clock icon opens Departure History, where you can inspect, beep, or copy IDs for the last 50 visitors."
+            }
+        },
+        "map_compass": {
+            "default": {
+                "en": "While exploring a map, hovering over any card or chat name points a 3D compass straight toward them! You can also click the compass icon on a card to lock tracking in place."
+            },
+            "back": {
+                "en": "The compass arrow tracks players across the map in real time, provided room rules allow it!"
+            },
+            "resume": {
+                "en": "Welcome back! We were covering the compass: hovering a player points right toward them on the map, and clicking it locks tracking."
+            }
+        },
+        "reverse_compass": {
+            "default": {
+                "en": "It works in reverse, too! Hover over any character avatar in the room or map, and the drawer will automatically scroll and highlight their card for you."
+            },
+            "back": {
+                "en": "Hovering over someone in the scene automatically finds and highlights their card in the drawer."
+            },
+            "resume": {
+                "en": "Picking back up with Reverse Compass: hovering an avatar in the room automatically scrolls to their roster card."
+            }
+        },
+        "map_keys": {
+            "default": {
+                "en": "In map rooms, clicking your collected keys in the header opens a handy panel to drop your Bronze, Silver, Gold, or All keys without typing a thing!"
+            },
+            "back": {
+                "en": "The Keys panel lets you drop specific held keys or clear them all at once with a quick click."
+            },
+            "resume": {
+                "en": "Welcome back! In map rooms, clicking the header keys opens the quick discard panel to drop keys with one click."
+            }
+        },
+        "settings_overview": {
+            "default": {
+                "en": "Click the gear icon to open Settings! Every single toggle takes effect immediately as you click it—no need to look for a save button."
+            },
+            "back": {
+                "en": "No saving required here! Any changes you make will update the second you click them."
+            },
+            "resume": {
+                "en": "Here in Settings, every toggle and text field saves immediately the moment you adjust it."
+            }
+        },
+        "settings_general": {
+            "default": {
+                "en": "The General tab handles language choices, performance tweaks, room banners, and shortcuts to set up your drawer and privacy hotkeys."
+            },
+            "back": {
+                "en": "General takes care of everyday basics: banners, focus halos, performance safeguards, and keybinds."
+            },
+            "resume": {
+                "en": "We were looking at the General tab—this is where you adjust banners, performance mode, and hotkey shortcuts."
+            }
+        },
+        "settings_drawer": {
+            "default": {
+                "en": "Here you can cap the drawer at a tidy 77% height so your chat input stays clear, toggle logo animations, or have it close automatically when you chat."
+            },
+            "back": {
+                "en": "The Drawer tab lets you pick compact heights, logo animations, and auto-stow behaviors."
+            },
+            "resume": {
+                "en": "Back in Settings! The Drawer tab lets you set compact height, toggle animations, and pick auto-close rules."
+            }
+        },
+        "settings_immersion": {
+            "default": {
+                "en": "Want full realism? Blur your roster when blindfolded, block Whisper+ when gagged, or use Hardcore Lock so settings can't be touched while bound!"
+            },
+            "back": {
+                "en": "Immersion keeps things authentic, locking sensory limits in place whenever you're tied up."
+            },
+            "resume": {
+                "en": "Welcome back! The Immersion tab enforces sensory blurs and gags, and lets you lock settings while bound."
+            }
+        },
+        "settings_maps_chat": {
+            "default": {
+                "en": "Use SuperZoom to unlock map view limits, pick your favorite mention colors, filter out common phrases, and set up whisper-to-beep upgrades."
+            },
+            "back": {
+                "en": "These tabs let you broaden your map view, pick highlight shades, and tune your chat alerts."
+            },
+            "resume": {
+                "en": "In Maps & Chat, you can enable SuperZoom, customize mention colors, and set up phrase exclusions."
+            }
+        },
+        "settings_config": {
+            "default": {
+                "en": "Keep an eye on your 8KB server limit, switch to local-only mode if you prefer, or easily copy and paste your settings string to share between browsers."
+            },
+            "back": {
+                "en": "The Config tab manages cloud syncing, local storage, and lets you export clean backup strings."
+            },
+            "resume": {
+                "en": "Almost done! The Config tab lets you check cloud storage limits, switch to local-only mode, or export backup strings."
+            }
+        },
+        "cli_commands": {
+            "default": {
+                "en": "Prefer sticking to the keyboard? Quick commands like /crabs, /crabs keys, /w+, and /dropkeys let you run everything straight from the chat bar!"
+            },
+            "back": {
+                "en": "Handy slash commands let you open rosters, drop keys, and send long-distance whispers directly from chat."
+            },
+            "resume": {
+                "en": "We were chatting about keyboard shortcuts: slash commands like /crabs, /w+, and /dropkeys drive features without the mouse."
+            }
+        },
+        "help_screen": {
+            "default": {
+                "en": "If you ever need a quick refresher on icons, badges, or commands, click the blue question mark in the drawer header. Have fun with CRABS!"
+            },
+            "back": {
+                "en": "The Help button is always up in the drawer corner whenever you need a quick reminder."
+            },
+            "resume": {
+                "en": "And that wraps up our tour! The blue question mark in the drawer is always there if you need help later. Click Finish to begin!"
             }
         }
     }
