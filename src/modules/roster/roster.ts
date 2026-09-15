@@ -32,7 +32,7 @@ import locales from "./i18n.json";
  *
  * Extends {@link CRABS_Base} to render dynamic roster cards, manage drawer state,
  * hook into the base game's character drawing pipeline for map tracking/glow effects,
- * and provide interactive controls such as map key discard dialogs and sorting modes.
+ * and provide interactive controls such as the map key discard dialog and sorting modes.
  */
 export class Roster extends CRABS_Base {
   /**
