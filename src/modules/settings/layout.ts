@@ -2,20 +2,35 @@
  * CRABS Settings Layout Engine
  *
  * Tabbed navigation, hierarchy tree-spine graphics, viewport clipping,
- * virtualized DOM positioning, and custom scrollbar calculations for the
- * settings preference subscreen.
+ * virtualized DOM positioning, custom scrollbar calculations, and touch/drag
+ * scrolling physics for the settings preference subscreen.
  *
  * @module settings/layout
  */
 
 import { translate } from "../base";
+import { UIWidget } from "./widgets";
+
+export type ComponentCategory =
+  | "General"
+  | "Drawer"
+  | "Immersion"
+  | "Maps"
+  | "Chat"
+  | "Config";
+
+export interface ConfiguredWidget {
+  category: ComponentCategory;
+  indent: number;
+  widget: UIWidget;
+}
 
 /**
  * Renders and handles input for the settings canvas preference interface.
  *
  * Coordinates tab selection, hierarchy spine connectors, viewport clipping,
- * virtualized DOM element positioning (for HTML form controls overlaid on canvas),
- * scrollbar physics, and tooltip presentation.
+ * virtualized DOM element positioning, scroll physics, pointer dragging,
+ * and tooltip presentation.
  */
 export class LayoutEngine {
   /** Base X coordinate (px) for top-level (unindented) widget rows. */
@@ -34,6 +49,26 @@ export class LayoutEngine {
     "Config",
   ];
 
+  /** Content viewport boundary definitions. */
+  public readonly VIEWPORT = {
+    x: 500,
+    y: 200,
+    w: 1280,
+    h: 680,
+  };
+
+  /** Scrollbar visual geometry definitions. */
+  public readonly SCROLLBAR = {
+    x: 1760,
+    y: 200,
+    w: 20,
+    h: 680,
+    minThumbH: 40,
+  };
+
+  /** Minimum drag displacement (px) required before suppressing click actions. */
+  private readonly DRAG_SLOP_PX = 8;
+
   /** Currently selected setting category tab. */
   public activeTab: ComponentCategory = "General";
 
@@ -45,6 +80,21 @@ export class LayoutEngine {
 
   /** Active hover tooltip string to render at the bottom of the canvas. */
   public currentTooltip: string = "";
+
+  /** Active pointer dragging state. */
+  public isDragging: boolean = false;
+
+  /** Vertical coordinate of active drag origin. */
+  private dragStartY: number = 0;
+
+  /** Scroll offset captured at the beginning of the active drag gesture. */
+  private dragStartOffset: number = 0;
+
+  /** Indicates whether the current gesture has exceeded the drag slop threshold. */
+  public hasDraggedBeyondThreshold: boolean = false;
+
+  /** Indicates whether the scrollbar thumb is being dragged directly. */
+  private isThumbDragging: boolean = false;
 
   /**
    * Initializes the settings layout engine with registered widgets.
@@ -61,6 +111,148 @@ export class LayoutEngine {
    */
   private getVisibleWidgets(): ConfiguredWidget[] {
     return this.registry.filter((w) => w.category === this.activeTab);
+  }
+
+  /**
+   * Calculates the current height and vertical position of the scrollbar thumb.
+   *
+   * @private
+   * @returns Computed thumb height and Y origin coordinates.
+   */
+  private getThumbMetrics(): { thumbH: number; thumbY: number } {
+    const visibleRatio = Math.min(
+      1,
+      this.SCROLLBAR.h / (this.SCROLLBAR.h + this.maxScroll),
+    );
+    const thumbH = Math.max(
+      this.SCROLLBAR.minThumbH,
+      this.SCROLLBAR.h * visibleRatio,
+    );
+    const thumbY =
+      this.SCROLLBAR.y +
+      (this.maxScroll > 0 ? this.scrollOffset / this.maxScroll : 0) *
+        (this.SCROLLBAR.h - thumbH);
+    return { thumbH, thumbY };
+  }
+
+  /**
+   * Checks whether coordinates reside within the interactive viewport list area.
+   *
+   * @param x - Normalized canvas X coordinate.
+   * @param y - Normalized canvas Y coordinate.
+   * @returns True if coordinate is within the scrollable content bounds.
+   */
+  public isInsideContentArea(x: number, y: number): boolean {
+    return (
+      x >= this.VIEWPORT.x &&
+      x <= this.VIEWPORT.x + this.VIEWPORT.w &&
+      y >= this.VIEWPORT.y &&
+      y <= this.VIEWPORT.y + this.VIEWPORT.h
+    );
+  }
+
+  /**
+   * Initiates pointer drag gestures. Detects thumb or content viewport origin.
+   *
+   * @param x - Normalized canvas X coordinate.
+   * @param y - Normalized canvas Y coordinate.
+   */
+  public startDrag(x: number, y: number): void {
+    if (this.maxScroll <= 0) return;
+
+    const { thumbH, thumbY } = this.getThumbMetrics();
+    const isOnThumb =
+      x >= this.SCROLLBAR.x &&
+      x <= this.SCROLLBAR.x + this.SCROLLBAR.w &&
+      y >= thumbY &&
+      y <= thumbY + thumbH;
+
+    if (isOnThumb) {
+      this.isDragging = true;
+      this.isThumbDragging = true;
+      this.hasDraggedBeyondThreshold = true;
+      this.dragStartY = y;
+      this.dragStartOffset = this.scrollOffset;
+      return;
+    }
+
+    if (this.isInsideContentArea(x, y)) {
+      this.isDragging = true;
+      this.isThumbDragging = false;
+      this.hasDraggedBeyondThreshold = false;
+      this.dragStartY = y;
+      this.dragStartOffset = this.scrollOffset;
+    }
+  }
+
+  /**
+   * Processes active pointer movements and adjusts scroll offsets.
+   *
+   * @param _x - Normalized canvas X coordinate (unused).
+   * @param y - Normalized canvas Y coordinate.
+   * @returns True if scroll offset changed.
+   */
+  public onDrag(_x: number, y: number): boolean {
+    if (!this.isDragging || this.maxScroll <= 0) return false;
+
+    const deltaY = y - this.dragStartY;
+
+    if (!this.hasDraggedBeyondThreshold) {
+      if (Math.abs(deltaY) > this.DRAG_SLOP_PX) {
+        this.hasDraggedBeyondThreshold = true;
+      } else {
+        return false;
+      }
+    }
+
+    if (this.isThumbDragging) {
+      const { thumbH } = this.getThumbMetrics();
+      const trackAvailable = this.SCROLLBAR.h - thumbH;
+      if (trackAvailable <= 0) return false;
+
+      const offsetChange = (deltaY / trackAvailable) * this.maxScroll;
+      const targetOffset = Math.max(
+        0,
+        Math.min(this.maxScroll, this.dragStartOffset + offsetChange),
+      );
+
+      if (targetOffset !== this.scrollOffset) {
+        this.scrollOffset = targetOffset;
+        return true;
+      }
+    } else {
+      // Swiping up pulls content up, increasing scroll offset
+      const targetOffset = Math.max(
+        0,
+        Math.min(this.maxScroll, this.dragStartOffset - deltaY),
+      );
+
+      if (targetOffset !== this.scrollOffset) {
+        this.scrollOffset = targetOffset;
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Concludes the active pointer drag gesture.
+   *
+   * @returns True if movement exceeded the drag slop threshold and should suppress clicks.
+   */
+  public endDrag(): boolean {
+    const wasScrollAction = this.isDragging && this.hasDraggedBeyondThreshold;
+    this.isDragging = false;
+    this.isThumbDragging = false;
+    return wasScrollAction;
+  }
+
+  /**
+   * Resets gesture tracking states after event execution.
+   */
+  public resetGestureState(): void {
+    this.hasDraggedBeyondThreshold = false;
   }
 
   /**
@@ -102,7 +294,7 @@ export class LayoutEngine {
    * hierarchical spine trees, widget rows, the custom scrollbar, and tooltips.
    *
    * @param context - Canvas 2D rendering context.
-   * @param isModalOpen - True if an overlay modal (e.g. confirmation dialog) is blocking input.
+   * @param isModalOpen - True if an overlay modal is blocking input.
    */
   public draw(
     context: CanvasRenderingContext2D,
@@ -179,7 +371,12 @@ export class LayoutEngine {
 
     context.save();
     context.beginPath();
-    context.rect(500, 200, 1280, 680);
+    context.rect(
+      this.VIEWPORT.x,
+      this.VIEWPORT.y,
+      this.VIEWPORT.w,
+      this.VIEWPORT.h,
+    );
     context.clip();
 
     context.beginPath();
@@ -233,30 +430,27 @@ export class LayoutEngine {
     context.restore();
 
     if (this.maxScroll > 0) {
-      const trackX = 1760;
-      const trackY = 200;
-      const trackW = 20;
-      const trackH = 680;
+      globalWindow.DrawRect(
+        this.SCROLLBAR.x,
+        this.SCROLLBAR.y,
+        this.SCROLLBAR.w,
+        this.SCROLLBAR.h,
+        "#333333",
+      );
 
-      globalWindow.DrawRect(trackX, trackY, trackW, trackH, "#333333");
-
-      const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
-      const thumbH = Math.max(40, trackH * visibleRatio);
-      const thumbY =
-        trackY + (this.scrollOffset / this.maxScroll) * (trackH - thumbH);
-
+      const { thumbH, thumbY } = this.getThumbMetrics();
       const isHovering =
-        globalWindow.MouseX >= trackX &&
-        globalWindow.MouseX <= trackX + trackW &&
-        globalWindow.MouseY >= trackY &&
-        globalWindow.MouseY <= trackY + trackH;
+        globalWindow.MouseX >= this.SCROLLBAR.x &&
+        globalWindow.MouseX <= this.SCROLLBAR.x + this.SCROLLBAR.w &&
+        globalWindow.MouseY >= this.SCROLLBAR.y &&
+        globalWindow.MouseY <= this.SCROLLBAR.y + this.SCROLLBAR.h;
 
       globalWindow.DrawRect(
-        trackX,
+        this.SCROLLBAR.x,
         thumbY,
-        trackW,
+        this.SCROLLBAR.w,
         thumbH,
-        isHovering ? "#AAAAAA" : "#888888",
+        isHovering || this.isDragging ? "#AAAAAA" : "#888888",
       );
     }
 
@@ -287,21 +481,17 @@ export class LayoutEngine {
     }
 
     if (this.maxScroll > 0) {
-      const trackX = 1760;
-      const trackY = 200;
-      const trackW = 20;
-      const trackH = 680;
+      const isOverScrollbar =
+        mouseX >= this.SCROLLBAR.x &&
+        mouseX <= this.SCROLLBAR.x + this.SCROLLBAR.w &&
+        mouseY >= this.SCROLLBAR.y &&
+        mouseY <= this.SCROLLBAR.y + this.SCROLLBAR.h;
 
-      if (
-        mouseX >= trackX &&
-        mouseX <= trackX + trackW &&
-        mouseY >= trackY &&
-        mouseY <= trackY + trackH
-      ) {
-        const visibleRatio = Math.min(1, trackH / (trackH + this.maxScroll));
-        const thumbH = Math.max(40, trackH * visibleRatio);
-
-        const clickPercent = (mouseY - trackY - thumbH / 2) / (trackH - thumbH);
+      if (isOverScrollbar) {
+        const { thumbH } = this.getThumbMetrics();
+        const clickPercent =
+          (mouseY - this.SCROLLBAR.y - thumbH / 2) /
+          (this.SCROLLBAR.h - thumbH);
 
         this.scrollOffset = Math.max(
           0,

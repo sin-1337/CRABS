@@ -3,7 +3,7 @@
  *
  * Configuration state management, multi-account localStorage persistence,
  * server account extension synchronization, import/export encoders,
- * and preference subscreen registration.
+ * touch pointer interaction listeners, and preference subscreen registration.
  *
  * Hardened for zero-crash stability, safe fallback initialization,
  * and guarded server synchronization payloads.
@@ -22,7 +22,7 @@ import {
   TextAreaWidget,
   SelectWidget,
 } from "./widgets";
-import { LayoutEngine } from "./layout";
+import { LayoutEngine, ComponentCategory, ConfiguredWidget } from "./layout";
 
 import locales from "./i18n.json";
 
@@ -107,10 +107,13 @@ export class Settings extends CRABS_Base {
   /** Root key used for localStorage persistence. */
   private readonly STORAGE_KEY = "CRABS_Settings";
 
+  /** Cached active pointer ID for scroll gestures. */
+  private activePointerId: number | null = null;
+
   /**
    * Initializes the settings module, loads local settings, triggers cloud
    * synchronization, hooks account login events, registers the canvas GUI,
-   * and binds mousewheel scroll listeners.
+   * and binds pointer and mousewheel listeners.
    *
    * @param CRABS - Instantiated ModSDK API bridge.
    */
@@ -141,9 +144,124 @@ export class Settings extends CRABS_Base {
     this.layout = new LayoutEngine(this.registry);
 
     this.registerExtension();
+    this.bindInputListeners();
+  }
+
+  /**
+   * Attaches pointer, touch, and wheel event handlers to the window and canvas.
+   *
+   * @private
+   */
+  private bindInputListeners(): void {
     window.addEventListener("wheel", this.handleWheel.bind(this), {
       passive: false,
     });
+
+    const canvas = document.getElementById("MainCanvas");
+    if (canvas) {
+      canvas.addEventListener(
+        "pointerdown",
+        this.handlePointerDown.bind(this),
+        { passive: false },
+      );
+    }
+    window.addEventListener("pointermove", this.handlePointerMove.bind(this), {
+      passive: false,
+    });
+    window.addEventListener("pointerup", this.handlePointerUp.bind(this), {
+      passive: false,
+    });
+    window.addEventListener(
+      "pointercancel",
+      this.handlePointerCancel.bind(this),
+      { passive: false },
+    );
+  }
+
+  /**
+   * Translates client pointer coordinates into game canvas internal coordinates.
+   *
+   * @private
+   * @param event - DOM PointerEvent.
+   * @returns Normalized canvas coordinates.
+   */
+  private getCanvasCoordinates(event: PointerEvent): { x: number; y: number } {
+    const canvas = document.getElementById("MainCanvas") as HTMLCanvasElement;
+    if (!canvas) {
+      return { x: event.clientX, y: event.clientY };
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = (canvas.width || 2000) / rect.width;
+    const scaleY = (canvas.height || 1000) / rect.height;
+
+    return {
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
+    };
+  }
+
+  /**
+   * Handles pointerdown interactions, initializing drag scrolling inside the viewport.
+   *
+   * @private
+   * @param event - DOM PointerEvent.
+   */
+  private handlePointerDown(event: PointerEvent): void {
+    if (!this.isMenuOpen || this.showResetConfirm) return;
+
+    const coords = this.getCanvasCoordinates(event);
+    this.activePointerId = event.pointerId;
+    this.layout.startDrag(coords.x, coords.y);
+  }
+
+  /**
+   * Handles pointermove interactions, recalculating offsets while dragging.
+   *
+   * @private
+   * @param event - DOM PointerEvent.
+   */
+  private handlePointerMove(event: PointerEvent): void {
+    if (
+      !this.isMenuOpen ||
+      !this.layout.isDragging ||
+      this.activePointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    const coords = this.getCanvasCoordinates(event);
+    if (this.layout.onDrag(coords.x, coords.y)) {
+      if (event.cancelable) event.preventDefault();
+      this.layout.updateDOM(this.isMenuOpen);
+    }
+  }
+
+  /**
+   * Finalizes active pointer drag operations.
+   *
+   * @private
+   * @param event - DOM PointerEvent.
+   */
+  private handlePointerUp(event: PointerEvent): void {
+    if (!this.isMenuOpen || this.activePointerId !== event.pointerId) return;
+
+    this.activePointerId = null;
+    this.layout.endDrag();
+  }
+
+  /**
+   * Resets drag states when a gesture is cancelled by the user agent.
+   *
+   * @private
+   * @param event - DOM PointerEvent.
+   */
+  private handlePointerCancel(event: PointerEvent): void {
+    if (this.activePointerId !== event.pointerId) return;
+
+    this.activePointerId = null;
+    this.layout.endDrag();
+    this.layout.resetGestureState();
   }
 
   /**
@@ -1234,7 +1352,7 @@ export class Settings extends CRABS_Base {
    * Helper verifying whether the player is in an active chat room and can return to it.
    *
    * @private
-   * @returns {boolean} True if in a chat room.
+   * @returns True if in a chat room.
    */
   private canReturnToChat(): boolean {
     const globalWindow = window as any;
@@ -1263,7 +1381,6 @@ export class Settings extends CRABS_Base {
 
       const isInChat = this.canReturnToChat();
 
-      // Top navigation action buttons (Always drawn on the subscreen)
       globalWindow.DrawButton?.(
         1815,
         75,
@@ -1297,7 +1414,6 @@ export class Settings extends CRABS_Base {
         this.t("settings.nav.restore_defaults"),
       );
 
-      // Modal Confirmation Dialog (Drawn on top when active)
       if (this.showResetConfirm) {
         globalWindow.DrawRect?.(0, 0, 2000, 1000, "#000000AA");
         globalWindow.DrawRect?.(700, 350, 600, 300, "#222222");
@@ -1337,9 +1453,14 @@ export class Settings extends CRABS_Base {
   /**
    * Handles canvas click interactions within the settings subscreen,
    * routing clicks to layout tabs, reset dialog buttons, and navigation exits.
-   * Contained in a try/catch block to avoid crashing native BC UI loops.
+   * Discards clicks generated as byproducts of drag-scrolling gestures.
    */
   public click(): void {
+    if (this.layout.hasDraggedBeyondThreshold) {
+      this.layout.resetGestureState();
+      return;
+    }
+
     const globalWindow = window as any;
 
     try {
