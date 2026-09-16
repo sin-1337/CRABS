@@ -84,20 +84,14 @@
   text-shadow: none !important;
 }
 
-/* Mobile Overrides */
-@media screen and (max-width: 800px) {
+/* ==========================================================================
+   MOBILE GLOBAL SCALE DOWN
+   ========================================================================== */
+@media screen and (max-width: 1024px),
+  screen and (max-device-width: 1024px),
+  (pointer: coarse),
+  (orientation: portrait) {
   .CRABS_banner {
-    font-size: 0.65rem;
-  }
-  .CRABS_banner td {
-    padding: 1px;
-  }
-  .CRABS_banner_logo_container {
-    width: 20px;
-  }
-  .CRABS_banner .CRABS_dropdown {
-    padding: 1px 2px;
-    font-size: 0.6rem;
-    max-width: 100px;
+    zoom: 0.65;
   }
 }
