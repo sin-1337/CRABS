@@ -5,6 +5,9 @@
  * banner injection timers, native screen lifecycle integrations, and the OnlineProfile
  * canvas font normalization controls within the Bondage Club ecosystem.
  *
+ * Hardened for zero-crash stability, defensive room transition detection,
+ * and vocal error reporting.
+ *
  * @module Orchestrator
  */
 
@@ -19,7 +22,7 @@ import locals from "./i18n.json";
 
 /**
  * Coordinate and dimension specifications for the Canvas Normalization button on the OnlineProfile screen.
- * Places the button at X: 1410, Y: 60, directly to the left of the mod alert/warning icon slot.
+ * Places the button at X: 210, Y: 60, directly to the left of the mod alert/warning icon slot.
  * @constant
  */
 const PROFILE_NORMALIZE_BTN = {
@@ -65,7 +68,7 @@ export class Orchestrator extends CRABS_Base {
 
   /**
    * Constructs the Orchestrator module instance, initializes base i18n dictionaries under the "profile" namespace,
-   * binds submodules, registers engine hooks, and intercepts native game exit points.
+   * binds submodules, registers engine hooks, and ensures game lifecycle exit points are active.
    *
    * @param {ModSDKModAPI} CRABS - The mod SDK API instance.
    * @param {Roster} roster - Active Roster module reference.
@@ -77,7 +80,6 @@ export class Orchestrator extends CRABS_Base {
     this.rosterModule = roster;
     this.bannerModule = banner;
     this.initHooks();
-    this.hookNativeExit();
   }
 
   /**
@@ -112,9 +114,70 @@ export class Orchestrator extends CRABS_Base {
    * @returns {void}
    */
   private initHooks(): void {
-    let crabsLogoImg: HTMLImageElement | null = null;
-    let profileOriginalRawText: string | null = null;
-    let profileIsNormalized = false;
+    const globalWin = window as any;
+
+    // Cache object bound to the active character's MemberNumber to prevent cross-profile bleeding
+    let profileCache: { memberNumber: number | null; rawText: string | null } =
+      {
+        memberNumber: null,
+        rawText: null,
+      };
+
+    // Pre-load the canvas image outside the render loop to prevent asynchronous rendering failures
+    let crabsLogoImg: HTMLImageElement | null = new Image();
+    crabsLogoImg.crossOrigin = "anonymous";
+    crabsLogoImg.onerror = () => {
+      crabsLogoImg = null;
+    };
+    const basePath = (Assets as any)?.IMAGES?.basePath ?? "";
+    const logoFile = (Assets as any)?.IMAGES?.image?.logo?.file ?? "";
+    if (basePath && logoFile) {
+      crabsLogoImg.src = `${basePath}${logoFile}`;
+    } else {
+      crabsLogoImg = null;
+    }
+
+    // Ensure target functions exist on the global scope so ModSDK can hook them without throwing
+    const hooksToStub = [
+      "ChatRoomExit",
+      "ChatRoomRun",
+      "ChatRoomSendChat",
+      "TranslationLoad",
+      "ChatRoomUpdateDisplay",
+      "CommonSetScreen",
+      "ChatRoomFocusCharacter",
+      "DialogLeave",
+      "OnlineProfileRun",
+      "OnlineProfileClick",
+      "OnlineProfileUnload",
+      "ChatRoomActivateView",
+    ];
+
+    hooksToStub.forEach((name) => {
+      if (typeof globalWin[name] !== "function") {
+        globalWin[name] = function () {};
+      }
+    });
+
+    /**
+     * Patches ChatRoomExit through safeHook to ensure drawer states update properly
+     * and room identifiers reset whenever a player explicitly exits a room.
+     */
+    this.safeHook("ChatRoomExit", 10, (args, next) => {
+      this.crabsLastRoomID = null;
+      const result = next(args);
+
+      try {
+        Drawer.updateVisibility();
+      } catch (err) {
+        console.error(
+          "[CRABS Orchestrator] Drawer.updateVisibility failed on ChatRoomExit:",
+          err,
+        );
+      }
+
+      return result;
+    });
 
     // Runs at Priority -10000 to guarantee it fires AFTER FUSAM/BCX but BEFORE the Base Game.
     this.safeHook(
@@ -122,14 +185,22 @@ export class Orchestrator extends CRABS_Base {
       -10000,
       (args: any[], next: (args: any[]) => any) => {
         try {
-          if (typeof ChatRoomData !== "undefined" && ChatRoomData) {
-            if (!ChatRoomData.Custom) {
-              ChatRoomData.Custom = { SizeMode: 0 };
-            } else if (typeof ChatRoomData.Custom.SizeMode === "undefined") {
-              ChatRoomData.Custom.SizeMode = 0;
+          const win = window as any;
+          const roomData = win.ChatRoomData;
+
+          if (roomData) {
+            if (!roomData.Custom) {
+              roomData.Custom = { SizeMode: 0 };
+            } else if (typeof roomData.Custom.SizeMode === "undefined") {
+              roomData.Custom.SizeMode = 0;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error(
+            "[CRABS Orchestrator] Error initializing ChatRoomData.Custom:",
+            e,
+          );
+        }
 
         return next(args);
       },
@@ -139,14 +210,21 @@ export class Orchestrator extends CRABS_Base {
     this.safeHook("ChatRoomSendChat", 10, (args, next) => {
       const chatInput = document.getElementById(
         "InputChat",
-      ) as HTMLTextAreaElement;
+      ) as HTMLTextAreaElement | null;
       const message = chatInput?.value?.toLowerCase().trim() || "";
       const result = next(args);
 
-      if (Settings.instance?.data?.closeDrawerOnChat) {
-        if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
-          Drawer.close();
+      try {
+        if (Settings.instance?.data?.closeDrawerOnChat) {
+          if (!message.startsWith("/roster") && !message.startsWith("/crabs")) {
+            Drawer.close();
+          }
         }
+      } catch (e) {
+        console.error(
+          "[CRABS Orchestrator] Error stowing drawer on chat send:",
+          e,
+        );
       }
       return result;
     });
@@ -157,7 +235,14 @@ export class Orchestrator extends CRABS_Base {
       10,
       (args: any, next: (args: any[]) => any) => {
         const result = next(args);
-        this.drawbanner(true);
+        try {
+          this.drawbanner(true);
+        } catch (e) {
+          console.error(
+            "[CRABS Orchestrator] Error redrawing banner on TranslationLoad:",
+            e,
+          );
+        }
         return result;
       },
     );
@@ -166,37 +251,63 @@ export class Orchestrator extends CRABS_Base {
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
       const result = next(args);
 
-      const inChatRoom =
-        typeof ChatRoomData !== "undefined" &&
-        ChatRoomData !== null &&
-        (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+      try {
+        const win = window as any;
+        const roomData = win.ChatRoomData;
+        const currentScreen = win.CurrentScreen;
 
-      if (inChatRoom) {
-        const currentID = ChatRoomData.ID ?? ChatRoomData.Name;
+        // Resilient room detection: checks ChatRoomData, ServerPlayerIsInChatRoom, or CurrentScreen
+        const inChatRoom =
+          Boolean(roomData) ||
+          (typeof win.ServerPlayerIsInChatRoom === "function" &&
+            win.ServerPlayerIsInChatRoom()) ||
+          currentScreen === "ChatRoom";
 
-        // Just joined a new room (only fires on true room transitions)
-        if (currentID && currentID != this.crabsLastRoomID) {
-          this.crabsLastRoomID = currentID;
-          Drawer.updateVisibility();
-          Settings.instance?.syncGameState();
+        if (inChatRoom) {
+          // No static fallback: Let currentID stay undefined if data isn't ready
+          const currentID =
+            roomData?.ID ?? roomData?.Name ?? win.Player?.LastChatRoom;
 
-          if (Settings.instance?.data?.showBanner) {
-            this.drawbanner();
+          // Just joined a new room (only fires on true room transitions)
+          if (currentID && currentID !== this.crabsLastRoomID) {
+            console.log(
+              `[CRABS Orchestrator] Room transition: ${this.crabsLastRoomID} -> ${currentID}`,
+            );
+            this.crabsLastRoomID = currentID;
+
+            Drawer.updateVisibility();
+            Settings.instance?.syncGameState();
+
+            const showBanner = Settings.instance?.data?.showBanner ?? true;
+            if (showBanner) {
+              this.drawbanner();
+            }
+          }
+
+          // Returned from Wardrobe/Profile
+          const isFocused =
+            win.CurrentCharacter !== null &&
+            typeof win.CurrentCharacter !== "undefined";
+          const drawerElement = document.getElementById("crabs-drawer");
+
+          if (
+            !isFocused &&
+            (!drawerElement || drawerElement.style.display === "none") &&
+            Settings.instance?.data?.enableDrawer !== false
+          ) {
+            Drawer.updateVisibility();
+          }
+        } else {
+          if (this.crabsLastRoomID !== null) {
+            this.crabsLastRoomID = null;
+            Drawer.updateVisibility();
           }
         }
-
-        // Returned from Wardrobe/Profile
-        const isFocused = (window as any).CurrentCharacter !== null;
-        const drawerElement = document.getElementById("crabs-drawer");
-
-        if (
-          !isFocused &&
-          drawerElement &&
-          drawerElement.style.display === "none" &&
-          !Settings.instance?.data?.enableDrawer
-        ) {
-          Drawer.updateVisibility();
-        }
+      } catch (err) {
+        console.error(
+          "[CRABS Orchestrator] Error in ChatRoomUpdateDisplay handler:",
+          err,
+        );
       }
 
       return result;
@@ -204,22 +315,49 @@ export class Orchestrator extends CRABS_Base {
 
     // Auto-stow Drawer on Screen Change
     this.safeHook("CommonSetScreen", 0, (args, next) => {
+      const nextScreen = args[1];
+
+      if (nextScreen !== "ChatRoom") {
+        this.crabsLastRoomID = null;
+      }
+
       const result = next(args);
-      Drawer.updateVisibility();
+      try {
+        Drawer.updateVisibility();
+      } catch (e) {
+        console.error(
+          "[CRABS Orchestrator] Error in CommonSetScreen visibility update:",
+          e,
+        );
+      }
       return result;
     });
 
     // Auto-stow Drawer on Character Focus
     this.safeHook("ChatRoomFocusCharacter", 0, (args, next) => {
       const result = next(args);
-      Drawer.updateVisibility();
+      try {
+        Drawer.updateVisibility();
+      } catch (e) {
+        console.error(
+          "[CRABS Orchestrator] Error in ChatRoomFocusCharacter visibility update:",
+          e,
+        );
+      }
       return result;
     });
 
     // Recover Drawer on Dialog Leave
     this.safeHook("DialogLeave", 0, (args, next) => {
       const result = next(args);
-      Drawer.updateVisibility();
+      try {
+        Drawer.updateVisibility();
+      } catch (e) {
+        console.error(
+          "[CRABS Orchestrator] Error in DialogLeave visibility update:",
+          e,
+        );
+      }
       return result;
     });
 
@@ -227,145 +365,168 @@ export class Orchestrator extends CRABS_Base {
     this.safeHook("OnlineProfileRun", 10, (args, next) => {
       next(args);
 
-      const globalWin = window as any;
-      if (!globalWin.InformationSheetSelection) return;
+      try {
+        const win = window as any;
+        const infoSheet = win.InformationSheetSelection;
+        if (!infoSheet) return;
 
-      const ctx: CanvasRenderingContext2D =
-        globalWin.MainCanvas?.getContext?.("2d");
-      if (!ctx) return;
+        const mainCanvas = win.MainCanvas;
+        const ctx: CanvasRenderingContext2D = mainCanvas?.getContext?.("2d");
+        if (!ctx) return;
 
-      // Ensure CRABS logo is cached
-      if (!crabsLogoImg) {
-        crabsLogoImg = new Image();
-        crabsLogoImg.crossOrigin = "anonymous";
-        crabsLogoImg.src = `${(Assets as any).IMAGES.basePath}${(Assets as any).IMAGES.image.logo.file}`;
-      }
+        const targetMemberNumber = infoSheet.MemberNumber ?? null;
+        const isCurrentlyNormalized =
+          profileCache.memberNumber === targetMemberNumber &&
+          profileCache.rawText !== null;
 
-      const { x, y, width, height } = PROFILE_NORMALIZE_BTN;
-      const isHovered =
-        typeof globalWin.MouseIn === "function" &&
-        globalWin.MouseIn(x, y, width, height);
+        const { x, y, width, height } = PROFILE_NORMALIZE_BTN;
+        const mouseInFunc = win.MouseIn;
+        const isHovered =
+          typeof mouseInFunc === "function" && mouseInFunc(x, y, width, height);
 
-      ctx.save();
+        ctx.save();
 
-      // Rounded button background & border
-      ctx.fillStyle = profileIsNormalized ? "#2e1a1a" : "#1e1e24";
-      ctx.strokeStyle =
-        isHovered || profileIsNormalized ? "#ff4444" : "#444444";
-      ctx.lineWidth = 2;
+        // Rounded button background & border
+        ctx.fillStyle = isCurrentlyNormalized ? "#2e1a1a" : "#1e1e24";
+        ctx.strokeStyle =
+          isHovered || isCurrentlyNormalized ? "#ff4444" : "#444444";
+        ctx.lineWidth = 2;
 
-      if (typeof ctx.roundRect === "function") {
-        ctx.beginPath();
-        ctx.roundRect(x, y, width, height, 10);
-        ctx.fill();
-        ctx.stroke();
-      } else {
-        ctx.fillRect(x, y, width, height);
-        ctx.strokeRect(x, y, width, height);
-      }
+        if (typeof ctx.roundRect === "function") {
+          ctx.beginPath();
+          ctx.roundRect(x, y, width, height, 10);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillRect(x, y, width, height);
+          ctx.strokeRect(x, y, width, height);
+        }
 
-      // Draw CRABS logo
-      if (crabsLogoImg.complete && crabsLogoImg.naturalWidth > 0) {
-        ctx.drawImage(crabsLogoImg, x + 10, y + (height - 30) / 2, 30, 30);
-      }
+        // Draw CRABS logo
+        if (
+          crabsLogoImg &&
+          crabsLogoImg.complete &&
+          crabsLogoImg.naturalWidth > 0
+        ) {
+          ctx.drawImage(crabsLogoImg, x + 10, y + (height - 30) / 2, 30, 30);
+        }
 
-      // Draw Aa label
-      ctx.font = "bold 22px sans-serif";
-      ctx.fillStyle = "#e0e0e0";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      ctx.fillText("Aa", x + 48, y + height / 2);
+        // Draw Aa label
+        ctx.font = "bold 22px sans-serif";
+        ctx.fillStyle = "#e0e0e0";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Aa", x + 48, y + height / 2);
 
-      ctx.restore();
+        ctx.restore();
 
-      // Show native BC tooltip on hover (rendered in canvas draw order)
-      if (isHovered && typeof globalWin.DrawButtonHover === "function") {
-        globalWin.DrawButtonHover(
-          x,
-          y,
-          width,
-          height,
-          this.t("profile.toggle_tooltip"),
+        // Show native BC tooltip on hover (rendered in canvas draw order)
+        const hoverBtnFunc = win.DrawButtonHover;
+        if (isHovered && typeof hoverBtnFunc === "function") {
+          hoverBtnFunc(x, y, width, height, this.t("profile.toggle_tooltip"));
+        }
+      } catch (err) {
+        console.error(
+          "[CRABS Orchestrator] Error drawing normalize button:",
+          err,
         );
       }
     });
 
     // 2. Intercept clicks on canvas button inside OnlineProfileClick
     this.safeHook("OnlineProfileClick", 10, (args, next) => {
-      const globalWin = window as any;
+      const win = window as any;
+      const mouseInFunc = win.MouseIn;
 
       if (
-        typeof globalWin.MouseIn === "function" &&
-        globalWin.MouseIn(
+        typeof mouseInFunc === "function" &&
+        mouseInFunc(
           PROFILE_NORMALIZE_BTN.x,
           PROFILE_NORMALIZE_BTN.y,
           PROFILE_NORMALIZE_BTN.width,
           PROFILE_NORMALIZE_BTN.height,
         )
       ) {
-        const input = document.getElementById(
-          "DescriptionInput",
-        ) as HTMLTextAreaElement | null;
-        const wceRichDiv = document.getElementById("bceRichOnlineProfile");
-        const targetChar = globalWin.InformationSheetSelection;
+        try {
+          const input = document.getElementById(
+            "DescriptionInput",
+          ) as HTMLTextAreaElement | null;
+          const wceRichDiv = document.getElementById("bceRichOnlineProfile");
+          const targetChar = win.InformationSheetSelection;
+          const profileMode = win.OnlineProfileMode;
 
-        // Resolve current text source from input, WCE, or global variables
-        let currentText = "";
+          // Resolve current text source from input, WCE, or global variables
+          let currentText = "";
 
-        if (input && input.style.display !== "none") {
-          currentText = input.value;
-        } else if (globalWin.OnlineProfileMode === "Description") {
-          currentText =
-            globalWin.OnlineProfileTextDesc || (targetChar?.Description ?? "");
-        } else {
-          currentText =
-            globalWin.OnlineProfileTextOwnersNotes ||
-            (targetChar?.Ownership?.Notes ?? targetChar?.OwnerRules ?? "");
-        }
-
-        // Toggle state
-        if (!profileIsNormalized) {
-          profileOriginalRawText = currentText;
-          currentText = this.normalizeProfileText(currentText);
-          profileIsNormalized = true;
-        } else {
-          if (profileOriginalRawText !== null) {
-            currentText = profileOriginalRawText;
+          if (input && input.style.display !== "none") {
+            currentText = input.value;
+          } else if (profileMode === "Description") {
+            currentText =
+              win.OnlineProfileTextDesc ?? targetChar?.Description ?? "";
+          } else {
+            currentText =
+              win.OnlineProfileTextOwnersNotes ??
+              targetChar?.Ownership?.Notes ??
+              targetChar?.OwnerRules ??
+              "";
           }
-          profileIsNormalized = false;
-        }
 
-        // Apply to native textarea
-        if (input) {
-          const isReadOnly = input.hasAttribute("readonly");
-          if (isReadOnly) input.removeAttribute("readonly");
+          const targetMemberNumber = targetChar?.MemberNumber ?? null;
+          const isCurrentlyNormalized =
+            profileCache.memberNumber === targetMemberNumber &&
+            profileCache.rawText !== null;
 
-          input.value = currentText;
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-
-          if (isReadOnly) input.setAttribute("readonly", "readonly");
-        }
-
-        // Apply to WCE's rich text preview div if active
-        if (wceRichDiv) {
-          wceRichDiv.textContent = currentText;
-        }
-
-        // Sync global buffers & target character sheet directly
-        if (globalWin.OnlineProfileMode === "Description") {
-          globalWin.OnlineProfileTextDesc = currentText;
-          if (targetChar) targetChar.Description = currentText;
-        } else {
-          globalWin.OnlineProfileTextOwnersNotes = currentText;
-          if (targetChar) {
-            if (targetChar.Ownership) {
-              targetChar.Ownership.Notes = currentText;
+          // Toggle state based on active character
+          if (!isCurrentlyNormalized) {
+            profileCache.memberNumber = targetMemberNumber;
+            profileCache.rawText = currentText;
+            currentText = this.normalizeProfileText(currentText);
+          } else {
+            if (profileCache.rawText !== null) {
+              currentText = profileCache.rawText;
             }
-            targetChar.OwnerRules = currentText;
+            profileCache.memberNumber = null;
+            profileCache.rawText = null;
           }
+
+          // Apply to native textarea
+          if (input) {
+            const isReadOnly = input.hasAttribute("readonly");
+            if (isReadOnly) input.removeAttribute("readonly");
+
+            input.value = currentText;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+
+            if (isReadOnly) input.setAttribute("readonly", "readonly");
+          }
+
+          // Apply to WCE's rich text preview div if active
+          if (wceRichDiv) {
+            wceRichDiv.textContent = currentText;
+          }
+
+          // Sync global buffers & target character sheet directly
+          if (profileMode === "Description") {
+            win.OnlineProfileTextDesc = currentText;
+            if (targetChar) targetChar.Description = currentText;
+          } else {
+            win.OnlineProfileTextOwnersNotes = currentText;
+            if (targetChar) {
+              if (targetChar.Ownership) {
+                targetChar.Ownership.Notes = currentText;
+              }
+              targetChar.OwnerRules = currentText;
+            }
+          }
+        } catch (profileErr) {
+          console.error(
+            "[CRABS Orchestrator] Error processing profile normalization click:",
+            profileErr,
+          );
         }
 
+        // Return early to consume the click natively and avoid triggering downstream hooks under our coordinates
         return;
       }
 
@@ -374,54 +535,41 @@ export class Orchestrator extends CRABS_Base {
 
     // 3. Reset state on profile unload
     this.safeHook("OnlineProfileUnload", 10, (args, next) => {
-      profileOriginalRawText = null;
-      profileIsNormalized = false;
+      profileCache.memberNumber = null;
+      profileCache.rawText = null;
       return next(args);
     });
-
-    // Hook translation event so that we can react to external language switching
-    this.safeHook(
-      "TranslationLoad",
-      10,
-      (args: any, next: (args: any[]) => any) => {
-        const result = next(args);
-        this.drawbanner(true);
-        return result;
-      },
-    );
-
-    // Hook translation event so that we can react to external language switching
-    this.safeHook(
-      "TranslationLoad",
-      10,
-      (args: any, next: (args: any[]) => any) => {
-        const result = next(args);
-        this.drawbanner(true);
-        return result;
-      },
-    );
 
     // Respawn banner when switching between Character view and Map view (if currently open and enabled)
     this.safeHook(
       "ChatRoomActivateView",
       10,
       (args: any[], next: (args: any[]) => any) => {
-        const globalWin = window as any;
-        const currentActiveView = globalWin.ChatRoomActiveView;
+        const win = window as any;
+        const currentActiveView = win.ChatRoomActiveView;
         const targetViewName = args[0] as string;
 
         const result = next(args);
 
-        const targetView = globalWin.ChatRoomViews?.[targetViewName];
-        if (targetView && targetView !== currentActiveView) {
-          const settings = Settings.instance?.data;
-          const canRespawn =
-            Boolean(settings?.showBanner) &&
-            Boolean(settings?.respawnBannerOnMapView);
+        try {
+          const roomViews = win.ChatRoomViews;
+          const targetView = roomViews?.[targetViewName];
 
-          if (canRespawn) {
-            this.drawbanner(true);
+          if (targetView && targetView !== currentActiveView) {
+            const settings = Settings.instance?.data;
+            const canRespawn =
+              Boolean(settings?.showBanner) &&
+              Boolean(settings?.respawnBannerOnMapView);
+
+            if (canRespawn) {
+              this.drawbanner(true);
+            }
           }
+        } catch (err) {
+          console.error(
+            "[CRABS Orchestrator] Error respawning banner on view change:",
+            err,
+          );
         }
 
         return result;
@@ -430,33 +578,29 @@ export class Orchestrator extends CRABS_Base {
   }
 
   /**
-   * Patches the global ChatRoomExit routine to ensure drawer states update properly
-   * and room identifiers reset whenever a player explicitly exits a room.
-   *
-   * @private
-   * @returns {void}
-   */
-  private hookNativeExit(): void {
-    const self = this;
-    const nativeChatRoomExit = (window as any).ChatRoomExit;
-    (window as any).ChatRoomExit = function () {
-      self.crabsLastRoomID = null;
-      if (typeof nativeChatRoomExit === "function") {
-        nativeChatRoomExit.apply(this, arguments);
-      }
-      Drawer.updateVisibility();
-    };
-  }
-
-  /**
    * Compiles current roster counts and dispatches the rendering sequence to the Banner module.
+   * Uses resilient checks against Player and Server state so it does not fail early.
    *
    * @public
    * @param {boolean} [onlyIfPresent=false] - If true, aborts redraw if an existing banner element is not mounted.
    * @returns {boolean} True if the banner was processed and dispatched, false otherwise.
    */
   public drawbanner(onlyIfPresent: boolean = false): boolean {
-    if (typeof Player === "undefined" || Player.LastChatRoom === null) {
+    const win = window as any;
+
+    // Check if player exists and is connected
+    if (!win.Player) {
+      return false;
+    }
+
+    const inChat =
+      (typeof win.ServerPlayerIsInChatRoom === "function" &&
+        win.ServerPlayerIsInChatRoom()) ||
+      Boolean(win.ChatRoomData) ||
+      Boolean(win.Player?.LastChatRoom) ||
+      win.CurrentScreen === "ChatRoom";
+
+    if (!inChat) {
       return false;
     }
 
@@ -470,10 +614,16 @@ export class Orchestrator extends CRABS_Base {
       existing.remove();
     }
 
-    const extraData = {
-      RosterCounters: this.rosterModule.buildroster("count", false),
-    };
-    this.bannerModule.drawBanner(extraData);
-    return true;
+    try {
+      const extraData = {
+        RosterCounters: this.rosterModule.buildroster("count", false),
+      };
+      this.bannerModule.drawBanner(extraData);
+      console.log("[CRABS Orchestrator] Banner successfully rendered.");
+      return true;
+    } catch (bannerErr) {
+      console.error("[CRABS Orchestrator] FATAL drawBanner failed:", bannerErr);
+      return false;
+    }
   }
 }

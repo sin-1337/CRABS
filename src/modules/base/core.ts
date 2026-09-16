@@ -122,7 +122,8 @@ export abstract class CRABS_Base {
   public static registerKeybind = registerKeybind;
 
   /**
-   * Registers a safe function hook through ModSDK with crash isolation and automated disable guards.
+   * Registers a safe function hook through ModSDK with crash isolation,
+   * automated disable guards, vocal console reporting, and user notification.
    *
    * @param targetFunction - Name of the global function to hook.
    * @param priority - Execution order priority.
@@ -161,10 +162,40 @@ export abstract class CRABS_Base {
             if (baseGameCrashed) throw crabsError;
 
             this.disabledHooks.add(targetFunction);
+
+            // Loud, formatted console error reporting
             console.error(
-              `[CRABS] Internal crash in '${targetFunction}'. Feature disabled to protect game stability.`,
+              `%c[CRABS HOOK CRASH] Fatal exception in hook '${targetFunction}'. Feature disabled to protect game stability.`,
+              "background: #990000; color: #ffffff; font-weight: bold; font-size: 12px; padding: 4px;",
+              "\nTarget:",
+              targetFunction,
+              "\nError:",
               crabsError,
             );
+
+            // In-game user alert fallback
+            try {
+              const globalWin = window as any;
+              const alertMsg = `Hook '${targetFunction}' crashed and was disabled.`;
+              if (typeof globalWin.ToastManager?.custom === "function") {
+                globalWin.ToastManager.custom(
+                  alertMsg,
+                  "CRABS_Notification_Error",
+                  {
+                    title: "CRABS Hook Failure",
+                    iconColor: "red",
+                    duration: 8000,
+                  },
+                );
+              } else if (typeof globalWin.ChatRoomSendLocal === "function") {
+                globalWin.ChatRoomSendLocal(`[CRABS ERROR] ${alertMsg}`);
+              }
+            } catch (notifyErr) {
+              console.error(
+                "[CRABS] Failed to dispatch crash notification:",
+                notifyErr,
+              );
+            }
 
             if (!nextWasCalled) {
               try {
@@ -180,9 +211,21 @@ export abstract class CRABS_Base {
       if (!this.failedHooks.has(targetFunction)) {
         this.failedHooks.add(targetFunction);
         console.error(
-          `[CRABS ERROR] Failed to register hook: '${targetFunction}'.`,
+          `%c[CRABS ERROR] Failed to register hook: '${targetFunction}'.`,
+          "color: #ff9900; font-weight: bold; font-size: 12px;",
           regError,
         );
+
+        try {
+          const globalWin = window as any;
+          if (typeof globalWin.ToastManager?.custom === "function") {
+            globalWin.ToastManager.custom(
+              `Failed to attach hook '${targetFunction}'.`,
+              "CRABS_Notification_Error",
+              { title: "CRABS Registration Warning", duration: 6000 },
+            );
+          }
+        } catch {}
       }
     }
   }

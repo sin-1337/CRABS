@@ -3,7 +3,7 @@ import { ModSDKModAPI } from "bondage-club-mod-sdk";
 import { Assets } from "../base";
 import DOMPurify from "dompurify";
 import locales from "./i18n.json";
-import { TUTORIAL_STEPS, TutorialStep } from "./steps";
+import { TUTORIAL_STEPS } from "./steps";
 import "./templates/tutorial.css";
 import tutorialTemplate from "./templates/tutorial.html";
 

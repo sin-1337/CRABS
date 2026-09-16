@@ -8,11 +8,13 @@
  * - Integration with the game's chat log dimensions
  * - Event handling for navigation and interaction
  * - Event-driven rendering via a decentralized registration model
+ *
+ * Hardened against runtime delegate exceptions, null DOM queries,
+ * and unsafe global variable scoping.
  */
 
 import { CRABS_Base, PerformanceLevel } from "./core";
 import { Notification } from "../notifications/notifications";
-import { isMap } from "./context";
 import { translate } from "./localization";
 import { registerKeybind } from "./keybinds";
 import { Assets } from "./assets";
@@ -99,29 +101,14 @@ export class Drawer extends CRABS_Base {
   // Registration API (One-way Consumer Pattern)
   // ─────────────────────────────────────────────────────────────
 
-  /**
-   * Registers a view page definition with the Drawer.
-   *
-   * @param {DrawerViewDefinition} viewDef - View definition and render delegate.
-   */
   public static registerView(viewDef: DrawerViewDefinition): void {
     Drawer.registeredViews.set(viewDef.id, viewDef);
   }
 
-  /**
-   * Registers an auxiliary UI injection callback executed after the drawer mounts content.
-   *
-   * @param {DrawerUIInjector} injector - Injection callback.
-   */
   public static registerUIInjector(injector: DrawerUIInjector): void {
     Drawer.registeredInjectors.add(injector);
   }
 
-  /**
-   * Registers the primary state delegate driving layout modes, key checks, and dirty cycles.
-   *
-   * @param {DrawerStateDelegate} delegate - State provider.
-   */
   public static registerStateDelegate(delegate: DrawerStateDelegate): void {
     Drawer.stateDelegate = delegate;
   }
@@ -130,92 +117,61 @@ export class Drawer extends CRABS_Base {
   // Static Control Facades
   // ─────────────────────────────────────────────────────────────
 
-  /**
-   * Toggles the drawer open/closed globally, optionally targeting a specific page.
-   * @param {DrawerPage} [page] - Optional view to toggle or switch to.
-   */
   public static toggle(page?: DrawerPage): void {
     Drawer._instance?.toggle(page);
   }
 
-  /**
-   * Opens the drawer globally, optionally routing to a specific page.
-   * @param {DrawerPage} [page] - Optional view to display upon opening.
-   */
   public static open(page?: DrawerPage): void {
     Drawer.updateVisibility();
     Drawer._instance?.open(page);
   }
 
-  /** Closes the drawer globally. */
   public static close(): void {
     Drawer._instance?.close();
   }
 
-  /** Evaluates game state to determine if the drawer should be visible or hidden. */
   public static updateVisibility(): void {
     Drawer._instance?.updateVisibility();
   }
 
-  /** Forces a re-render of the drawer's current content. */
   public static refresh(): void {
     Drawer._instance?.refresh();
   }
 
-  /** Checks if the help menu is currently being displayed.
-   * @returns {boolean} True if the help screen is active.
-   */
   public static isShowingHelp(): boolean {
     return Drawer._instance?.activePage === "help";
   }
 
-  /** Overrides the current view state of the drawer.
-   * @param {boolean} value - True to show Help, false to show Roster.
-   */
   public static setShowingHelp(value: boolean): void {
     if (Drawer._instance) {
       Drawer._instance.activePage = value ? "help" : "roster";
     }
   }
 
-  /** Checks if the keys page is currently being displayed.
-   * @returns {boolean} True if the keys screen is active.
-   */
   public static isShowingKeys(): boolean {
     return Drawer._instance?.activePage === "keys";
   }
 
-  /** Overrides the current view state of the drawer.
-   * @param {boolean} value - True to show Keys, false to show Roster.
-   */
   public static setShowingKeys(value: boolean): void {
     if (Drawer._instance) {
       Drawer._instance.activePage = value ? "keys" : "roster";
     }
   }
 
-  /** Checks if the history menu is currently being displayed.
-   * @returns {boolean} True if the history screen is active.
-   */
   public static isShowingHistory(): boolean {
     return Drawer._instance?.activePage === "history";
   }
 
-  /** Overrides the current history view state of the drawer.
-   * @param {boolean} value - True to show History, false to return to Roster.
-   */
   public static setShowingHistory(value: boolean): void {
     if (Drawer._instance) {
       Drawer._instance.activePage = value ? "history" : "roster";
     }
   }
 
-  /** Triggers the easter egg visual effect on the drawer tab. */
   public static RaveTab(): void {
     Drawer._instance?.RaveTab();
   }
 
-  /** Caches the last known coordinates of the chat log to prevent layout thrashing. */
   private lastRect = {
     top: -1,
     width: -1,
@@ -224,12 +180,6 @@ export class Drawer extends CRABS_Base {
     compact: false,
   };
 
-  /**
-   * Helper mapping the active layout mode string to its corresponding asset key.
-   *
-   * @private
-   * @returns {string}
-   */
   private getLayoutIconKey(): string {
     const layout = Drawer.stateDelegate?.layoutMode
       ? Drawer.stateDelegate.layoutMode()
@@ -245,11 +195,6 @@ export class Drawer extends CRABS_Base {
     }
   }
 
-  /**
-   * Temporarily swaps the drawer tab icon to a rave variant for 10 seconds.
-   *
-   * @returns {void}
-   */
   public RaveTab(): void {
     if (!this.instance) return;
     const tab = this.instance.querySelector("#drawer-tab") as HTMLElement;
@@ -268,12 +213,6 @@ export class Drawer extends CRABS_Base {
     }, 10000);
   }
 
-  /**
-   * Bootstraps the drawer layout, injecting it into the DOM and establishing global hotkeys.
-   *
-   * @private
-   * @returns {void}
-   */
   private init(): void {
     if (document.body) {
       this.setupElement();
@@ -285,8 +224,12 @@ export class Drawer extends CRABS_Base {
       "keydown",
       (event) => {
         if (event.key === "Escape") {
-          if ((window as any).CurrentCharacter !== null) {
-            (window as any).DialogLeave();
+          const globalWindow = window as any;
+          const currentChar = globalWindow.CurrentCharacter;
+          const dialogLeaveFunc = globalWindow.DialogLeave;
+
+          if (currentChar !== null && typeof dialogLeaveFunc === "function") {
+            dialogLeaveFunc();
             if (this.isOpen) {
               this.close();
             }
@@ -301,11 +244,6 @@ export class Drawer extends CRABS_Base {
     this.setupDynamicUpdates();
   }
 
-  /**
-   * Safe helper to read settings without a hard import dependency.
-   *
-   * @private
-   */
   private getSetting<T>(key: string, defaultValue: T): T {
     const globalWindow = window as any;
     const settingsInstanceData = (globalWindow.CRABS?.Settings as any)?.instance
@@ -317,14 +255,6 @@ export class Drawer extends CRABS_Base {
     return val !== undefined ? val : defaultValue;
   }
 
-  /**
-   * Evaluates user settings and system performance to dictate visual intensity.
-   * Restricts animations and intensive CSS effects when the engine is struggling.
-   *
-   * @param {boolean} lowPerformance - Indicates if the system is currently under heavy load.
-   * @private
-   * @returns {void}
-   */
   private optimizeVisuals(lowPerformance: boolean): void {
     if (!this.instance || !this.tabElement) return;
 
@@ -353,18 +283,10 @@ export class Drawer extends CRABS_Base {
     }
   }
 
-  /**
-   * Hooks into the game's render loop to process updates.
-   * Monitors performance state and executes surgical DOM updates via the registered state delegate.
-   *
-   * @private
-   * @returns {void}
-   */
   private setupDynamicUpdates(): void {
-    // Re-render when the base game language switches
     this.safeHook(
       "TranslationLoad",
-      10,
+      12,
       (args: any, next: (args: any[]) => any) => {
         const result = next(args);
         if (this.instance) {
@@ -376,7 +298,7 @@ export class Drawer extends CRABS_Base {
 
     this.safeHook(
       "ChatRoomRun",
-      10,
+      15,
       (functionArguments: any, next: (args: any[]) => any) => {
         const result = next(functionArguments);
 
@@ -411,59 +333,79 @@ export class Drawer extends CRABS_Base {
           this.updateTick = 0;
 
           this.updateVisibility();
-          this.syncToChat();
 
-          // Auto-revert keys view back to roster if leaving a map
-          const isMap = this.isMap();
-          if (this.wasMapActive && !isMap) {
+          let isMapActive = false;
+          try {
+            isMapActive = Boolean(this.isMap());
+          } catch {
+            isMapActive = false;
+          }
+
+          if (this.wasMapActive && !isMapActive) {
             if (this.activePage === "keys") {
               this.activePage = "roster";
               this.refresh();
             }
           }
-          this.wasMapActive = isMap;
+          this.wasMapActive = isMapActive;
 
-          // Detect instant key pickups/drops via delegate
           if (
             this.isOpen &&
-            isMap &&
+            isMapActive &&
             this.activePage !== "help" &&
             this.activePage !== "history"
           ) {
-            const currentKeys = Drawer.stateDelegate?.getKeyStateString
-              ? Drawer.stateDelegate.getKeyStateString()
-              : "";
-            if (currentKeys && this.lastKnownKeys !== currentKeys) {
-              this.lastKnownKeys = currentKeys;
+            try {
+              const currentKeys = Drawer.stateDelegate?.getKeyStateString
+                ? Drawer.stateDelegate.getKeyStateString()
+                : "";
+              if (currentKeys && this.lastKnownKeys !== currentKeys) {
+                this.lastKnownKeys = currentKeys;
 
-              if (this.activePage === "keys") {
-                this.refresh();
-              } else if (this.instance && Drawer.stateDelegate?.updateUI) {
-                Drawer.stateDelegate.updateUI(this.instance);
+                if (this.activePage === "keys") {
+                  this.refresh();
+                } else if (this.instance && Drawer.stateDelegate?.updateUI) {
+                  Drawer.stateDelegate.updateUI(this.instance);
+                }
               }
+            } catch (delegateErr) {
+              console.error(
+                "[CRABS Drawer] Error polling key state from delegate:",
+                delegateErr,
+              );
             }
           }
 
           if (this.isOpen && this.activePage !== "help") {
-            if (
-              Drawer.stateDelegate?.isDirty &&
-              Drawer.stateDelegate.isDirty()
-            ) {
-              if (this.activePage === "history" || this.activePage === "keys") {
-                this.refresh();
-              } else {
-                const rosterRoot = this.instance?.querySelector(
-                  ".CRABS_roster_center_table",
-                ) as HTMLElement;
-
-                if (rosterRoot && Drawer.stateDelegate?.updateUI) {
-                  Drawer.stateDelegate.updateUI(this.instance!);
-                } else {
+            try {
+              if (
+                Drawer.stateDelegate?.isDirty &&
+                Drawer.stateDelegate.isDirty()
+              ) {
+                if (
+                  this.activePage === "history" ||
+                  this.activePage === "keys"
+                ) {
                   this.refresh();
-                }
-              }
+                } else {
+                  const rosterRoot = this.instance?.querySelector(
+                    ".CRABS_roster_center_table",
+                  ) as HTMLElement;
 
-              Drawer.stateDelegate?.clearDirty?.();
+                  if (rosterRoot && Drawer.stateDelegate?.updateUI) {
+                    Drawer.stateDelegate.updateUI(this.instance!);
+                  } else {
+                    this.refresh();
+                  }
+                }
+
+                Drawer.stateDelegate?.clearDirty?.();
+              }
+            } catch (dirtyErr) {
+              console.error(
+                "[CRABS Drawer] Error processing drawer dirty update:",
+                dirtyErr,
+              );
             }
           }
         }
@@ -472,89 +414,85 @@ export class Drawer extends CRABS_Base {
     );
   }
 
-  /**
-   * Compiles the drawer HTML template and injects it into the document body.
-   * Binds internal events once the element is created.
-   *
-   * @private
-   * @returns {void}
-   */
   private setupElement(): void {
     if (this.instance) return;
 
-    const globalWindow = window as any;
-    const chatRoomData = globalWindow.ChatRoomData;
+    try {
+      const globalWindow = window as any;
+      const chatRoomData = globalWindow.ChatRoomData;
 
-    const roomName =
-      chatRoomData?.Name || this.t("drawer.header.title_default");
-    const title = `${roomName}`;
+      const roomName =
+        chatRoomData?.Name || this.t("drawer.header.title_default");
+      const title = `${roomName}`;
 
-    const animatedLogo = this.getSetting<boolean>("animatedCrabsLogo", true);
-    const logoKey = animatedLogo ? "animated_logo" : "static_logo";
+      const animatedLogo = this.getSetting<boolean>("animatedCrabsLogo", true);
+      const logoKey = animatedLogo ? "animated_logo" : "static_logo";
 
-    const templateVars = {
-      Help: Assets.printimage({
-        key: "help",
-        css_class_override: "CRABS_Drawer_Help_Icon",
-      }),
-      Settings: Assets.printimage({
-        key: "settings",
-        css_class_override: "CRABS_Drawer_Settings_Icon",
-      }),
-      Layout: Assets.printimage({
-        key: this.getLayoutIconKey() as any,
-        css_class_override: "CRABS_Drawer_Layout_Icon",
-      }),
-      History: Assets.printimage({
-        key: "history" as any,
-        css_class_override: "CRABS_Drawer_History_Icon",
-      }),
-      TabIcon: Assets.printimage({
-        key: logoKey,
-      }),
-      SortIcon: Assets.printimage({
-        key: "sort",
-        tooltip_override: this.t("drawer.tooltips.layout"),
-        css_class_override: "CRABS_Drawer_Sort_Icon",
-      }),
-      TitleBar: title,
-      Close: Assets.printimage({
-        key: "close",
-        css_class_override: "CRABS_Drawer_Close_Icon",
-      }),
-    };
+      const templateVars = {
+        Help: Assets.printimage({
+          key: "help",
+          css_class_override: "CRABS_Drawer_Help_Icon",
+        }),
+        Settings: Assets.printimage({
+          key: "settings",
+          css_class_override: "CRABS_Drawer_Settings_Icon",
+        }),
+        Layout: Assets.printimage({
+          key: this.getLayoutIconKey() as any,
+          css_class_override: "CRABS_Drawer_Layout_Icon",
+        }),
+        History: Assets.printimage({
+          key: "history" as any,
+          css_class_override: "CRABS_Drawer_History_Icon",
+        }),
+        TabIcon: Assets.printimage({
+          key: logoKey,
+        }),
+        SortIcon: Assets.printimage({
+          key: "sort",
+          tooltip_override: this.t("drawer.tooltips.layout"),
+          css_class_override: "CRABS_Drawer_Sort_Icon",
+        }),
+        TitleBar: title,
+        Close: Assets.printimage({
+          key: "close",
+          css_class_override: "CRABS_Drawer_Close_Icon",
+        }),
+      };
 
-    const html = this.template(drawertemplate, templateVars, false);
-    const container = document.createElement("div");
-    container.innerHTML = html;
-    const element = container.firstElementChild as HTMLElement;
+      const html = this.template(drawertemplate, templateVars, false);
+      const container = document.createElement("div");
+      container.innerHTML = html;
+      const element = container.firstElementChild as HTMLElement;
 
-    if (element) {
-      element.classList.add("drawer-closed");
-      document.body.appendChild(element);
-      this.instance = element;
+      if (element) {
+        element.classList.add("drawer-closed");
+        document.body.appendChild(element);
+        this.instance = element;
 
-      this.tabElement = element.querySelector("#drawer-tab") as HTMLElement;
-      this.chatLogElement = document.getElementById("TextAreaChatLog");
+        this.tabElement = element.querySelector("#drawer-tab") as HTMLElement;
+        this.chatLogElement = document.getElementById("TextAreaChatLog");
 
-      this.bindEvents();
-      this.updateVisibility();
-      this.syncToChat();
+        this.bindEvents();
+        this.updateVisibility();
+      }
+    } catch (err) {
+      console.error("[CRABS Drawer] FATAL: Failed to inject Drawer DOM:", err);
     }
   }
 
-  /**
-   * Aligns the drawer UI to the dimensions and position of the native game chat log.
-   *
-   * @private
-   * @returns {void}
-   */
   private syncToChat(): void {
-    const chatLog = document.getElementById("TextAreaChatLog");
+    if (!this.chatLogElement) {
+      this.chatLogElement = document.getElementById("TextAreaChatLog");
+    }
+
+    const chatLog = this.chatLogElement;
     if (!chatLog || !this.instance) return;
 
     const rect = chatLog.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
+    if (rect.width === 0 || rect.height === 0) {
+      return;
+    }
 
     const rightOffset = document.documentElement.clientWidth - rect.right;
     const compact = this.getSetting<boolean>("compactDrawer", false);
@@ -584,12 +522,15 @@ export class Drawer extends CRABS_Base {
   }
 
   /**
-   * Determines whether the drawer should be injected into the DOM workflow.
-   *
-   * @returns {void}
+   * Determines whether the drawer should be visible.
+   * Strictly restricts display to the primary ChatRoom screen and hides it on
+   * Wardrobe (Appearance), Room Admin, Settings, or when focusing another character.
    */
   public updateVisibility(): void {
-    if (!this.instance) return;
+    if (!this.instance) {
+      this.setupElement();
+      if (!this.instance) return;
+    }
 
     const enableDrawer = this.getSetting<boolean>("enableDrawer", true);
     if (!enableDrawer) {
@@ -598,12 +539,18 @@ export class Drawer extends CRABS_Base {
       return;
     }
 
-    const inChatRoom =
-      typeof ChatRoomData !== "undefined" &&
-      ChatRoomData !== null &&
-      (typeof CurrentScreen === "undefined" || CurrentScreen === "ChatRoom");
+    const globalWindow = window as any;
+    const currentScreen = globalWindow.CurrentScreen;
 
-    if (!inChatRoom) {
+    // Strict Screen Constraint: The drawer must ONLY exist on the main room screen (tile map or standard)
+    const isStrictChatRoom = currentScreen === "ChatRoom";
+
+    // Player Focus Check: Dialog with another character opens over the room
+    const isFocused =
+      globalWindow.CurrentCharacter !== null &&
+      typeof globalWindow.CurrentCharacter !== "undefined";
+
+    if (!isStrictChatRoom || isFocused) {
       this.instance.style.display = "none";
       this.close();
 
@@ -611,32 +558,30 @@ export class Drawer extends CRABS_Base {
         this.resizeObserver.disconnect();
         this.resizeObserver = null;
       }
-    } else {
-      const isFocused = (window as any).CurrentCharacter !== null;
-      this.instance.style.display = isFocused ? "none" : "flex";
+      return;
+    }
 
-      const tab = this.tabElement;
-      if (tab) {
-        const showTab = this.getSetting<boolean>("showDrawerTab", true);
-        tab.style.display = showTab && !isFocused ? "flex" : "none";
-      }
+    // We are on the active room screen without character focus
+    this.instance.style.display = "flex";
 
-      if (!this.resizeObserver) {
-        const chatLog = this.chatLogElement;
-        if (chatLog) {
-          this.resizeObserver = new ResizeObserver(() => this.syncToChat());
-          this.resizeObserver.observe(chatLog);
-          this.syncToChat();
-        }
+    const tab = this.tabElement;
+    if (tab) {
+      const showTab = this.getSetting<boolean>("showDrawerTab", true);
+      tab.style.display = showTab ? "flex" : "none";
+    }
+
+    this.syncToChat();
+
+    if (!this.resizeObserver) {
+      const chatLog =
+        this.chatLogElement || document.getElementById("TextAreaChatLog");
+      if (chatLog) {
+        this.resizeObserver = new ResizeObserver(() => this.syncToChat());
+        this.resizeObserver.observe(chatLog);
       }
     }
   }
 
-  /**
-   * Completely rebuilds the inner HTML of the drawer based on context.
-   *
-   * @returns {void}
-   */
   public refresh(): void {
     const content = this.instance?.querySelector("#CRABS_Drawer_Roster");
     const title = this.instance?.querySelector("#drawer-title") as HTMLElement;
@@ -644,7 +589,6 @@ export class Drawer extends CRABS_Base {
       ".CRABS_wrapper_header",
     ) as HTMLElement;
 
-    // Grab all icon containers
     const helpIconContainer = this.instance?.querySelector(
       ".CRABS_Drawer_Help_Icon",
     ) as HTMLElement;
@@ -670,7 +614,6 @@ export class Drawer extends CRABS_Base {
       "#CRABS_sort_dropdown",
     ) as HTMLSelectElement;
 
-    // Force re-render of static elements so live language changes take effect immediately
     if (settingsIconContainer)
       settingsIconContainer.innerHTML = Assets.printimage({
         key: "settings",
@@ -693,7 +636,6 @@ export class Drawer extends CRABS_Base {
       });
     }
 
-    // Rebuild Dropdown options dynamically on language change
     if (sortDropdown) {
       const currentSort = sortDropdown.value || "natural";
       sortDropdown.innerHTML = `
@@ -708,8 +650,12 @@ export class Drawer extends CRABS_Base {
       sortDropdown.value = currentSort;
     }
 
+    const globalWin = window as any;
     const isRoomReady =
-      typeof ChatRoomData !== "undefined" && ChatRoomData !== null;
+      Boolean(globalWin.ChatRoomData) ||
+      (typeof globalWin.ServerPlayerIsInChatRoom === "function" &&
+        globalWin.ServerPlayerIsInChatRoom()) ||
+      Boolean(globalWin.Player?.LastChatRoom);
 
     if (content && isRoomReady) {
       header?.classList.toggle("help-active", this.activePage === "help");
@@ -731,64 +677,76 @@ export class Drawer extends CRABS_Base {
         });
       };
 
-      // Query registered view provider
       const view = Drawer.registeredViews.get(this.activePage);
 
       if (view) {
-        const computedTitle = view.title();
-        if (title && title.textContent !== computedTitle) {
-          title.textContent = computedTitle;
-        }
+        try {
+          const computedTitle =
+            typeof view.title === "function" ? view.title() : "";
+          if (title && title.textContent !== computedTitle) {
+            title.textContent = computedTitle;
+          }
 
-        // Handle icon state updates
-        if (helpIconContainer) {
-          const iconKey = this.activePage === "help" ? "roster" : "help";
-          helpIconContainer.innerHTML = Assets.printimage({
-            key: iconKey,
-            css_class_override: "CRABS_Drawer_Help_Icon",
-          });
-          helpIconContainer.setAttribute("data-icon", iconKey);
-        }
-
-        if (historyIconContainer) {
-          historyIconContainer.setAttribute(
-            "data-active",
-            this.activePage === "history" ? "true" : "false",
-          );
-        }
-
-        if (sortContainer) {
-          sortContainer.style.setProperty(
-            "display",
-            view.showSort ? "flex" : "none",
-            "important",
-          );
-        }
-
-        setLayoutVisible(!!view.showLayout);
-        if (view.showLayout) {
-          layoutIcons?.forEach((el) => {
-            (el as HTMLElement).innerHTML = Assets.printimage({
-              key: this.getLayoutIconKey() as any,
-              tooltip_override: this.t("drawer.tooltips.layout"),
-              css_class_override: "CRABS_Drawer_Layout_Icon",
+          if (helpIconContainer) {
+            const iconKey = this.activePage === "help" ? "roster" : "help";
+            helpIconContainer.innerHTML = Assets.printimage({
+              key: iconKey,
+              css_class_override: "CRABS_Drawer_Help_Icon",
             });
-          });
-        }
+            helpIconContainer.setAttribute("data-icon", iconKey);
+          }
 
-        // Render content
-        content.innerHTML = view.render();
+          if (historyIconContainer) {
+            historyIconContainer.setAttribute(
+              "data-active",
+              this.activePage === "history" ? "true" : "false",
+            );
+          }
 
-        // Trigger onMount callback
-        if (this.instance && view.onMount) {
-          view.onMount(this.instance);
+          if (sortContainer) {
+            sortContainer.style.setProperty(
+              "display",
+              view.showSort ? "flex" : "none",
+              "important",
+            );
+          }
+
+          setLayoutVisible(Boolean(view.showLayout));
+          if (view.showLayout) {
+            layoutIcons?.forEach((el) => {
+              (el as HTMLElement).innerHTML = Assets.printimage({
+                key: this.getLayoutIconKey() as any,
+                tooltip_override: this.t("drawer.tooltips.layout"),
+                css_class_override: "CRABS_Drawer_Layout_Icon",
+              });
+            });
+          }
+
+          content.innerHTML =
+            typeof view.render === "function" ? view.render() : "";
+
+          if (this.instance && typeof view.onMount === "function") {
+            view.onMount(this.instance);
+          }
+        } catch (viewErr) {
+          console.error(
+            `[CRABS Drawer] Error rendering drawer view '${this.activePage}':`,
+            viewErr,
+          );
+          content.innerHTML = `<div style="padding: 16px; color: #ff6666;">Failed to load view.</div>`;
         }
       }
 
-      // Execute any registered auxiliary injectors (e.g. WhisperPlus)
       if (this.instance) {
         for (const injector of Drawer.registeredInjectors) {
-          injector(this.instance);
+          try {
+            injector(this.instance);
+          } catch (injectorErr) {
+            console.error(
+              "[CRABS Drawer] Error executing drawer UI injector:",
+              injectorErr,
+            );
+          }
         }
       }
 
@@ -796,23 +754,11 @@ export class Drawer extends CRABS_Base {
     }
   }
 
-  /**
-   * Overrides the base class openSettings to ensure drawer closes before opening modal.
-   *
-   * @override
-   * @returns {Promise<void>}
-   */
   public override async openSettings(): Promise<void> {
     this.close();
     await super.openSettings();
   }
 
-  /**
-   * Attaches click event listeners to the header elements.
-   *
-   * @private
-   * @returns {void}
-   */
   private bindEvents(): void {
     if (!this.instance) return;
 
@@ -843,7 +789,11 @@ export class Drawer extends CRABS_Base {
         )
           return;
 
-        Drawer.stateDelegate?.cycleLayout?.();
+        try {
+          Drawer.stateDelegate?.cycleLayout?.();
+        } catch (e) {
+          console.error("[CRABS Drawer] Error cycling drawer layout:", e);
+        }
         this.refresh();
       } else if (target.closest(".CRABS_Drawer_Close_Icon")) {
         event.stopPropagation();
@@ -857,16 +807,6 @@ export class Drawer extends CRABS_Base {
     });
   }
 
-  /**
-   * Alternates the drawer's state between open and closed, or switches to a target page.
-   * - If closed: opens directly to the requested page.
-   * - If open on the requested page: closes the drawer.
-   * - If open on a different page: switches view without closing.
-   * - If no page specified: standard toggle behavior.
-   *
-   * @param {DrawerPage} [page] - The specific view to target.
-   * @returns {void}
-   */
   public toggle(page?: DrawerPage): void {
     if (!page) {
       this.isOpen ? this.close() : this.open();
@@ -883,16 +823,17 @@ export class Drawer extends CRABS_Base {
     this.open(page);
   }
 
-  /**
-   * Opens the drawer and refreshes content, optionally routing to a specific page.
-   *
-   * @param {DrawerPage} [page] - Optional view to route to ("roster", "help", or "history").
-   * @returns {void}
-   */
   public open(page?: DrawerPage): void {
     if (!this.instance) return;
 
-    if (page === "keys" && !isMap()) {
+    let isMapActive = false;
+    try {
+      isMapActive = Boolean(this.isMap());
+    } catch {
+      isMapActive = false;
+    }
+
+    if (page === "keys" && !isMapActive) {
       Notification.send({
         message: translate("drawer.errors.not_on_map"),
       });
@@ -907,22 +848,24 @@ export class Drawer extends CRABS_Base {
     this.instance.classList.add("drawer-open");
   }
 
-  /**
-   * Closes the drawer.
-   *
-   * @returns {void}
-   */
   public close(): void {
     if (!this.instance) return;
     this.isOpen = false;
     this.instance.classList.remove("drawer-open");
     this.instance.classList.add("drawer-closed");
 
-    // Deactivate active page
-    const currentView = Drawer.registeredViews.get(this.activePage);
-    currentView?.onDeactivate?.();
+    try {
+      const currentView = Drawer.registeredViews.get(this.activePage);
+      currentView?.onDeactivate?.();
+    } catch (err) {
+      console.error("[CRABS Drawer] Error during view onDeactivate:", err);
+    }
 
     this.activePage = "roster";
-    Drawer.stateDelegate?.onClearTracking?.();
+    try {
+      Drawer.stateDelegate?.onClearTracking?.();
+    } catch (err) {
+      console.error("[CRABS Drawer] Error clearing delegate tracking:", err);
+    }
   }
 }

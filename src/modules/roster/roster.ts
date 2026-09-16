@@ -5,6 +5,9 @@
  * Handles live character rendering hooks, map/spatial tracking indicators, history
  * logging, relationship/effect icons, and map key-management interactions.
  *
+ * Hardened for defensive execution across character array updates,
+ * canvas dimension checks, and dynamic server payload changes.
+ *
  * @module roster
  */
 
@@ -32,7 +35,7 @@ import locales from "./i18n.json";
  *
  * Extends {@link CRABS_Base} to render dynamic roster cards, manage drawer state,
  * hook into the base game's character drawing pipeline for map tracking/glow effects,
- * and provide interactive controls such as map key discard dialogs and sorting modes.
+ * and provide interactive controls such as the map key discard dialog and sorting modes.
  */
 export class Roster extends CRABS_Base {
   /**
@@ -189,13 +192,31 @@ export class Roster extends CRABS_Base {
           layouts[(currentIndex + 1) % layouts.length] || "layout-grid";
         this.layoutMode = nextLayout;
       },
-      getKeyStateString: () => Keys.getKeyState().keyStateString,
+      getKeyStateString: () => {
+        try {
+          return Keys.getKeyState().keyStateString;
+        } catch {
+          return "";
+        }
+      },
       onClearTracking: () => this.clearTracking(),
     });
 
     Drawer.registerView({
       id: "roster",
-      title: () => ChatRoomData?.Name || this.t("title.default"),
+      title: () => {
+        const win = window as any;
+        const lastRoom = win.Player?.LastChatRoom;
+        const fallbackName =
+          typeof lastRoom === "string" ? lastRoom : lastRoom?.Name;
+
+        return (
+          win.ChatRoomData?.Name ||
+          fallbackName ||
+          this.t("header.title_default") ||
+          "Chat Room"
+        );
+      },
       render: () => {
         this.initScrollingOverflow();
         return this.buildroster("all", false);
@@ -238,7 +259,9 @@ export class Roster extends CRABS_Base {
 
     window.addEventListener("mousemove", (e) => {
       const target = e.target as HTMLElement;
-      Compass.setIsMouseOverCanvas(!!target && target.id === "MainCanvas");
+      Compass.setIsMouseOverCanvas(
+        Boolean(target && target.id === "MainCanvas"),
+      );
     });
     window.addEventListener("mouseleave", () => {
       Compass.setIsMouseOverCanvas(false);
@@ -256,11 +279,12 @@ export class Roster extends CRABS_Base {
 
       if (
         globalWindow.CurrentScreen === "ChatRoom" &&
-        globalWindow.ChatRoomHideIconState < 3 &&
-        globalWindow.Player?.OnlineSettings?.ShowNames !== false
+        Number(globalWindow.ChatRoomHideIconState) < 3 &&
+        globalWindow.Player?.OnlineSettings?.ShowNames !== false &&
+        character
       ) {
-        const isMap =
-          globalWindow.ChatRoomMapViewIsActive &&
+        const isMapActive =
+          typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
           globalWindow.ChatRoomMapViewIsActive();
         const targetId = Compass.trackedMapPlayer || Compass.hoveredMapPlayer;
 
@@ -273,7 +297,7 @@ export class Roster extends CRABS_Base {
           typeof mouseY === "number"
         ) {
           if (
-            !isMap &&
+            !isMapActive &&
             mouseX < 1000 &&
             Compass.hoveredMapPlayer === null &&
             mouseX >= drawX &&
@@ -285,21 +309,25 @@ export class Roster extends CRABS_Base {
           }
         }
 
-        if (!isMap && targetId && character.MemberNumber === targetId) {
+        if (!isMapActive && targetId && character.MemberNumber === targetId) {
           isTarget = true;
-          Compass.drawFocusGlow(
-            character,
-            drawX,
-            drawY,
-            zoom,
-            CRABS_Base.currentPerformanceLevel,
-          );
+          try {
+            Compass.drawFocusGlow(
+              character,
+              drawX,
+              drawY,
+              zoom,
+              CRABS_Base.currentPerformanceLevel,
+            );
+          } catch (glowErr) {
+            console.error("[CRABS] Error rendering focus glow:", glowErr);
+          }
         }
       }
 
       const result = next(args);
 
-      if (isTarget) {
+      if (isTarget && character) {
         const centerX = drawX + 250 * zoom;
         const nameY = drawY + 975 * zoom;
         Compass.setDeferredIndicator({ character, x: centerX, y: nameY, zoom });
@@ -324,33 +352,42 @@ export class Roster extends CRABS_Base {
         indicator.y >= 0 &&
         indicator.y <= 1000
       ) {
-        Compass.drawNameIndicator(
-          indicator.character,
-          indicator.x,
-          indicator.y,
-          this.getColorBrightness.bind(this),
-        );
+        try {
+          Compass.drawNameIndicator(
+            indicator.character,
+            indicator.x,
+            indicator.y,
+            this.getColorBrightness.bind(this),
+          );
+        } catch (indErr) {
+          console.error("[CRABS] Error drawing name indicator:", indErr);
+        }
         Compass.setDeferredIndicator(null);
       }
-      Compass.drawCompass(this.getColorBrightness.bind(this));
+
+      try {
+        Compass.drawCompass(this.getColorBrightness.bind(this));
+      } catch (compassErr) {
+        console.error("[CRABS] Error rendering compass:", compassErr);
+      }
 
       const globalWindow = window as any;
 
       // Detect immediate map key pickups or drops
       const pState = globalWindow.Player?.MapData?.PrivateState;
       const keySig = pState
-        ? `${!!pState.HasKeyBronze}-${!!pState.HasKeySilver}-${!!pState.HasKeyGold}`
+        ? `${Boolean(pState.HasKeyBronze)}-${Boolean(pState.HasKeySilver)}-${Boolean(pState.HasKeyGold)}`
         : "";
       if (this.lastKnownKeyState !== keySig) {
         this.lastKnownKeyState = keySig;
         this.isDirty = true;
       }
 
-      const isMap =
-        globalWindow.ChatRoomMapViewIsActive &&
+      const isMapActive =
+        typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
         globalWindow.ChatRoomMapViewIsActive();
 
-      if (isMap && Compass.isMouseOverCanvas) {
+      if (isMapActive && Compass.isMouseOverCanvas) {
         const mouseX = globalWindow.MouseX;
         const mouseY = globalWindow.MouseY;
         const range = globalWindow.ChatRoomMapViewPerceptionRange;
@@ -360,13 +397,19 @@ export class Roster extends CRABS_Base {
           typeof mouseX === "number" &&
           typeof mouseY === "number" &&
           typeof range === "number" &&
+          range > 0 &&
           player?.MapData?.Pos
         ) {
           const tileW = 1000 / (range * 2 + 1);
           const hoverGridX = Math.floor(mouseX / tileW);
           const hoverGridY = Math.floor(mouseY / tileW);
 
-          const characters = globalWindow.ChatRoomCharacter || [];
+          const characters = Array.isArray(globalWindow.ChatRoomCharacter)
+            ? globalWindow.ChatRoomCharacter
+            : [];
+          const mapWidth = Number(globalWindow.ChatRoomMapViewWidth) || 0;
+          const mask = globalWindow.ChatRoomMapViewVisibilityMask;
+
           for (let i = characters.length - 1; i >= 0; i--) {
             const c = characters[i];
             if (c?.MapData?.Pos) {
@@ -380,13 +423,9 @@ export class Roster extends CRABS_Base {
                 hoverGridX === charScreenX &&
                 (hoverGridY === charScreenY || hoverGridY === charScreenY - 1);
 
-              if (isHoveringCharacter) {
-                const tileIndex =
-                  c.MapData.Pos.X +
-                  c.MapData.Pos.Y * globalWindow.ChatRoomMapViewWidth;
-                const isVisible =
-                  globalWindow.ChatRoomMapViewVisibilityMask &&
-                  globalWindow.ChatRoomMapViewVisibilityMask[tileIndex];
+              if (isHoveringCharacter && mapWidth > 0 && Array.isArray(mask)) {
+                const tileIndex = c.MapData.Pos.X + c.MapData.Pos.Y * mapWidth;
+                const isVisible = mask[tileIndex];
 
                 if (isVisible) {
                   Compass.setCurrentFrameHoveredPlayer(c.MemberNumber);
@@ -416,7 +455,12 @@ export class Roster extends CRABS_Base {
    * @returns Sanitized HTML representation of the keys view.
    */
   public buildKeys(): string {
-    return Keys.buildKeysRoster(this.template.bind(this), this.t.bind(this));
+    try {
+      return Keys.buildKeysRoster(this.template.bind(this), this.t.bind(this));
+    } catch (e) {
+      console.error("[CRABS] Failed to build keys roster:", e);
+      return `<div style="padding: 16px;">Failed to render keys view.</div>`;
+    }
   }
 
   /**
@@ -429,31 +473,53 @@ export class Roster extends CRABS_Base {
    * @returns Consolidated counts, states, and key HTML.
    */
   private getHeaderStats() {
+    const globalWindow = window as any;
+    const roomData = globalWindow.ChatRoomData;
+
+    const lastRoom = globalWindow.Player?.LastChatRoom;
+    const fallbackName =
+      typeof lastRoom === "string" ? lastRoom : lastRoom?.Name;
+
     const currentRoomName =
-      ChatRoomData?.Name || this.t("header.title_default");
+      roomData?.Name || fallbackName || this.t("header.title_default");
 
-    const adminInRoom =
-      ChatRoomData?.Character?.filter((c: any) =>
-        ChatRoomData.Admin.includes(c.MemberNumber),
-      ).length || 0;
+    const occupants = Array.isArray(globalWindow.ChatRoomCharacter)
+      ? globalWindow.ChatRoomCharacter
+      : Array.isArray(roomData?.Character)
+        ? roomData.Character
+        : [];
 
-    const totalAdmins = ChatRoomData?.Admin?.length || 0;
-    const playersInRoom =
-      typeof ChatRoomCharacter !== "undefined" ? ChatRoomCharacter.length : 0;
-    const totalPlayers = ChatRoomData?.Limit || 0;
+    const admins = Array.isArray(roomData?.Admin) ? roomData.Admin : [];
 
-    const playerWindow = (window as any).Player;
-    const totalFriends = playerWindow?.FriendList?.length || 0;
+    const adminInRoom = occupants.filter((c: any) =>
+      admins.includes(c?.MemberNumber),
+    ).length;
+
+    const totalAdmins = admins.length;
+    const playersInRoom = occupants.length;
+    const totalPlayers = Number(roomData?.Limit) || 0;
+
+    const playerWindow = globalWindow.Player;
+    const totalFriends = Array.isArray(playerWindow?.FriendList)
+      ? playerWindow.FriendList.length
+      : 0;
 
     const onlinePlayers =
-      typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : "";
-    const isMap =
-      typeof ChatRoomMapViewIsActive === "function" &&
-      ChatRoomMapViewIsActive();
+      typeof globalWindow.CurrentOnlinePlayers !== "undefined"
+        ? globalWindow.CurrentOnlinePlayers
+        : "";
+    const isMapActive =
+      typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
+      globalWindow.ChatRoomMapViewIsActive();
 
     const pState = playerWindow?.MapData?.PrivateState;
-    const currentKeyState = `${pState?.HasKeyBronze}-${pState?.HasKeySilver}-${pState?.HasKeyGold}`;
-    const keyHtml = Keys.renderHeaderKeys(isMap);
+    const currentKeyState = `${Boolean(pState?.HasKeyBronze)}-${Boolean(pState?.HasKeySilver)}-${Boolean(pState?.HasKeyGold)}`;
+    let keyHtml = "";
+    try {
+      keyHtml = Keys.renderHeaderKeys(isMapActive);
+    } catch {
+      keyHtml = "";
+    }
 
     return {
       currentRoomName,
@@ -464,7 +530,7 @@ export class Roster extends CRABS_Base {
       friendsOnline: this.onlineFriendsCache,
       totalFriends,
       onlinePlayers,
-      isMap,
+      isMap: isMapActive,
       currentKeyState,
       keyHtml,
     };
@@ -480,7 +546,15 @@ export class Roster extends CRABS_Base {
    * @returns {void}
    */
   public updateRosterUI(root: HTMLElement): void {
-    if (typeof ChatRoomData === "undefined" || ChatRoomData === null) return;
+    const globalWindow = window as any;
+    const roomData = globalWindow.ChatRoomData;
+    const occupants = Array.isArray(globalWindow.ChatRoomCharacter)
+      ? globalWindow.ChatRoomCharacter
+      : Array.isArray(roomData?.Character)
+        ? roomData.Character
+        : [];
+
+    if (occupants.length === 0 && !roomData) return;
 
     const table = root.querySelector(".CRABS_roster_center_table");
     if (table) {
@@ -539,7 +613,8 @@ export class Roster extends CRABS_Base {
 
     const container = root.querySelector(".CRABS_card-container");
     const currentCardCount = container?.querySelectorAll(".CRABS_card").length;
-    if (currentCardCount !== ChatRoomData.Character.length) {
+
+    if (currentCardCount !== occupants.length) {
       if (container) {
         container.innerHTML = DOMPurify.sanitize(
           this.buildroster("all", false, true),
@@ -549,23 +624,28 @@ export class Roster extends CRABS_Base {
       }
     }
 
-    ChatRoomData.Character.forEach((charData: any) => {
+    const getNickname = globalWindow.CharacterNickname;
+    const getEffects = globalWindow.CharacterGetEffects;
+
+    occupants.forEach((charData: any) => {
+      if (!charData?.MemberNumber) return;
       const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
-      const character =
-        typeof ChatRoomCharacter !== "undefined"
-          ? ChatRoomCharacter.find(
-              (c) => c.MemberNumber === charData.MemberNumber,
-            )
-          : null;
+      const character = Array.isArray(globalWindow.ChatRoomCharacter)
+        ? globalWindow.ChatRoomCharacter.find(
+            (c: any) => c?.MemberNumber === charData.MemberNumber,
+          ) || charData
+        : charData;
 
       if (card && character) {
         const nameContainer = card.querySelector(
           ".CRABS_player-name",
         ) as HTMLElement;
         if (nameContainer) {
-          const currentNickname = this.cleanZalgoAndNormalize(
-            CharacterNickname(character),
-          );
+          const rawNick =
+            typeof getNickname === "function"
+              ? getNickname(character)
+              : character.Name || "";
+          const currentNickname = this.cleanZalgoAndNormalize(rawNick);
           if (nameContainer.textContent !== currentNickname) {
             nameContainer.textContent = currentNickname;
           }
@@ -575,7 +655,12 @@ export class Roster extends CRABS_Base {
           ".CRABS_status-icons",
         ) as HTMLElement;
         if (statusContainer) {
-          const currentEffects = CharacterGetEffects(character).join(",");
+          const effectsList =
+            typeof getEffects === "function" &&
+            Array.isArray(getEffects(character))
+              ? getEffects(character)
+              : [];
+          const currentEffects = effectsList.join(",");
           if (statusContainer.dataset.lastEffects !== currentEffects) {
             statusContainer.innerHTML = DOMPurify.sanitize(
               Icons.setStatusIcons(character),
@@ -654,17 +739,24 @@ export class Roster extends CRABS_Base {
             : data?.SourceMemberNumber || data?.MemberNumber;
 
         const globalWindow = window as any;
-        const characters = globalWindow.ChatRoomCharacter || [];
+        const characters = Array.isArray(globalWindow.ChatRoomCharacter)
+          ? globalWindow.ChatRoomCharacter
+          : [];
 
         if (targetId) {
           const leavingChar = characters.find(
-            (c: any) => c.MemberNumber === targetId,
+            (c: any) => c?.MemberNumber === targetId,
           );
           if (leavingChar) {
             History.recordHistoryCharacter(leavingChar);
           } else {
-            const fallback = globalWindow.ChatRoomData?.Character?.find(
-              (c: any) => c.MemberNumber === targetId,
+            const fallbackList = Array.isArray(
+              globalWindow.ChatRoomData?.Character,
+            )
+              ? globalWindow.ChatRoomData.Character
+              : [];
+            const fallback = fallbackList.find(
+              (c: any) => c?.MemberNumber === targetId,
             );
             if (fallback) {
               History.recordHistoryCharacter(fallback);
@@ -708,13 +800,18 @@ export class Roster extends CRABS_Base {
    * @returns Sanitized HTML representation of the history roster.
    */
   public buildHistory(): string {
-    return History.buildHistoryRoster(
-      this.template.bind(this),
-      this.cleanZalgoAndNormalize.bind(this),
-      this.convertColor.bind(this),
-      this.getLabelShadow.bind(this),
-      this.currentHistorySortMode,
-    );
+    try {
+      return History.buildHistoryRoster(
+        this.template.bind(this),
+        this.cleanZalgoAndNormalize.bind(this),
+        this.convertColor.bind(this),
+        this.getLabelShadow.bind(this),
+        this.currentHistorySortMode,
+      );
+    } catch (e) {
+      console.error("[CRABS] Failed to build history roster:", e);
+      return `<div style="padding: 16px;">Failed to render history view.</div>`;
+    }
   }
 
   /**
@@ -755,6 +852,7 @@ export class Roster extends CRABS_Base {
    *
    * Computes label contrast shadows, attaches relationship and status badges,
    * and conditionally renders spatial compass targeting buttons.
+   * Includes safety fallbacks on canvas pixel reading.
    *
    * @param character - Bondage Club Character object to render.
    * @param badge - Rendered badge markup string.
@@ -769,19 +867,26 @@ export class Roster extends CRABS_Base {
     playerIcons: string,
     isDrawer: boolean = false,
   ): string {
-    const labelColor = character.LabelColor || "#FFFFFF";
+    const labelColor = character?.LabelColor || "#FFFFFF";
 
     let r = 255,
       g = 255,
       b = 255;
+
     if (Roster.canvasContext) {
-      Roster.canvasContext.clearRect(0, 0, 1, 1);
-      Roster.canvasContext.fillStyle = labelColor;
-      Roster.canvasContext.fillRect(0, 0, 1, 1);
-      const data = Roster.canvasContext.getImageData(0, 0, 1, 1).data;
-      r = data[0];
-      g = data[1];
-      b = data[2];
+      try {
+        Roster.canvasContext.clearRect(0, 0, 1, 1);
+        Roster.canvasContext.fillStyle = labelColor;
+        Roster.canvasContext.fillRect(0, 0, 1, 1);
+        const data = Roster.canvasContext.getImageData(0, 0, 1, 1).data;
+        r = data[0];
+        g = data[1];
+        b = data[2];
+      } catch {
+        r = 255;
+        g = 255;
+        b = 255;
+      }
     }
 
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
@@ -797,11 +902,11 @@ export class Roster extends CRABS_Base {
     let compassBlock = "";
     if (
       !this.isCompassBlocked() &&
-      Settings.instance.data.showMapCompass &&
+      Settings.instance?.data?.showMapCompass &&
       isDrawer
     ) {
       const trackedClass =
-        Compass.trackedMapPlayer === character.MemberNumber
+        Compass.trackedMapPlayer === character?.MemberNumber
           ? "CRABS_compass-active"
           : "";
       const compassIcon = Assets.printimage({
@@ -811,18 +916,24 @@ export class Roster extends CRABS_Base {
       });
 
       compassBlock = `
-            <div class="CRABS_track-compass ${trackedClass}" style="margin-left: 8px; cursor: pointer; flex-shrink: 0;" data-player-number="${character.MemberNumber}">
+            <div class="CRABS_track-compass ${trackedClass}" style="margin-left: 8px; cursor: pointer; flex-shrink: 0;" data-player-number="${character?.MemberNumber}">
                 ${compassIcon}
             </div>`;
     }
 
-    let templatevars: Record<string, string> = {
-      PlayerNumber: `${character.MemberNumber}`,
+    const getNickname = (window as any).CharacterNickname;
+    const rawName =
+      typeof getNickname === "function"
+        ? getNickname(character)
+        : character?.Name || "";
+
+    const templatevars: Record<string, string> = {
+      PlayerNumber: `${character?.MemberNumber ?? ""}`,
       Badge: badge,
       LabelColorBorder: `${this.convertColor(labelColor, 0.5)}`,
       LabelColor: labelColor,
       LabelShadow: labelShadow,
-      PlayerName: this.cleanZalgoAndNormalize(CharacterNickname(character)),
+      PlayerName: this.cleanZalgoAndNormalize(rawName),
       PlayerIcons: playerIcons,
       StatusIcons: `${Icons.setStatusIcons(character)}`,
       CompassBlock: compassBlock,
@@ -870,7 +981,11 @@ export class Roster extends CRABS_Base {
     if (now - this.lastSentTime >= 1 * 60 * 1000 && !this.isFetching) {
       this.isFetching = true;
       this.lastSentTime = now;
-      ServerSend("AccountQuery", { Query: "OnlineFriends" });
+
+      const serverSend = (window as any).ServerSend;
+      if (typeof serverSend === "function") {
+        serverSend("AccountQuery", { Query: "OnlineFriends" });
+      }
 
       setTimeout(() => {
         this.isFetching = false;
@@ -889,6 +1004,7 @@ export class Roster extends CRABS_Base {
 
   /**
    * Compiles the full HTML for the roster view, applying role sorting and active filters.
+   * Checks both ChatRoomCharacter and ChatRoomData.Character to guarantee occupants are resolved.
    *
    * @param commandArguments - Space-delimited command filters (`"admins"`, `"vips"`, `"count"`).
    * @param wrapper - Whether to wrap the output in the outer dialog shell.
@@ -900,14 +1016,26 @@ export class Roster extends CRABS_Base {
     wrapper: boolean = true,
     forceFullRows: boolean = false,
   ): string {
-    if (typeof ChatRoomData === "undefined" || ChatRoomData === null) {
+    const globalWindow = window as any;
+    const roomData = globalWindow.ChatRoomData;
+
+    // Use native ChatRoomCharacter if available; fall back to roomData.Character
+    const occupants =
+      Array.isArray(globalWindow.ChatRoomCharacter) &&
+      globalWindow.ChatRoomCharacter.length > 0
+        ? globalWindow.ChatRoomCharacter
+        : Array.isArray(roomData?.Character)
+          ? roomData.Character
+          : [];
+
+    if (occupants.length === 0 && !roomData) {
       return "";
     }
 
     this.requestOnlineFriends();
 
     let rosterStyle = "";
-    if (Settings.instance.data.immersiveBlind) {
+    if (Settings.instance?.data?.immersiveBlind) {
       const blindLevel = Immersion.getBlindnessLevel();
       if (blindLevel > 0) {
         const blurAmount = blindLevel * 5;
@@ -915,7 +1043,7 @@ export class Roster extends CRABS_Base {
       }
     }
 
-    const splitArguments = commandArguments.split(" ");
+    const splitArguments = (commandArguments || "").split(" ");
     let showme = true,
       showadmins = true,
       showvip = true,
@@ -942,13 +1070,25 @@ export class Roster extends CRABS_Base {
     }[] = [];
 
     const effectiveSortMode = wrapper ? "role" : this.currentRosterSortMode;
+    const admins = Array.isArray(roomData?.Admin) ? roomData.Admin : [];
+    const whitelist = Array.isArray(roomData?.Whitelist)
+      ? roomData.Whitelist
+      : [];
 
-    for (let characterIndex in ChatRoomData.Character) {
-      const memberNumber = ChatRoomData.Character[characterIndex].MemberNumber;
-      const character =
-        typeof ChatRoomCharacter !== "undefined"
-          ? ChatRoomCharacter.find((c: any) => c.MemberNumber == memberNumber)
-          : null;
+    for (
+      let characterIndex = 0;
+      characterIndex < occupants.length;
+      characterIndex++
+    ) {
+      const charData = occupants[characterIndex];
+      const memberNumber = charData?.MemberNumber;
+      if (typeof memberNumber !== "number") continue;
+
+      const character = Array.isArray(globalWindow.ChatRoomCharacter)
+        ? globalWindow.ChatRoomCharacter.find(
+            (c: any) => c?.MemberNumber === memberNumber,
+          ) || charData
+        : charData;
 
       if (!character) {
         rosterCards.push({
@@ -963,21 +1103,29 @@ export class Roster extends CRABS_Base {
         continue;
       }
 
-      const isMe = character.IsPlayer();
-      const isAdmin = ChatRoomData.Admin.includes(memberNumber);
-      const isVIP =
-        ChatRoomData.Whitelist.includes(memberNumber) && !isMe && !isAdmin;
+      const isMe =
+        typeof character.IsPlayer === "function"
+          ? character.IsPlayer()
+          : character.MemberNumber === globalWindow.Player?.MemberNumber;
+
+      const isAdmin = admins.includes(memberNumber);
+      const isVIP = whitelist.includes(memberNumber) && !isMe && !isAdmin;
       const isStandard = !isMe && !isAdmin && !isVIP;
 
       const badge = Icons.setbadge(character);
       const playerIcons = Icons.setIcons(character);
       const html = this.buildCard(character, badge, playerIcons, !wrapper);
 
-      const score = Sorting.calculateSortScore(
-        character,
-        effectiveSortMode,
-        parseInt(characterIndex, 10),
-      );
+      let score = 0;
+      try {
+        score = Sorting.calculateSortScore(
+          character,
+          effectiveSortMode,
+          characterIndex,
+        );
+      } catch {
+        score = 0;
+      }
 
       rosterCards.push({
         html,
@@ -1196,7 +1344,7 @@ export class Roster extends CRABS_Base {
       (dataVal: any) => {
         const targetKey = String(dataVal || "")
           .toLowerCase()
-          .trim() as DropTarget;
+          .trim() as any;
         if (targetKey && Keys.dropMapKey(targetKey, this.t.bind(this))) {
           this.isDirty = true;
           Drawer.open("roster");
@@ -1208,9 +1356,11 @@ export class Roster extends CRABS_Base {
       "class",
       root,
     );
+
     const dropdown = (root || document).querySelector(
       "#CRABS_sort_dropdown",
     ) as HTMLSelectElement;
+
     if (dropdown) {
       Array.from(dropdown.options).forEach((opt) => {
         const localizedLabel = Sorting.getSortOptionLabel(opt.value);
@@ -1240,12 +1390,20 @@ export class Roster extends CRABS_Base {
         );
         if (drawerRosterContainer) {
           let updatedHtml = "";
-          if (this.isShowingKeys) {
-            updatedHtml = this.buildKeys();
-          } else if (this.isShowingHistory) {
-            updatedHtml = this.buildHistory();
-          } else {
-            updatedHtml = this.buildroster("all", false);
+          try {
+            if (this.isShowingKeys) {
+              updatedHtml = this.buildKeys();
+            } else if (this.isShowingHistory) {
+              updatedHtml = this.buildHistory();
+            } else {
+              updatedHtml = this.buildroster("all", false);
+            }
+          } catch (renderErr) {
+            console.error(
+              "[CRABS] Error rendering sorted roster view:",
+              renderErr,
+            );
+            updatedHtml = `<div style="padding: 16px;">Failed to re-sort view.</div>`;
           }
 
           drawerRosterContainer.innerHTML = DOMPurify.sanitize(updatedHtml, {
