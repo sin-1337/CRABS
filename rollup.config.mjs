@@ -73,16 +73,76 @@ export default {
     file: targetOutputFile,
     format: "iife",
     sourcemap: true,
+// vi rollup.config.mjs
     banner: `// Crazy Roster Add-on By Sin (v${BUILD_VERSION} ${targetBranch})
-if (typeof window.ImportBondageCollege !== "function") {
-  alert("Club not detected! Please only use this while you have Club open!");
-  throw "Dependency not met";
-}
-if (window.CRABS_Loaded !== undefined) {
-  alert("CRABS is already detected in current window. To reload, please refresh the window.");
-  throw "Already loaded";
-}
-window.CRABS_Loaded = false;
+(function() {
+  function showCrabsModal(title, text) {
+    const existing = document.getElementById("crabs-boot-alert");
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "crabs-boot-alert";
+    Object.assign(backdrop.style, {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100vw",
+      height: "100vh",
+      background: "rgba(0, 0, 0, 0.7)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: "2147483647",
+      fontFamily: "sans-serif"
+    });
+
+    const box = document.createElement("div");
+    Object.assign(box.style, {
+      background: "#1c1c24",
+      color: "#e0e0e0",
+      border: "2px solid #ff4444",
+      borderRadius: "8px",
+      padding: "20px 24px",
+      maxWidth: "420px",
+      width: "90%",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.6)",
+      textAlign: "center"
+    });
+
+    box.innerHTML = \`
+      <div style="font-size: 1.25rem; font-weight: bold; color: #ff5555; margin-bottom: 12px;">\${title}</div>
+      <div style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 18px; color: #cccccc;">\${text}</div>
+      <button id="crabs-alert-ok" style="
+        background: #ff4444;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 20px;
+        font-weight: bold;
+        cursor: pointer;
+      ">OK</button>
+    \`;
+
+    backdrop.appendChild(box);
+    document.body.appendChild(backdrop);
+
+    document.getElementById("crabs-alert-ok").onclick = function() {
+      backdrop.remove();
+    };
+  }
+
+  if (typeof window.ImportBondageCollege !== "function") {
+    showCrabsModal("CRABS Error", "Club not detected! Please only load CRABS while Bondage Club is open.");
+    throw new Error("[CRABS] Dependency not met: ImportBondageCollege not found");
+  }
+
+  if (window.CRABS_Loaded !== undefined) {
+    showCrabsModal("CRABS Already Loaded", "Check for multiple instances of CRABS in tamper/violentmonkey, check FUSAM or other mod loaders. .");
+    throw new Error("[CRABS] Already loaded");
+  }
+
+  window.CRABS_Loaded = false;
+})();
 `,
     plugins: [
       terser({
