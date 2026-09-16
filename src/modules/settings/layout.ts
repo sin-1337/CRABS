@@ -66,7 +66,7 @@ export class LayoutEngine {
     minThumbH: 40,
   };
 
-  /** Minimum drag displacement (px) required before suppressing click actions. */
+  /** Minimum cumulative drag displacement (px) required before suppressing click actions. */
   private readonly DRAG_SLOP_PX = 8;
 
   /** Currently selected setting category tab. */
@@ -84,11 +84,11 @@ export class LayoutEngine {
   /** Active pointer dragging state. */
   public isDragging: boolean = false;
 
-  /** Vertical coordinate of active drag origin. */
-  private dragStartY: number = 0;
+  /** Most recent vertical coordinate of active drag. */
+  private lastTouchY: number = 0;
 
-  /** Scroll offset captured at the beginning of the active drag gesture. */
-  private dragStartOffset: number = 0;
+  /** Total cumulative distance moved during the active gesture. */
+  private totalDragDistance: number = 0;
 
   /** Indicates whether the current gesture has exceeded the drag slop threshold. */
   public hasDraggedBeyondThreshold: boolean = false;
@@ -171,8 +171,8 @@ export class LayoutEngine {
       this.isDragging = true;
       this.isThumbDragging = true;
       this.hasDraggedBeyondThreshold = true;
-      this.dragStartY = y;
-      this.dragStartOffset = this.scrollOffset;
+      this.lastTouchY = y;
+      this.totalDragDistance = 0;
       return;
     }
 
@@ -180,13 +180,13 @@ export class LayoutEngine {
       this.isDragging = true;
       this.isThumbDragging = false;
       this.hasDraggedBeyondThreshold = false;
-      this.dragStartY = y;
-      this.dragStartOffset = this.scrollOffset;
+      this.lastTouchY = y;
+      this.totalDragDistance = 0;
     }
   }
 
   /**
-   * Processes active pointer movements and adjusts scroll offsets.
+   * Processes active pointer movements and continuously adjusts scroll offsets.
    *
    * @param _x - Normalized canvas X coordinate (unused).
    * @param y - Normalized canvas Y coordinate.
@@ -195,15 +195,18 @@ export class LayoutEngine {
   public onDrag(_x: number, y: number): boolean {
     if (!this.isDragging || this.maxScroll <= 0) return false;
 
-    const deltaY = y - this.dragStartY;
+    const deltaY = y - this.lastTouchY;
+    this.totalDragDistance += Math.abs(deltaY);
 
     if (!this.hasDraggedBeyondThreshold) {
-      if (Math.abs(deltaY) > this.DRAG_SLOP_PX) {
+      if (this.totalDragDistance > this.DRAG_SLOP_PX) {
         this.hasDraggedBeyondThreshold = true;
       } else {
         return false;
       }
     }
+
+    this.lastTouchY = y;
 
     if (this.isThumbDragging) {
       const { thumbH } = this.getThumbMetrics();
@@ -211,24 +214,24 @@ export class LayoutEngine {
       if (trackAvailable <= 0) return false;
 
       const offsetChange = (deltaY / trackAvailable) * this.maxScroll;
-      const targetOffset = Math.max(
+      const target = Math.max(
         0,
-        Math.min(this.maxScroll, this.dragStartOffset + offsetChange),
+        Math.min(this.maxScroll, this.scrollOffset + offsetChange),
       );
 
-      if (targetOffset !== this.scrollOffset) {
-        this.scrollOffset = targetOffset;
+      if (target !== this.scrollOffset) {
+        this.scrollOffset = target;
         return true;
       }
     } else {
-      // Swiping up pulls content up, increasing scroll offset
-      const targetOffset = Math.max(
+      // Direct 1:1 finger tracking: moving up (-deltaY) scrolls down (+scrollOffset)
+      const target = Math.max(
         0,
-        Math.min(this.maxScroll, this.dragStartOffset - deltaY),
+        Math.min(this.maxScroll, this.scrollOffset - deltaY),
       );
 
-      if (targetOffset !== this.scrollOffset) {
-        this.scrollOffset = targetOffset;
+      if (target !== this.scrollOffset) {
+        this.scrollOffset = target;
         return true;
       }
     }

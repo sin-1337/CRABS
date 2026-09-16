@@ -164,18 +164,20 @@ export class Settings extends CRABS_Base {
         this.handlePointerDown.bind(this),
         { passive: false },
       );
+      canvas.addEventListener(
+        "pointermove",
+        this.handlePointerMove.bind(this),
+        { passive: false },
+      );
+      canvas.addEventListener("pointerup", this.handlePointerUp.bind(this), {
+        passive: false,
+      });
+      canvas.addEventListener(
+        "pointercancel",
+        this.handlePointerCancel.bind(this),
+        { passive: false },
+      );
     }
-    window.addEventListener("pointermove", this.handlePointerMove.bind(this), {
-      passive: false,
-    });
-    window.addEventListener("pointerup", this.handlePointerUp.bind(this), {
-      passive: false,
-    });
-    window.addEventListener(
-      "pointercancel",
-      this.handlePointerCancel.bind(this),
-      { passive: false },
-    );
   }
 
   /**
@@ -203,6 +205,7 @@ export class Settings extends CRABS_Base {
 
   /**
    * Handles pointerdown interactions, initializing drag scrolling inside the viewport.
+   * Differentiates between touch gestures and mouse clicks.
    *
    * @private
    * @param event - DOM PointerEvent.
@@ -211,6 +214,25 @@ export class Settings extends CRABS_Base {
     if (!this.isMenuOpen || this.showResetConfirm) return;
 
     const coords = this.getCanvasCoordinates(event);
+
+    // Permit mouse dragging ONLY on the scrollbar track/thumb
+    if (event.pointerType === "mouse") {
+      const isOverScrollbar =
+        coords.x >= this.layout.SCROLLBAR.x &&
+        coords.x <= this.layout.SCROLLBAR.x + this.layout.SCROLLBAR.w &&
+        coords.y >= this.layout.SCROLLBAR.y &&
+        coords.y <= this.layout.SCROLLBAR.y + this.layout.SCROLLBAR.h;
+
+      if (!isOverScrollbar) return;
+    }
+
+    const canvas = event.currentTarget as HTMLElement | null;
+    if (canvas && typeof canvas.setPointerCapture === "function") {
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch {}
+    }
+
     this.activePointerId = event.pointerId;
     this.layout.startDrag(coords.x, coords.y);
   }
@@ -230,15 +252,16 @@ export class Settings extends CRABS_Base {
       return;
     }
 
+    if (event.cancelable) event.preventDefault();
+
     const coords = this.getCanvasCoordinates(event);
     if (this.layout.onDrag(coords.x, coords.y)) {
-      if (event.cancelable) event.preventDefault();
       this.layout.updateDOM(this.isMenuOpen);
     }
   }
 
   /**
-   * Finalizes active pointer drag operations.
+   * Finalizes active pointer drag operations and releases capture.
    *
    * @private
    * @param event - DOM PointerEvent.
@@ -246,18 +269,32 @@ export class Settings extends CRABS_Base {
   private handlePointerUp(event: PointerEvent): void {
     if (!this.isMenuOpen || this.activePointerId !== event.pointerId) return;
 
+    const canvas = event.currentTarget as HTMLElement | null;
+    if (canvas && typeof canvas.releasePointerCapture === "function") {
+      try {
+        canvas.releasePointerCapture(event.pointerId);
+      } catch {}
+    }
+
     this.activePointerId = null;
     this.layout.endDrag();
   }
 
   /**
-   * Resets drag states when a gesture is cancelled by the user agent.
+   * Resets drag states when a gesture is cancelled by the browser.
    *
    * @private
    * @param event - DOM PointerEvent.
    */
   private handlePointerCancel(event: PointerEvent): void {
     if (this.activePointerId !== event.pointerId) return;
+
+    const canvas = event.currentTarget as HTMLElement | null;
+    if (canvas && typeof canvas.releasePointerCapture === "function") {
+      try {
+        canvas.releasePointerCapture(event.pointerId);
+      } catch {}
+    }
 
     this.activePointerId = null;
     this.layout.endDrag();
@@ -1589,6 +1626,9 @@ export class Settings extends CRABS_Base {
         this.showResetConfirm = false;
         this.layout.updateDOM(true);
 
+        const canvas = document.getElementById("MainCanvas");
+        if (canvas) canvas.style.touchAction = "none";
+
         document
           .getElementById("preference-subscreen-hgroup")
           ?.style.setProperty("display", "none", "important");
@@ -1596,6 +1636,9 @@ export class Settings extends CRABS_Base {
       exit: () => {
         this.isMenuOpen = false;
         this.layout.updateDOM(false);
+
+        const canvas = document.getElementById("MainCanvas");
+        if (canvas) canvas.style.touchAction = "";
 
         for (const key of Object.keys(this.data)) {
           globalWindow.ElementRemove?.(`CRABS_Input_${key}`);
