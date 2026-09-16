@@ -83,3 +83,15 @@
   padding: 4px 8px !important;
   text-shadow: none !important;
 }
+
+/* ==========================================================================
+   MOBILE GLOBAL SCALE DOWN
+   ========================================================================== */
+@media screen and (max-width: 1024px),
+  screen and (max-device-width: 1024px),
+  (pointer: coarse),
+  (orientation: portrait) {
+  .CRABS_banner {
+    zoom: 0.65;
+  }
+}

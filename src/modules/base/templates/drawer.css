@@ -856,3 +856,29 @@
   border-top-color: transparent !important;
   z-index: 100000 !important;
 }
+
+/* ==========================================================================
+   MOBILE INTERNAL CONTENT & TAB SCALE DOWN
+   ========================================================================== */
+@media screen and (max-width: 1024px),
+  screen and (max-device-width: 1024px),
+  (pointer: coarse),
+  (orientation: portrait) {
+  /* Outer shell stays 100% full coverage */
+  #crabs-drawer {
+    zoom: 1 !important;
+  }
+
+  /* Shrink drawer contents (~42% smaller than desktop) and scale layout dimensions to fill */
+  #crabs-drawer .drawer-content.CRABS_wrapper {
+    zoom: 0.58;
+    width: calc(100% / 0.58) !important;
+    height: calc(100% / 0.58) !important;
+  }
+
+  /* Shrink the pull-tab proportionately */
+  #drawer-tab {
+    zoom: 0.65 !important;
+    left: calc(-44px) !important;
+  }
+}

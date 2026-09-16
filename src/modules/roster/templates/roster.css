@@ -848,3 +848,60 @@
   pointer-events: none !important;
   z-index: 100002 !important;
 }
+
+/* ==========================================================================
+   MOBILE OVERRIDES (Applies only to screens 800px or smaller)
+   ========================================================================== */
+@media screen and (max-width: 800px) {
+  /* Force single column on mobile */
+  .CRABS_card-container {
+    grid-template-columns: 1fr !important;
+    gap: 2px !important;
+  }
+  .CRABS_card,
+  .CRABS_history_card {
+    min-height: 26px !important;
+    padding: 2px 4px !important;
+  }
+  .CRABS_player-name,
+  .CRABS_player-id,
+  .CRABS_history_name {
+    font-size: 0.75rem !important;
+  }
+  .CRABS_card_badge {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 4px !important;
+  }
+  .CRABS_card_badge img,
+  .CRABS_card_badge svg,
+  .CRABS_card_badge .CRABS_Profile_Icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .CRABS_overflow-wrapper {
+    min-height: 1rem !important;
+  }
+  .CRABS_key-icons,
+  .CRABS_player-icons,
+  .CRABS_status-icon,
+  .CRABS_track-compass img,
+  .CRABS_track-compass svg {
+    height: 0.85rem !important;
+    min-height: 0.85rem !important;
+  }
+  .CRABS_single_row_icons {
+    gap: 2px !important;
+  }
+  .CRABS_key_card .CRABS_bracket_marker {
+    font-size: 0.9rem !important;
+  }
+  .CRABS_drop_key_btn,
+  .CRABS_drop_all_btn {
+    width: auto !important;
+    min-width: 70px;
+    padding: 2px 4px;
+    height: 22px !important;
+    font-size: 0.6rem !important;
+  }
+}

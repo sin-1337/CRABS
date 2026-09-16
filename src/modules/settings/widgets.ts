@@ -82,12 +82,12 @@ export abstract class UIWidget {
   ): void;
 
   /**
-   * Processes a canvas mouse click within the active tab.
+   * Processes a canvas mouse/touch tap within the active tab.
    *
    * @param bounds - Computed spatial layout bounds.
-   * @param mouseX - Canvas relative mouse X coordinate.
-   * @param mouseY - Canvas relative mouse Y coordinate.
-   * @returns True if the click was consumed by this widget.
+   * @param mouseX - Canvas relative X coordinate.
+   * @param mouseY - Canvas relative Y coordinate.
+   * @returns True if the interaction was consumed by this widget.
    */
   abstract click(bounds: Bounds, mouseX: number, mouseY: number): boolean;
 
@@ -169,17 +169,23 @@ export class CheckboxWidget extends UIWidget {
   updateDOM(): void {}
 
   /**
-   * Toggles the boolean state if the click lands within the row bounding box.
+   * Toggles the boolean state if the interaction lands within the row bounding box.
    *
    * @param bounds - Computed spatial layout bounds.
-   * @param _mouseX - Canvas relative mouse X coordinate (unused).
-   * @param _mouseY - Canvas relative mouse Y coordinate (unused).
+   * @param mouseX - Canvas relative X coordinate.
+   * @param mouseY - Canvas relative Y coordinate.
    * @returns True if the toggle state changed.
    */
-  click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
+  click(bounds: Bounds, mouseX: number, mouseY: number): boolean {
     if (this.getIsDisabled()) return false;
 
-    if ((window as any).MouseIn(bounds.x, bounds.y - 32, 500, 64)) {
+    const hit =
+      mouseX >= bounds.x &&
+      mouseX <= bounds.x + 500 &&
+      mouseY >= bounds.y - 32 &&
+      mouseY <= bounds.y + 32;
+
+    if (hit) {
       this.setValue(!this.getValue());
       return true;
     }
@@ -245,6 +251,7 @@ export class SelectWidget extends UIWidget {
 
   /**
    * Creates or repositions the HTML `<select>` element to align over the canvas row.
+   * Applies touch gestures and viewport bounds constraints.
    *
    * @param bounds - Computed spatial layout bounds.
    * @param isVisible - True if the host tab and settings dialog are actively shown.
@@ -259,7 +266,6 @@ export class SelectWidget extends UIWidget {
       el.id = this.domID;
       el.className = "HideOnPopup";
 
-      // Visual styling matching the dark BC UI
       el.style.position = "fixed";
       el.style.zIndex = "100";
       el.style.fontFamily = "Arial, sans-serif";
@@ -273,6 +279,7 @@ export class SelectWidget extends UIWidget {
       el.style.boxSizing = "border-box";
       el.style.outline = "none";
       el.style.appearance = "none";
+      el.style.touchAction = "pan-y";
       el.style.backgroundImage =
         "url('https://sin-1337.github.io/CRABS/images/down-arrow.svg')";
       el.style.backgroundRepeat = "no-repeat";
@@ -310,7 +317,6 @@ export class SelectWidget extends UIWidget {
 
     if (!locked && isVisible && el) {
       const inputWidth = 320;
-      // Positioned immediately following the "Mod Language:" text label
       const inputStartX = bounds.x + 230;
       const centerX = inputStartX + inputWidth / 2;
       const centerY = bounds.y - 18;
@@ -322,7 +328,7 @@ export class SelectWidget extends UIWidget {
           centerX,
           centerY,
           inputWidth,
-          36,
+          40,
         );
       } else {
         globalWindow.ElementPosition(
@@ -330,7 +336,7 @@ export class SelectWidget extends UIWidget {
           centerX,
           centerY,
           inputWidth,
-          36,
+          40,
         );
       }
     } else if (el) {
@@ -405,6 +411,7 @@ export class InputWidget extends UIWidget {
 
   /**
    * Synchronizes positioning and value states for the underlying HTML input.
+   * Enforces touch scrolling compliance via CSS.
    *
    * @param bounds - Computed spatial layout bounds.
    * @param isVisible - True if the host tab and settings dialog are actively shown.
@@ -412,7 +419,7 @@ export class InputWidget extends UIWidget {
   updateDOM(bounds: Bounds, isVisible: boolean): void {
     const globalWindow = window as any;
     const locked = this.getIsDisabled();
-    const el = document.getElementById(this.domID);
+    let el = document.getElementById(this.domID) as HTMLInputElement | null;
 
     if (!el && isVisible) {
       globalWindow.ElementCreateInput(
@@ -421,9 +428,13 @@ export class InputWidget extends UIWidget {
         this.getValue(),
         this.inputType === "color" ? 180 : 250,
       );
-      document.getElementById(this.domID)?.addEventListener("input", (e) => {
-        this.setValue((e.target as HTMLInputElement).value);
-      });
+      el = document.getElementById(this.domID) as HTMLInputElement | null;
+      if (el) {
+        el.style.touchAction = "pan-y";
+        el.addEventListener("input", (e) => {
+          this.setValue((e.target as HTMLInputElement).value);
+        });
+      }
     }
 
     if (!locked && isVisible) {
@@ -435,7 +446,7 @@ export class InputWidget extends UIWidget {
         centerX,
         bounds.y,
         inputWidth,
-        36,
+        40,
       );
     } else if (document.getElementById(this.domID)) {
       globalWindow.ElementPosition(this.domID, -1000, -1000, 0, 0);
@@ -517,20 +528,23 @@ export class ButtonWidget extends UIWidget {
   }
 
   /**
-   * Triggers {@link onClick} if the click lands within button bounds and is enabled.
+   * Triggers {@link onClick} if the interaction lands within button bounds and is enabled.
    *
    * @param bounds - Computed spatial layout bounds.
-   * @param _mouseX - Canvas relative mouse X coordinate (unused).
-   * @param _mouseY - Canvas relative mouse Y coordinate (unused).
-   * @returns True if the button consumed the click.
+   * @param mouseX - Canvas relative X coordinate.
+   * @param mouseY - Canvas relative Y coordinate.
+   * @returns True if the button consumed the interaction.
    */
-  click(bounds: Bounds, _mouseX: number, _mouseY: number): boolean {
-    const globalWindow = window as any;
+  click(bounds: Bounds, mouseX: number, mouseY: number): boolean {
+    if (this.getIsDisabled()) return false;
 
-    if (
-      !this.getIsDisabled() &&
-      globalWindow.MouseIn(bounds.x, bounds.y - 32, 200, 64)
-    ) {
+    const hit =
+      mouseX >= bounds.x &&
+      mouseX <= bounds.x + 200 &&
+      mouseY >= bounds.y - 32 &&
+      mouseY <= bounds.y + 32;
+
+    if (hit) {
       this.onClick();
       return true;
     }
@@ -673,7 +687,7 @@ export class TextAreaWidget extends UIWidget {
   updateDOM(bounds: Bounds, isVisible: boolean): void {
     const globalWindow = window as any;
     const locked = this.getIsDisabled();
-    let el = document.getElementById(this.domID) as HTMLTextAreaElement;
+    let el = document.getElementById(this.domID) as HTMLTextAreaElement | null;
 
     if (!el && isVisible) {
       if (typeof globalWindow.ElementCreateTextArea === "function") {
@@ -685,10 +699,11 @@ export class TextAreaWidget extends UIWidget {
         document.body.appendChild(el);
       }
 
-      el = document.getElementById(this.domID) as HTMLTextAreaElement;
+      el = document.getElementById(this.domID) as HTMLTextAreaElement | null;
       if (el) {
         el.value = this.getValue() || "";
         el.style.resize = "vertical";
+        el.style.touchAction = "pan-y";
         el.addEventListener("input", (e) => {
           this.setValue((e.target as HTMLTextAreaElement).value);
         });
