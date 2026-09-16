@@ -137,7 +137,7 @@ export default {
   }
 
   if (window.CRABS_Loaded !== undefined) {
-    showCrabsModal("CRABS Already Loaded", "Check for multiple instances of CRABS in tamper/violentmonkey, check FUSAM or other mod loaders. .");
+    showCrabsModal("CRABS Already Loaded", "Check for multiple instances of CRABS in tamper/violentmonkey, check FUSAM or other mod loaders.");
     throw new Error("[CRABS] Already loaded");
   }
 
