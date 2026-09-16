@@ -7,10 +7,16 @@
  * - Viewport visibility and focus detection for background awareness
  * - Native OS desktop web notifications using the browser's Notification API
  * - Automatic localization bundle ingestion wired into the CRABS i18n engine
+ *
+ * Hardened for zero-crash stability against missing globals and safe fallback handling.
  */
 
-import { Assets } from "../base";
-import { registerTranslations, translate } from "../base";
+// 🚨 CIRCULAR DEPENDENCY FIX:
+// Bypassing the "../base" (index.ts) barrel file.
+// Adjust these paths if your file names differ (e.g., "../base/core").
+import { Assets } from "../base/assets";
+import { registerTranslations, translate } from "../base/localization";
+
 import "./templates/notifications.css";
 import locales from "./i18n.json";
 
@@ -105,6 +111,12 @@ export abstract class Notification {
   private static isInitialized = false;
 
   /**
+   * Tracks active toasts by message signature mapped to their expiration timestamp.
+   * @private
+   */
+  private static activeToasts = new Map<string, number>();
+
+  /**
    * Bootstraps the module by registering all available localization dictionary
    * bundles into `CRABS_Base` under the `"notifications"` namespace.
    *
@@ -116,24 +128,22 @@ export abstract class Notification {
   private static init(): void {
     if (Notification.isInitialized) return;
 
-    for (const [_, dict] of Object.entries(locales)) {
-      registerTranslations("notifications", dict);
+    try {
+      for (const [_, dict] of Object.entries(locales)) {
+        registerTranslations("notifications", dict);
+      }
+      Notification.isInitialized = true;
+    } catch (err) {
+      console.error("[CRABS] Failed to initialize Notification locales:", err);
     }
-
-    Notification.isInitialized = true;
   }
-
-  /**
-   * Tracks active toasts by message signature mapped to their expiration timestamp.
-   * @private
-   */
-  private static activeToasts = new Map<string, number>();
 
   /**
    * Dispatches a stylized custom toast notification to the game's active viewport.
    *
    * Automatically localizes the message body and title if translation keys are provided.
    * Wraps the icon lookup via `Assets.getimage()` to guarantee safe fallback graphics.
+   * Contains try/catch guarding to prevent crashes if base game ToastManager mutates.
    *
    * @param {NotificationParams} params - Notification configuration payload.
    * @param {string} params.message - Raw text string or dot-delimited translation path.
@@ -163,41 +173,45 @@ export abstract class Notification {
   }: NotificationParams): void {
     Notification.init();
 
-    const localizedMessage = translate(message);
-    const localizedTitle = title !== "CRABS" ? translate(title) : "CRABS";
-    const now = Date.now();
+    try {
+      const localizedMessage = translate(message);
+      const localizedTitle = title !== "CRABS" ? translate(title) : "CRABS";
+      const now = Date.now();
 
-    // Generate unique signature for duplicate detection
-    const toastKey = `${type}:${localizedTitle}:${localizedMessage}`;
-    const expiresAt = Notification.activeToasts.get(toastKey);
+      // Generate unique signature for duplicate detection
+      const toastKey = `${type}:${localizedTitle}:${localizedMessage}`;
+      const expiresAt = Notification.activeToasts.get(toastKey);
 
-    // Suppress if an identical toast is still active
-    if (expiresAt && now < expiresAt) {
-      return;
-    }
-
-    // Register active window; automatically delete once expired
-    Notification.activeToasts.set(toastKey, now + duration);
-    setTimeout(() => {
-      const activeExpiry = Notification.activeToasts.get(toastKey);
-      if (activeExpiry !== undefined && activeExpiry <= Date.now()) {
-        Notification.activeToasts.delete(toastKey);
+      // Suppress if an identical toast is still active
+      if (expiresAt && now < expiresAt) {
+        return;
       }
-    }, duration);
 
-    if (
-      typeof ToastManager !== "undefined" &&
-      typeof ToastManager.custom === "function"
-    ) {
-      ToastManager.custom(localizedMessage, `CRABS_Notification_${type}`, {
-        title: localizedTitle,
-        icon: Assets.getimage(image as any),
-        iconColor: "default",
-        duration: duration,
-      });
-    } else {
-      // Safe fallback to console output if ToastManager is unavailable
-      console.info(`[${localizedTitle}] ${localizedMessage}`);
+      // Register active window; automatically delete once expired
+      Notification.activeToasts.set(toastKey, now + duration);
+      setTimeout(() => {
+        const activeExpiry = Notification.activeToasts.get(toastKey);
+        if (activeExpiry !== undefined && activeExpiry <= Date.now()) {
+          Notification.activeToasts.delete(toastKey);
+        }
+      }, duration);
+
+      if (
+        typeof ToastManager !== "undefined" &&
+        typeof ToastManager.custom === "function"
+      ) {
+        ToastManager.custom(localizedMessage, `CRABS_Notification_${type}`, {
+          title: localizedTitle,
+          icon: Assets?.getimage ? Assets.getimage(image as any) : undefined,
+          iconColor: "default",
+          duration: duration,
+        });
+      } else {
+        // Safe fallback to console output if ToastManager is unavailable
+        console.info(`[${localizedTitle}] ${localizedMessage}`);
+      }
+    } catch (err) {
+      console.error("[CRABS] Failed to dispatch in-game notification:", err);
     }
   }
 
@@ -214,17 +228,21 @@ export abstract class Notification {
    * ```
    */
   public static dismiss(type: string = "General"): void {
-    const prefix = `${type}:`;
-    for (const key of Notification.activeToasts.keys()) {
-      if (key.startsWith(prefix)) {
-        Notification.activeToasts.delete(key);
+    try {
+      const prefix = `${type}:`;
+      for (const key of Notification.activeToasts.keys()) {
+        if (key.startsWith(prefix)) {
+          Notification.activeToasts.delete(key);
+        }
       }
-    }
-    if (
-      typeof ToastManager !== "undefined" &&
-      typeof ToastManager.dismissByCategory === "function"
-    ) {
-      ToastManager.dismissByCategory(`CRABS_Notification_${type}`);
+      if (
+        typeof ToastManager !== "undefined" &&
+        typeof ToastManager.dismissByCategory === "function"
+      ) {
+        ToastManager.dismissByCategory(`CRABS_Notification_${type}`);
+      }
+    } catch (err) {
+      console.error("[CRABS] Failed to dismiss notifications:", err);
     }
   }
 
@@ -235,10 +253,14 @@ export abstract class Notification {
    * @returns {boolean} `true` if the tab is hidden or lacks focus; `false` otherwise.
    */
   public static isBackgrounded(): boolean {
-    return (
-      typeof document !== "undefined" &&
-      (document.hidden || !document.hasFocus())
-    );
+    try {
+      return (
+        typeof document !== "undefined" &&
+        (document.hidden || !document.hasFocus())
+      );
+    } catch {
+      return false; // Fail safe to foreground behavior
+    }
   }
 
   /**
@@ -248,28 +270,27 @@ export abstract class Notification {
    * @returns {Promise<boolean>} Resolves to `true` if granted, or `false` if denied/unsupported.
    */
   public static async requestDesktopPermission(): Promise<boolean> {
-    if (!("Notification" in window)) {
+    if (typeof window === "undefined" || !("Notification" in window)) {
       console.warn(
         "[CRABS Notification] Web Notification API is not supported in this environment.",
       );
       return false;
     }
 
-    if (window.Notification.permission === "granted") {
-      return true;
-    }
+    try {
+      if (window.Notification.permission === "granted") {
+        return true;
+      }
 
-    if (window.Notification.permission !== "denied") {
-      try {
+      if (window.Notification.permission !== "denied") {
         const permission = await window.Notification.requestPermission();
         return permission === "granted";
-      } catch (error) {
-        console.error(
-          "[CRABS Notification] Failed to request desktop notification permissions:",
-          error,
-        );
-        return false;
       }
+    } catch (error) {
+      console.error(
+        "[CRABS Notification] Failed to request desktop notification permissions:",
+        error,
+      );
     }
 
     return false;
@@ -306,7 +327,9 @@ export abstract class Notification {
   }: DesktopNotificationParams): void {
     Notification.init();
 
+    if (typeof window === "undefined") return;
     const BrowserNotify = window.Notification;
+
     if (!BrowserNotify || BrowserNotify.permission !== "granted") {
       return;
     }
@@ -318,7 +341,8 @@ export abstract class Notification {
       new BrowserNotify(localizedTitle, {
         body: localizedBody,
         tag: tag,
-        icon: icon ? Assets.getimage(icon as any) : undefined,
+        icon:
+          icon && Assets?.getimage ? Assets.getimage(icon as any) : undefined,
       });
     } catch (error) {
       console.error(
