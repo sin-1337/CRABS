@@ -858,26 +858,27 @@
 }
 
 /* ==========================================================================
-   MOBILE INTERNAL CONTENT SCALE DOWN ONLY
+   MOBILE INTERNAL CONTENT & TAB SCALE DOWN
    ========================================================================== */
 @media screen and (max-width: 1024px),
   screen and (max-device-width: 1024px),
   (pointer: coarse),
   (orientation: portrait) {
-  /* Keep outer drawer shell pinned to original size */
+  /* Outer shell stays 100% full coverage */
   #crabs-drawer {
     zoom: 1 !important;
   }
 
-  /* Shrink only the inside contents while filling the entire container */
+  /* Shrink drawer contents (~42% smaller than desktop) and scale layout dimensions to fill */
   #crabs-drawer .drawer-content.CRABS_wrapper {
-    zoom: 0.65;
-    width: calc(100% / 0.65) !important;
-    height: calc(100% / 0.65) !important;
+    zoom: 0.58;
+    width: calc(100% / 0.58) !important;
+    height: calc(100% / 0.58) !important;
   }
 
-  /* Tab button compensation: scale back up to maintain normal touch hitbox */
+  /* Shrink the pull-tab proportionately */
   #drawer-tab {
-    zoom: calc(1 / 0.65);
+    zoom: 0.65 !important;
+    left: calc(-44px) !important;
   }
 }
