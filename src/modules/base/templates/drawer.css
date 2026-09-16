@@ -856,3 +856,50 @@
   border-top-color: transparent !important;
   z-index: 100000 !important;
 }
+
+/* ==========================================================================
+   MOBILE OVERRIDES (Applies only to screens 800px or smaller)
+   ========================================================================== */
+@media screen and (max-width: 800px) {
+  .CRABS_wrapper_header {
+    min-height: 28px !important;
+    padding: 0 4px !important;
+  }
+  .drawer-content .CRABS_Drawer_Help_Icon,
+  .drawer-content .CRABS_Drawer_Settings_Icon,
+  .drawer-content .CRABS_Drawer_Layout_Icon,
+  .drawer-content .CRABS_Drawer_History_Icon,
+  .drawer-content .CRABS_Drawer_Close_Icon {
+    width: 22px !important;
+    height: 22px !important;
+    padding: 1px !important;
+  }
+  .drawer-content .CRABS_Drawer_Help_Icon img,
+  .drawer-content .CRABS_Drawer_Settings_Icon img,
+  .drawer-content .CRABS_Drawer_Layout_Icon img,
+  .drawer-content .CRABS_Drawer_History_Icon img,
+  .drawer-content .CRABS_Drawer_Close_Icon img {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  #CRABS_sort_container {
+    font-size: 0.7rem !important;
+  }
+  .CRABS_dropdown {
+    font-size: 0.65rem !important;
+    padding: 1px 4px !important;
+    max-width: 90px;
+  }
+  .CRABS_room-status {
+    font-size: 0.7rem !important;
+    margin-bottom: 2px !important;
+  }
+  .CRABS_status_cell {
+    padding: 1px !important;
+  }
+  .CRABS_roster_header_align img,
+  .CRABS_roster_header_align svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+}
