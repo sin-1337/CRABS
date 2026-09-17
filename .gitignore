@@ -3,6 +3,7 @@ node_modules/
 
 # ignore files
 deploy.sh
+branch.sh
 crabsloader.user.js
 packege.json
 rollup.config.mjs
