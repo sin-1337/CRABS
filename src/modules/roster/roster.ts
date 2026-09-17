@@ -473,47 +473,63 @@ export class Roster extends CRABS_Base {
    * @returns Consolidated counts, states, and key HTML.
    */
   private getHeaderStats() {
-    const globalWindow = window as any;
-    const roomData = globalWindow.ChatRoomData;
+    // Drop window. prefix entirely; access BC variables directly as stable did
+    if (typeof ChatRoomData === "undefined" || !ChatRoomData) {
+      return {
+        currentRoomName: "Roster",
+        adminInRoom: 0,
+        totalAdmins: 0,
+        playersInRoom: 0,
+        totalPlayers: 0,
+        friendsOnline: this.onlineFriendsCache,
+        totalFriends: 0,
+        onlinePlayers: "",
+        isMap: false,
+        currentKeyState: "",
+        keyHtml: "",
+      };
+    }
 
-    const lastRoom = globalWindow.Player?.LastChatRoom;
+    const lastRoom =
+      typeof Player !== "undefined" ? Player?.LastChatRoom : null;
     const fallbackName =
       typeof lastRoom === "string" ? lastRoom : lastRoom?.Name;
-
     const currentRoomName =
-      roomData?.Name || fallbackName || this.t("header.title_default");
+      ChatRoomData.Name || fallbackName || this.t("header.title_default");
 
-    const occupants = Array.isArray(globalWindow.ChatRoomCharacter)
-      ? globalWindow.ChatRoomCharacter
-      : Array.isArray(roomData?.Character)
-        ? roomData.Character
-        : [];
+    const admins = ChatRoomData.Admin || [];
 
-    const admins = Array.isArray(roomData?.Admin) ? roomData.Admin : [];
+    const occupants =
+      typeof ChatRoomCharacter !== "undefined" && ChatRoomCharacter.length > 0
+        ? ChatRoomCharacter
+        : ChatRoomData.Character || [];
 
-    const adminInRoom = occupants.filter((c: any) =>
-      admins.includes(c?.MemberNumber),
+    const adminInRoom = occupants.filter(
+      (c: any) =>
+        typeof c?.MemberNumber !== "undefined" &&
+        admins.includes(Number(c.MemberNumber)),
     ).length;
 
     const totalAdmins = admins.length;
     const playersInRoom = occupants.length;
-    const totalPlayers = Number(roomData?.Limit) || 0;
+    const totalPlayers = Number(ChatRoomData.Limit) || 0;
 
-    const playerWindow = globalWindow.Player;
-    const totalFriends = Array.isArray(playerWindow?.FriendList)
-      ? playerWindow.FriendList.length
-      : 0;
+    const totalFriends =
+      typeof Player !== "undefined" && Array.isArray(Player.FriendList)
+        ? Player.FriendList.length
+        : 0;
 
     const onlinePlayers =
-      typeof globalWindow.CurrentOnlinePlayers !== "undefined"
-        ? globalWindow.CurrentOnlinePlayers
-        : "";
-    const isMapActive =
-      typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
-      globalWindow.ChatRoomMapViewIsActive();
+      typeof CurrentOnlinePlayers !== "undefined" ? CurrentOnlinePlayers : "";
 
-    const pState = playerWindow?.MapData?.PrivateState;
+    const isMapActive =
+      typeof ChatRoomMapViewIsActive === "function" &&
+      ChatRoomMapViewIsActive();
+
+    const pState =
+      typeof Player !== "undefined" ? Player?.MapData?.PrivateState : undefined;
     const currentKeyState = `${Boolean(pState?.HasKeyBronze)}-${Boolean(pState?.HasKeySilver)}-${Boolean(pState?.HasKeyGold)}`;
+
     let keyHtml = "";
     try {
       keyHtml = Keys.renderHeaderKeys(isMapActive);
@@ -546,15 +562,15 @@ export class Roster extends CRABS_Base {
    * @returns {void}
    */
   public updateRosterUI(root: HTMLElement): void {
-    const globalWindow = window as any;
-    const roomData = globalWindow.ChatRoomData;
-    const occupants = Array.isArray(globalWindow.ChatRoomCharacter)
-      ? globalWindow.ChatRoomCharacter
-      : Array.isArray(roomData?.Character)
-        ? roomData.Character
-        : [];
+    // Restore the strict abort if the room data does not exist
+    if (typeof ChatRoomData === "undefined" || !ChatRoomData) return;
 
-    if (occupants.length === 0 && !roomData) return;
+    const occupants =
+      typeof ChatRoomCharacter !== "undefined" && ChatRoomCharacter.length > 0
+        ? ChatRoomCharacter
+        : ChatRoomData.Character || [];
+
+    if (occupants.length === 0) return;
 
     const table = root.querySelector(".CRABS_roster_center_table");
     if (table) {
@@ -624,27 +640,29 @@ export class Roster extends CRABS_Base {
       }
     }
 
-    const getNickname = globalWindow.CharacterNickname;
-    const getEffects = globalWindow.CharacterGetEffects;
+    const getNickname =
+      typeof CharacterNickname === "function" ? CharacterNickname : null;
+    const getEffects =
+      typeof CharacterGetEffects === "function" ? CharacterGetEffects : null;
 
     occupants.forEach((charData: any) => {
       if (!charData?.MemberNumber) return;
       const card = root.querySelector(`#CRABS_card_${charData.MemberNumber}`);
-      const character = Array.isArray(globalWindow.ChatRoomCharacter)
-        ? globalWindow.ChatRoomCharacter.find(
-            (c: any) => c?.MemberNumber === charData.MemberNumber,
-          ) || charData
-        : charData;
+      const character =
+        typeof ChatRoomCharacter !== "undefined"
+          ? ChatRoomCharacter.find(
+              (c: any) => c?.MemberNumber === charData.MemberNumber,
+            ) || charData
+          : charData;
 
       if (card && character) {
         const nameContainer = card.querySelector(
           ".CRABS_player-name",
         ) as HTMLElement;
         if (nameContainer) {
-          const rawNick =
-            typeof getNickname === "function"
-              ? getNickname(character)
-              : character.Name || "";
+          const rawNick = getNickname
+            ? getNickname(character)
+            : character.Name || "";
           const currentNickname = this.cleanZalgoAndNormalize(rawNick);
           if (nameContainer.textContent !== currentNickname) {
             nameContainer.textContent = currentNickname;
@@ -655,11 +673,7 @@ export class Roster extends CRABS_Base {
           ".CRABS_status-icons",
         ) as HTMLElement;
         if (statusContainer) {
-          const effectsList =
-            typeof getEffects === "function" &&
-            Array.isArray(getEffects(character))
-              ? getEffects(character)
-              : [];
+          const effectsList = getEffects ? getEffects(character) : [];
           const currentEffects = effectsList.join(",");
           if (statusContainer.dataset.lastEffects !== currentEffects) {
             statusContainer.innerHTML = DOMPurify.sanitize(
@@ -1016,19 +1030,15 @@ export class Roster extends CRABS_Base {
     wrapper: boolean = true,
     forceFullRows: boolean = false,
   ): string {
-    const globalWindow = window as any;
-    const roomData = globalWindow.ChatRoomData;
+    // Restore the strict abort if the room data does not exist
+    if (typeof ChatRoomData === "undefined" || !ChatRoomData) return "";
 
-    // Use native ChatRoomCharacter if available; fall back to roomData.Character
     const occupants =
-      Array.isArray(globalWindow.ChatRoomCharacter) &&
-      globalWindow.ChatRoomCharacter.length > 0
-        ? globalWindow.ChatRoomCharacter
-        : Array.isArray(roomData?.Character)
-          ? roomData.Character
-          : [];
+      typeof ChatRoomCharacter !== "undefined" && ChatRoomCharacter.length > 0
+        ? ChatRoomCharacter
+        : ChatRoomData.Character || [];
 
-    if (occupants.length === 0 && !roomData) {
+    if (occupants.length === 0) {
       return "";
     }
 
@@ -1070,10 +1080,9 @@ export class Roster extends CRABS_Base {
     }[] = [];
 
     const effectiveSortMode = wrapper ? "role" : this.currentRosterSortMode;
-    const admins = Array.isArray(roomData?.Admin) ? roomData.Admin : [];
-    const whitelist = Array.isArray(roomData?.Whitelist)
-      ? roomData.Whitelist
-      : [];
+
+    const admins = ChatRoomData.Admin || [];
+    const whitelist = ChatRoomData.Whitelist || [];
 
     for (
       let characterIndex = 0;
@@ -1084,11 +1093,12 @@ export class Roster extends CRABS_Base {
       const memberNumber = charData?.MemberNumber;
       if (typeof memberNumber !== "number") continue;
 
-      const character = Array.isArray(globalWindow.ChatRoomCharacter)
-        ? globalWindow.ChatRoomCharacter.find(
-            (c: any) => c?.MemberNumber === memberNumber,
-          ) || charData
-        : charData;
+      const character =
+        typeof ChatRoomCharacter !== "undefined"
+          ? ChatRoomCharacter.find(
+              (c: any) => c?.MemberNumber === memberNumber,
+            ) || charData
+          : charData;
 
       if (!character) {
         rosterCards.push({
@@ -1106,7 +1116,8 @@ export class Roster extends CRABS_Base {
       const isMe =
         typeof character.IsPlayer === "function"
           ? character.IsPlayer()
-          : character.MemberNumber === globalWindow.Player?.MemberNumber;
+          : character.MemberNumber ===
+            (typeof Player !== "undefined" ? Player?.MemberNumber : undefined);
 
       const isAdmin = admins.includes(memberNumber);
       const isVIP = whitelist.includes(memberNumber) && !isMe && !isAdmin;
