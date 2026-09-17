@@ -10,7 +10,7 @@
 		"resolveJsonModule": true, // json importing
 		"moduleResolution": "bundler",
 		"rootDir": "./src",
-		"outDir": "../Live/CRABS/Alpha", // Output directory
+		"outDir": "../Live/CRABS/Beta", // Output directory
 		"esModuleInterop": true, // Allows importing non-ES6 modules (like CommonJS)
 		"skipLibCheck": true, // Skip type checking of declaration files
 		"strict": true, // Enables strict mode (good practice)

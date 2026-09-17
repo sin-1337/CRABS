@@ -20,7 +20,7 @@ const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
 const BUILD_VERSION = "3.0.0.128";
-const BUILD_BRANCH = "Alpha";
+const BUILD_BRANCH = "Beta";
 
 // Dynamic target resolution for test mode
 const targetBranch = process.env.OUT_DIR ? "Test" : BUILD_BRANCH;
