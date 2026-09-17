@@ -110,6 +110,16 @@ export class Orchestrator extends CRABS_Base {
   }
 
   /**
+   * Detects whether WCE's personal player notes view is actively open.
+   * @private
+   * @returns {boolean} True if WCE notes are active.
+   */
+  private isWceNotesActive(): boolean {
+    const noteInput = document.getElementById("bceNoteInput");
+    return Boolean(noteInput && !noteInput.classList?.contains("bce-hidden"));
+  }
+
+  /**
    * Registers all core game engine hooks via ModSDK's safeHook API.
    *
    * @private
@@ -261,6 +271,9 @@ export class Orchestrator extends CRABS_Base {
     this.safeHook("OnlineProfileRun", 10, (args, next) => {
       next(args);
 
+      // Hide the button if WCE Personal Notes screen is open
+      if (this.isWceNotesActive()) return;
+
       const globalWin = window as any;
       const targetChar = globalWin.InformationSheetSelection;
       if (!targetChar) return;
@@ -330,6 +343,11 @@ export class Orchestrator extends CRABS_Base {
     // 2. Intercept clicks on canvas button inside OnlineProfileClick
     this.safeHook("OnlineProfileClick", 10, (args, next) => {
       const globalWin = window as any;
+
+      // Ignore clicks if WCE Personal Notes screen is open
+      if (this.isWceNotesActive()) {
+        return next(args);
+      }
 
       if (
         typeof globalWin.MouseIn === "function" &&
