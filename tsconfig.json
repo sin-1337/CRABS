@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "ES6", // Target ECMAScript version (you can change it based on your needs)
+		"target": "ES2022", // Target ECMAScript version (you can change it based on your needs)
 		"lib": [
 			"DOM",
 			"DOM.Iterable",
@@ -15,8 +15,17 @@
 		"skipLibCheck": true, // Skip type checking of declaration files
 		"strict": true, // Enables strict mode (good practice)
 		"paths": {
+			"mockups/*": [
+				"./src/mockups/*"
+			],
 			"modules": [
 				"./src/modules/index.ts"
+			],
+			"modules/*": [
+				"./src/modules/*"
+			],
+			"@/*": [
+				"./src/*"
 			],
 			"*": [
 				"./node_modules/*",
@@ -26,5 +35,8 @@
 	},
 	"include": [
 		"src/**/*"
-	] //Include your source TypeScript files/Include your source TypeScript files
+	], //Include your source TypeScript files/Include your source TypeScript files
+	"exclude": [
+		"node_modules",
+	]
 }

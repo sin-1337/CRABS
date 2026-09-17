@@ -6,7 +6,7 @@
  * @module base
  */
 
-export { CRABS_Base, PerformanceLevel } from "./core";
+export { CRABS_Base, PerformanceLevel } from "./base";
 export { Drawer } from "./drawer";
 export type {
   DrawerPage,
