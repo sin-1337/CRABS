@@ -145,7 +145,7 @@ export class Orchestrator extends CRABS_Base {
       crabsLogoImg = null;
     }
 
-    // --- NEW: SafeHook for ChatRoomExit ---
+    // --- SafeHook for ChatRoomExit ---
     // We stub it first so ModSDK doesn't crash if it hooks before the base game declares it.
     const globalWin = window as any;
     if (typeof globalWin.ChatRoomExit !== "function") {
@@ -153,12 +153,12 @@ export class Orchestrator extends CRABS_Base {
     }
 
     this.safeHook("ChatRoomExit", 10, (args, next) => {
+      // Clear room state on exit so the next room entry will trigger the banner
       this.crabsLastRoomID = null;
       const result = next(args);
       Drawer.updateVisibility();
       return result;
     });
-    // --------------------------------------
 
     // Runs at Priority -10000 to guarantee it fires AFTER FUSAM/BCX but BEFORE the Base Game.
     this.safeHook(
@@ -195,13 +195,12 @@ export class Orchestrator extends CRABS_Base {
       return result;
     });
 
-    // Hook translation event so that we can react to external language switching
+    // Hook translation event (do not respawn the banner here)
     this.safeHook(
       "TranslationLoad",
       10,
       (args: any, next: (args: any[]) => any) => {
         const result = next(args);
-        this.drawbanner(true);
         return result;
       },
     );
@@ -218,12 +217,14 @@ export class Orchestrator extends CRABS_Base {
       if (inChatRoom) {
         const currentID = ChatRoomData.ID ?? ChatRoomData.Name;
 
-        // Just joined a new room (only fires on true room transitions)
-        if (currentID && currentID != this.crabsLastRoomID) {
+        // Just joined a new room session.
+        // We strictly check if `this.crabsLastRoomID === null` so room name updates mid-session DO NOT trigger a respawn.
+        if (currentID && this.crabsLastRoomID === null) {
           this.crabsLastRoomID = currentID;
           Drawer.updateVisibility();
           Settings.instance?.syncGameState();
 
+          // Only ever draw the banner here upon initial room entry
           if (Settings.instance?.data?.showBanner) {
             this.drawbanner();
           }
@@ -440,19 +441,23 @@ export class Orchestrator extends CRABS_Base {
       return next(args);
     });
 
-    // Respawn banner when switching between Character view and Map view (if currently open and enabled)
+    // Respawn banner strictly when switching between Map view and Normal view
+    // (and only if currently open and explicitly enabled in settings)
     this.safeHook(
       "ChatRoomActivateView",
       10,
       (args: any[], next: (args: any[]) => any) => {
         const globalWin = window as any;
-        const currentActiveView = globalWin.ChatRoomActiveView;
-        const targetViewName = args[0] as string;
+        const currentViewName = globalWin.ChatRoomActiveView?.Name ?? "";
+        const targetViewName = (args[0] as string) || "";
 
         const result = next(args);
 
-        const targetView = globalWin.ChatRoomViews?.[targetViewName];
-        if (targetView && targetView !== currentActiveView) {
+        const isMapTransition =
+          (currentViewName === "map" && targetViewName !== "map") ||
+          (currentViewName !== "map" && targetViewName === "map");
+
+        if (isMapTransition) {
           const settings = Settings.instance?.data;
           const canRespawn =
             Boolean(settings?.showBanner) &&
