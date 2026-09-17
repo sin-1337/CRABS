@@ -3,6 +3,8 @@
  *
  * This module implements the enhanced whisper functionality for the CRABS mod.
  * It extends the base whisper command with additional features including:
+ * - Target resolution by Member Number, Character Name, or Nickname (with ambiguity guards)
+ * - Transparent CommandParse elevation for standard whisper commands (/whisper and /w)
  * - Range-based whisper handling
  * - Enhanced message formatting
  * - Self-whisper support with visual indicators
@@ -53,8 +55,9 @@ export class WhisperPlus extends CRABS_Base {
   public setupHooks(): void {
     /**
      * Hook: CommandParse
-     * Intercepts chat commands before execution to convert standard whispers
-     * into Whisper+ commands when the "Always On" setting is enabled.
+     * Intercepts chat commands right at execution.
+     * Silently routes standard whispers (/whisper and /w) to Whisper+ when "Always On" is enabled,
+     * WITHOUT visibly altering the text box while the user is typing.
      */
     this.safeHook(
       "CommandParse",
@@ -63,16 +66,15 @@ export class WhisperPlus extends CRABS_Base {
         try {
           const command = functionArguments[0];
 
-          if (Settings.instance?.data?.whisperPlusAlwaysOn) {
-            if (
-              typeof command === "string" &&
-              command.startsWith("/whisper ")
-            ) {
-              functionArguments[0] = command.replace(
-                /^\/whisper /,
-                "/whisper+ ",
-              );
-            }
+          if (
+            Settings.instance?.data?.whisperPlusAlwaysOn &&
+            typeof command === "string" &&
+            /^\/(whisper|w)\s+/i.test(command)
+          ) {
+            functionArguments[0] = command.replace(
+              /^\/(whisper|w)\s+/i,
+              "/whisper+ ",
+            );
           }
         } catch (err) {
           console.error("[CRABS] CommandParse hook error:", err);
@@ -84,8 +86,7 @@ export class WhisperPlus extends CRABS_Base {
 
     /**
      * Hook: ChatRoomSendLocal
-     * Intercepts standard whisper missing-target errors to auto-elevate to a beep
-     * if autoBeepOnRegularWhisper is enabled and whisperPlusAlwaysOn is disabled.
+     * Fallback beep handling for regular whisper failure.
      */
     this.safeHook(
       "ChatRoomSendLocal",
@@ -120,7 +121,7 @@ export class WhisperPlus extends CRABS_Base {
                 ) as HTMLTextAreaElement | null;
                 const inputVal = chatInput?.value || "";
 
-                if (inputVal.startsWith("/whisper ")) {
+                if (/^\/(whisper|w)\s+/i.test(inputVal)) {
                   const parts = inputVal.trim().split(/\s+/);
                   if (parts.length >= 3) {
                     const parsedNum = parseInt(parts[1], 10);
@@ -153,100 +154,8 @@ export class WhisperPlus extends CRABS_Base {
     );
 
     /**
-     * Hook: ChatRoomMessageNameClick
-     * Intercepts clicks on a character's name or quick-reply arrow.
-     */
-    this.safeHook(
-      "ChatRoomMessageNameClick",
-      10,
-      function (
-        this: any,
-        functionArguments: any[],
-        next: (functionArguments: any[]) => void,
-      ) {
-        try {
-          // Find the parent message container safely across different call styles
-          const targetElement: HTMLElement | null =
-            this instanceof HTMLElement
-              ? this
-              : functionArguments[0]?.target instanceof HTMLElement
-                ? functionArguments[0].target
-                : null;
-
-          const messageDiv =
-            targetElement?.closest(".ChatMessage") ||
-            targetElement?.parentElement;
-          const contents = messageDiv?.querySelectorAll(
-            ".chat-room-message-content",
-          );
-          const contentNode =
-            contents && contents.length > 0
-              ? contents[contents.length - 1]
-              : null;
-
-          const isWhisperPlus =
-            Settings.instance?.data?.whisperPlusAlwaysOn ||
-            Boolean(contentNode?.textContent?.includes("+:"));
-
-          next(functionArguments);
-
-          if (isWhisperPlus) {
-            const chatInput = document.getElementById(
-              "InputChat",
-            ) as HTMLTextAreaElement | null;
-            if (chatInput && chatInput.value.startsWith("/whisper ")) {
-              chatInput.value = chatInput.value.replace(
-                /^\/whisper /,
-                "/whisper+ ",
-              );
-              chatInput.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-          }
-        } catch (err) {
-          console.error("[CRABS] ChatRoomMessageNameClick hook error:", err);
-          next(functionArguments);
-        }
-      },
-    );
-
-    /**
-     * Hook: ChatRoomMessageSetReply
-     * Intercepts "Reply" from context menus.
-     */
-    this.safeHook(
-      "ChatRoomMessageSetReply",
-      10,
-      (functionArguments: any[], next: (functionArguments: any[]) => void) => {
-        try {
-          const messageId = functionArguments[0];
-          const contentNode = document.querySelector(`[msgid="${messageId}"]`);
-          const isWhisperPlus =
-            Settings.instance?.data?.whisperPlusAlwaysOn ||
-            Boolean(contentNode?.textContent?.includes("+:"));
-
-          next(functionArguments);
-
-          if (isWhisperPlus) {
-            const chatInput = document.getElementById(
-              "InputChat",
-            ) as HTMLTextAreaElement | null;
-            if (chatInput && chatInput.value.startsWith("/whisper ")) {
-              chatInput.value = chatInput.value.replace(
-                /^\/whisper /,
-                "/whisper+ ",
-              );
-              chatInput.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-          }
-        } catch (err) {
-          console.error("[CRABS] ChatRoomMessageSetReply hook error:", err);
-          next(functionArguments);
-        }
-      },
-    );
-
-    /**
      * Hook: ChatRoomMessageDisplay
+     * Handles visual styling and hides the raw prefix in rendered messages.
      */
     this.safeHook(
       "ChatRoomMessageDisplay",
@@ -295,35 +204,6 @@ export class WhisperPlus extends CRABS_Base {
 
         return div;
       },
-    );
-
-    // Global delegated listener for Whisper+ clicks
-    document.addEventListener(
-      "click",
-      (event) => {
-        try {
-          const target = event.target as HTMLElement;
-          const nameElement = target.closest(
-            ".CRABS_player-name",
-          ) as HTMLElement | null;
-
-          if (nameElement) {
-            const memberNumStr = nameElement.getAttribute("data-player-number");
-            if (memberNumStr) {
-              event.stopPropagation();
-              event.preventDefault();
-
-              const memberNumber = parseInt(memberNumStr, 10);
-              if (!isNaN(memberNumber)) {
-                this.sendWhisper(memberNumber);
-              }
-            }
-          }
-        } catch (err) {
-          console.error("[CRABS] Whisper click delegation error:", err);
-        }
-      },
-      { capture: true },
     );
   }
 
@@ -422,52 +302,127 @@ export class WhisperPlus extends CRABS_Base {
   }
 
   /**
-   * Parses the command arguments to extract member number and message.
+   * Resolves the whisper target and remaining message body.
+   * Supports target resolution by:
+   * - Explicit Member Number
+   * - Player Name (case-insensitive, greedy multi-word matching)
+   * - Player Nickname (case-insensitive, greedy multi-word matching)
    *
-   * @param {string} commandArguments - The arguments string passed to the command.
-   * @param {string} command - The full command string.
-   * @returns {{ memberNumber: number, message: string }} Parsed member number and message.
+   * Guarantees ambiguity safety: if multiple room occupants share a name/nickname,
+   * targeting fails with a distinct error prompting member number usage.
+   *
+   * @param {string} commandArguments - Raw arguments string passed to the command.
+   * @param {string} command - Full command line string.
+   * @returns {{ targetCharacter: any | null; memberNumber: number; message: string; error?: string }}
    * @private
    */
-  private parseArguments(
+  private resolveTargetAndMessage(
     commandArguments: string,
     command: string,
-  ): { memberNumber: number; message: string } {
-    let memberNumber: number = NaN;
-    let message: string = "";
+  ): {
+    targetCharacter: any | null;
+    memberNumber: number;
+    message: string;
+    error?: string;
+  } {
+    let raw = (commandArguments || "").trim();
 
-    if (command) {
-      const commandParts = command.trim().split(/\s+/);
-      if (commandParts.length >= 2) {
-        memberNumber = parseInt(commandParts[1], 10);
-
-        if (!isNaN(memberNumber)) {
-          const prefix = `${commandParts[0]} ${commandParts[1]} `;
-          const prefixIndex = command.indexOf(prefix);
-
-          if (prefixIndex !== -1) {
-            message = command.substring(prefixIndex + prefix.length);
-            return { memberNumber, message };
-          }
-        }
+    // Fallback parsing from full command string if commandArguments was empty
+    if (!raw && command) {
+      const match = command.match(/^\/\S+\s+(.+)$/s);
+      if (match) {
+        raw = match[1].trim();
       }
     }
 
-    if (commandArguments) {
-      const firstSpaceIndex = commandArguments.indexOf(" ");
-      if (firstSpaceIndex !== -1) {
-        memberNumber = parseInt(commandArguments.slice(0, firstSpaceIndex), 10);
-        message = commandArguments.slice(firstSpaceIndex + 1);
-      } else {
-        memberNumber = parseInt(commandArguments, 10);
+    if (!raw) {
+      return {
+        targetCharacter: null,
+        memberNumber: NaN,
+        message: "",
+        error: this.t("chat.blank_message"),
+      };
+    }
+
+    const characters: any[] = (window as any).ChatRoomCharacter || [];
+
+    // Case 1: First token is an explicit numeric Member Number
+    const firstSpaceIndex = raw.indexOf(" ");
+    const firstToken =
+      firstSpaceIndex === -1 ? raw : raw.slice(0, firstSpaceIndex);
+
+    if (/^\d+$/.test(firstToken)) {
+      const memberNumber = parseInt(firstToken, 10);
+      const message =
+        firstSpaceIndex === -1 ? "" : raw.slice(firstSpaceIndex + 1).trim();
+      const targetCharacter =
+        characters.find((c) => c?.MemberNumber === memberNumber) || null;
+
+      return { targetCharacter, memberNumber, message };
+    }
+
+    // Case 2: Target is specified via Name or Nickname
+    const tokens = raw.split(/\s+/);
+    let matchedChar: any = null;
+    let matchedTokenCount = 0;
+
+    const findMatches = (needle: string) => {
+      const normalizedNeedle = needle.trim().toLocaleLowerCase();
+      if (!normalizedNeedle) return [];
+      return characters.filter(
+        (c) =>
+          c?.Name?.toLocaleLowerCase() === normalizedNeedle ||
+          c?.Nickname?.toLocaleLowerCase() === normalizedNeedle,
+      );
+    };
+
+    // Greedy search: try longest combinations of tokens first to support multi-word names
+    for (let i = tokens.length; i >= 1; i--) {
+      const candidateName = tokens.slice(0, i).join(" ");
+      const matches = findMatches(candidateName);
+
+      if (matches.length > 1) {
+        return {
+          targetCharacter: null,
+          memberNumber: NaN,
+          message: "",
+          error: `Multiple players match "${candidateName}". Please use their Member Number.`,
+        };
+      }
+
+      if (matches.length === 1) {
+        matchedChar = matches[0];
+        matchedTokenCount = i;
+        break;
       }
     }
 
-    return { memberNumber, message };
+    if (matchedChar) {
+      // Reconstruct remaining message starting past the matched name tokens
+      const candidateName = tokens.slice(0, matchedTokenCount).join(" ");
+      const matchIndex = raw.indexOf(candidateName);
+      const message =
+        matchIndex !== -1
+          ? raw.slice(matchIndex + candidateName.length).trim()
+          : "";
+
+      return {
+        targetCharacter: matchedChar,
+        memberNumber: matchedChar.MemberNumber,
+        message,
+      };
+    }
+
+    return {
+      targetCharacter: null,
+      memberNumber: NaN,
+      message: "",
+      error: this.t("chat.invalid_member"),
+    };
   }
 
   /**
-   * Validates that the target member exists.
+   * Validates that the target member exists in the active room.
    * Safely inspects the ChatRoomCharacter collection array.
    *
    * @param {any} target - The target (either member number or character object).
@@ -493,7 +448,7 @@ export class WhisperPlus extends CRABS_Base {
   /**
    * Sends a whisper message to a target character.
    *
-   * @param {any} target - The target character or member number.
+   * @param {any} target - The target character object or member number.
    * @param {string} message - The message to send.
    * @returns {boolean} Whether the message was sent successfully.
    * @private
@@ -505,7 +460,10 @@ export class WhisperPlus extends CRABS_Base {
 
     const globalWindow = window as any;
     const player = globalWindow.Player;
-    const targetMember = this.validateTarget(target);
+    const targetMember =
+      typeof target === "object" && target !== null
+        ? target
+        : this.validateTarget(target);
 
     if (!targetMember) {
       const cmdNoTarget =
@@ -514,7 +472,10 @@ export class WhisperPlus extends CRABS_Base {
           : "Cannot find target";
 
       if (typeof globalWindow.ChatRoomSendLocal === "function") {
-        globalWindow.ChatRoomSendLocal(`${cmdNoTarget} ${target}.`, 30_000);
+        globalWindow.ChatRoomSendLocal(
+          `${cmdNoTarget} ${target?.MemberNumber || target}.`,
+          30_000,
+        );
       }
       return false;
     }
@@ -533,12 +494,12 @@ export class WhisperPlus extends CRABS_Base {
       if (typeof globalWindow.ChatRoomSendLocal === "function") {
         globalWindow.ChatRoomSendLocal(selfMessage);
       }
-      return false;
+      return true;
     }
 
     let formattedMsg = message.replace(/\(/g, "❪").replace(/\)/g, "❫");
 
-    if (target.MemberNumber === player?.MemberNumber) {
+    if (targetMember.MemberNumber === player?.MemberNumber) {
       if (typeof globalWindow.addChatMessage === "function") {
         globalWindow.addChatMessage(formattedMsg);
       } else if (typeof globalWindow.ChatRoomSendLocal === "function") {
@@ -647,9 +608,10 @@ export class WhisperPlus extends CRABS_Base {
 
   /**
    * Processes the Whisper+ command.
+   * Accepts member numbers, character names, or nicknames as targets.
    *
-   * @param {string} commandArguments - Arguments passed from player (message).
-   * @param {string} command - Arguments passed as command (BC quirk).
+   * @param {string} commandArguments - Arguments passed from player (target + message).
+   * @param {string} command - Full command line passed as command (BC quirk).
    * @returns {number} 0 indicates success, 1 is an error.
    */
   public whisperplus(commandArguments: string, command: string): number {
@@ -668,27 +630,24 @@ export class WhisperPlus extends CRABS_Base {
       return 1;
     }
 
+    const { targetCharacter, memberNumber, message, error } =
+      this.resolveTargetAndMessage(commandArguments, command);
+
+    if (error) {
+      if (typeof globalWindow.ChatRoomSendLocal === "function") {
+        globalWindow.ChatRoomSendLocal(error, 30_000);
+      }
+      return 1;
+    }
+
     if (Settings.instance?.data?.respectBcxRules) {
       const ruleState = CrossMod.getBCXRuleState(
         "speech_restrict_whisper_send",
       );
       if (ruleState?.isEnforced) {
-        const { memberNumber } = this.parseArguments(commandArguments, command);
         ruleState.triggerAttempt?.(memberNumber);
         return 1;
       }
-    }
-
-    const { memberNumber, message } = this.parseArguments(
-      commandArguments,
-      command,
-    );
-
-    if (isNaN(memberNumber)) {
-      if (typeof globalWindow.ChatRoomSendLocal === "function") {
-        globalWindow.ChatRoomSendLocal(this.t("chat.invalid_member"), 30_000);
-      }
-      return 1;
     }
 
     if (!message) {
@@ -698,23 +657,21 @@ export class WhisperPlus extends CRABS_Base {
       return 1;
     }
 
-    const characters = globalWindow.ChatRoomCharacter;
-    const target = Array.isArray(characters)
-      ? characters.find(
-          (character: any) => character?.MemberNumber === memberNumber,
-        )
-      : null;
-
-    if (!target) {
+    // If target is not currently in the room
+    if (!targetCharacter) {
       let beepSent = false;
 
-      if (Settings.instance?.data?.autoBeepOnLeave) {
+      if (Settings.instance?.data?.autoBeepOnLeave && !isNaN(memberNumber)) {
         beepSent = this.trySendAccountBeep(memberNumber, message);
         if (beepSent) return 0;
       }
 
       let errorMsg = this.t("chat.player_left");
-      if (Settings.instance?.data?.autoBeepOnLeave && !beepSent) {
+      if (
+        Settings.instance?.data?.autoBeepOnLeave &&
+        !isNaN(memberNumber) &&
+        !beepSent
+      ) {
         errorMsg += this.t("chat.auto_beep_failed");
       }
 
@@ -732,7 +689,7 @@ export class WhisperPlus extends CRABS_Base {
       return 1;
     }
 
-    const success = this.sendWhisperMessage(target || memberNumber, message);
+    const success = this.sendWhisperMessage(targetCharacter, message);
     return success ? 0 : 1;
   }
 }

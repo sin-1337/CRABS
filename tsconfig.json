@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "ES6", // Target ECMAScript version (you can change it based on your needs)
+		"target": "ES2022", // Target ECMAScript version (you can change it based on your needs)
 		"lib": [
 			"DOM",
 			"DOM.Iterable",
