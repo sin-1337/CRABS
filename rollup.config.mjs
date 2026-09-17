@@ -179,10 +179,15 @@ export default {
     string({
       include: ["**/*.html"],
     }),
-    typescript({
+typescript({
       tsconfig: "./tsconfig.json",
       inlineSources: true,
       outDir: process.env.OUT_DIR || `../Live/CRABS/${BUILD_BRANCH}`,
+      exclude: [
+        "**/tests/**",
+        "**/*.test.ts",
+        "src/mockups/**",
+      ],
     }),
     commonjs(),
   ],

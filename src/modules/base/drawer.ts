@@ -13,7 +13,7 @@
  * and unsafe global variable scoping.
  */
 
-import { CRABS_Base, PerformanceLevel } from "./core";
+import { CRABS_Base, PerformanceLevel } from "./base";
 import { Notification } from "../notifications/notifications";
 import { translate } from "./localization";
 import { registerKeybind } from "./keybinds";

@@ -10,7 +10,7 @@ declare global {
   type KeysType = "bronze" | "silver" | "gold";
 
   /** Target specifier for key drop actions. */
-  type DropTarget = KeyType | "all";
+  type DropTarget = KeysType | "all";
 
   /**
    * Snapshot of room keys currently in the local player's possession.
