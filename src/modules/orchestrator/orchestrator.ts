@@ -55,6 +55,13 @@ export class Orchestrator extends CRABS_Base {
   private crabsLastRoomID: any = null;
 
   /**
+   * Tracks whether the map was strictly the active view to reliably detect map <-> normal transitions.
+   * @private
+   * @type {boolean | null}
+   */
+  private crabsLastViewIsMap: boolean | null = null;
+
+  /**
    * Active reference to the Roster module for counter aggregates.
    * @private
    * @type {Roster}
@@ -146,15 +153,15 @@ export class Orchestrator extends CRABS_Base {
     }
 
     // --- SafeHook for ChatRoomExit ---
-    // We stub it first so ModSDK doesn't crash if it hooks before the base game declares it.
     const globalWin = window as any;
     if (typeof globalWin.ChatRoomExit !== "function") {
       globalWin.ChatRoomExit = function () {};
     }
 
     this.safeHook("ChatRoomExit", 10, (args, next) => {
-      // Clear room state on exit so the next room entry will trigger the banner
+      // Clear room and view state on exit so the next room entry will trigger the banner
       this.crabsLastRoomID = null;
+      this.crabsLastViewIsMap = null;
       const result = next(args);
       Drawer.updateVisibility();
       return result;
@@ -200,13 +207,15 @@ export class Orchestrator extends CRABS_Base {
       "TranslationLoad",
       10,
       (args: any, next: (args: any[]) => any) => {
-        const result = next(args);
-        return result;
+        return next(args);
       },
     );
 
-    // Handle Room Joins and UI Recovery
+    // Handle Room Joins, UI Recovery, and View Transitions globally
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
+      // Snapshot banner existence BEFORE next() in case BC clears the DOM during the update
+      const bannerWasOpen = Boolean(document.getElementById("CRABS_Banner"));
+
       const result = next(args);
 
       const inChatRoom =
@@ -216,21 +225,53 @@ export class Orchestrator extends CRABS_Base {
 
       if (inChatRoom) {
         const currentID = ChatRoomData.ID ?? ChatRoomData.Name;
+        const globalWin = window as any;
 
-        // Just joined a new room session.
-        // We strictly check if `this.crabsLastRoomID === null` so room name updates mid-session DO NOT trigger a respawn.
+        // Reliably determine if the map is the active view object via BC's native data structures
+        let isMapView = false;
+        if (typeof globalWin.ChatRoomIsViewActive === "function") {
+          isMapView = globalWin.ChatRoomIsViewActive("Map");
+        } else if (globalWin.ChatRoomViews && globalWin.ChatRoomActiveView) {
+          isMapView =
+            globalWin.ChatRoomActiveView === globalWin.ChatRoomViews["Map"];
+        }
+
+        // 1. Initial Room Join Logic
         if (currentID && this.crabsLastRoomID === null) {
           this.crabsLastRoomID = currentID;
+          this.crabsLastViewIsMap = isMapView;
           Drawer.updateVisibility();
           Settings.instance?.syncGameState();
 
-          // Only ever draw the banner here upon initial room entry
           if (Settings.instance?.data?.showBanner) {
             this.drawbanner();
           }
         }
+        // 2. Mid-Session View Transition Logic
+        else if (
+          this.crabsLastViewIsMap !== null &&
+          this.crabsLastViewIsMap !== isMapView
+        ) {
+          // If the boolean flipped, we strictly transitioned Map <-> Normal view
+          if (bannerWasOpen) {
+            const settings = Settings.instance?.data;
+            const canRespawn =
+              Boolean(settings?.showBanner) &&
+              Boolean(settings?.respawnBannerOnMapView);
 
-        // Returned from Wardrobe/Profile
+            if (canRespawn) {
+              // Defer the redraw slightly so BC has time to finish recreating standard chat inputs
+              setTimeout(() => {
+                this.drawbanner(false);
+              }, 50);
+            }
+          }
+
+          // Update tracked view state
+          this.crabsLastViewIsMap = isMapView;
+        }
+
+        // Returned from Wardrobe/Profile checks
         const isFocused = (window as any).CurrentCharacter !== null;
         const drawerElement = document.getElementById("crabs-drawer");
 
@@ -242,6 +283,9 @@ export class Orchestrator extends CRABS_Base {
         ) {
           Drawer.updateVisibility();
         }
+      } else {
+        // Reset state completely if we exit a chat room context
+        this.crabsLastViewIsMap = null;
       }
 
       return result;
@@ -440,37 +484,6 @@ export class Orchestrator extends CRABS_Base {
       profileCache.rawText = null;
       return next(args);
     });
-
-    // Respawn banner strictly when switching between Map view and Normal view
-    // (and only if currently open and explicitly enabled in settings)
-    this.safeHook(
-      "ChatRoomActivateView",
-      10,
-      (args: any[], next: (args: any[]) => any) => {
-        const globalWin = window as any;
-        const currentViewName = globalWin.ChatRoomActiveView?.Name ?? "";
-        const targetViewName = (args[0] as string) || "";
-
-        const result = next(args);
-
-        const isMapTransition =
-          (currentViewName === "map" && targetViewName !== "map") ||
-          (currentViewName !== "map" && targetViewName === "map");
-
-        if (isMapTransition) {
-          const settings = Settings.instance?.data;
-          const canRespawn =
-            Boolean(settings?.showBanner) &&
-            Boolean(settings?.respawnBannerOnMapView);
-
-          if (canRespawn) {
-            this.drawbanner(true);
-          }
-        }
-
-        return result;
-      },
-    );
   }
 
   /**
