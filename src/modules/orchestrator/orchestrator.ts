@@ -267,9 +267,6 @@ export class Orchestrator extends CRABS_Base {
 
     // Handle Room Joins, UI Recovery, and View Transitions globally
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
-      // Snapshot banner existence BEFORE next() in case BC clears the DOM during the update
-      const bannerWasOpen = Boolean(document.getElementById("CRABS_Banner"));
-
       const result = next(args);
 
       const inChatRoom =
@@ -304,27 +301,12 @@ export class Orchestrator extends CRABS_Base {
           // Check if room was joined directly in map view
           this.checkMapLocationBlockNotice(isMapView);
         }
-        // 2. Mid-Session View Transition Logic
+        // 2. Mid-Session View Transition Logic (No longer re-creates banner; Banner.ts updates in-place)
         else if (
           this.crabsLastViewIsMap !== null &&
           this.crabsLastViewIsMap !== isMapView
         ) {
-          if (bannerWasOpen) {
-            const settings = Settings.instance?.data;
-            const canRespawn =
-              Boolean(settings?.showBanner) &&
-              Boolean(settings?.respawnBannerOnMapView);
-
-            if (canRespawn) {
-              setTimeout(() => {
-                this.drawbanner(false);
-              }, 50);
-            }
-          }
-
           this.crabsLastViewIsMap = isMapView;
-
-          // Trigger when switching from standard view -> map view
           this.checkMapLocationBlockNotice(isMapView);
         }
 
@@ -544,7 +526,7 @@ export class Orchestrator extends CRABS_Base {
   }
 
   /**
-   * Compiles current roster counts and dispatches the rendering sequence to the Banner module.
+   * Dispatches banner mounting to the Banner module.
    *
    * @public
    * @param {boolean} [onlyIfPresent=false] - If true, aborts redraw if an existing banner element is not mounted.
@@ -565,10 +547,7 @@ export class Orchestrator extends CRABS_Base {
       existing.remove();
     }
 
-    const extraData = {
-      RosterCounters: this.rosterModule.buildroster("count", false),
-    };
-    this.bannerModule.drawBanner(extraData);
+    this.bannerModule.drawBanner();
     return true;
   }
 }

@@ -84,6 +84,50 @@
   text-shadow: none !important;
 }
 
+.CRABS_banner_stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 8px;
+  margin: 8px 0 4px 0;
+  font-size: 0.95em;
+}
+
+.CRABS_stat_item {
+  flex: 1 1 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* Draws the thin vertical line centered between segments */
+.CRABS_stat_item + .CRABS_stat_item {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.CRABS_stat_icon img,
+.CRABS_stat_icon svg {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+#CRABS_banner_keys {
+  cursor: pointer;
+}
+
+#CRABS_banner_keys img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
 /* ==========================================================================
    MOBILE GLOBAL SCALE DOWN
    ========================================================================== */

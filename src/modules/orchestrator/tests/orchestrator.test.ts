@@ -112,9 +112,7 @@ describe("Orchestrator Module", () => {
     mockSdk.triggerHook("ChatRoomUpdateDisplay");
 
     expect(drawBannerSpy).toHaveBeenCalled();
-    expect(mockBanner.drawBanner).toHaveBeenCalledWith({
-      RosterCounters: "mock-roster-counts",
-    });
+    expect(mockBanner.drawBanner).toHaveBeenCalledWith();
   });
 
   it("normalizes math alphanumerics and zalgo in profile text on click", () => {

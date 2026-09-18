@@ -32,7 +32,6 @@ import locales from "./i18n.json";
 const DEFAULT_SETTINGS: any = {
   languageOverride: "auto",
   showBanner: true,
-  respawnBannerOnMapView: true,
   checkForUpdates: true,
   rosterOpensDrawer: true,
   showDrawerTab: true,
@@ -974,14 +973,6 @@ export class Settings extends CRABS_Base {
       () => {
         this.layout.updateDOM(this.isMenuOpen);
       },
-    );
-    createCheck(
-      "General",
-      "respawnBannerOnMapView",
-      "settings.general.respawn_banner_label",
-      "settings.general.respawn_banner_hint",
-      1,
-      () => !this.data.showBanner,
     );
     createCheck(
       "General",
