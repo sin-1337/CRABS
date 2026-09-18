@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
-const BUILD_VERSION = "3.0.0.129";
+const BUILD_VERSION = "3.0.0.131";
 const BUILD_BRANCH = "Beta";
 
 // Dynamic target resolution for test mode
