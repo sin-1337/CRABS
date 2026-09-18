@@ -80,7 +80,13 @@ describe("Roster Compass Module", () => {
     win.ChatRoomCharacterViewOffset = 0;
     win.ChatRoomCharacter = [];
     win.ChatRoomCharacterDrawlist = [];
-    win.ChatRoomUpdateDisplay = vi.fn();
+    win.ChatRoomUpdateDisplay = vi.fn(() => {
+      const offset = win.ChatRoomCharacterViewOffset || 0;
+      win.ChatRoomCharacterDrawlist = win.ChatRoomCharacter.slice(
+        offset,
+        offset + 10,
+      );
+    });
     win.CharacterNickname = (c: any) => c.Name;
 
     vi.spyOn(CRABS_Base, "isCompassBlocked").mockReturnValue(false);

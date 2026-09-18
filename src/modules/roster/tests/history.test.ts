@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, beforeAll, vi } from "vitest";
 import {
   syncRoomContext,
   loadHistory,
@@ -7,9 +7,14 @@ import {
   sendFriendBeep,
   buildHistoryRoster,
 } from "../history";
+import { Roster } from "@/modules/roster";
 import { createMockCharacter } from "mockups/character";
+import { createMockModSDK } from "mockups/mod-sdk";
 
 describe("Roster History Module", () => {
+  beforeAll(() => {
+    new Roster(createMockModSDK());
+  });
   beforeEach(() => {
     sessionStorage.clear();
     const win = window as any;

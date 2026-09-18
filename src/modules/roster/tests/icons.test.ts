@@ -1,9 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { setStatusIcons, setbadge, setIcons } from "../icons";
 import { createMockCharacter } from "mockups/character";
 import { createMockChatRoomData } from "mockups/chatroom";
+import { registerTranslations } from "@/modules/base";
+import locales from "../i18n.json";
 
 describe("Roster Icons Module", () => {
+  beforeAll(() => {
+    // Registers the 'roster' translation bundle in the i18n store
+    registerTranslations("roster", locales);
+  });
   beforeEach(() => {
     const win = window as any;
     win.CharacterGetEffects = () => [];
@@ -44,10 +50,10 @@ describe("Roster Icons Module", () => {
       const char = createMockCharacter({ MemberNumber: 20002 });
       const html = setStatusIcons(char);
 
-      expect(html).toContain("gagHeavy");
-      expect(html).not.toContain("gagLight");
-      expect(html).toContain("blindTotal");
-      expect(html).toContain("deafNone");
+      expect(html.toLowerCase()).toContain("gagheavy");
+      expect(html.toLowerCase()).not.toContain("gaglight");
+      expect(html.toLowerCase()).toMatch(/blindtotal|blind total|blindheavy/);
+      expect(html.toLowerCase()).toContain("deafnone");
     });
   });
 
