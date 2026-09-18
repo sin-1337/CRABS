@@ -3,6 +3,7 @@ import { Roster } from "../roster";
 import { Drawer } from "../../base";
 import { createMockModSDK } from "mockups/mod-sdk";
 import { createMockCharacter } from "mockups/character";
+import { createMockChatRoomData } from "mockups/chatroom";
 
 describe("Roster Module", () => {
   let mockSdk: ReturnType<typeof createMockModSDK>;
@@ -12,6 +13,7 @@ describe("Roster Module", () => {
     localStorage.clear();
     const win = window as any;
 
+    win.ChatRoomData = createMockChatRoomData();
     win.CurrentScreen = "ChatRoom";
     win.CurrentCharacter = null;
     win.ChatRoomCharacter = [
@@ -28,14 +30,6 @@ describe("Roster Module", () => {
         IsPlayer: () => false,
       }),
     ];
-    win.ChatRoomData = {
-      Name: "Dungeon_Cell",
-      ID: "12345",
-      Limit: 10,
-      Admin: [20002],
-      Whitelist: [],
-      Custom: { SizeMode: 0 },
-    };
     win.Player = createMockCharacter({
       MemberNumber: 10001,
       Name: "Tester",
@@ -137,6 +131,37 @@ describe("Roster Module", () => {
     ).toBe("AdminUser");
   });
 
+  it("safely handles null ChatRoomData when outside a room", () => {
+    (window as any).ChatRoomData = null;
+
+    expect(roster.buildroster("all", false)).toBe("");
+
+    const root = document.createElement("div");
+    root.innerHTML = `<div id="CRABS_header_admins">initial</div>`;
+    roster.updateRosterUI(root);
+
+    expect(root.querySelector("#CRABS_header_admins")?.textContent).toBe(
+      "initial",
+    );
+  });
+
+  it("updates admin count dynamically when admins change", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div id="CRABS_header_admins"></div>`;
+
+    (window as any).ChatRoomData = createMockChatRoomData({
+      Admin: [20002, 10001],
+    });
+    roster.updateRosterUI(root);
+    expect(root.querySelector("#CRABS_header_admins")?.textContent).toBe("2/2");
+
+    (window as any).ChatRoomData = createMockChatRoomData({
+      Admin: [],
+    });
+    roster.updateRosterUI(root);
+    expect(root.querySelector("#CRABS_header_admins")?.textContent).toBe("0/0");
+  });
+
   it("flags module dirty on room sync and member transition hooks", () => {
     roster.isDirty = false;
 
@@ -148,5 +173,19 @@ describe("Roster Module", () => {
     roster.isDirty = false;
     mockSdk.triggerHook("ChatRoomSyncMemberLeave", [20002]);
     expect(roster.isDirty).toBe(true);
+  });
+  it("correctly identifies admins even with string MemberNumbers", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div id="CRABS_header_admins"></div>`;
+
+    (window as any).ChatRoomCharacter = [
+      createMockCharacter({ MemberNumber: "20002" as any, Name: "AdminUser" }),
+    ];
+    (window as any).ChatRoomData = createMockChatRoomData({
+      Admin: [20002],
+    });
+
+    roster.updateRosterUI(root);
+    expect(root.querySelector("#CRABS_header_admins")?.textContent).toBe("1/1");
   });
 });
