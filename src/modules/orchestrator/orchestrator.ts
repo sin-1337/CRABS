@@ -8,12 +8,13 @@
  * @module Orchestrator
  */
 
-import { CRABS_Base, Drawer } from "../base";
-import { Settings } from "../settings";
+import { CRABS_Base, Drawer } from "@/modules/base";
+import { Settings } from "@/modules/settings";
 import { ModSDKModAPI } from "bondage-club-mod-sdk";
-import { Roster } from "../roster/roster";
-import { Banner } from "../banner/banner";
-import { Assets } from "../base";
+import { Roster } from "@/modules/roster";
+import { Banner } from "@/modules/banner";
+import { Assets } from "@/modules/base";
+import { Notification } from "@/modules/notifications";
 
 import locals from "./i18n.json";
 
@@ -75,6 +76,9 @@ export class Orchestrator extends CRABS_Base {
    */
   private bannerModule: Banner;
 
+  /** is the compass feature blocked by admins **/
+  private crabsLastLocationBlocked: boolean | null = null;
+
   /**
    * Constructs the Orchestrator module instance, initializes base i18n dictionaries under the "profile" namespace,
    * binds submodules, and registers engine hooks.
@@ -126,6 +130,39 @@ export class Orchestrator extends CRABS_Base {
     return Boolean(noteInput && !noteInput.classList?.contains("bce-hidden"));
   }
 
+  private checkMapLocationBlockNotice(isMapView?: boolean): void {
+    const globalWin = window as any;
+    const onMap =
+      isMapView ??
+      (typeof globalWin.ChatRoomMapViewIsActive === "function"
+        ? globalWin.ChatRoomMapViewIsActive()
+        : typeof globalWin.ChatRoomIsViewActive === "function"
+          ? globalWin.ChatRoomIsViewActive("Map")
+          : false);
+
+    if (!onMap) {
+      this.crabsLastLocationBlocked = null;
+      return;
+    }
+
+    const roomData = globalWin.ChatRoomData;
+    const isBlocked = Boolean(
+      Array.isArray(roomData?.BlockCategory) &&
+      roomData.BlockCategory.includes("Location"),
+    );
+
+    if (isBlocked && this.crabsLastLocationBlocked !== true) {
+      Notification.send({
+        title: "Compass Disabled",
+        message: "Location share blocked by admin, compass disabled",
+        type: "Warning",
+        duration: 5000,
+      });
+    }
+
+    this.crabsLastLocationBlocked = isBlocked;
+  }
+
   /**
    * Registers all core game engine hooks via ModSDK's safeHook API.
    *
@@ -162,6 +199,7 @@ export class Orchestrator extends CRABS_Base {
       // Clear room and view state on exit so the next room entry will trigger the banner
       this.crabsLastRoomID = null;
       this.crabsLastViewIsMap = null;
+      this.crabsLastLocationBlocked = null;
       const result = next(args);
       Drawer.updateVisibility();
       return result;
@@ -211,11 +249,24 @@ export class Orchestrator extends CRABS_Base {
       },
     );
 
+    this.safeHook("ChatRoomSync", 10, (args, next) => {
+      const result = next(args);
+
+      const globalWin = window as any;
+      let isMapView = false;
+      if (typeof globalWin.ChatRoomIsViewActive === "function") {
+        isMapView = globalWin.ChatRoomIsViewActive("Map");
+      } else if (globalWin.ChatRoomViews && globalWin.ChatRoomActiveView) {
+        isMapView =
+          globalWin.ChatRoomActiveView === globalWin.ChatRoomViews["Map"];
+      }
+
+      this.checkMapLocationBlockNotice(isMapView);
+      return result;
+    });
+
     // Handle Room Joins, UI Recovery, and View Transitions globally
     this.safeHook("ChatRoomUpdateDisplay", 10, (args, next) => {
-      // Snapshot banner existence BEFORE next() in case BC clears the DOM during the update
-      const bannerWasOpen = Boolean(document.getElementById("CRABS_Banner"));
-
       const result = next(args);
 
       const inChatRoom =
@@ -246,29 +297,17 @@ export class Orchestrator extends CRABS_Base {
           if (Settings.instance?.data?.showBanner) {
             this.drawbanner();
           }
+
+          // Check if room was joined directly in map view
+          this.checkMapLocationBlockNotice(isMapView);
         }
-        // 2. Mid-Session View Transition Logic
+        // 2. Mid-Session View Transition Logic (No longer re-creates banner; Banner.ts updates in-place)
         else if (
           this.crabsLastViewIsMap !== null &&
           this.crabsLastViewIsMap !== isMapView
         ) {
-          // If the boolean flipped, we strictly transitioned Map <-> Normal view
-          if (bannerWasOpen) {
-            const settings = Settings.instance?.data;
-            const canRespawn =
-              Boolean(settings?.showBanner) &&
-              Boolean(settings?.respawnBannerOnMapView);
-
-            if (canRespawn) {
-              // Defer the redraw slightly so BC has time to finish recreating standard chat inputs
-              setTimeout(() => {
-                this.drawbanner(false);
-              }, 50);
-            }
-          }
-
-          // Update tracked view state
           this.crabsLastViewIsMap = isMapView;
+          this.checkMapLocationBlockNotice(isMapView);
         }
 
         // Returned from Wardrobe/Profile checks
@@ -487,7 +526,7 @@ export class Orchestrator extends CRABS_Base {
   }
 
   /**
-   * Compiles current roster counts and dispatches the rendering sequence to the Banner module.
+   * Dispatches banner mounting to the Banner module.
    *
    * @public
    * @param {boolean} [onlyIfPresent=false] - If true, aborts redraw if an existing banner element is not mounted.
@@ -508,10 +547,7 @@ export class Orchestrator extends CRABS_Base {
       existing.remove();
     }
 
-    const extraData = {
-      RosterCounters: this.rosterModule.buildroster("count", false),
-    };
-    this.bannerModule.drawBanner(extraData);
+    this.bannerModule.drawBanner();
     return true;
   }
 }

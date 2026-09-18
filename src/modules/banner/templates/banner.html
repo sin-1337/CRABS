@@ -11,13 +11,42 @@
       <td class="CRABS_banner_logo_container"></td>
     </tr>
     <tr>
-      <td colspan="3">{{t:labels.room}}: <span style="color: {{LabelColor}}; font-weight: bold;">{{RoomName}}</span></td>
+      <td colspan="3">
+        {{t:labels.room}}: <span id="CRABS_banner_room_name" style="color: {{LabelColor}}; font-weight: bold;">{{RoomName}}</span>
+      </td>
     </tr>
     <tr>
-      <td colspan="3">{{RosterCounters}}<hr></td>
+      <td colspan="3">
+        <div id="CRABS_banner_counters" class="CRABS_banner_stats">
+          <span class="CRABS_stat_item">
+            <span class="CRABS_stat_icon">{{AdminIcon}}</span>
+            <span id="CRABS_banner_admins">{{AdminsCount}}</span>
+          </span>
+          <span class="CRABS_stat_item">
+            <span class="CRABS_stat_icon">{{PlayerIcon}}</span>
+            <span id="CRABS_banner_players">{{PlayersCount}}</span>
+          </span>
+          <span class="CRABS_stat_item">
+            <span class="CRABS_stat_icon">{{FriendIcon}}</span>
+            <span id="CRABS_banner_friends">{{FriendsCount}}</span>
+          </span>
+          <span class="CRABS_stat_item">
+            <span class="CRABS_stat_icon">{{OnlineIcon}}</span>
+            <span id="CRABS_banner_online">{{OnlineCount}}</span>
+          </span>
+          <span id="CRABS_banner_keys" class="CRABS_keys_trigger CRABS_stat_item" style="display: {{KeyDisplay}};">
+            {{KeysHtml}}
+          </span>
+        </div>
+        <hr>
+      </td>
     </tr>
     <tr>
-      <td colspan="3">{{t:labels.roster_hint_prefix}} <a class="CRABS_banner_rosterlink" href="javascript:void(0);" data-action="print-roster">/roster</a> {{t:labels.roster_hint_suffix}}</td>
+      <td colspan="3">
+        {{t:labels.roster_hint_prefix}} 
+        <a class="CRABS_banner_rosterlink" href="javascript:void(0);" data-action="print-roster">/roster</a>
+        {{t:labels.roster_hint_suffix}}
+      </td>
     </tr>
   </tbody>
 </table>

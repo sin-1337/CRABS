@@ -10,7 +10,9 @@ import { CrossMod } from "../crossmod/crossmod";
  */
 export function setStatusIcons(character: any): string {
   const prefixes = ["Blind", "Gag", "Deaf"];
-  const effects = (window as any).CharacterGetEffects(character) || [];
+  const getEffects = (window as any).CharacterGetEffects;
+  const effects =
+    typeof getEffects === "function" ? getEffects(character) || [] : [];
 
   const effectLists: { [key: string]: { [key: string]: number } } = {
     Blind: {
@@ -46,6 +48,12 @@ export function setStatusIcons(character: any): string {
     Deaf: "",
   };
 
+  const maxLevels: { [key: string]: number } = {
+    Blind: 0,
+    Gag: 0,
+    Deaf: 0,
+  };
+
   const updateIcon = (prefix: string, effect: string): void => {
     const effectName = effect.charAt(0).toLowerCase() + effect.slice(1);
     const effectList = effectLists[prefix];
@@ -57,10 +65,8 @@ export function setStatusIcons(character: any): string {
         { level: effectValue },
       );
 
-      if (
-        effectValue >
-        (icons[prefix] ? parseInt(icons[prefix].split(": ")[1]) : 0)
-      ) {
+      if (effectValue > maxLevels[prefix]) {
+        maxLevels[prefix] = effectValue;
         icons[prefix] = Assets.printimage({
           key: effectName,
           tooltip_override: localizedTooltip,
@@ -73,8 +79,8 @@ export function setStatusIcons(character: any): string {
     }
   };
 
-  for (let effect of effects) {
-    for (let prefix of prefixes) {
+  for (const effect of effects) {
+    for (const prefix of prefixes) {
       if (effect.startsWith(prefix)) {
         updateIcon(prefix, effect);
       }
@@ -121,11 +127,8 @@ export function setbadge(character: any): string {
     return badge;
   }
 
-  const isVip =
-    Array.isArray(chatRoomData.Whitelist) &&
-    chatRoomData.Whitelist.includes(memberNum);
-  const isAdmin =
-    Array.isArray(chatRoomData.Admin) && chatRoomData.Admin.includes(memberNum);
+  const isVip = chatRoomData.Whitelist?.includes(memberNum);
+  const isAdmin = chatRoomData.Admin?.includes(memberNum);
 
   if (isAdmin) {
     badge = Assets.printimage({
@@ -149,7 +152,7 @@ export function setbadge(character: any): string {
  * @returns {string} HTML string containing the relevant relational icons.
  */
 export function setIcons(character: any): string {
-  if (character.IsPlayer()) {
+  if (typeof character.IsPlayer === "function" && character.IsPlayer()) {
     return (
       Assets.printimage({
         key: "you",

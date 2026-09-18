@@ -4,6 +4,7 @@
   line-height: 1.45;
   font-size: 1.2rem;
   padding: 0 0.5rem;
+  scroll-behavior: smooth;
 }
 
 .CRABS_help_title_container {
@@ -29,10 +30,45 @@
   color: #ffd000;
 }
 
+/* Table of Contents bar */
+.CRABS_help_toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  padding: 0.8rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 170, 0, 0.25);
+  border-radius: 8px;
+}
+
+.CRABS_toc_chip {
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.CRABS_toc_chip:hover {
+  background: rgba(255, 170, 0, 0.2);
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
 .CRABS_help_section {
   margin-bottom: 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   padding-bottom: 1.5rem;
+  scroll-margin-top: 1rem;
 }
 
 .CRABS_help_header {
@@ -42,7 +78,34 @@
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+}
+
+.CRABS_help_back_to_top {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #00ffcc;
+  text-decoration: none;
+  background: rgba(0, 255, 204, 0.08);
+  border: 1px solid rgba(0, 255, 204, 0.25);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.CRABS_help_back_to_top:hover {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.18);
+  border-color: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
 }
 
 .CRABS_help_subheader {
@@ -155,4 +218,59 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* Integrations Status Indicator & Row Layout */
+.CRABS_integration_list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.CRABS_integration_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.CRABS_integration_lead {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 130px;
+}
+
+.CRABS_mod_indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.CRABS_mod_indicator.active {
+  background-color: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.75);
+}
+
+.CRABS_mod_indicator.inactive {
+  background-color: #555;
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+.CRABS_mod_name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.15rem;
+}
+
+.CRABS_integration_detail {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }

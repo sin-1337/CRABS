@@ -38,12 +38,29 @@ declare global {
     __CRABS_LOADER__?: string;
     FUSAM?: unknown;
     fusam?: unknown;
+    unsafeWindow?: Window;
+    CRABS?: {
+      sdk: ReturnType<typeof bcModSDK.registerMod>;
+      settings: Settings;
+      drawer: Drawer;
+      banner: Banner;
+      whisperPlus: WhisperPlus;
+      roster: Roster;
+      help: Help;
+      tutorial: Tutorial;
+      orchestrator: Orchestrator;
+      performance: Performance;
+    };
   }
 }
 
 /**
- * Inspects execution context, global namespace markers, and call stacks
- * to identify which loader or injection method triggered script execution.
+ * Inspects the execution context, global namespace markers, active script tags,
+ * and current call stack frames to identify which loader or injection method
+ * triggered script execution.
+ *
+ * @function detectLoaderMethod
+ * @returns {string} Human-readable descriptor of the identified loader mechanism.
  */
 function detectLoaderMethod(): string {
   // Check for FUSAM global exposure
@@ -88,9 +105,16 @@ function detectLoaderMethod(): string {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Bootstrap Entry Guard
+// Bootstrap Entry Guard & Initialization Routine
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * Primary self-executing bootstrap routine. Validates single-instance execution
+ * guards, registers with BCModSDK, mounts submodules, and exposes the global debug API.
+ *
+ * @function bootstrap
+ * @returns {void}
+ */
 (() => {
   // Check both internal window marker and BCModSDK registry
   const isAlreadyRegistered =
@@ -137,10 +161,10 @@ function detectLoaderMethod(): string {
   const ROSTER = new Roster(CRABS);
   const HELP = new Help(CRABS);
   const TUTORIAL = new Tutorial(CRABS);
+  const DRAWER = new Drawer(CRABS);
 
   new PrivacyMode(CRABS);
   new ChatManager(CRABS, ROSTER);
-  new Drawer(CRABS);
 
   // Lifecycle manager handling room transitions and safe hook recovery
   const ORCHESTRATOR = new Orchestrator(CRABS, ROSTER, BANNER);
@@ -164,6 +188,23 @@ function detectLoaderMethod(): string {
 
   WHISPERPLUS.setupHooks();
   SETTINGS.syncGameState();
+
+  // Expose mod handles to DevTools console (supports userscript sandboxes)
+  const targetWindow =
+    typeof window.unsafeWindow !== "undefined" ? window.unsafeWindow : window;
+
+  targetWindow.CRABS = {
+    sdk: CRABS,
+    settings: SETTINGS,
+    drawer: DRAWER,
+    banner: BANNER,
+    whisperPlus: WHISPERPLUS,
+    roster: ROSTER,
+    help: HELP,
+    tutorial: TUTORIAL,
+    orchestrator: ORCHESTRATOR,
+    performance: PERFORMANCE,
+  };
 
   console.log(`CRABS v${__VERSION__} Loaded successfully`);
 })();

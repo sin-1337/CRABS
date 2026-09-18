@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Orchestrator } from "../orchestrator";
 import { Drawer } from "@/modules/base";
 import { Settings } from "@/modules/settings";
+import { Notification } from "@/modules/notifications";
 import { createMockModSDK } from "mockups/mod-sdk";
 import { createMockCharacter } from "mockups/character";
 
@@ -61,6 +62,7 @@ describe("Orchestrator Module", () => {
       "ChatRoomRun",
       "ChatRoomSendChat",
       "ChatRoomUpdateDisplay",
+      "ChatRoomSync",
       "CommonSetScreen",
       "ChatRoomFocusCharacter",
       "DialogLeave",
@@ -110,9 +112,7 @@ describe("Orchestrator Module", () => {
     mockSdk.triggerHook("ChatRoomUpdateDisplay");
 
     expect(drawBannerSpy).toHaveBeenCalled();
-    expect(mockBanner.drawBanner).toHaveBeenCalledWith({
-      RosterCounters: "mock-roster-counts",
-    });
+    expect(mockBanner.drawBanner).toHaveBeenCalledWith();
   });
 
   it("normalizes math alphanumerics and zalgo in profile text on click", () => {
@@ -141,5 +141,56 @@ describe("Orchestrator Module", () => {
     mockSdk.triggerHook("OnlineProfileClick");
     expect(input.value).toBe("𝐇𝐞𝐥𝐥𝐨 T̷e̵s̶t̸");
     expect(target.Description).toBe("𝐇𝐞𝐥𝐥𝐨 T̷e̵s̶t̸");
+  });
+
+  describe("Map Location Share Admin Block Notifications", () => {
+    it("notifies when entering map view while location sharing is blocked", () => {
+      const win = window as any;
+      win.ChatRoomData = {
+        ID: 123,
+        BlockCategory: ["Location"],
+      };
+      win.ChatRoomMapViewIsActive = vi.fn(() => true);
+      win.ChatRoomIsViewActive = vi.fn((view) => view === "Map");
+
+      const notifySpy = vi
+        .spyOn(Notification, "send")
+        .mockImplementation(() => {});
+
+      mockSdk.triggerHook("ChatRoomUpdateDisplay");
+
+      expect(notifySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Compass Disabled",
+          message: "Location share blocked by admin, compass disabled",
+        }),
+      );
+    });
+
+    it("notifies mid-session when admin sync adds Location block while on map", () => {
+      const win = window as any;
+      win.ChatRoomData = { ID: 123, BlockCategory: [] };
+      win.ChatRoomMapViewIsActive = vi.fn(() => true);
+      win.ChatRoomIsViewActive = vi.fn((view) => view === "Map");
+
+      const notifySpy = vi
+        .spyOn(Notification, "send")
+        .mockImplementation(() => {});
+
+      // Initial state: not blocked
+      mockSdk.triggerHook("ChatRoomUpdateDisplay");
+      expect(notifySpy).not.toHaveBeenCalled();
+
+      // Admin updates room mid-session
+      win.ChatRoomData.BlockCategory = ["Location"];
+      mockSdk.triggerHook("ChatRoomSync");
+
+      expect(notifySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Compass Disabled",
+          message: "Location share blocked by admin, compass disabled",
+        }),
+      );
+    });
   });
 });
