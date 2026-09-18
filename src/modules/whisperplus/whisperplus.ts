@@ -59,6 +59,31 @@ export class WhisperPlus extends CRABS_Base {
      * Silently routes standard whispers (/whisper and /w) to Whisper+ when "Always On" is enabled,
      * WITHOUT visibly altering the text box while the user is typing.
      */
+
+    // Add inside setupHooks() in WhisperPlus.ts:
+    document.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target as HTMLElement;
+        const nameElement = target.closest(".CRABS_player-name") as HTMLElement;
+
+        if (nameElement) {
+          const memberNumStr = nameElement.getAttribute("data-player-number");
+          if (memberNumStr) {
+            // Stops click from bubbling to .CRABS_card (prevents compass jumping)
+            event.stopPropagation();
+            event.preventDefault();
+
+            const memberNumber = parseInt(memberNumStr, 10);
+            if (!isNaN(memberNumber)) {
+              this.sendWhisper(memberNumber);
+            }
+          }
+        }
+      },
+      { capture: true },
+    );
+
     this.safeHook(
       "CommandParse",
       10,
@@ -484,6 +509,7 @@ export class WhisperPlus extends CRABS_Base {
       Drawer.close();
     }
 
+    // Handle self-whispers
     if (targetMember.MemberNumber === player?.MemberNumber) {
       const thoughtIcon = Assets.printimage({ key: "thought" });
       const selfMessage = this.t("chat.note_to_self", {
@@ -497,60 +523,83 @@ export class WhisperPlus extends CRABS_Base {
       return true;
     }
 
-    let formattedMsg = message.replace(/\(/g, "❪").replace(/\)/g, "❫");
+    // Preserve ASCII parentheses inside OOC blocks so base BC speech processing ignores gagging
+    let formattedMsg = message;
+    const getOOCRanges = globalWindow.SpeechGetOOCRanges;
 
-    if (targetMember.MemberNumber === player?.MemberNumber) {
-      if (typeof globalWindow.addChatMessage === "function") {
-        globalWindow.addChatMessage(formattedMsg);
-      } else if (typeof globalWindow.ChatRoomSendLocal === "function") {
-        globalWindow.ChatRoomSendLocal(formattedMsg);
+    if (typeof getOOCRanges === "function") {
+      const ranges: { start: number; length: number }[] = getOOCRanges(message);
+      if (ranges.length > 0) {
+        let result = "";
+        let lastIndex = 0;
+        for (const range of ranges) {
+          // Replace brackets only OUTSIDE of OOC blocks
+          const nonOoc = message
+            .slice(lastIndex, range.start)
+            .replace(/\(/g, "❪")
+            .replace(/\)/g, "❫");
+          const ooc = message.slice(range.start, range.start + range.length);
+          result += nonOoc + ooc;
+          lastIndex = range.start + range.length;
+        }
+        result += message
+          .slice(lastIndex)
+          .replace(/\(/g, "❪")
+          .replace(/\)/g, "❫");
+        formattedMsg = result;
+      } else {
+        formattedMsg = message.replace(/\(/g, "❪").replace(/\)/g, "❫");
       }
-      return true;
     } else {
-      formattedMsg = `+: ${formattedMsg}`;
-
-      const isMapActive =
-        typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
-        globalWindow.ChatRoomMapViewIsActive();
-      const inRange =
-        typeof globalWindow.ChatRoomMapViewCharacterOnWhisperRange ===
-        "function"
-          ? globalWindow.ChatRoomMapViewCharacterOnWhisperRange(targetMember)
-          : true;
-
-      if (isMapActive && !inRange && formattedMsg[0] !== "(") {
-        const hasUrl = /https?:\/\/[^\s]+/.test(formattedMsg);
-        formattedMsg = `(${formattedMsg}${hasUrl ? " " : ""})`;
+      // Fallback: If entire message starts with '(' and ends with ')', don't swap them
+      const trimmed = message.trim();
+      if (!(trimmed.startsWith("(") && trimmed.endsWith(")"))) {
+        formattedMsg = message.replace(/\(/g, "❪").replace(/\)/g, "❫");
       }
-
-      if (
-        typeof globalWindow.ChatRoomGenerateChatRoomChatMessage !== "function"
-      ) {
-        return false;
-      }
-
-      const data = globalWindow.ChatRoomGenerateChatRoomChatMessage(
-        "Whisper",
-        formattedMsg,
-      );
-      if (!data) {
-        return false;
-      }
-
-      data.Target = targetMember.MemberNumber;
-      const serverData = { ...data, Type: "Whisper" };
-
-      if (typeof globalWindow.ServerSend === "function") {
-        globalWindow.ServerSend("ChatRoomChat", serverData);
-      }
-
-      data.Sender = player?.MemberNumber;
-      if (typeof globalWindow.ChatRoomMessage === "function") {
-        globalWindow.ChatRoomMessage(data);
-      }
-
-      return true;
     }
+
+    formattedMsg = `+: ${formattedMsg}`;
+
+    const isMapActive =
+      typeof globalWindow.ChatRoomMapViewIsActive === "function" &&
+      globalWindow.ChatRoomMapViewIsActive();
+    const inRange =
+      typeof globalWindow.ChatRoomMapViewCharacterOnWhisperRange === "function"
+        ? globalWindow.ChatRoomMapViewCharacterOnWhisperRange(targetMember)
+        : true;
+
+    if (isMapActive && !inRange && formattedMsg[0] !== "(") {
+      const hasUrl = /https?:\/\/[^\s]+/.test(formattedMsg);
+      formattedMsg = `(${formattedMsg}${hasUrl ? " " : ""})`;
+    }
+
+    if (
+      typeof globalWindow.ChatRoomGenerateChatRoomChatMessage !== "function"
+    ) {
+      return false;
+    }
+
+    const data = globalWindow.ChatRoomGenerateChatRoomChatMessage(
+      "Whisper",
+      formattedMsg,
+    );
+    if (!data) {
+      return false;
+    }
+
+    data.Target = targetMember.MemberNumber;
+    const serverData = { ...data, Type: "Whisper" };
+
+    if (typeof globalWindow.ServerSend === "function") {
+      globalWindow.ServerSend("ChatRoomChat", serverData);
+    }
+
+    data.Sender = player?.MemberNumber;
+    if (typeof globalWindow.ChatRoomMessage === "function") {
+      globalWindow.ChatRoomMessage(data);
+    }
+
+    return true;
   }
 
   /**
