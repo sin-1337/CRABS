@@ -962,23 +962,45 @@ export class Roster extends CRABS_Base {
   }
 
   /**
-   * Hooks into friend list response routines to cache online friend counts.
+   * Hooks into account query responses and native friend list loading to accurately
+   * capture and cache the online friend count from the server without relying on
+   * the user opening the specific friend list screen.
    *
    * @private
    * @returns {void}
    */
   private loadFriendList(): void {
+    // Hook the background server query response triggered by requestOnlineFriends()
+    this.safeHook(
+      "ServerAccountQueryResult",
+      0,
+      (args: any, next: Function) => {
+        const data = args[0];
+
+        // Validate the payload structure: { Query: "OnlineFriends", Result: [...] }
+        if (data?.Query === "OnlineFriends" && Array.isArray(data?.Result)) {
+          this.onlineFriendsCache = data.Result.length;
+          this.isDirty = true;
+          this.isFetching = false;
+        }
+
+        return next(args);
+      },
+    );
+
+    // Fallback: Catch if the player manually opens the native friend list screen
     this.safeHook(
       "FriendListLoadFriendList",
       0,
       (args: any, next: Function) => {
         const friendData = args[0];
 
+        // In the native screen, the array is passed directly as the first argument
         if (Array.isArray(friendData)) {
           this.onlineFriendsCache = friendData.length;
           this.isDirty = true;
+          this.isFetching = false;
         }
-        this.isFetching = false;
 
         return next(args);
       },
