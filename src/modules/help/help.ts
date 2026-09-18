@@ -1,17 +1,3 @@
-/**
- * CRABS Help Module
- *
- * This module implements the help system for the CRABS mod.
- * It provides:
- * - Help command functionality
- * - Help template rendering
- * - Documentation display for mod features
- * - Integration with the CRABS base class and asset system
- *
- * The help module makes it easy for users to access information about
- * the CRABS mod's features and commands.
- */
-
 import { CRABS_Base, Drawer } from "../base";
 import { Assets } from "../base";
 import { CrossMod } from "../crossmod/crossmod";
@@ -26,11 +12,6 @@ import locales from "./i18n.json";
  * @extends CRABS_Base
  */
 export class Help extends CRABS_Base {
-  /**
-   * Initializes the Help module and registers its localization dictionary.
-   *
-   * @param {ModSDKModAPI} CRABS - The ModSDK API instance.
-   */
   constructor(CRABS: ModSDKModAPI) {
     super(CRABS, "help", locales);
     Drawer.registerView({
@@ -42,17 +23,17 @@ export class Help extends CRABS_Base {
     });
   }
 
-  /**
-   * Generates and compiles the HTML documentation view.
-   *
-   * @param {boolean} [wrapper=true] - Whether to surround the output with the main mod window wrapper.
-   * @returns {string} The processed HTML string for the help interface.
-   */
   public showHelp(wrapper: boolean = true): string {
     const iconSettings = Assets.printimage({
       key: "settings",
       css_class_override: "CRABS_help_icon_small",
     });
+
+    const isBCTweaksActive = CrossMod.detectMod("BCTweaks");
+    const isAFCActive = CrossMod.detectMod("AbundantiaFlorumChromatica");
+    const isWCEActive = CrossMod.isWCEInstalled();
+    const isBCXActive =
+      CrossMod.detectMod("BCX") || (window as any).bcx != null;
 
     const templateVariables: Record<string, string> = {
       Help_Title:
@@ -60,6 +41,22 @@ export class Help extends CRABS_Base {
         ` ${this.t("header.documentation_title")}`,
       Branch: __BRANCH__,
       Logo: Assets.printimage({ key: "logo" }),
+
+      // Badges
+      Badge_Admin: Assets.printimage({
+        key: "admin",
+        css_class_override: "CRABS_help_icon_small",
+      }),
+      Badge_VIP: Assets.printimage({
+        key: "vip",
+        css_class_override: "CRABS_help_icon_small",
+      }),
+      Badge_Player: Assets.printimage({
+        key: "player",
+        css_class_override: "CRABS_help_icon_small",
+      }),
+
+      // Relational Icons
       Icon_You: Assets.printimage({
         key: "you",
         css_class_override: "CRABS_help_icon_small",
@@ -80,22 +77,10 @@ export class Help extends CRABS_Base {
         key: "lover",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Icon_LoverExtended: CrossMod.detectMod("AbundantiaFlorumChromatica")
-        ? Assets.printimage({
-            key: "lover_extended",
-            css_class_override: "CRABS_help_icon_small",
-          })
-        : `<i>(${this.t("general.not_applicable")})</i>`,
       Icon_Family: Assets.printimage({
         key: "family",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Icon_BestFriend: CrossMod.detectMod("BCTweaks")
-        ? Assets.printimage({
-            key: "bestfriend",
-            css_class_override: "CRABS_help_icon_small",
-          })
-        : `<i>(${this.t("general.not_applicable")})</i>`,
       Icon_Friend: Assets.printimage({
         key: "friend",
         css_class_override: "CRABS_help_icon_small",
@@ -112,18 +97,21 @@ export class Help extends CRABS_Base {
         key: "ghost",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Badge_Admin: Assets.printimage({
-        key: "admin",
+
+      // Integration Specific Icons & Statuses
+      Icon_BestFriend: Assets.printimage({
+        key: "bestfriend",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Badge_VIP: Assets.printimage({
-        key: "vip",
+      Icon_LoverExtended: Assets.printimage({
+        key: "lover_extended",
         css_class_override: "CRABS_help_icon_small",
       }),
-      Badge_Player: Assets.printimage({
-        key: "player",
-        css_class_override: "CRABS_help_icon_small",
-      }),
+      Status_BCTweaks: isBCTweaksActive ? "active" : "inactive",
+      Status_AFC: isAFCActive ? "active" : "inactive",
+      Status_WCE: isWCEActive ? "active" : "inactive",
+      Status_BCX: isBCXActive ? "active" : "inactive",
+
       Settings_Intro: this.t("settings_guide.intro", {
         icon: iconSettings,
       }),

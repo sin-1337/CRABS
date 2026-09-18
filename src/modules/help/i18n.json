@@ -48,9 +48,47 @@
             "ru": "Закрыть помощь",
             "tw": "關閉說明",
             "uk": "Закрити допомогу"
+        },
+        "back_to_top": {
+            "en": "Top",
+            "cn": "返回顶部",
+            "de": "Nach oben",
+            "fr": "Haut de page",
+            "ru": "Наверх",
+            "tw": "返回頂部",
+            "uk": "Вгору"
+        }
+    },
+    "integrations": {
+        "wce_desc": {
+            "en": "Profile access & rich info integration",
+            "cn": "资料查看与增强信息联动",
+            "de": "Profilzugriff & erweiterte Infos",
+            "fr": "Accès au profil et infos enrichies",
+            "ru": "Доступ к профилю и расширенная информация",
+            "tw": "資料檢視與增強資訊聯動",
+            "uk": "Доступ до профілю та розширена інформація"
+        },
+        "bcx_desc": {
+            "en": "Speech & blindness rules enforcement",
+            "cn": "强制执行言语与失明规则",
+            "de": "Erzwingung von Sprach- und Blindheitsregeln",
+            "fr": "Application des règles de parole et de cécité",
+            "ru": "Соблюдение правил речи и слепоты",
+            "tw": "強制執行言語與失明規則",
+            "uk": "Дотримання правил мови та сліпоти"
         }
     },
     "sections": {
+        "integrations": {
+            "en": "Integrations",
+            "cn": "模组联动",
+            "de": "Integrationen",
+            "fr": "Intégrations",
+            "ru": "Интеграции",
+            "tw": "模組聯動",
+            "uk": "Інтеграції"
+        },
         "key_features": {
             "en": "Key Features",
             "cn": "主要功能",

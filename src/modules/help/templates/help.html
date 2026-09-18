@@ -1,4 +1,4 @@
-<div class="CRABS_help_container">
+<div class="CRABS_help_container" id="crabs_help_top">
   <div class="CRABS_help_title_container">
     {{Logo}}
     <div class="CRABS_help_title">{{Help_Title}}</div>
@@ -6,9 +6,21 @@
       <a href="https://github.com/sin-1337/CRABS/blob/{{Branch}}/changelog.md" target="_blank" class="CRABS_changelog_link">{{t:header.view_changelog}}</a>
     </div>
   </div>
-  <!-- Key Features Grid -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.key_features}}</div>
+  <!-- Table of Contents -->
+  <nav class="CRABS_help_toc">
+    <a href="#crabs_help_features" class="CRABS_toc_chip">{{t:sections.key_features}}</a>
+    <a href="#crabs_help_status" class="CRABS_toc_chip">{{t:sections.status_badges}}</a>
+    <a href="#crabs_help_relations" class="CRABS_toc_chip">{{t:sections.relational_icons}}</a>
+    <a href="#crabs_help_integrations" class="CRABS_toc_chip">{{t:sections.integrations}}</a>
+    <a href="#crabs_help_commands" class="CRABS_toc_chip">{{t:sections.core_commands}}</a>
+    <a href="#crabs_help_interactions" class="CRABS_toc_chip">{{t:sections.interactions}}</a>
+    <a href="#crabs_help_settings" class="CRABS_toc_chip">{{t:sections.settings_overview}}</a>
+  </nav>
+  <!-- Key Features Grid (Hidden: directly below TOC) -->
+  <div id="crabs_help_features" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.key_features}}</span>
+    </div>
     <div class="CRABS_feature_grid">
       <div class="CRABS_feature_card">
         <div class="CRABS_feature_title">{{t:features.drawer_title}}</div>
@@ -60,27 +72,12 @@
       </div>
     </div>
   </div>
-  <!-- Relational Icons -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.relational_icons}}</div>
-    <div class="CRABS_help_grid">
-      <div class="CRABS_help_item">{{Icon_You}} {{t:relations.you}}</div>
-      <div class="CRABS_help_item">{{Icon_Owner}} {{t:relations.owner}}</div>
-      <div class="CRABS_help_item">{{Icon_Sub}} {{t:relations.sub}}</div>
-      <div class="CRABS_help_item">{{Icon_Trial}} {{t:relations.trial}}</div>
-      <div class="CRABS_help_item">{{Icon_Lover}} {{t:relations.lover}}</div>
-      <div class="CRABS_help_item">{{Icon_LoverExtended}} {{t:relations.lover_extended}}</div>
-      <div class="CRABS_help_item">{{Icon_Family}} {{t:relations.family}}</div>
-      <div class="CRABS_help_item">{{Icon_BestFriend}} {{t:relations.bestfriend}}</div>
-      <div class="CRABS_help_item">{{Icon_Friend}} {{t:relations.friend}}</div>
-      <div class="CRABS_help_item">{{Icon_Whitelist}} {{t:relations.whitelist}}</div>
-      <div class="CRABS_help_item">{{Icon_Blacklist}} {{t:relations.blacklist}}</div>
-      <div class="CRABS_help_item">{{Icon_Ghost}} {{t:relations.ghost}}</div>
-    </div>
-  </div>
   <!-- Status & Badges -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.status_badges}}</div>
+  <div id="crabs_help_status" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.status_badges}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
     <div class="CRABS_help_grid">
       <div class="CRABS_help_item">{{Badge_Admin}} {{t:badges.admin}}</div>
       <div class="CRABS_help_item">{{Badge_VIP}} {{t:badges.vip}}</div>
@@ -90,9 +87,78 @@
       {{t:status.indicators_desc}}
     </div>
   </div>
+  <!-- Relational Icons -->
+  <div id="crabs_help_relations" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.relational_icons}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
+    <div class="CRABS_help_grid">
+      <div class="CRABS_help_item">{{Icon_You}} {{t:relations.you}}</div>
+      <div class="CRABS_help_item">{{Icon_Owner}} {{t:relations.owner}}</div>
+      <div class="CRABS_help_item">{{Icon_Sub}} {{t:relations.sub}}</div>
+      <div class="CRABS_help_item">{{Icon_Trial}} {{t:relations.trial}}</div>
+      <div class="CRABS_help_item">{{Icon_Lover}} {{t:relations.lover}}</div>
+      <div class="CRABS_help_item">{{Icon_Family}} {{t:relations.family}}</div>
+      <div class="CRABS_help_item">{{Icon_Friend}} {{t:relations.friend}}</div>
+      <div class="CRABS_help_item">{{Icon_Whitelist}} {{t:relations.whitelist}}</div>
+      <div class="CRABS_help_item">{{Icon_Blacklist}} {{t:relations.blacklist}}</div>
+      <div class="CRABS_help_item">{{Icon_Ghost}} {{t:relations.ghost}}</div>
+    </div>
+  </div>
+  <!-- Integrations Section -->
+  <div id="crabs_help_integrations" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.integrations}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
+    <div class="CRABS_integration_list">
+      <div class="CRABS_integration_item">
+        <div class="CRABS_integration_lead">
+          <span class="CRABS_mod_indicator {{Status_BCTweaks}}"></span>
+          <span class="CRABS_mod_name">BCTweaks</span>
+        </div>
+        <div class="CRABS_integration_detail">
+          {{Icon_BestFriend}}
+          <span>{{t:relations.bestfriend}}</span>
+        </div>
+      </div>
+      <div class="CRABS_integration_item">
+        <div class="CRABS_integration_lead">
+          <span class="CRABS_mod_indicator {{Status_AFC}}"></span>
+          <span class="CRABS_mod_name">AFC</span>
+        </div>
+        <div class="CRABS_integration_detail">
+          {{Icon_LoverExtended}}
+          <span>{{t:relations.lover_extended}}</span>
+        </div>
+      </div>
+      <div class="CRABS_integration_item">
+        <div class="CRABS_integration_lead">
+          <span class="CRABS_mod_indicator {{Status_WCE}}"></span>
+          <span class="CRABS_mod_name">WCE</span>
+        </div>
+        <div class="CRABS_integration_detail">
+          <span class="CRABS_help_description">{{t:integrations.wce_desc}}</span>
+        </div>
+      </div>
+      <div class="CRABS_integration_item">
+        <div class="CRABS_integration_lead">
+          <span class="CRABS_mod_indicator {{Status_BCX}}"></span>
+          <span class="CRABS_mod_name">BCX</span>
+        </div>
+        <div class="CRABS_integration_detail">
+          <span class="CRABS_help_description">{{t:integrations.bcx_desc}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- Core Commands -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.core_commands}}</div>
+  <div id="crabs_help_commands" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.core_commands}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
     <div class="CRABS_help_feature">
       <span class="CRABS_help_command">/crabs [subcommand]</span>
       <div class="CRABS_help_description">
@@ -120,9 +186,12 @@
       </div>
     </div>
   </div>
-  <!-- Interactions & Gestures (Moved below Core Commands) -->
-  <div class="CRABS_help_section">
-    <div class="CRABS_help_header">{{t:sections.interactions}}</div>
+  <!-- Interactions & Navigation -->
+  <div id="crabs_help_interactions" class="CRABS_help_section">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.interactions}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
     <ul class="CRABS_help_list">
       <li>{{t:interactions.click_badge}}</li>
       <li>{{t:interactions.click_name}}</li>
@@ -137,8 +206,11 @@
     </ul>
   </div>
   <!-- Settings Detailed Overview -->
-  <div class="CRABS_help_section" style="border-bottom: none;">
-    <div class="CRABS_help_header">{{t:sections.settings_overview}}</div>
+  <div id="crabs_help_settings" class="CRABS_help_section" style="border-bottom: none;">
+    <div class="CRABS_help_header">
+      <span>{{t:sections.settings_overview}}</span>
+      <a href="#crabs_help_top" class="CRABS_help_back_to_top" title="{{t:controls.back_to_top}}">▲ {{t:controls.back_to_top}}</a>
+    </div>
     <div class="CRABS_help_description" style="margin-bottom: 1rem;">
       {{Settings_Intro}}
     </div>
