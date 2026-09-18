@@ -19,8 +19,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
-const BUILD_VERSION = "3.0.0.129";
-const BUILD_BRANCH = "Beta";
+const BUILD_VERSION = "3.0.0.130";
+const BUILD_BRANCH = "Alpha";
 
 // Dynamic target resolution for test mode
 const targetBranch = process.env.OUT_DIR ? "Test" : BUILD_BRANCH;
