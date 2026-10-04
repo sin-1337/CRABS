@@ -6,6 +6,8 @@
 // @author Sin
 // @match https://bondageprojects.elementfx.com/*
 // @match https://www.bondageprojects.elementfx.com/*
+// @match https://bondageeurope.com/*
+// @match https://www.bondageeurope.com/*
 // @match https://bondage-europe.com/*
 // @match https://www.bondage-europe.com/*
 // @match https://www.bondageprojects.com/*
@@ -15,14 +17,11 @@
 // @run-at document-end
 // ==/UserScript==
 
-
-
-
 (function () {
-	'use strict';
-	var script = document.createElement("script");
-	script.langauge = "JavaScript";
-	script.setAttribute("crossorigin", "anonymous");
-	script.src = `https://sin-1337.github.io/CRABS/Alpha/bundle.js?${Date.now()}`;
-	document.head.appendChild(script);
+  "use strict";
+  var script = document.createElement("script");
+  script.langauge = "JavaScript";
+  script.setAttribute("crossorigin", "anonymous");
+  script.src = `https://sin-1337.github.io/CRABS/Alpha/bundle.js?${Date.now()}`;
+  document.head.appendChild(script);
 })();
