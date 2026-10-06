@@ -1,73 +1,109 @@
 {
-  "header": {
-    "title_default": {
-      "en": "Banner",
-      "cn": "横幅",
-      "de": "Banner",
-      "fr": "Bannière",
-      "ru": "Баннер",
-      "tw": "橫幅",
-      "uk": "Банер"
-    }
-  },
-  "controls": {
-    "close_dialog": {
-      "en": "Close Banner",
-      "cn": "关闭横幅",
-      "de": "Banner schließen",
-      "fr": "Fermer la bannière",
-      "ru": "Закрыть баннер",
-      "tw": "關閉橫幅",
-      "uk": "Закрити банер"
-    }
-  },
-  "permissions": {
-    "fallback_option": {
-      "en": "Permission {index}",
-      "cn": "权限 {index}",
-      "de": "Berechtigung {index}",
-      "fr": "Permission {index}",
-      "ru": "Разрешение {index}",
-      "tw": "權限 {index}",
-      "uk": "Дозвіл {index}"
-    }
-  },
-  "labels": {
-    "item_permission": {
-      "en": "Item Permission",
-      "cn": "物品权限",
-      "de": "Objektberechtigung",
-      "fr": "Permission de l'objet",
-      "ru": "Разрешение предмета",
-      "tw": "物品權限",
-      "uk": "Дозвіл предмета"
+    "header": {
+        "title_default": {
+            "en": "Banner",
+            "cn": "横幅",
+            "de": "Banner",
+            "fr": "Bannière",
+            "ru": "Баннер",
+            "tw": "橫幅",
+            "uk": "Банер"
+        },
+        "tooltip_admins": {
+            "en": "Administrators (Present / Total)",
+            "cn": "管理员（在场 / 总计）",
+            "de": "Administratoren (Anwesend / Gesamt)",
+            "fr": "Administrateurs (Présents / Total)",
+            "ru": "Администраторы (В комнате / Всего)",
+            "tw": "管理員（在場 / 總計）",
+            "uk": "Адміністратори (У кімнаті / Всього)"
+        },
+        "tooltip_players": {
+            "en": "Room Occupancy (Present / Capacity)",
+            "cn": "房间人数（在场 / 容量）",
+            "de": "Raumbelegung (Anwesend / Kapazität)",
+            "fr": "Occupation de la salle (Présents / Capacité)",
+            "ru": "Игроки в комнате (В комнате / Вместимость)",
+            "tw": "房間人數（在場 / 容量）",
+            "uk": "Гравці в кімнаті (У кімнаті / Місткість)"
+        },
+        "tooltip_friends": {
+            "en": "Friends Online (Online / Total)",
+            "cn": "在线好友（在线 / 总计）",
+            "de": "Freunde online (Online / Gesamt)",
+            "fr": "Amis en ligne (En ligne / Total)",
+            "ru": "Друзья онлайн (В сети / Всего)",
+            "tw": "在線好友（在線 / 總計）",
+            "uk": "Друзі онлайн (В мережі / Всього)"
+        },
+        "tooltip_online": {
+            "en": "Total Players Online",
+            "cn": "全服在线玩家",
+            "de": "Gesamte Spieler online",
+            "fr": "Total de joueurs en ligne",
+            "ru": "Всего игроков онлайн",
+            "tw": "全服在線玩家",
+            "uk": "Всього гравців онлайн"
+        }
     },
-    "room": {
-      "en": "Room",
-      "cn": "房间",
-      "de": "Raum",
-      "fr": "Salle",
-      "ru": "Комната",
-      "tw": "房間",
-      "uk": "Кімната"
+    "controls": {
+        "close_dialog": {
+            "en": "Close Banner",
+            "cn": "关闭横幅",
+            "de": "Banner schließen",
+            "fr": "Fermer la bannière",
+            "ru": "Закрыть баннер",
+            "tw": "關閉橫幅",
+            "uk": "Закрити банер"
+        }
     },
-    "roster_hint_prefix": {
-      "en": "Use",
-      "cn": "使用",
-      "de": "Verwende",
-      "fr": "Utilisez",
-      "ru": "Используйте",
-      "tw": "使用",
-      "uk": "Використовуйте"
+    "permissions": {
+        "fallback_option": {
+            "en": "Permission {index}",
+            "cn": "权限 {index}",
+            "de": "Berechtigung {index}",
+            "fr": "Permission {index}",
+            "ru": "Разрешение {index}",
+            "tw": "權限 {index}",
+            "uk": "Дозвіл {index}"
+        }
     },
-    "roster_hint_suffix": {
-      "en": "to see the full output",
-      "cn": "查看完整输出",
-      "de": "um die vollständige Ausgabe zu sehen",
-      "fr": "pour voir l'affichage complet",
-      "ru": "чтобы увидеть полный вывод",
-      "tw": "查看完整輸出",
-      "uk": "щоб побачити повний вивід"
+    "labels": {
+        "item_permission": {
+            "en": "Item Permission",
+            "cn": "物品权限",
+            "de": "Objektberechtigung",
+            "fr": "Permission de l'objet",
+            "ru": "Разрешение предмета",
+            "tw": "物品權限",
+            "uk": "Дозвіл предмета"
+        },
+        "room": {
+            "en": "Room",
+            "cn": "房间",
+            "de": "Raum",
+            "fr": "Salle",
+            "ru": "Комната",
+            "tw": "房間",
+            "uk": "Кімната"
+        },
+        "roster_hint_prefix": {
+            "en": "Use",
+            "cn": "使用",
+            "de": "Verwende",
+            "fr": "Utilisez",
+            "ru": "Используйте",
+            "tw": "使用",
+            "uk": "Використовуйте"
+        },
+        "roster_hint_suffix": {
+            "en": "to see the full output",
+            "cn": "查看完整输出",
+            "de": "um die vollständige Ausgabe zu sehen",
+            "fr": "pour voir l'affichage complet",
+            "ru": "чтобы увидеть полный вывод",
+            "tw": "查看完整輸出",
+            "uk": "щоб побачити повний вивід"
+        }
     }
-  }
 }

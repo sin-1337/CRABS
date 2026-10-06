@@ -158,7 +158,7 @@ export function translate(
     entry = resolveKey(translations["base"], parts);
   }
 
-  // 🔴 DEBUG CHECK
+  // DEBUG CHECK
   if (!entry) {
     console.warn(
       `[CRABS i18n MISS] Key: "${key}", Namespace: "${namespace}", subPath:`,
