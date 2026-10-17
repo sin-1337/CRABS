@@ -91,15 +91,24 @@ export class WhisperPlus extends CRABS_Base {
         try {
           const command = functionArguments[0];
 
-          if (
-            Settings.instance?.data?.whisperPlusAlwaysOn &&
-            typeof command === "string" &&
-            /^\/(whisper|w)\s+/i.test(command)
-          ) {
-            functionArguments[0] = command.replace(
-              /^\/(whisper|w)\s+/i,
-              "/whisper+ ",
-            );
+          if (typeof command === "string") {
+            // Always normalize /w+ to /whisper+
+            if (/^\/w\+\s+/i.test(command)) {
+              functionArguments[0] = command.replace(
+                /^\/w\+\s+/i,
+                "/whisper+ ",
+              );
+            }
+            // Normalize standard whispers if Always On is enabled
+            else if (
+              Settings.instance?.data?.whisperPlusAlwaysOn &&
+              /^\/(whisper|w)\s+/i.test(command)
+            ) {
+              functionArguments[0] = command.replace(
+                /^\/(whisper|w)\s+/i,
+                "/whisper+ ",
+              );
+            }
           }
         } catch (err) {
           console.error("[CRABS] CommandParse hook error:", err);
@@ -344,16 +353,18 @@ export class WhisperPlus extends CRABS_Base {
     message: string;
     error?: string;
   } {
-    // Prioritize the second argument 'command' because base game CommandParse lowercases 'commandArguments'
-    let raw = "";
-    if (typeof command === "string" && command) {
-      const match = command.match(/^\/\S+\s+(.+)$/s);
-      if (match) {
-        raw = match[1].trim();
-      }
-    }
+    // 1. Get the un-mutated raw input string
+    const chatInput = document.getElementById(
+      "InputChat",
+    ) as HTMLTextAreaElement | null;
+    let fullRawLine =
+      typeof command === "string" && command ? command : chatInput?.value || "";
 
-    // Fallback to commandArguments if command was not provided
+    // Strip leading command identifier (/whisper+, /w+, /whisper, /w)
+    let raw = fullRawLine
+      .replace(/^\/(whisper\+|w\+|whisper|w)\s+/i, "")
+      .trim();
+
     if (!raw) {
       raw = (commandArguments || "").trim();
     }
@@ -370,7 +381,7 @@ export class WhisperPlus extends CRABS_Base {
     const characters: any[] = (window as any).ChatRoomCharacter || [];
 
     // Case 1: First token is an explicit numeric Member Number
-    const firstSpaceIndex = raw.indexOf(" ");
+    const firstSpaceIndex = raw.search(/\s/);
     const firstToken =
       firstSpaceIndex === -1 ? raw : raw.slice(0, firstSpaceIndex);
 
@@ -399,7 +410,7 @@ export class WhisperPlus extends CRABS_Base {
       );
     };
 
-    // Greedy search: try longest combinations of tokens first to support multi-word names
+    // Greedy search: try longest token combos first to support multi-word names
     for (let i = tokens.length; i >= 1; i--) {
       const candidateName = tokens.slice(0, i).join(" ");
       const matches = findMatches(candidateName);
@@ -421,15 +432,16 @@ export class WhisperPlus extends CRABS_Base {
     }
 
     if (matchedChar) {
-      // Reconstruct remaining message starting past the matched name tokens, preserving original casing
-      const candidateTokens = tokens.slice(0, matchedTokenCount);
-      // Case-insensitive boundary match to find where the player name ends in 'raw'
-      const pattern = new RegExp(
-        `^\\s*${candidateTokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+")}\\s*`,
-        "i",
-      );
-      const match = raw.match(pattern);
-      const message = match ? raw.slice(match[0].length).trim() : "";
+      // Find where the matched name sequence ends in the raw string without relying on regex anchors
+      let index = 0;
+      for (let i = 0; i < matchedTokenCount; i++) {
+        const token = tokens[i];
+        const found = raw.indexOf(token, index);
+        if (found !== -1) {
+          index = found + token.length;
+        }
+      }
+      const message = raw.slice(index).trim();
 
       return {
         targetCharacter: matchedChar,
