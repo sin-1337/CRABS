@@ -328,16 +328,10 @@ export class WhisperPlus extends CRABS_Base {
 
   /**
    * Resolves the whisper target and remaining message body.
-   * Supports target resolution by:
-   * - Explicit Member Number
-   * - Player Name (case-insensitive, greedy multi-word matching)
-   * - Player Nickname (case-insensitive, greedy multi-word matching)
+   * Prioritizes the un-lowercased full command line string to preserve message casing.
    *
-   * Guarantees ambiguity safety: if multiple room occupants share a name/nickname,
-   * targeting fails with a distinct error prompting member number usage.
-   *
-   * @param {string} commandArguments - Raw arguments string passed to the command.
-   * @param {string} command - Full command line string.
+   * @param {string} commandArguments - Raw arguments string (lowercased by base game).
+   * @param {string} command - Full command line string preserving original casing.
    * @returns {{ targetCharacter: any | null; memberNumber: number; message: string; error?: string }}
    * @private
    */
@@ -350,14 +344,18 @@ export class WhisperPlus extends CRABS_Base {
     message: string;
     error?: string;
   } {
-    let raw = (commandArguments || "").trim();
-
-    // Fallback parsing from full command string if commandArguments was empty
-    if (!raw && command) {
+    // Prioritize the second argument 'command' because base game CommandParse lowercases 'commandArguments'
+    let raw = "";
+    if (typeof command === "string" && command) {
       const match = command.match(/^\/\S+\s+(.+)$/s);
       if (match) {
         raw = match[1].trim();
       }
+    }
+
+    // Fallback to commandArguments if command was not provided
+    if (!raw) {
+      raw = (commandArguments || "").trim();
     }
 
     if (!raw) {
@@ -423,13 +421,15 @@ export class WhisperPlus extends CRABS_Base {
     }
 
     if (matchedChar) {
-      // Reconstruct remaining message starting past the matched name tokens
-      const candidateName = tokens.slice(0, matchedTokenCount).join(" ");
-      const matchIndex = raw.indexOf(candidateName);
-      const message =
-        matchIndex !== -1
-          ? raw.slice(matchIndex + candidateName.length).trim()
-          : "";
+      // Reconstruct remaining message starting past the matched name tokens, preserving original casing
+      const candidateTokens = tokens.slice(0, matchedTokenCount);
+      // Case-insensitive boundary match to find where the player name ends in 'raw'
+      const pattern = new RegExp(
+        `^\\s*${candidateTokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+")}\\s*`,
+        "i",
+      );
+      const match = raw.match(pattern);
+      const message = match ? raw.slice(match[0].length).trim() : "";
 
       return {
         targetCharacter: matchedChar,
