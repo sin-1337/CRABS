@@ -19,15 +19,17 @@ const packageJson = require("./package.json");
 const BUILD_VERSION = "2.1.4.160";
 const BUILD_BRANCH = "Stable";
 
+const outDir = process.env.OUT_DIR || `../Live/CRABS/${BUILD_BRANCH}`;
+
 export default {
-	input: "src/main.ts",
-	output: {
-		name: "CRABS",
-		// Dynamically outputs to the correct folder!
-		file: `../Live/CRABS/${BUILD_BRANCH}/bundle.js`,
-		format: 'iife',
-		sourcemap: true,
-		banner: `// Crazy Roster Add-on By Sin (v${BUILD_VERSION} ${BUILD_BRANCH})
+  input: "src/main.ts",
+  output: {
+    name: "CRABS",
+    // Dynamically outputs to the correct folder!
+    file: `${outDir}/bundle.js`,
+    format: "iife",
+    sourcemap: true,
+    banner: `// Crazy Roster Add-on By Sin (v${BUILD_VERSION} ${BUILD_BRANCH})
 if (typeof window.ImportBondageCollege !== "function") {
   alert("Club not detected! Please only use this while you have Club open!");
   throw "Dependency not met";
@@ -38,35 +40,39 @@ if (window.CRABS_Loaded !== undefined) {
 }
 window.CRABS_Loaded = false;
 `,
-		plugins: [
-			terser({
-				mangle: false,
-			}),
-		],
-	},
-	treeshake: false,
-	plugins: [
-		replace({
-			preventAssignment: true,
-			values: {
-				__NAME__: JSON.stringify("Crazy Roster Add-on By Sin"),
-				__NICKNAME__: JSON.stringify("CRABS"),
-				__VERSION__: JSON.stringify(BUILD_VERSION),
-				__BRANCH__: JSON.stringify(BUILD_BRANCH),
-			}
-		}),
-		progress({ clearLine: true }),
-		resolve({ browser: true }),
-		json(),
-		postcss({
-			inject: true,      // ✅ Inline <style> tag into output JS
-			minimize: true,    // Optional: Minify CSS
-			sourceMap: false,  // Optional
-		}),
-		string({
-			include: ["**/*.html"],
-		}),
-		typescript({ tsconfig: "./tsconfig.json", inlineSources: true }),
-		commonjs(),
-	],
+    plugins: [
+      terser({
+        mangle: false,
+      }),
+    ],
+  },
+  treeshake: false,
+  plugins: [
+    replace({
+      preventAssignment: true,
+      values: {
+        __NAME__: JSON.stringify("Crazy Roster Add-on By Sin"),
+        __NICKNAME__: JSON.stringify("CRABS"),
+        __VERSION__: JSON.stringify(BUILD_VERSION),
+        __BRANCH__: JSON.stringify(BUILD_BRANCH),
+      },
+    }),
+    progress({ clearLine: true }),
+    resolve({ browser: true }),
+    json(),
+    postcss({
+      inject: true, // ✅ Inline <style> tag into output JS
+      minimize: true, // Optional: Minify CSS
+      sourceMap: false, // Optional
+    }),
+    string({
+      include: ["**/*.html"],
+    }),
+    typescript({
+      tsconfig: "./tsconfig.json",
+      inlineSources: true,
+      outDir: outDir, // Overrides tsconfig.json outDir to match Rollup's target
+    }),
+    commonjs(),
+  ],
 };
