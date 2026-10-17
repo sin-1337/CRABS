@@ -65,6 +65,27 @@ export function setDeferredIndicator(
   deferredIndicator = indicator;
 }
 
+// --- Helpers ---
+
+/**
+ * Safely resolves tile visibility across legacy and R133+ (MapManager) architectures.
+ */
+export function isTileVisible(
+  globalWindow: any,
+  x: number,
+  y: number,
+): boolean {
+  if (globalWindow.MapManager?.Map?.isTileVisible) {
+    return globalWindow.MapManager.Map.isTileVisible(x, y);
+  }
+  if (Array.isArray(globalWindow.ChatRoomMapViewVisibilityMask)) {
+    const width = globalWindow.ChatRoomMapViewWidth || 40;
+    const index = x + y * width;
+    return Boolean(globalWindow.ChatRoomMapViewVisibilityMask[index]);
+  }
+  return true;
+}
+
 // --- Handlers & DOM Sync ---
 
 /**
@@ -376,7 +397,9 @@ export function drawCompass(
   )?.getContext("2d");
   if (!canvasContext) return;
 
-  let arrowX: number, arrowY: number, angle: number;
+  let arrowX: number;
+  let arrowY: number;
+  let angle: number;
   const scale = 0.66;
 
   // Defensive fallback against 0 / NaN range
@@ -384,11 +407,11 @@ export function drawCompass(
   const range = typeof rawRange === "number" && rawRange > 0 ? rawRange : 5;
   const tileW = 1000 / (range * 2 + 1);
 
-  const mapWidth = globalWindow.ChatRoomMapViewWidth || 1;
-  const tileIndex = target.MapData.Pos.X + target.MapData.Pos.Y * mapWidth;
-  const isVisible =
-    globalWindow.ChatRoomMapViewVisibilityMask &&
-    Boolean(globalWindow.ChatRoomMapViewVisibilityMask[tileIndex]);
+  const isVisible = isTileVisible(
+    globalWindow,
+    target.MapData.Pos.X,
+    target.MapData.Pos.Y,
+  );
 
   if (Math.abs(deltaX) <= range && Math.abs(deltaY) <= range && isVisible) {
     angle = Math.PI / 2;
@@ -409,15 +432,24 @@ export function drawCompass(
       poseScale = 0.75;
     }
 
-    const tileTop = (deltaY + range) * tileW;
-    const tileBottom = tileTop + tileW;
-    const headY = tileBottom - tileW * 1.67 * poseScale;
+    // In R133, character rendering begins at Top + ScreenY - (TileHeight * 0.85)
+    // with character height = TileHeight * 1.8
+    const charScreenTopY = (deltaY + range) * tileW - tileW * 0.85;
+    const charFloorY = charScreenTopY + tileW * 1.8;
+    const headY = charFloorY - tileW * 1.8 * poseScale;
 
     arrowY = headY - 20 * scale - 5;
   } else {
-    angle = Math.atan2(deltaY, deltaX);
-    arrowX = 500 + Math.cos(angle) * 450;
-    arrowY = 500 + Math.sin(angle) * 450;
+    // If target tile overlaps player but is invisible or occluded, avoid atan2(0, 0) == 0 (facing right)
+    if (deltaX === 0 && deltaY === 0) {
+      angle = Math.PI / 2;
+      arrowX = 500;
+      arrowY = 500 + 450;
+    } else {
+      angle = Math.atan2(deltaY, deltaX);
+      arrowX = 500 + Math.cos(angle) * 450;
+      arrowY = 500 + Math.sin(angle) * 450;
+    }
   }
 
   const playerColor = target.LabelColor || "cyan";
